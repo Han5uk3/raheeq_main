@@ -1,0 +1,25 @@
+{
+  "@@locale": "en",
+  "appTitle": "Raheeq",
+  "@appTitle": {
+    "description": "The title of the application"
+  },
+  "welcomeMessage": "Welcome to Raheeq!",
+  "@welcomeMessage": {
+    "description": "A welcome message shown on the home screen"
+  },
+  "onboard1_title": "Give with Purpose",
+  "onboard1_subtitle": "Make a meaningful difference by providing water to those who need it most.",
+  "onboard2_title": "Simple. Transparent. Reliable.",
+  "onboard2_subtitle": "Choose where to give, and we’ll handle the rest.",
+  "onboard3_title": "Start Your Journey of Giving",
+  "onboard3_subtitle": "Your small act can serve hundreds and create continuous الخير.",
+  "skip": "SKIP",
+  "continue_btn": "Continue",
+  "start_donating": "Start Donating",
+  "new_to_donate": "New to donate?",
+  "terms_agree_prefix": "By continuing, you agree to our ",
+  "terms_conditions": "Terms & Conditions",
+  "and": " and ",
+  "privacy_policy": "Privacy Policy"
+}

@@ -1,0 +1,19 @@
+{
+  "@@locale": "ar",
+  "appTitle": "رحيق",
+  "welcomeMessage": "مرحباً بك في رحيق!",
+  "onboard1_title": "أعطِ بغرض",
+  "onboard1_subtitle": "اصنع فرقاً حقيقياً بتوفير المياه لمن هم في أمس الحاجة إليها.",
+  "onboard2_title": "بسيط. شفاف. موثوق.",
+  "onboard2_subtitle": "اختر أين تريد أن تعطي، وسنتولى نحن الباقي.",
+  "onboard3_title": "ابدأ رحلة العطاء الخاصة بك",
+  "onboard3_subtitle": "عملك الصغير يمكن أن يخدم المئات ويخلق خيراً مستمراً.",
+  "skip": "تخطي",
+  "continue_btn": "استمرار",
+  "start_donating": "ابدأ التبرع",
+  "new_to_donate": "جديد في التبرع؟",
+  "terms_agree_prefix": "بالاستمرار، أنت توافق على ",
+  "terms_conditions": "الشروط والأحكام",
+  "and": " و ",
+  "privacy_policy": "سياسة الخصوصية"
+}
