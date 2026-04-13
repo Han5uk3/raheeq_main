@@ -1,8 +1,10 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
+import 'package:raheeq_main/pages/authentication/login.dart';
 import '../../main.dart';
 import '../../utils/colors.dart';
+import '../../common_widgets/language_switch.dart';
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -63,7 +65,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  _buildLanguageSwitch(context),
+                  const LanguageSwitchButton(),
 
                   AnimatedOpacity(
                     duration: const Duration(milliseconds: 300),
@@ -159,60 +161,32 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         ),
                       ),
                     ),
-                    secondChild: Column(
-                      children: [
-                        SizedBox(
-                          width: double.infinity,
-                          height: 56,
-                          child: ElevatedButton(
-                            onPressed: () {
-                              // Navigate to "start donating" screen
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.buttonBlue,
-                              foregroundColor: Colors.white,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                              elevation: 0,
-                            ),
-                            child: Text(
-                              AppLocalizations.of(context)!.start_donating,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
+                    secondChild: SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: ElevatedButton(
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => const Login()),
+                          );
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.buttonBlue,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          elevation: 0,
+                        ),
+                        child: Text(
+                          AppLocalizations.of(context)!.start_donating,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                        const SizedBox(height: 12),
-                        SizedBox(
-                          width: double.infinity,
-                          height: 56,
-                          child: OutlinedButton(
-                            onPressed: () {
-                              // Navigate to "new to donate" screen
-                            },
-                            style: OutlinedButton.styleFrom(
-                              side: const BorderSide(
-                                color: Color(0x80000000),
-                                width: 1,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              ),
-                            ),
-                            child: Text(
-                              AppLocalizations.of(context)!.new_to_donate,
-                              style: const TextStyle(
-                                color: Color(0x80000000),
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
                   if (_currentPage == 2) ...[
@@ -357,40 +331,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _buildLanguageSwitch(BuildContext context) {
-    final currentLocale = Localizations.localeOf(context);
-    final isArabic = currentLocale.languageCode == 'ar';
-
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        shape: BoxShape.circle,
-        border: Border.all(color: Colors.grey.shade200),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: GestureDetector(
-        onTap: () {
-          localeNotifier.value = isArabic
-              ? const Locale('en')
-              : const Locale('ar');
-        },
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Text(
-            isArabic ? '🇸🇦' : '🇺🇸',
-            style: const TextStyle(fontSize: 22),
-          ),
-        ),
-      ),
     );
   }
 }

@@ -57,4 +57,26 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get privacy_policy => 'سياسة الخصوصية';
+
+  @override
+  String get login => 'تسجيل الدخول';
+
+  @override
+  String get enter_phone => 'أدخل رقم الهاتف';
+
+  @override
+  String get otp_message =>
+      'أدخل رقم هاتفك للمتابعة.\nسنرسل لك رمز OTP للتحقق.';
+
+  @override
+  String get or => 'أو';
+
+  @override
+  String get google_signin => 'تسجيل الدخول باستخدام Google';
+
+  @override
+  String get apple_signin => 'تسجيل الدخول باستخدام Apple';
+
+  @override
+  String get search => 'بحث';
 }

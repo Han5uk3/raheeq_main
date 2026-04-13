@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 class AppColors {
   static const Color buttonBlue = Color(0xFF1A6A8F);
+  static const Color buttonBlueDark = Color(0xFF11506B);
   static const Color indicatorBlue = Color(0xFF0F274A);
   static const Color indicatorGrey = Color(0xFFE0E0E0);
   static const Color white = Colors.white;

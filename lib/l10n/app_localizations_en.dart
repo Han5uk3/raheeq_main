@@ -58,4 +58,26 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get privacy_policy => 'Privacy Policy';
+
+  @override
+  String get login => 'Login';
+
+  @override
+  String get enter_phone => 'Enter Your Mobile Number';
+
+  @override
+  String get otp_message =>
+      'Enter your mobile number to continue.\nWe will send an OTP for verification.';
+
+  @override
+  String get or => 'or';
+
+  @override
+  String get google_signin => 'Sign in with Google';
+
+  @override
+  String get apple_signin => 'Sign in with Apple';
+
+  @override
+  String get search => 'Search';
 }

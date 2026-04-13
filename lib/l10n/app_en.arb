@@ -21,5 +21,12 @@
   "terms_agree_prefix": "By continuing, you agree to our ",
   "terms_conditions": "Terms & Conditions",
   "and": " and ",
-  "privacy_policy": "Privacy Policy"
+  "privacy_policy": "Privacy Policy",
+   "login": "Login",
+  "enter_phone": "Enter Your Mobile Number",
+  "otp_message": "Enter your mobile number to continue.\nWe will send an OTP for verification.",
+  "or": "or",
+  "google_signin": "Sign in with Google",
+  "apple_signin": "Sign in with Apple",
+  "search": "Search"
 }

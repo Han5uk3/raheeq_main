@@ -1,3 +1,4 @@
+import 'package:country_picker/country_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
@@ -20,6 +21,7 @@ class MainApp extends StatelessWidget {
         return MaterialApp(
           locale: locale,
           localizationsDelegates: const [
+            CountryLocalizations.delegate,
             AppLocalizations.delegate,
             GlobalMaterialLocalizations.delegate,
             GlobalWidgetsLocalizations.delegate,

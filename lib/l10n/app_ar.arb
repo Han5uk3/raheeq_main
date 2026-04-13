@@ -15,5 +15,12 @@
   "terms_agree_prefix": "بالاستمرار، أنت توافق على ",
   "terms_conditions": "الشروط والأحكام",
   "and": " و ",
-  "privacy_policy": "سياسة الخصوصية"
+  "privacy_policy": "سياسة الخصوصية",
+   "login": "تسجيل الدخول",
+  "enter_phone": "أدخل رقم الهاتف",
+  "otp_message": "أدخل رقم هاتفك للمتابعة.\nسنرسل لك رمز OTP للتحقق.",
+  "or": "أو",
+  "google_signin": "تسجيل الدخول باستخدام Google",
+  "apple_signin": "تسجيل الدخول باستخدام Apple",
+  "search": "بحث"
 }

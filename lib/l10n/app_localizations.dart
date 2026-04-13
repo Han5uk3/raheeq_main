@@ -193,6 +193,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Privacy Policy'**
   String get privacy_policy;
+
+  /// No description provided for @login.
+  ///
+  /// In en, this message translates to:
+  /// **'Login'**
+  String get login;
+
+  /// No description provided for @enter_phone.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter Your Mobile Number'**
+  String get enter_phone;
+
+  /// No description provided for @otp_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your mobile number to continue.\nWe will send an OTP for verification.'**
+  String get otp_message;
+
+  /// No description provided for @or.
+  ///
+  /// In en, this message translates to:
+  /// **'or'**
+  String get or;
+
+  /// No description provided for @google_signin.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with Google'**
+  String get google_signin;
+
+  /// No description provided for @apple_signin.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with Apple'**
+  String get apple_signin;
+
+  /// No description provided for @search.
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get search;
 }
 
 class _AppLocalizationsDelegate
