@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import '../main.dart';
 
 class LanguageSwitchButton extends StatelessWidget {
@@ -10,10 +11,11 @@ class LanguageSwitchButton extends StatelessWidget {
     final isArabic = currentLocale.languageCode == 'ar';
 
     return Container(
+      width: 34,
+      height: 34,
       decoration: BoxDecoration(
         color: Colors.white,
         shape: BoxShape.circle,
-        border: Border.all(color: Colors.grey.shade200),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withOpacity(0.05),
@@ -24,15 +26,39 @@ class LanguageSwitchButton extends StatelessWidget {
       ),
       child: GestureDetector(
         onTap: () {
-          localeNotifier.value = isArabic 
-              ? const Locale('en') 
+          localeNotifier.value = isArabic
+              ? const Locale('en')
               : const Locale('ar');
         },
-        child: Padding(
-          padding: const EdgeInsets.all(10),
-          child: Text(
-            isArabic ? '🇸🇦' : '🇺🇸',
-            style: const TextStyle(fontSize: 22),
+        child: CachedNetworkImage(
+          imageUrl: isArabic
+              ? "https://flagcdn.com/w80/sa.png"
+              : "https://flagcdn.com/w80/us.png",
+          imageBuilder: (context, imageProvider) => Container(
+            width: 34,
+            height: 34,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              image: DecorationImage(
+                image: imageProvider,
+                fit: BoxFit.cover,
+              ),
+            ),
+          ),
+          placeholder: (context, url) => const SizedBox(
+            width: 34,
+            height: 34,
+            child: Padding(
+              padding: EdgeInsets.all(8.0),
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ),
+          ),
+          errorWidget: (context, url, error) => Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Text(
+              isArabic ? '🇸🇦' : '🇺🇸',
+              style: const TextStyle(fontSize: 20),
+            ),
           ),
         ),
       ),

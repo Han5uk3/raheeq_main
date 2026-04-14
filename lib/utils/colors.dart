@@ -8,4 +8,5 @@ class AppColors {
   static const Color white = Colors.white;
   static const Color black = Colors.black;
   static const Color grey = Colors.grey;
+  static const Color buttonBlueLight = Color(0xFFF1F9FD);
 }

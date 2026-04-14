@@ -7,6 +7,7 @@ import 'package:raheeq_main/common_widgets/language_switch.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:raheeq_main/pages/authentication/otp.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -29,6 +30,14 @@ class _LoginState extends State<Login> {
     e164Key: '',
   );
 
+  final TextEditingController _phoneController = TextEditingController();
+
+  @override
+  void dispose() {
+    _phoneController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,7 +47,7 @@ class _LoginState extends State<Login> {
         title: Text(
           AppLocalizations.of(context)!.login,
           style: TextStyle(
-            fontSize: 20,
+            fontSize: 16,
             color: Colors.white,
             letterSpacing: 1.5,
             fontWeight: FontWeight.w600,
@@ -202,6 +211,7 @@ class _LoginState extends State<Login> {
                               const SizedBox(width: 12),
                               Expanded(
                                 child: TextField(
+                                  controller: _phoneController,
                                   keyboardType: TextInputType.phone,
                                   inputFormatters: [
                                     FilteringTextInputFormatter.digitsOnly,
@@ -237,7 +247,33 @@ class _LoginState extends State<Login> {
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: () {},
+                            onPressed: () {
+                              if (_phoneController.text.trim().isEmpty) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      AppLocalizations.of(context)!.enter_phone,
+                                    ),
+                                    backgroundColor: Colors.redAccent,
+                                    behavior: SnackBarBehavior.floating,
+                                    margin: const EdgeInsets.all(24),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(15),
+                                    ),
+                                  ),
+                                );
+                                return;
+                              }
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => OTP(
+                                    phoneNumber:
+                                        "+${_selectedCountry.phoneCode} ${_phoneController.text}",
+                                  ),
+                                ),
+                              );
+                            },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.buttonBlueDark,
                               foregroundColor: Colors.white,
