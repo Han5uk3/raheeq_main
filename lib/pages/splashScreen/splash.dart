@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../onboard/onboaring.dart';
+import '../authentication/login.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -28,11 +28,11 @@ class _SplashScreenState extends State<SplashScreen>
 
     _controller.forward();
 
-    // Navigate to OnboardingScreen after 3 seconds
+    // Navigate to Login after 3 seconds
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const OnboardingScreen()),
+          MaterialPageRoute(builder: (context) => const Login()),
         );
       }
     });
