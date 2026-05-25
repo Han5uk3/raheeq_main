@@ -1,10 +1,10 @@
 {
   "@@locale": "en",
-  "appTitle": "Raheeq",
+  "appTitle": "Rahiq",
   "@appTitle": {
     "description": "The title of the application"
   },
-  "welcomeMessage": "Welcome to Raheeq!",
+  "welcomeMessage": "Welcome to Rahiq!",
   "@welcomeMessage": {
     "description": "A welcome message shown on the home screen"
   },
@@ -22,7 +22,7 @@
   "terms_conditions": "Terms & Conditions",
   "and": " and ",
   "privacy_policy": "Privacy Policy",
-   "login": "Login",
+  "login": "Login",
   "enter_phone": "Enter Your Mobile Number",
   "otp_message": "Enter your mobile number to continue.\nWe will send an OTP for verification.",
   "or": "or",

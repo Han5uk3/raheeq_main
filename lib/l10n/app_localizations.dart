@@ -101,13 +101,13 @@ abstract class AppLocalizations {
   /// The title of the application
   ///
   /// In en, this message translates to:
-  /// **'Raheeq'**
+  /// **'Rahiq'**
   String get appTitle;
 
   /// A welcome message shown on the home screen
   ///
   /// In en, this message translates to:
-  /// **'Welcome to Raheeq!'**
+  /// **'Welcome to Rahiq!'**
   String get welcomeMessage;
 
   /// No description provided for @onboard1_title.

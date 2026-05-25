@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "579658096080",
+    "project_id": "suqyarahiq-app-173f2",
+    "storage_bucket": "suqyarahiq-app-173f2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:579658096080:android:5c4a5e5fbfb28d12d6add5",
+        "android_client_info": {
+          "package_name": "com.rahiq.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBlkOItn9hMgKTnsuc4kxrSlm4nOIiffLI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
