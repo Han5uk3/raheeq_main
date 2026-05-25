@@ -3,6 +3,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/common_widgets/language_switch.dart';
 import 'package:raheeq_main/utils/colors.dart';
+import '../../../storage/auth_storage.dart';
 
 class HomeTab extends StatefulWidget {
   const HomeTab({super.key});
@@ -71,10 +72,10 @@ class _HomeTabState extends State<HomeTab> {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        "Abdullah Hassan",
+                       Text(
+                        AuthStorage.user?.fullName ?? "Abdullah Hassan",
                         style: TextStyle(
-                          color: Colors.black.withOpacity(0.8),
+                          color: Colors.black.withValues(alpha: 0.8),
                           fontSize: 18,
                           fontWeight: FontWeight.w600,
                         ),
@@ -176,7 +177,7 @@ class _HomeTabState extends State<HomeTab> {
                     boxShadow: isActive
                         ? [
                             BoxShadow(
-                              color: AppColors.buttonBlueDark.withOpacity(0.3),
+                              color: AppColors.buttonBlueDark.withValues(alpha: 0.3),
                               blurRadius: 4,
                               offset: const Offset(0, 2),
                             ),
@@ -422,7 +423,7 @@ class _HomeTabState extends State<HomeTab> {
                   imageUrl: imgPath,
                   fit: BoxFit.cover,
                   placeholder: (context, url) => Container(
-                    color: Colors.black.withOpacity(0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     child: const Center(
                       child: CircularProgressIndicator(strokeWidth: 2),
                     ),
@@ -549,7 +550,7 @@ class _HomeTabState extends State<HomeTab> {
                 imageUrl: imgPath,
                 fit: BoxFit.cover,
                 placeholder: (context, url) => Container(
-                  color: Colors.black.withOpacity(0.05),
+                  color: Colors.black.withValues(alpha: 0.05),
                   child: const Center(
                     child: SizedBox(
                       width: 20,
@@ -602,7 +603,7 @@ class _HomeTabState extends State<HomeTab> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -628,10 +629,10 @@ class _HomeTabState extends State<HomeTab> {
                     end: Alignment.centerRight,
                     colors: [
                       const Color(0xFF3CAAD4), // Very dark/solid blue on left
-                      const Color(0xFF3CAAD4).withOpacity(0.8),
+                      const Color(0xFF3CAAD4).withValues(alpha: 0.8),
                       const Color(
                         0xFF3CAAD4,
-                      ).withOpacity(0.0), // Transparent on right
+                      ).withValues(alpha: 0.0), // Transparent on right
                     ],
                     stops: const [0.0, 0.3, 0.75],
                   ),
@@ -679,7 +680,7 @@ class _HomeTabState extends State<HomeTab> {
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color: Colors.black.withOpacity(0.2),
+                            color: Colors.black.withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Row(
@@ -729,7 +730,7 @@ class _HomeTabState extends State<HomeTab> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.1),
+            color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -756,8 +757,8 @@ class _HomeTabState extends State<HomeTab> {
                     end: Alignment.centerRight,
                     colors: [
                       const Color(0xFF086091),
-                      const Color(0xFF086091).withOpacity(0.8),
-                      const Color(0xFF086091).withOpacity(0.0),
+                      const Color(0xFF086091).withValues(alpha: 0.8),
+                      const Color(0xFF086091).withValues(alpha: 0.0),
                     ],
                     stops: const [0.0, 0.3, 0.75],
                   ),
@@ -787,7 +788,7 @@ class _HomeTabState extends State<HomeTab> {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: Colors.black.withOpacity(0.2),
+                      color: Colors.black.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Row(
@@ -844,7 +845,7 @@ class _HomeTabState extends State<HomeTab> {
             height: 48,
             width: 48,
             decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
+              color: Colors.white.withValues(alpha: 0.2),
               borderRadius: BorderRadius.circular(12),
             ),
             child: const Icon(Icons.water_drop, color: Colors.white, size: 24),
@@ -868,7 +869,7 @@ class _HomeTabState extends State<HomeTab> {
                   "View status and delivery details.",
                   style: TextStyle(
                     fontSize: 12,
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white.withValues(alpha: 0.8),
                   ),
                 ),
               ],
@@ -904,7 +905,7 @@ class _HomeTabState extends State<HomeTab> {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white.withOpacity(0.3),
+                color: Colors.white.withValues(alpha: 0.3),
                 borderRadius: BorderRadius.circular(10),
               ),
               child: Icon(icon, color: Colors.white, size: 22),

@@ -2,7 +2,6 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/pages/authentication/login.dart';
-import '../../main.dart';
 import '../../utils/colors.dart';
 import '../../common_widgets/language_switch.dart';
 
@@ -281,8 +280,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               alignment: Alignment.center,
               transform: Matrix4.identity()
                 ..setEntry(3, 2, 0.001) // perspective
-                ..translate(horizontalOffset, 0.0)
-                ..scale(scale),
+                ..translateByDouble(horizontalOffset, 0.0, 0.0, 1.0)
+                ..scaleByDouble(scale, scale, 1.0, 1.0),
               child: Opacity(
                 opacity: opacity,
                 child: Image.asset(

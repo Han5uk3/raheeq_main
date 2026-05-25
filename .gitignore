@@ -43,3 +43,9 @@ app.*.map.json
 /android/app/debug
 /android/app/profile
 /android/app/release
+
+# Firebase and Signing Credentials
+/firebase.json
+/android/key.properties
+/android/app/keystore
+/android/app/google-services.json

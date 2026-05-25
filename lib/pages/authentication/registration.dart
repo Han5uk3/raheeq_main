@@ -3,10 +3,18 @@ import 'package:intl/intl.dart';
 import 'package:raheeq_main/common_widgets/language_switch.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/pages/home/home_screen.dart';
+import 'package:raheeq_main/api/apis.dart';
 
 class Registration extends StatefulWidget {
   final String phoneNumber;
-  const Registration({super.key, required this.phoneNumber});
+  final String countryCode;
+  final String registrationToken;
+  const Registration({
+    super.key,
+    required this.phoneNumber,
+    required this.countryCode,
+    required this.registrationToken,
+  });
 
   @override
   State<Registration> createState() => _RegistrationState();
@@ -123,7 +131,7 @@ class _RegistrationState extends State<Registration> {
                       borderRadius: BorderRadius.circular(25),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.buttonBlueDark.withOpacity(0.1),
+                          color: AppColors.buttonBlueDark.withValues(alpha: 0.1),
                           blurRadius: 50,
                           offset: const Offset(0, 25),
                         ),
@@ -142,7 +150,7 @@ class _RegistrationState extends State<Registration> {
                                     shape: BoxShape.circle,
                                     border: Border.all(
                                       color: AppColors.buttonBlueDark
-                                          .withOpacity(0.1),
+                                          .withValues(alpha: 0.1),
                                       width: 4,
                                     ),
                                   ),
@@ -227,16 +235,44 @@ class _RegistrationState extends State<Registration> {
                           SizedBox(
                             width: double.infinity,
                             child: ElevatedButton(
-                              onPressed: () {
-                                // if (_formKey.currentState!.validate()) {
-                                Navigator.pushAndRemoveUntil(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const HomeScreen(),
-                                  ),
-                                  (route) => false,
-                                );
-                                // }
+                              onPressed: () async {
+                                if (_formKey.currentState!.validate()) {
+                                  try {
+                                    final response = await ApiService().register(
+                                      countryCode: widget.countryCode,
+                                      phoneNumber: widget.phoneNumber.replaceAll(widget.countryCode, '').trim(), // Ensure pure phone number
+                                      email: _emailController.text,
+                                      firstName: _firstNameController.text,
+                                      lastName: _lastNameController.text,
+                                      gender: _selectedGender?.toUpperCase() ?? 'MALE',
+                                      deviceType: 'ANDROID',
+                                      registrationToken: widget.registrationToken,
+                                    );
+
+                                    if (!context.mounted) return;
+
+                                    if (response.statusCode == 200 && response.data['success'] == true) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(content: Text('Registration Successful!')),
+                                      );
+                                      Navigator.pushAndRemoveUntil(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => const HomeScreen(),
+                                        ),
+                                        (route) => false,
+                                      );
+                                    } else {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(content: Text(response.data['message'] ?? 'Registration failed')),
+                                      );
+                                    }
+                                  } catch (e) {
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(content: Text('Error: ${e.toString()}')),
+                                    );
+                                  }
+                                }
                               },
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: AppColors.buttonBlueDark,
@@ -308,7 +344,7 @@ class _RegistrationState extends State<Registration> {
               prefixIcon: Icon(
                 icon,
                 size: 20,
-                color: AppColors.buttonBlueDark.withOpacity(0.7),
+                color: AppColors.buttonBlueDark.withValues(alpha: 0.7),
               ),
               border: InputBorder.none,
               contentPadding: const EdgeInsets.symmetric(
@@ -350,7 +386,7 @@ class _RegistrationState extends State<Registration> {
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButtonFormField<String>(
-              value: _selectedGender,
+              initialValue: _selectedGender,
               icon: const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
               hint: Text(
                 "Select Gender",
@@ -373,7 +409,7 @@ class _RegistrationState extends State<Registration> {
                 prefixIcon: Icon(
                   Icons.wc_outlined,
                   size: 20,
-                  color: AppColors.buttonBlueDark.withOpacity(0.7),
+                  color: AppColors.buttonBlueDark.withValues(alpha: 0.7),
                 ),
                 border: InputBorder.none,
               ),

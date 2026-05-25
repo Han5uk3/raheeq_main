@@ -8,6 +8,7 @@ import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:raheeq_main/pages/authentication/otp.dart';
+import 'package:raheeq_main/api/apis.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -104,13 +105,13 @@ class _LoginState extends State<Login> {
                       borderRadius: BorderRadius.circular(25),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.buttonBlueDark.withOpacity(0.15),
+                          color: AppColors.buttonBlueDark.withValues(alpha: 0.15),
                           blurRadius: 50,
                           offset: const Offset(0, 25),
                           spreadRadius: -10,
                         ),
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black.withValues(alpha: 0.05),
                           blurRadius: 20,
                           offset: const Offset(0, 10),
                         ),
@@ -127,7 +128,7 @@ class _LoginState extends State<Login> {
                             border: Border.all(color: AppColors.indicatorGrey),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.02),
+                                color: Colors.black.withValues(alpha: 0.02),
                                 blurRadius: 10,
                                 offset: const Offset(0, 4),
                               ),
@@ -167,7 +168,7 @@ class _LoginState extends State<Login> {
                                             15,
                                           ),
                                           borderSide: BorderSide(
-                                            color: Colors.grey.withOpacity(0.2),
+                                            color: Colors.grey.withValues(alpha: 0.2),
                                           ),
                                         ),
                                       ),
@@ -247,7 +248,7 @@ class _LoginState extends State<Login> {
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: () {
+                            onPressed: () async {
                               if (_phoneController.text.trim().isEmpty) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
@@ -264,15 +265,41 @@ class _LoginState extends State<Login> {
                                 );
                                 return;
                               }
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => OTP(
-                                    phoneNumber:
-                                        "+${_selectedCountry.phoneCode} ${_phoneController.text}",
+                              
+                              try {
+                                final response = await ApiService().requestOtp(
+                                  phoneNumber: _phoneController.text,
+                                  countryCode: '+${_selectedCountry.phoneCode}',
+                                );
+
+                                if (!context.mounted) return;
+
+                                if (response.statusCode == 200 && response.data['success'] == true) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => OTP(
+                                        phoneNumber: _phoneController.text,
+                                        countryCode: '+${_selectedCountry.phoneCode}',
+                                      ),
+                                    ),
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      content: Text(response.data['message'] ?? 'Failed to send OTP'),
+                                      backgroundColor: Colors.redAccent,
+                                    ),
+                                  );
+                                }
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text('Error: ${e.toString()}'),
+                                    backgroundColor: Colors.redAccent,
                                   ),
-                                ),
-                              );
+                                );
+                              }
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.buttonBlueDark,

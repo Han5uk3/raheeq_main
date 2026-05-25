@@ -3,10 +3,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/pages/authentication/registration.dart';
+import 'package:raheeq_main/api/apis.dart';
+import 'package:raheeq_main/pages/home/home_screen.dart';
 
 class OTP extends StatefulWidget {
   final String phoneNumber;
-  const OTP({super.key, required this.phoneNumber});
+  final String countryCode;
+  const OTP({super.key, required this.phoneNumber, required this.countryCode});
 
   @override
   State<OTP> createState() => _OTPState();
@@ -123,13 +126,13 @@ class _OTPState extends State<OTP> {
                       borderRadius: BorderRadius.circular(25),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.buttonBlueDark.withOpacity(0.15),
+                          color: AppColors.buttonBlueDark.withValues(alpha: 0.15),
                           blurRadius: 50,
                           offset: const Offset(0, 25),
                           spreadRadius: -10,
                         ),
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black.withValues(alpha: 0.05),
                           blurRadius: 20,
                           offset: const Offset(0, 10),
                         ),
@@ -237,15 +240,60 @@ class _OTPState extends State<OTP> {
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => Registration(
-                                    phoneNumber: widget.phoneNumber,
-                                  ),
-                                ),
-                              );
+                            onPressed: () async {
+                              final otp = _controllers.map((c) => c.text).join();
+                              if (otp.length < 6) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('Please enter valid OTP')),
+                                );
+                                return;
+                              }
+
+                              try {
+                                final response = await ApiService().verifyOtp(
+                                  countryCode: widget.countryCode,
+                                  phoneNumber: widget.phoneNumber,
+                                  otp: otp,
+                                  deviceType: 'ANDROID', // Ideally, get this from device_info_plus
+                                );
+
+                                if (!context.mounted) return;
+
+                                if (response.statusCode == 200 && response.data['success'] == true) {
+                                  final data = response.data['data'];
+                                  if (data['userExists'] == true) {
+                                    // User exists, login successful
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(content: Text('Login Successful')),
+                                    );
+                                    Navigator.pushAndRemoveUntil(
+                                      context,
+                                      MaterialPageRoute(builder: (context) => const HomeScreen()),
+                                      (route) => false,
+                                    );
+                                  } else {
+                                    // User doesn't exist, go to registration
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => Registration(
+                                          phoneNumber: widget.phoneNumber,
+                                          countryCode: widget.countryCode,
+                                          registrationToken: data['registrationToken'] ?? '', // Assume backend might send it here if userExists=false
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(content: Text(response.data['message'] ?? 'Verification failed')),
+                                  );
+                                }
+                              } catch (e) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(content: Text('Error: ${e.toString()}')),
+                                );
+                              }
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.buttonBlueDark,
