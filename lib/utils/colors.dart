@@ -9,4 +9,6 @@ class AppColors {
   static const Color black = Colors.black;
   static const Color grey = Colors.grey;
   static const Color buttonBlueLight = Color(0xFFF1F9FD);
+  static const Color headerlightblue = Color(0xFF6EC4E0);
+  static const Color headersubtitlecolor = Color(0xFFA0A4A8);
 }

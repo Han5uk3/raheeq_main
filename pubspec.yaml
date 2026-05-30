@@ -13,12 +13,15 @@ dependencies:
     sdk: flutter
   intl: ^0.20.2
   country_picker: ^2.0.27
-  font_awesome_flutter: ^10.8.0
+  font_awesome_flutter: ^11.0.0
   cached_network_image: ^3.4.1
   firebase_core: ^4.9.0
   dio: ^5.9.2
   hive: ^2.2.3
   hive_flutter: ^1.1.0
+  material_symbols_icons: ^4.2928.1
+  google_maps_flutter: ^2.17.1
+  image_picker: ^1.2.2
 
 dev_dependencies:
   flutter_test:
@@ -29,7 +32,17 @@ flutter:
   generate: true
   uses-material-design: true
   assets:
+    - assets/giftcard.png
     - assets/
     - assets/onboarding/
     - assets/login/
     - assets/masjid/
+
+  fonts:
+    - family: SF Pro
+      fonts:
+        - asset: assets/fonts/SF-Pro-Text-Regular.otf
+        - asset: assets/fonts/SF-Pro-Text-Medium.otf
+          weight: 500
+        - asset: assets/fonts/SF-Pro-Text-Bold.otf
+          weight: 700

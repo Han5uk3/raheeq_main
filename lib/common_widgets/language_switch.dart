@@ -1,3 +1,4 @@
+import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../main.dart';
@@ -50,7 +51,7 @@ class LanguageSwitchButton extends StatelessWidget {
             height: 34,
             child: Padding(
               padding: EdgeInsets.all(8.0),
-              child: CircularProgressIndicator(strokeWidth: 2),
+              child: WaterLoadingIndicator(size: 30),
             ),
           ),
           errorWidget: (context, url, error) => Padding(

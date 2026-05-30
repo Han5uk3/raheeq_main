@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:raheeq_main/common_widgets/custom_bottom_nav.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/pages/home/pages/home_tab.dart';
+import 'package:raheeq_main/pages/home/pages/profile_tab.dart';
+import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -17,47 +19,53 @@ class _HomeScreenState extends State<HomeScreen> {
     const HomeTab(),
     const Center(child: Text("My Orders Page", style: TextStyle(fontSize: 24))),
     const Center(child: Text("Impact Page", style: TextStyle(fontSize: 24))),
-    const Center(child: Text("Profile Page", style: TextStyle(fontSize: 24))),
+    const ProfileTab(),
   ];
 
   final List<CustomBottomNavItem> _navItems = [
     CustomBottomNavItem(icon: Icons.home_outlined, label: "Home"),
-    CustomBottomNavItem(
-      icon: Icons.shopping_bag_outlined,
-      label: "My Orders",
-    ),
+    CustomBottomNavItem(icon: Icons.shopping_bag_outlined, label: "My Orders"),
     CustomBottomNavItem(icon: Icons.auto_graph_outlined, label: "Impact"),
     CustomBottomNavItem(icon: Icons.person_outline, label: "Profile"),
   ];
 
+  String _getAppBarTitle() {
+    switch (_currentIndex) {
+      case 1:
+        return "My Orders";
+      case 2:
+        return "Impact";
+      case 3:
+        return "Profile";
+      default:
+        return "Raheeq";
+    }
+  }
+
+  String _getAppBarSubtitle() {
+    switch (_currentIndex) {
+      case 1:
+        return "Track your mosque donations";
+      case 2:
+        return "Your ongoing charity rewards";
+      case 3:
+        return "Manage your account settings";
+      default:
+        return "";
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    Widget scaffold = Scaffold(
       extendBody: true, // Important to allow bottom nav area to be transparent
-      backgroundColor: const Color(0xFFF8FAFB),
-      appBar: _currentIndex == 0
+      backgroundColor: Colors.transparent,
+      appBar: (_currentIndex == 0 || _currentIndex == 3)
           ? null
-          : AppBar(
-              title: const Text(
-                "Raheeq",
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  letterSpacing: 1.2,
-                ),
-              ),
-              backgroundColor: AppColors.buttonBlueDark,
-              elevation: 0,
+          : CustomAppBar(
+              title: _getAppBarTitle(),
+              subtitle: _getAppBarSubtitle(),
               centerTitle: true,
-              actions: [
-                IconButton(
-                  onPressed: () {},
-                  icon: const Icon(
-                    Icons.notifications_none_rounded,
-                    color: Colors.white,
-                  ),
-                ),
-              ],
             ),
       body: AnimatedSwitcher(
         duration: const Duration(milliseconds: 350),
@@ -75,7 +83,24 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         child: Container(
           key: ValueKey<int>(_currentIndex),
-          child: _pages[_currentIndex],
+          decoration: (_currentIndex == 0 || _currentIndex == 3)
+              ? null
+              : const BoxDecoration(
+                  color: Color(0xFFF8FAFB),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(30),
+                    topRight: Radius.circular(30),
+                  ),
+                ),
+          child: (_currentIndex == 0 || _currentIndex == 3)
+              ? _pages[_currentIndex]
+              : ClipRRect(
+                  borderRadius: const BorderRadius.only(
+                    topLeft: Radius.circular(30),
+                    topRight: Radius.circular(30),
+                  ),
+                  child: _pages[_currentIndex],
+                ),
         ),
       ),
       bottomNavigationBar: CustomBottomNavBar(
@@ -86,6 +111,31 @@ class _HomeScreenState extends State<HomeScreen> {
             _currentIndex = index;
           });
         },
+      ),
+    );
+
+    if (_currentIndex == 0) {
+      return scaffold;
+    }
+
+    return Container(
+      color: Colors.white, // Covers the black native window background
+      child: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [
+              AppColors.headerlightblue.withValues(alpha: 0.15),
+              AppColors.headerlightblue,
+            ],
+            stops: const [
+              0.0,
+              0.18,
+            ], // Seamless transition matching status bar + toolbarHeight
+          ),
+        ),
+        child: scaffold,
       ),
     );
   }

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:raheeq_main/common_widgets/language_switch.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/pages/home/home_screen.dart';
 import 'package:raheeq_main/api/apis.dart';
+import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 
 class Registration extends StatefulWidget {
   final String phoneNumber;
@@ -27,10 +27,8 @@ class _RegistrationState extends State<Registration> {
   final TextEditingController _lastNameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
-  final TextEditingController _dobController = TextEditingController();
 
   String? _selectedGender;
-  DateTime? _selectedDate;
 
   @override
   void initState() {
@@ -44,60 +42,23 @@ class _RegistrationState extends State<Registration> {
     _lastNameController.dispose();
     _emailController.dispose();
     _phoneController.dispose();
-    _dobController.dispose();
     super.dispose();
-  }
-
-  Future<void> _selectDate(BuildContext context) async {
-    final DateTime? picked = await showDatePicker(
-      context: context,
-      initialDate: DateTime(2000),
-      firstDate: DateTime(1920),
-      lastDate: DateTime.now(),
-      builder: (context, child) {
-        return Theme(
-          data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: AppColors.buttonBlueDark,
-              onPrimary: Colors.white,
-              onSurface: Colors.black,
-            ),
-          ),
-          child: child!,
-        );
-      },
-    );
-    if (picked != null && picked != _selectedDate) {
-      setState(() {
-        _selectedDate = picked;
-        _dobController.text = DateFormat('dd/MM/yyyy').format(picked);
-      });
-    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFB),
-      appBar: AppBar(
+      appBar: CustomAppBar(
         centerTitle: true,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.white, size: 20),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: const Text(
-          "Complete Profile",
-          style: TextStyle(
-            fontSize: 20,
-            color: Colors.white,
-            letterSpacing: 1.2,
-            fontWeight: FontWeight.w600,
+        showBackButton: true,
+        title: "Complete Profile",
+        actions: const [
+          Padding(
+            padding: EdgeInsetsDirectional.only(end: 24),
+            child: LanguageSwitchButton(),
           ),
-        ),
-        actionsPadding: const EdgeInsetsDirectional.only(end: 24),
-        actions: const [LanguageSwitchButton()],
-        backgroundColor: AppColors.buttonBlueDark,
-        elevation: 0,
+        ],
       ),
       body: SingleChildScrollView(
         physics: const ClampingScrollPhysics(),
@@ -217,18 +178,7 @@ class _RegistrationState extends State<Registration> {
                             icon: Icons.phone_outlined,
                             enabled: false, // Pre-filled and locked
                           ),
-                          const SizedBox(height: 16),
-                          GestureDetector(
-                            onTap: () => _selectDate(context),
-                            child: AbsorbPointer(
-                              child: _buildTextField(
-                                controller: _dobController,
-                                label: "Date of Birth",
-                                hint: "DD/MM/YYYY",
-                                icon: Icons.calendar_today_outlined,
-                              ),
-                            ),
-                          ),
+
                           const SizedBox(height: 16),
                           _buildGenderDropdown(),
                           const SizedBox(height: 40),
@@ -251,7 +201,7 @@ class _RegistrationState extends State<Registration> {
 
                                     if (!context.mounted) return;
 
-                                    if (response.statusCode == 200 && response.data['success'] == true) {
+                                    if ((response.statusCode == 200 || response.statusCode == 201) && response.data['success'] == true) {
                                       ScaffoldMessenger.of(context).showSnackBar(
                                         const SnackBar(content: Text('Registration Successful!')),
                                       );

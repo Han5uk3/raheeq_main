@@ -27,6 +27,7 @@ class MainApp extends StatelessWidget {
       valueListenable: localeNotifier,
       builder: (context, locale, child) {
         return MaterialApp(
+          navigatorKey: AuthStorage.navigatorKey,
           locale: locale,
           localizationsDelegates: const [
             CountryLocalizations.delegate,

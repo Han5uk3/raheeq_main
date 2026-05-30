@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import '../authentication/login.dart';
+import '../../storage/auth_storage.dart';
+import '../../pages/home/home_screen.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -28,11 +30,14 @@ class _SplashScreenState extends State<SplashScreen>
 
     _controller.forward();
 
-    // Navigate to Login after 3 seconds
+    // Navigate based on active session status after 3 seconds
     Future.delayed(const Duration(seconds: 3), () {
       if (mounted) {
+        final hasSession = AuthStorage.accessToken != null;
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const Login()),
+          MaterialPageRoute(
+            builder: (context) => hasSession ? const HomeScreen() : const Login(),
+          ),
         );
       }
     });

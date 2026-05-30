@@ -63,6 +63,6 @@ class DefaultFirebaseOptions {
     messagingSenderId: '579658096080',
     projectId: 'suqyarahiq-app-173f2',
     storageBucket: 'suqyarahiq-app-173f2.firebasestorage.app',
-    iosBundleId: 'com.rahiq.main',
+    iosBundleId: 'com.rahiq.app',
   );
 }

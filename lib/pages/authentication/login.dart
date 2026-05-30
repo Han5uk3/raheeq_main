@@ -1,3 +1,4 @@
+import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
@@ -8,7 +9,11 @@ import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:raheeq_main/pages/authentication/otp.dart';
+import 'package:raheeq_main/pages/authentication/registration.dart';
+import 'package:raheeq_main/pages/home/home_screen.dart';
+import 'package:raheeq_main/storage/auth_storage.dart';
 import 'package:raheeq_main/api/apis.dart';
+import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -39,25 +44,152 @@ class _LoginState extends State<Login> {
     super.dispose();
   }
 
+  Future<void> _handleSocialLogin(String provider) async {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) {
+        return Container(
+          decoration: const BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.only(
+              topLeft: Radius.circular(30),
+              topRight: Radius.circular(30),
+            ),
+          ),
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                width: 40,
+                height: 4,
+                decoration: BoxDecoration(
+                  color: Colors.grey[300],
+                  borderRadius: BorderRadius.circular(2),
+                ),
+              ),
+              const SizedBox(height: 24),
+              Text(
+                "Sign in with $provider",
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                "Choose an account to continue with Raheeq:",
+                style: TextStyle(color: Colors.grey[600], fontSize: 14),
+              ),
+              const SizedBox(height: 24),
+              ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: AppColors.buttonBlueDark.withValues(alpha: 0.1),
+                  child: FaIcon(
+                    provider == 'Google'
+                        ? FontAwesomeIcons.google
+                        : FontAwesomeIcons.apple,
+                    color: provider == 'Google' ? Colors.redAccent : Colors.black,
+                    size: 20,
+                  ),
+                ),
+                title: const Text("guest_user@suqyarahiq.com"),
+                subtitle: const Text("Guest User"),
+                onTap: () async {
+                  Navigator.pop(context); // Close sheet
+                  await _authenticateSocial(provider, "eyJhbGciOiJSUzI1NiIsImtpZCI6...");
+                },
+              ),
+              const SizedBox(height: 12),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _authenticateSocial(String provider, String mockIdToken) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: WaterLoadingIndicator(size: 30),
+      ),
+    );
+
+    try {
+      final apiService = ApiService();
+      final response = provider == 'Google'
+          ? await apiService.googleLogin(
+              idToken: mockIdToken,
+              deviceType: Platform.isIOS ? 'IOS' : 'ANDROID',
+              deviceId: 'simulated_device_id',
+            )
+          : await apiService.appleLogin(
+              idToken: mockIdToken,
+              deviceType: Platform.isIOS ? 'IOS' : 'ANDROID',
+              deviceId: 'simulated_device_id',
+            );
+
+      if (!mounted) return;
+      Navigator.pop(context); // Close loading
+
+      if (response.statusCode == 200 && response.data['success'] == true) {
+        final resData = response.data['data'];
+        if (resData['userExists'] == true) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Login Successful')),
+          );
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const HomeScreen()),
+            (route) => false,
+          );
+        } else {
+          final regToken = resData['registrationToken'] ?? '';
+          await AuthStorage.saveRegistrationToken(regToken);
+          
+          if (!mounted) return;
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => Registration(
+                phoneNumber: '',
+                countryCode: '',
+                registrationToken: regToken,
+              ),
+            ),
+          );
+        }
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(response.data['message'] ?? 'Authentication failed')),
+        );
+      }
+    } catch (e) {
+      if (!mounted) return;
+      Navigator.pop(context); // Close loading
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error: ${e.toString()}')),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFB),
-      appBar: AppBar(
+      appBar: CustomAppBar(
         centerTitle: true,
-        title: Text(
-          AppLocalizations.of(context)!.login,
-          style: TextStyle(
-            fontSize: 16,
-            color: Colors.white,
-            letterSpacing: 1.5,
-            fontWeight: FontWeight.w600,
+        title: AppLocalizations.of(context)!.login,
+        actions: const [
+          Padding(
+            padding: EdgeInsetsDirectional.only(end: 24),
+            child: LanguageSwitchButton(),
           ),
-        ),
-        actionsPadding: EdgeInsetsDirectional.only(end: 24),
-        actions: [const LanguageSwitchButton()],
-        backgroundColor: AppColors.buttonBlueDark,
-        automaticallyImplyLeading: false,
+        ],
       ),
       body: SingleChildScrollView(
         physics: const ClampingScrollPhysics(),
@@ -355,7 +487,7 @@ class _LoginState extends State<Login> {
                         _buildSocialButton(
                           icon: FontAwesomeIcons.google,
                           label: AppLocalizations.of(context)!.google_signin,
-                          onPressed: () {},
+                          onPressed: () => _handleSocialLogin('Google'),
                           backgroundColor: Colors.white,
                           textColor: Colors.black87,
                           borderColor: Colors.grey[300],
@@ -365,7 +497,7 @@ class _LoginState extends State<Login> {
                           _buildSocialButton(
                             icon: FontAwesomeIcons.apple,
                             label: AppLocalizations.of(context)!.apple_signin,
-                            onPressed: () {},
+                            onPressed: () => _handleSocialLogin('Apple'),
                             backgroundColor: Colors.black,
                             textColor: Colors.white,
                           ),
@@ -384,7 +516,7 @@ class _LoginState extends State<Login> {
   }
 
   Widget _buildSocialButton({
-    required IconData icon,
+    required FaIconData icon,
     required String label,
     required VoidCallback onPressed,
     required Color backgroundColor,

@@ -1,3 +1,4 @@
+import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -5,6 +6,8 @@ import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/pages/authentication/registration.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/pages/home/home_screen.dart';
+import 'package:raheeq_main/storage/auth_storage.dart';
+import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 
 class OTP extends StatefulWidget {
   final String phoneNumber;
@@ -23,7 +26,7 @@ class _OTPState extends State<OTP> {
   final List<FocusNode> _focusNodes = List.generate(6, (index) => FocusNode());
 
   Timer? _timer;
-  int _secondsRemaining = 45;
+  int _secondsRemaining = 60;
   bool _canResend = false;
 
   @override
@@ -46,7 +49,7 @@ class _OTPState extends State<OTP> {
 
   void _startTimer() {
     setState(() {
-      _secondsRemaining = 45;
+      _secondsRemaining = 60;
       _canResend = false;
     });
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
@@ -61,28 +64,20 @@ class _OTPState extends State<OTP> {
     });
   }
 
+  String get _formattedTime {
+    final minutes = _secondsRemaining ~/ 60;
+    final seconds = _secondsRemaining % 60;
+    return "${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}";
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFB),
-      appBar: AppBar(
+      appBar: const CustomAppBar(
         centerTitle: true,
-        leading: IconButton(
-          iconSize: 14,
-          icon: const Icon(Icons.arrow_back_ios, color: Colors.white),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Text(
-          "Enter Verification Code",
-          style: const TextStyle(
-            fontSize: 16,
-            color: Colors.white,
-            letterSpacing: 1.5,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-
-        backgroundColor: AppColors.buttonBlueDark,
+        showBackButton: true,
+        title: "Enter Verification Code",
       ),
       body: SingleChildScrollView(
         physics: const ClampingScrollPhysics(),
@@ -213,8 +208,49 @@ class _OTPState extends State<OTP> {
                             ),
                             if (_canResend)
                               GestureDetector(
-                                onTap: () {
-                                  _startTimer();
+                                onTap: () async {
+                                  try {
+                                    showDialog(
+                                      context: context,
+                                      barrierDismissible: false,
+                                      builder: (context) => const Center(
+                                        child: WaterLoadingIndicator(size: 30),
+                                      ),
+                                    );
+
+                                    final response = await ApiService().requestOtp(
+                                      phoneNumber: widget.phoneNumber,
+                                      countryCode: widget.countryCode,
+                                    );
+
+                                    if (!context.mounted) return;
+                                    Navigator.pop(context); // Close loader
+
+                                    if (response.statusCode == 200 && response.data['success'] == true) {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('OTP sent successfully!'),
+                                          backgroundColor: Colors.green,
+                                        ),
+                                      );
+                                      _startTimer();
+                                    } else {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        SnackBar(
+                                          content: Text(response.data['message'] ?? 'Failed to resend OTP'),
+                                          backgroundColor: Colors.redAccent,
+                                        ),
+                                      );
+                                    }
+                                  } catch (e) {
+                                    if (context.mounted) Navigator.pop(context); // Close loader
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      SnackBar(
+                                        content: Text('Error: ${e.toString()}'),
+                                        backgroundColor: Colors.redAccent,
+                                      ),
+                                    );
+                                  }
                                 },
                                 child: Text(
                                   "Resend",
@@ -227,7 +263,7 @@ class _OTPState extends State<OTP> {
                               )
                             else
                               Text(
-                                "00:${_secondsRemaining.toString().padLeft(2, '0')}",
+                                _formattedTime,
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: AppColors.buttonBlueDark,
@@ -272,6 +308,10 @@ class _OTPState extends State<OTP> {
                                       (route) => false,
                                     );
                                   } else {
+                                    final regToken = data['registrationToken'] ?? '';
+                                    await AuthStorage.saveRegistrationToken(regToken);
+
+                                    if (!context.mounted) return;
                                     // User doesn't exist, go to registration
                                     Navigator.push(
                                       context,
@@ -279,7 +319,7 @@ class _OTPState extends State<OTP> {
                                         builder: (context) => Registration(
                                           phoneNumber: widget.phoneNumber,
                                           countryCode: widget.countryCode,
-                                          registrationToken: data['registrationToken'] ?? '', // Assume backend might send it here if userExists=false
+                                          registrationToken: regToken,
                                         ),
                                       ),
                                     );
@@ -290,6 +330,7 @@ class _OTPState extends State<OTP> {
                                   );
                                 }
                               } catch (e) {
+                                if (!context.mounted) return;
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(content: Text('Error: ${e.toString()}')),
                                 );
