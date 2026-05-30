@@ -473,4 +473,37 @@ class ApiService {
       rethrow;
     }
   }
+
+  /// Get Favorite Mosques
+  Future<Response> getFavoriteMosques() async {
+    try {
+      final response = await _dio.get('/me/favorites/mosques');
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Add Favorite Mosque
+  Future<Response> addFavoriteMosque(String mosqueId) async {
+    try {
+      final response = await _dio.post(
+        '/me/favorites/mosques',
+        data: {'mosqueId': mosqueId},
+      );
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Delete Favorite Mosque
+  Future<Response> deleteFavoriteMosque(String mosqueId) async {
+    try {
+      final response = await _dio.delete('/me/favorites/mosques/$mosqueId');
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

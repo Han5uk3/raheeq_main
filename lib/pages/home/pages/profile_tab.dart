@@ -5,6 +5,7 @@ import 'package:raheeq_main/storage/auth_storage.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/models/user.dart';
 import 'package:raheeq_main/pages/home/pages/my_profile_screen.dart';
+import 'package:raheeq_main/pages/home/pages/saved_mosques_page.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
 
 class ProfileTab extends StatefulWidget {
@@ -176,6 +177,19 @@ class _ProfileTabState extends State<ProfileTab> {
                                           });
                                         }
                                       });
+                                    },
+                                  ),
+                                  _buildMenuTile(
+                                    icon: Icons.favorite_border_rounded,
+                                    title: "Saved Mosques",
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              const SavedMosquesPage(),
+                                        ),
+                                      );
                                     },
                                   ),
                                   _buildMenuTile(

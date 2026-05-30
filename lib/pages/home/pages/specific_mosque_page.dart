@@ -12,7 +12,13 @@ import '../../../utils/colors.dart';
 
 class SpecificMosquePage extends StatefulWidget {
   final String slug;
-  const SpecificMosquePage({super.key, this.slug = 'mosques'});
+  final List<Place> initialSelections;
+  
+  const SpecificMosquePage({
+    super.key,
+    this.slug = 'mosques',
+    this.initialSelections = const [],
+  });
 
   @override
   State<SpecificMosquePage> createState() => _SpecificMosquePageState();
@@ -46,17 +52,73 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
   ];
 
   GoogleMapController? _mapController;
-  Place? _selectedItem;
+  final List<Place> _selectedItemsList = [];
+  List<String> _favoriteMosqueIds = [];
 
   @override
   void initState() {
     super.initState();
+    _selectedItemsList.addAll(widget.initialSelections);
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(() {
       setState(() {});
     });
     _searchController.addListener(_onSearchChanged);
-    _fetchItems();
+    _initData();
+  }
+
+  Future<void> _initData() async {
+    await _fetchFavorites();
+    await _fetchItems();
+  }
+
+  Future<void> _fetchFavorites() async {
+    try {
+      final response = await _apiService.getFavoriteMosques();
+      if (response.statusCode == 200 && response.data['success'] == true) {
+        final List<dynamic> data = response.data['data'] ?? [];
+        if (mounted) {
+          setState(() {
+            // The API returns Mosque objects directly in the data array, so their ID is just 'id'
+            _favoriteMosqueIds = data.map((e) => e['id'].toString()).toList();
+          });
+        }
+      }
+    } catch (e) {
+      // Ignore
+    }
+  }
+
+  Future<void> _toggleFavorite(String id) async {
+    final isFav = _favoriteMosqueIds.contains(id);
+    setState(() {
+      if (isFav) {
+        _favoriteMosqueIds.remove(id);
+      } else {
+        _favoriteMosqueIds.add(id);
+      }
+    });
+
+    try {
+      if (isFav) {
+        await _apiService.deleteFavoriteMosque(id);
+      } else {
+        await _apiService.addFavoriteMosque(id);
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          if (isFav) {
+            _favoriteMosqueIds.add(id);
+          } else {
+            _favoriteMosqueIds.remove(id);
+          }
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Failed to update favorite.')),
+        );
+      }
+    }
   }
 
   @override
@@ -157,7 +219,6 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
           CustomAppBar(
             hasBackgroundColor: true,
             isStartAligned: true,
-
             title: title,
             subtitle: subtitle,
             showBackButton: true,
@@ -205,6 +266,7 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
               ],
             ),
           ),
+          if (_selectedItemsList.isNotEmpty) _buildBottomBar(isAr),
         ],
       ),
     );
@@ -308,17 +370,27 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
           isHighNeed = item.isHighNeed;
         }
 
+        final isSelected = _selectedItemsList.any((m) => m.id == item.id);
         return Card(
           clipBehavior: Clip.antiAlias,
-          color: Colors.white,
-          elevation: 3,
-
+          color: isSelected ? const Color(0xFFE8F4FA) : Colors.white,
+          elevation: isSelected ? 5 : 3,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
+            side: BorderSide(
+              color: isSelected ? AppColors.buttonBlue : Colors.transparent,
+              width: 2,
+            ),
           ),
           child: InkWell(
             onTap: () {
-              Navigator.of(context).pop(item);
+              setState(() {
+                if (_selectedItemsList.any((m) => m.id == item.id)) {
+                  _selectedItemsList.removeWhere((m) => m.id == item.id);
+                } else {
+                  _selectedItemsList.add(item);
+                }
+              });
             },
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -387,7 +459,6 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
                                     children: [
                                       Icon(
                                         Icons.location_on_outlined,
-
                                         color: Colors.black,
                                       ),
                                       const SizedBox(width: 4),
@@ -407,6 +478,18 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
                               ],
                             ),
                           ),
+                          if (widget.slug != 'orphanages')
+                            IconButton(
+                              icon: Icon(
+                                _favoriteMosqueIds.contains(item.id)
+                                    ? Icons.favorite
+                                    : Icons.favorite_border,
+                                color: _favoriteMosqueIds.contains(item.id)
+                                    ? Colors.redAccent
+                                    : Colors.grey,
+                              ),
+                              onPressed: () => _toggleFavorite(item.id),
+                            ),
                           if (true)
                             Container(
                               margin: const EdgeInsets.only(left: 8, right: 8),
@@ -459,14 +542,19 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
       return Marker(
         markerId: MarkerId(item.id),
         position: LatLng(item.latitude, item.longitude),
-        icon: BitmapDescriptor.defaultMarkerWithHue(207.0),
+        icon: BitmapDescriptor.defaultMarkerWithHue(
+            _selectedItemsList.any((m) => m.id == item.id) ? BitmapDescriptor.hueGreen : 207.0),
         infoWindow: InfoWindow(
           title: item.localizedName(isAr),
           snippet: item.address,
         ),
         onTap: () {
           setState(() {
-            _selectedItem = item;
+            if (_selectedItemsList.any((m) => m.id == item.id)) {
+              _selectedItemsList.removeWhere((m) => m.id == item.id);
+            } else {
+              _selectedItemsList.add(item);
+            }
           });
         },
       );
@@ -495,107 +583,114 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
           myLocationButtonEnabled: true,
           zoomControlsEnabled: true,
         ),
-        if (_selectedItem != null)
-          Positioned(
-            left: 16,
-            right: 16,
-            bottom: 24,
-            child: Container(
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 10,
-                    offset: const Offset(0, 5),
+      ],
+    );
+  }
+
+  Widget _buildBottomBar(bool isAr) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        boxShadow: const [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 10,
+            offset: Offset(0, -2),
+          ),
+        ],
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SizedBox(
+            height: 40,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: _selectedItemsList.length,
+              itemBuilder: (context, index) {
+                final item = _selectedItemsList[index];
+                return Container(
+                  margin: const EdgeInsets.only(right: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: AppColors.buttonBlue.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: AppColors.buttonBlue),
                   ),
-                ],
-              ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          color: const Color(0xFF0F4A7B).withOpacity(0.1),
-                          shape: BoxShape.circle,
-                        ),
-                        child: Icon(
-                          widget.slug == 'orphanages'
-                              ? Icons.home
-                              : Icons.mosque,
-                          color: const Color(0xFF0F4A7B),
+                      Text(
+                        item.localizedName(isAr),
+                        style: const TextStyle(
+                          color: AppColors.buttonBlueDark,
+                          fontSize: 12,
+                          fontWeight: FontWeight.bold,
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              _selectedItem!.localizedName(isAr),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
-                            if (_selectedItem!.address.isNotEmpty)
-                              Text(
-                                _selectedItem!.address,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 12,
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                      IconButton(
-                        icon: const Icon(Icons.close, color: Colors.grey),
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                        onPressed: () {
+                      const SizedBox(width: 4),
+                      GestureDetector(
+                        onTap: () {
                           setState(() {
-                            _selectedItem = null;
+                            _selectedItemsList.remove(item);
                           });
                         },
+                        child: const Icon(Icons.close, size: 16, color: AppColors.buttonBlueDark),
                       ),
                     ],
                   ),
-                  const SizedBox(height: 16),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).pop(_selectedItem);
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF0F4A7B),
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 12),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                      ),
-                      child: Text(
-                        isAr ? 'تأكيد الاختيار' : 'Confirm Selection',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
+                );
+              },
             ),
           ),
-      ],
+          const SizedBox(height: 12),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () {
+                    setState(() {
+                      _selectedItemsList.clear();
+                    });
+                  },
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.red,
+                    side: const BorderSide(color: Colors.red),
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
+                  child: Text(isAr ? 'مسح الكل' : 'Clear All'),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                flex: 2,
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.of(context).pop(_selectedItemsList);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.buttonBlueDark,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
+                  child: Text(
+                    isAr ? 'تأكيد الاختيار' : 'Confirm Selection',
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }

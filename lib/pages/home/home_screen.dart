@@ -8,6 +8,9 @@ import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
+  /// Write a tab index to this notifier to switch the bottom nav tab remotely.
+  static final ValueNotifier<int?> switchTabNotifier = ValueNotifier(null);
+
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
@@ -28,6 +31,28 @@ class _HomeScreenState extends State<HomeScreen> {
     CustomBottomNavItem(icon: Icons.auto_graph_outlined, label: "Impact"),
     CustomBottomNavItem(icon: Icons.person_outline, label: "Profile"),
   ];
+
+  @override
+  void initState() {
+    super.initState();
+    HomeScreen.switchTabNotifier.addListener(_onSwitchTab);
+  }
+
+  @override
+  void dispose() {
+    HomeScreen.switchTabNotifier.removeListener(_onSwitchTab);
+    super.dispose();
+  }
+
+  void _onSwitchTab() {
+    final idx = HomeScreen.switchTabNotifier.value;
+    if (idx != null) {
+      setState(() {
+        _currentIndex = idx;
+      });
+      HomeScreen.switchTabNotifier.value = null;
+    }
+  }
 
   String _getAppBarTitle() {
     switch (_currentIndex) {

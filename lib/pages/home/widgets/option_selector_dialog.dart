@@ -4,11 +4,13 @@ import '../../../utils/colors.dart';
 class OptionSelectorDialog extends StatefulWidget {
   final String title;
   final bool showClearOption;
+  final String? initialOption;
 
   const OptionSelectorDialog({
     Key? key,
     required this.title,
     this.showClearOption = false,
+    this.initialOption,
   }) : super(key: key);
 
   @override
@@ -17,6 +19,12 @@ class OptionSelectorDialog extends StatefulWidget {
 
 class _OptionSelectorDialogState extends State<OptionSelectorDialog> {
   String? _selectedOption;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedOption = widget.initialOption;
+  }
 
   @override
   Widget build(BuildContext context) {

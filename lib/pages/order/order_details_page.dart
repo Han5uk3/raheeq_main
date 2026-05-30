@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:raheeq_main/models/order_item.dart';
 import 'package:raheeq_main/models/product.dart';
+import 'package:raheeq_main/models/place.dart';
+import 'package:raheeq_main/models/city.dart';
 import 'package:raheeq_main/pages/order/contribution_details_page.dart';
 import 'package:raheeq_main/utils/colors.dart';
 
@@ -258,17 +260,25 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
           (p) => p.product.id == product.id,
         );
 
-        String locationText = "";
         final slug = category.slug;
         final optionType = state.categoryItem.optionType;
-        String categoryLabel = category.localizedLabel(isAr);
+        String originalCategoryLabel = category.localizedLabel(isAr);
         if (slug == 'specific_mosque') {
-          categoryLabel = isAr ? 'مسجد محدد' : 'Specific Mosque';
+          originalCategoryLabel = isAr ? 'مسجد محدد' : 'Specific Mosque';
         }
 
+        String categoryLabel = originalCategoryLabel;
+        String locationText = "";
+
         if (optionType == 'specific') {
-          locationText =
-              state.categoryItem.specificData?.localizedName(isAr) ?? "";
+          final specificData = state.categoryItem.specificData;
+          if (specificData is Place) {
+            categoryLabel = specificData.localizedName(isAr);
+            locationText = specificData.address;
+          } else {
+            categoryLabel = specificData?.localizedName(isAr) ?? "";
+            locationText = "";
+          }
         } else if (optionType == 'most_in_need') {
           if (slug == 'orphanages') {
             locationText = isAr
@@ -279,9 +289,20 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                 ? 'مسجد ميقات الأشد حاجة'
                 : 'Most needy meqat mosque';
           } else if (slug == 'mosques_in_need') {
-            final city = state.categoryItem.specificData as String?;
-            locationText =
-                (isAr ? 'الأشد حاجة في ' : 'Most in need in ') + (city ?? '');
+            final specificData = state.categoryItem.specificData;
+            if (specificData != null) {
+              // Can be a City object or a String depending on where it was selected
+              if (specificData is City) {
+                categoryLabel = specificData.localizedName(isAr);
+              } else if (specificData is String) {
+                categoryLabel = specificData;
+              } else {
+                try {
+                  categoryLabel = specificData.localizedName(isAr);
+                } catch (_) {}
+              }
+            }
+            locationText = "";
           } else {
             locationText = isAr ? 'الأشد حاجة' : 'Most in need';
           }
@@ -289,6 +310,12 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
           locationText = "";
         } else {
           locationText = isAr ? "غير محدد" : "General";
+        }
+
+        // If the title of the card was changed to something specific (like a mosque name or city name),
+        // show the original category name where the location would normally be shown.
+        if (categoryLabel != originalCategoryLabel) {
+          locationText = originalCategoryLabel;
         }
 
         return Card(
@@ -320,7 +347,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                           if (locationText.isNotEmpty) ...[
                             const SizedBox(height: 4),
                             Text(
-                              "${isAr ? 'الموقع' : 'Location'}: $locationText",
+                              locationText,
                               style: TextStyle(
                                 fontSize: 13,
                                 color: Colors.grey[600],

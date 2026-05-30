@@ -6,6 +6,7 @@ import 'package:raheeq_main/common_widgets/language_switch.dart';
 import 'package:raheeq_main/models/banner_data.dart';
 import 'package:raheeq_main/models/campaign.dart';
 import 'package:raheeq_main/models/category.dart';
+import 'package:raheeq_main/models/place.dart';
 import 'package:raheeq_main/models/product.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/api/apis.dart';
@@ -21,6 +22,14 @@ import 'package:raheeq_main/pages/order/choose_water_package_screen.dart';
 class HomeTab extends StatefulWidget {
   const HomeTab({super.key});
 
+  /// Queue a mosque selection to be picked up when the Home tab becomes active.
+  static void scheduleMosqueItem(SelectedCategoryItem item) {
+    _HomeTabState._pendingItems.add(item);
+  }
+
+  /// Exposes the cached categories list to external pages.
+  static List<Category> get cachedCategories => _HomeTabState._cachedCategories;
+
   @override
   State<HomeTab> createState() => _HomeTabState();
 }
@@ -35,6 +44,10 @@ class _HomeTabState extends State<HomeTab> {
   static List<Campaign> _cachedCampaigns = [];
   static List<Category> _cachedCategories = [];
   static List<Product> _cachedProducts = [];
+  static List<Product> _cachedEssentialProducts = [];
+
+  // Queue for items added from external pages (e.g., Saved Mosques)
+  static final List<SelectedCategoryItem> _pendingItems = [];
 
   bool _isLoading = true;
   String? _errorMessage;
@@ -43,7 +56,8 @@ class _HomeTabState extends State<HomeTab> {
   List<Campaign> _campaigns = [];
   List<Category> _categories = [];
   List<Product> _products = [];
-  List<SelectedCategoryItem> _selectedItems = [];
+  List<Product> _essentialProducts = [];
+  static List<SelectedCategoryItem> _selectedItems = [];
 
   int _currentIndex = 0;
 
@@ -55,14 +69,49 @@ class _HomeTabState extends State<HomeTab> {
       _campaigns = _cachedCampaigns;
       _categories = _cachedCategories;
       _products = _cachedProducts;
+      _essentialProducts = _cachedEssentialProducts;
       _isLoading = false;
       if (_bannerData.isNotEmpty) {
         _currentIndex = 1000 % _bannerData.length;
       }
-    } else {
-      _fetchHomeData();
     }
+    _fetchHomeData();
     _startTimer();
+    _drainPendingItems();
+  }
+
+  void _drainPendingItems() {
+    if (_pendingItems.isNotEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          setState(() {
+            for (var pending in _pendingItems) {
+              if (pending.optionType == 'specific' &&
+                  pending.specificData is Place) {
+                final pendingPlace = pending.specificData as Place;
+                bool exists = _selectedItems.any((item) {
+                  return item.optionType == 'specific' &&
+                      item.specificData is Place &&
+                      (item.specificData as Place).id == pendingPlace.id;
+                });
+                if (!exists) {
+                  _selectedItems.add(pending);
+                }
+              } else {
+                _selectedItems.add(pending);
+              }
+            }
+            _pendingItems.clear();
+          });
+        }
+      });
+    }
+  }
+
+  @override
+  void didUpdateWidget(HomeTab oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    _drainPendingItems();
   }
 
   @override
@@ -114,10 +163,16 @@ class _HomeTabState extends State<HomeTab> {
         final products = ((data['products'] as List<dynamic>?) ?? [])
             .map((p) => Product.fromJson(p as Map<String, dynamic>))
             .toList();
+        final essentialProducts =
+            ((data['essentialProducts'] as List<dynamic>?) ?? [])
+                .map((p) => Product.fromJson(p as Map<String, dynamic>))
+                .toList();
+
         _cachedBannerData = banners;
         _cachedCampaigns = campaigns;
         _cachedCategories = categories;
         _cachedProducts = products;
+        _cachedEssentialProducts = essentialProducts;
         _hasLoadedOnce = true;
 
         if (mounted) {
@@ -126,6 +181,7 @@ class _HomeTabState extends State<HomeTab> {
             _campaigns = campaigns;
             _categories = categories;
             _products = products;
+            _essentialProducts = essentialProducts;
             _isLoading = false;
             _errorMessage = null;
 
@@ -872,8 +928,13 @@ class _HomeTabState extends State<HomeTab> {
           itemBuilder: (context, index) {
             final category = _categories[index];
             final label = category.localizedLabel(isAr);
-            final imageUrl = category.image.trim();
+            String imageUrl = category.image.trim();
             final slug = category.slug;
+
+            if (slug == 'specific_mosque') {
+              imageUrl = 'assets/choose_mosque.png';
+            }
+
             final existingIndex = _selectedItems.indexWhere(
               (item) => item.category.id == category.id,
             );
@@ -894,23 +955,34 @@ class _HomeTabState extends State<HomeTab> {
                 }
 
                 if (slug == 'orphanages' || slug == 'meqat_mosques') {
+                  String? initialOption;
+                  if (isSelected) {
+                    initialOption = _selectedItems[existingIndex].optionType;
+                  }
+
                   final result = await showDialog<String>(
                     context: context,
                     builder: (_) => OptionSelectorDialog(
                       title: label,
                       showClearOption: isSelected,
+                      initialOption: initialOption,
                     ),
                   );
                   if (result != null) {
                     if (result == 'clear') {
                       setState(() {
-                        _selectedItems.removeAt(existingIndex);
+                        _selectedItems.removeWhere(
+                          (item) => item.category.slug == slug,
+                        );
                       });
                       return;
                     }
 
                     if (result == 'most_in_need') {
                       setState(() {
+                        _selectedItems.removeWhere(
+                          (item) => item.category.slug == slug,
+                        );
                         _selectedItems.add(
                           SelectedCategoryItem(
                             category: category,
@@ -919,21 +991,46 @@ class _HomeTabState extends State<HomeTab> {
                         );
                       });
                     } else if (result == 'specific') {
-                      final specificItem = await Navigator.of(context).push(
+                      final currentlySelected = _selectedItems
+                          .where(
+                            (item) =>
+                                item.category.slug == slug &&
+                                item.specificData is Place,
+                          )
+                          .map((item) => item.specificData as Place)
+                          .toList();
+
+                      final specificItems = await Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (_) =>
-                              SpecificMosquePage(slug: category.slug),
+                          builder: (_) => SpecificMosquePage(
+                            slug: category.slug,
+                            initialSelections: currentlySelected,
+                          ),
                         ),
                       );
-                      if (specificItem != null) {
+                      if (specificItems != null &&
+                          specificItems is List<Place>) {
                         setState(() {
-                          _selectedItems.add(
-                            SelectedCategoryItem(
-                              category: category,
-                              optionType: 'specific',
-                              specificData: specificItem,
-                            ),
+                          _selectedItems.removeWhere(
+                            (item) => item.category.slug == slug,
                           );
+                          for (final specificItem in specificItems) {
+                            bool exists = _selectedItems.any((item) {
+                              return item.optionType == 'specific' &&
+                                  item.specificData is Place &&
+                                  (item.specificData as Place).id ==
+                                      specificItem.id;
+                            });
+                            if (!exists) {
+                              _selectedItems.add(
+                                SelectedCategoryItem(
+                                  category: category,
+                                  optionType: 'specific',
+                                  specificData: specificItem,
+                                ),
+                              );
+                            }
+                          }
                         });
                       }
                     }
@@ -960,20 +1057,41 @@ class _HomeTabState extends State<HomeTab> {
                 }
 
                 if (slug == 'specific_mosque') {
-                  final mosque = await Navigator.of(context).push(
+                  final currentlySelected = _selectedItems
+                      .where(
+                        (item) =>
+                            item.category.slug == slug &&
+                            item.specificData is Place,
+                      )
+                      .map((item) => item.specificData as Place)
+                      .toList();
+
+                  final mosques = await Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) => SpecificMosquePage(slug: category.slug),
+                      builder: (_) => SpecificMosquePage(
+                        slug: category.slug,
+                        initialSelections: currentlySelected,
+                      ),
                     ),
                   );
-                  if (mosque != null) {
+                  if (mosques != null && mosques is List<Place>) {
                     setState(() {
-                      _selectedItems.add(
-                        SelectedCategoryItem(
-                          category: category,
-                          optionType: 'specific',
-                          specificData: mosque,
-                        ),
-                      );
+                      for (final mosque in mosques) {
+                        bool exists = _selectedItems.any((item) {
+                          return item.optionType == 'specific' &&
+                              item.specificData is Place &&
+                              (item.specificData as Place).id == mosque.id;
+                        });
+                        if (!exists) {
+                          _selectedItems.add(
+                            SelectedCategoryItem(
+                              category: category,
+                              optionType: 'specific',
+                              specificData: mosque,
+                            ),
+                          );
+                        }
+                      }
                     });
                   }
                   return;
@@ -1001,7 +1119,9 @@ class _HomeTabState extends State<HomeTab> {
                 onClear: existingIndex != -1
                     ? () {
                         setState(() {
-                          _selectedItems.removeAt(existingIndex);
+                          _selectedItems.removeWhere(
+                            (item) => item.category.slug == slug,
+                          );
                         });
                       }
                     : null,
@@ -1015,7 +1135,7 @@ class _HomeTabState extends State<HomeTab> {
 
   Widget buildFeaturedProductsSection(BuildContext context) {
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
-    if (_products.isEmpty) return const SizedBox.shrink();
+    if (_essentialProducts.isEmpty) return const SizedBox.shrink();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1023,7 +1143,7 @@ class _HomeTabState extends State<HomeTab> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
-            isAr ? "منتجات متميزة" : "Featured Products",
+            isAr ? "مستلزمات المساجد الأساسية" : "Essential Mosque Supplies",
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -1033,23 +1153,24 @@ class _HomeTabState extends State<HomeTab> {
         ),
         const SizedBox(height: 16),
         SizedBox(
-          height: 230,
+          height: 330,
           child: ListView.builder(
             padding: EdgeInsets.zero,
             scrollDirection: Axis.horizontal,
-            itemCount: _products.length,
+            itemCount: _essentialProducts.length,
             itemBuilder: (context, index) {
-              final product = _products[index];
+              final product = _essentialProducts[index];
               final name = product.localizedName(isAr);
               final subtitle = product.localizedSubtitle(isAr);
               final imageUrl = product.image;
               final price = product.price;
 
               return Container(
-                width: 200,
+                width: 260,
+
                 margin: EdgeInsets.only(
                   left: index == 0 ? 16 : 8,
-                  right: index == _products.length - 1 ? 16 : 8,
+                  right: index == _essentialProducts.length - 1 ? 16 : 8,
                   bottom: 12,
                 ),
                 decoration: BoxDecoration(
@@ -1064,80 +1185,146 @@ class _HomeTabState extends State<HomeTab> {
                     ),
                   ],
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      child: Padding(
-                        padding: const EdgeInsets.only(
-                          left: 12,
-                          right: 12,
-                          top: 12,
+                child: Padding(
+                  padding: const EdgeInsets.all(12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      if (product.isHighNeed) ...[
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(
+                              0xff1A6A8F,
+                            ).withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.trending_up_outlined,
+                                color: AppColors.buttonBlue,
+                                size: 15,
+                              ),
+                              SizedBox(width: 4),
+                              Text(
+                                isAr ? 'حاجة عالية' : 'High Need',
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.buttonBlue,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
+                        const SizedBox(height: 6),
+                      ],
+                      Text(
+                        name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      Text(
+                        subtitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.black54,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Expanded(
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(16),
-                          child: Container(
-                            width: double.infinity,
-                            color: const Color(0xFFF8FAFB),
-                            child: CachedNetworkImage(
-                              imageUrl: imageUrl,
-                              fit: BoxFit.contain,
-                              placeholder: (context, url) => const Center(
-                                child: WaterLoadingIndicator(size: 30),
-                              ),
-                              errorWidget: (context, url, error) => const Icon(
-                                Icons.water_drop,
-                                size: 40,
-                                color: AppColors.buttonBlue,
-                              ),
+                          child: CachedNetworkImage(
+                            imageUrl: imageUrl,
+                            fit: BoxFit.contain,
+                            placeholder: (context, url) => const Center(
+                              child: WaterLoadingIndicator(size: 30),
+                            ),
+                            errorWidget: (context, url, error) => const Icon(
+                              Icons.water_drop,
+                              size: 40,
+                              color: AppColors.buttonBlue,
                             ),
                           ),
                         ),
                       ),
-                    ),
-                    Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      const SizedBox(height: 12),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          Text(
-                            name,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            subtitle,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontSize: 11,
-                              color: Colors.black54,
-                            ),
-                          ),
-                          const SizedBox(height: 10),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              Text(
+                                isAr ? 'السعر' : 'Starting from',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey,
+                                ),
+                              ),
                               Text(
                                 "$price SAR",
                                 style: const TextStyle(
-                                  fontSize: 14,
+                                  fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                   color: AppColors.buttonBlue,
                                 ),
                               ),
                             ],
                           ),
+                          ElevatedButton(
+                            onPressed: () {
+                              // TODO: Add donate action
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.buttonBlue,
+                              minimumSize: const Size(70, 32),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                              ),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              elevation: 0,
+                            ),
+                            child: Row(
+                              children: [
+                                Text(
+                                  isAr ? 'تبرع الآن' : 'Donate Now',
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                                const SizedBox(width: 4),
+                                const Icon(
+                                  Icons.arrow_forward,
+                                  size: 12,
+                                  color: Colors.white,
+                                ),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               );
             },
@@ -1302,6 +1489,8 @@ class _HomeTabState extends State<HomeTab> {
                                 size: 32,
                               ),
                             )
+                          : imgPath.startsWith('assets/')
+                          ? Image.asset(imgPath, fit: BoxFit.contain)
                           : CachedNetworkImage(
                               imageUrl: imgPath,
                               fit: BoxFit.contain,

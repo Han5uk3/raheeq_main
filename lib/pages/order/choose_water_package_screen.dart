@@ -33,7 +33,7 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
   final Map<String, int> _selections = {};
 
   List<Product> get _waterProducts {
-    return widget.availableProducts
+    final products = widget.availableProducts
         .where(
           (p) =>
               p.slug.contains('water') ||
@@ -42,6 +42,16 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
               p.slug.contains('carton'),
         )
         .toList();
+        
+    products.sort((a, b) {
+      final aIsChiller = a.slug.contains('chiller');
+      final bIsChiller = b.slug.contains('chiller');
+      if (aIsChiller && !bIsChiller) return -1;
+      if (!aIsChiller && bIsChiller) return 1;
+      return 0;
+    });
+    
+    return products;
   }
 
   bool get _isContinueEnabled {
@@ -286,6 +296,7 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
         }
       },
       child: Card(
+        color: Colors.white,
         elevation: isSelected ? 3 : 1,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),

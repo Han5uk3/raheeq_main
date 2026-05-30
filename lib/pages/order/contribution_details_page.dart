@@ -148,58 +148,79 @@ class ContributionDetailsPage extends StatelessWidget {
                               ),
                             ),
                             const SizedBox(height: 16),
-                            Card(
-                              color: Colors.white,
-                              elevation: 3,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Row(
-                                  children: [
-                                    Image.asset(
-                                      "assets/images/giftcard.png",
-                                      width: 80,
-                                      height: 80,
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          isAr
-                                              ? 'هل ترغب في إهداء شخص قريب منك؟'
-                                              : 'Do you want to give a gift to someone close to you?',
-                                          style: const TextStyle(
-                                            fontSize: 16,
-                                            fontWeight: FontWeight.bold,
+                            GestureDetector(
+                              onTap: () {
+                                //todo gift card workflow
+                              },
+                              child: Card(
+                                color: Colors.white,
+                                elevation: 3,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Row(
+                                    children: [
+                                      Container(
+                                        decoration: BoxDecoration(
+                                          color: AppColors.buttonBlueDark,
+                                          borderRadius: BorderRadius.circular(
+                                            16,
                                           ),
                                         ),
-                                        const SizedBox(height: 8),
-                                        Align(
-                                          alignment:
-                                              AlignmentDirectional.centerEnd,
-                                          child: Container(
-                                            decoration: const BoxDecoration(
+                                        child: Image.asset(
+                                          "assets/giftcard.png",
+                                          width: 100,
+                                          height: 100,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Icon(
+                                              size: 24,
+                                              Icons.card_giftcard_outlined,
                                               color: AppColors.buttonBlueDark,
-                                              shape: BoxShape.circle,
                                             ),
-                                            child: IconButton(
-                                              icon: const Icon(
-                                                Icons.arrow_forward,
-                                                color: Colors.white,
+                                            Text(
+                                              isAr
+                                                  ? 'هل ترغب في إهداء شخص قريب منك؟'
+                                                  : 'Do you want to give a gift to someone close to you?',
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.w400,
                                               ),
-                                              onPressed: () {
-                                                // Handle gift action
-                                              },
                                             ),
-                                          ),
+                                            const SizedBox(height: 8),
+                                            Align(
+                                              alignment: AlignmentDirectional
+                                                  .centerEnd,
+                                              child: Container(
+                                                height: 28,
+                                                width: 28,
+                                                decoration: BoxDecoration(
+                                                  color:
+                                                      AppColors.buttonBlueDark,
+                                                  shape: BoxShape.circle,
+                                                ),
+                                                child: Icon(
+                                                  size: 12,
+                                                  Icons.arrow_forward,
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
                                         ),
-                                      ],
-                                    ),
-                                  ],
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
                             ),
