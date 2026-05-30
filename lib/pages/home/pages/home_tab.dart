@@ -6,6 +6,7 @@ import 'package:raheeq_main/common_widgets/language_switch.dart';
 import 'package:raheeq_main/models/banner_data.dart';
 import 'package:raheeq_main/models/campaign.dart';
 import 'package:raheeq_main/models/category.dart';
+import 'package:raheeq_main/models/city.dart';
 import 'package:raheeq_main/models/place.dart';
 import 'package:raheeq_main/models/product.dart';
 import 'package:raheeq_main/utils/colors.dart';
@@ -1039,18 +1040,44 @@ class _HomeTabState extends State<HomeTab> {
                 }
 
                 if (slug == 'mosques_in_need') {
-                  final city = await Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const CitySelectorPage()),
+                  final currentlySelected = _selectedItems
+                      .where(
+                        (item) =>
+                            item.category.slug == slug &&
+                            item.specificData is City,
+                      )
+                      .map((item) => item.specificData as City)
+                      .toList();
+
+                  final cities = await Navigator.of(context).push<List<City>>(
+                    MaterialPageRoute(
+                      builder: (_) => CitySelectorPage(
+                        initialSelections: currentlySelected,
+                      ),
+                    ),
                   );
-                  if (city != null) {
+
+                  if (cities != null && cities.isNotEmpty) {
                     setState(() {
-                      _selectedItems.add(
-                        SelectedCategoryItem(
-                          category: category,
-                          optionType: 'most_in_need',
-                          specificData: city,
-                        ),
+                      _selectedItems.removeWhere(
+                        (item) => item.category.slug == slug,
                       );
+                      for (final city in cities) {
+                        bool exists = _selectedItems.any((item) {
+                          return item.optionType == 'most_in_need' &&
+                              item.specificData is City &&
+                              (item.specificData as City).id == city.id;
+                        });
+                        if (!exists) {
+                          _selectedItems.add(
+                            SelectedCategoryItem(
+                              category: category,
+                              optionType: 'most_in_need',
+                              specificData: city,
+                            ),
+                          );
+                        }
+                      }
                     });
                   }
                   return;

@@ -27,9 +27,9 @@ class _SavedMosquesPageState extends State<SavedMosquesPage> {
 
   // A synthetic Category representing mosques for the order queue
   static const _mosquesCategory = Category(
-    id: 'mosques',
-    slug: 'mosques',
-    labelEn: 'Mosques',
+    id: 'specific_mosque',
+    slug: 'specific_mosque',
+    labelEn: 'Choose Specific Mosque',
     labelAr: 'مساجد',
     image: '',
     sortOrder: 0,
@@ -104,7 +104,7 @@ class _SavedMosquesPageState extends State<SavedMosquesPage> {
 
   void _confirmSelection() {
     final realCategory = HomeTab.cachedCategories.firstWhere(
-      (c) => c.slug == 'mosques',
+      (c) => c.slug == 'specific_mosque',
       orElse: () => _mosquesCategory,
     );
 
