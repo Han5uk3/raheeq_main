@@ -243,6 +243,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_paytabs_bridge:
+    dependency: "direct main"
+    description:
+      name: flutter_paytabs_bridge
+      sha256: fc48e68848147a8edf41b27f9068b988c4fb28ff9778bf20560a90be0b4dddfb
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.7.13"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:

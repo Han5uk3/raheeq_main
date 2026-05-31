@@ -7,6 +7,7 @@ import 'package:raheeq_main/models/user.dart';
 import 'package:raheeq_main/pages/home/pages/my_profile_screen.dart';
 import 'package:raheeq_main/pages/home/pages/saved_mosques_page.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
+import 'package:raheeq_main/pages/home/pages/my_wallet_page.dart';
 
 class ProfileTab extends StatefulWidget {
   const ProfileTab({super.key});
@@ -228,6 +229,18 @@ class _ProfileTabState extends State<ProfileTab> {
                                 const SizedBox(height: 16),
 
                                 _buildSection("Payment & orders", [
+                                  _buildMenuTile(
+                                    icon: Icons.account_balance_wallet_outlined,
+                                    title: "My Wallet",
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => const MyWalletPage(),
+                                        ),
+                                      );
+                                    },
+                                  ),
                                   _buildMenuTile(
                                     icon: Icons.payment_outlined,
                                     title: "Payment Methods",

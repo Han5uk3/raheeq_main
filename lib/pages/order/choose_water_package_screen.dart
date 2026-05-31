@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
+import 'package:raheeq_main/common_widgets/bottom_action_pill.dart';
 import 'package:raheeq_main/models/order_item.dart';
 import 'package:raheeq_main/models/product.dart';
 import 'package:raheeq_main/models/selected_category_item.dart';
@@ -42,7 +43,7 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
               p.slug.contains('carton'),
         )
         .toList();
-        
+
     products.sort((a, b) {
       final aIsChiller = a.slug.contains('chiller');
       final bIsChiller = b.slug.contains('chiller');
@@ -50,7 +51,7 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
       if (!aIsChiller && bIsChiller) return 1;
       return 0;
     });
-    
+
     return products;
   }
 
@@ -111,55 +112,19 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
       floatingActionButton: _isContinueEnabled
           ? Padding(
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 0),
-              child: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 12,
+              child: BottomActionPill(
+                titleWidget: Text(
+                  isAr
+                      ? 'محدد: ${_selections.length} عناصر'
+                      : 'Selected: ${_selections.length} items',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
-                decoration: BoxDecoration(
-                  color: AppColors.buttonBlueDark,
-                  borderRadius: BorderRadius.circular(30),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 10,
-                      offset: const Offset(0, 5),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      isAr
-                          ? 'محدد: ${_selections.length} عناصر'
-                          : 'Selected: ${_selections.length} items',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                    ElevatedButton(
-                      onPressed: _navigateToReview,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: AppColors.buttonBlueDark,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 12,
-                        ),
-                      ),
-                      child: Text(
-                        isAr ? 'متابعة' : 'Continue',
-                        style: const TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                  ],
-                ),
+                buttonText: isAr ? 'متابعة' : 'Continue',
+                onButtonTap: _navigateToReview,
               ),
             )
           : null,
@@ -269,7 +234,9 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
         : (currentQty == qty);
 
     final displayQty = isCustom && isSelected ? currentQty : (qty ?? 0);
-    final totalPrice = displayQty > 0 ? (product.price * displayQty) : 0.0;
+    final totalPrice = displayQty > 0
+        ? ((product.price + product.deliveryFee) * displayQty)
+        : 0.0;
 
     String title;
     if (isCustom) {

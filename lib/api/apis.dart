@@ -506,4 +506,95 @@ class ApiService {
       rethrow;
     }
   }
+
+  /// Create Checkout - Quick
+  Future<Response> createCheckoutQuick({
+    required List<Map<String, dynamic>> items,
+    Map<String, dynamic>? subscription,
+  }) async {
+    try {
+      final data = <String, dynamic>{'items': items};
+      if (subscription != null) {
+        data['subscription'] = subscription;
+      }
+      final response = await _dio.post('/checkout', data: data);
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Create Checkout - Campaign
+  Future<Response> createCheckoutCampaign({
+    required String campaignId,
+    required List<Map<String, dynamic>> items,
+    Map<String, dynamic>? subscription,
+  }) async {
+    try {
+      final data = <String, dynamic>{'campaignId': campaignId, 'items': items};
+      if (subscription != null) {
+        data['subscription'] = subscription;
+      }
+      final response = await _dio.post('/checkout', data: data);
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Apply Coupon
+  Future<Response> applyCoupon(String couponCode) async {
+    try {
+      final response = await _dio.post(
+        '/checkout/coupon',
+        data: {'couponCode': couponCode},
+      );
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Remove Coupon
+  Future<Response> removeCoupon() async {
+    try {
+      final response = await _dio.delete('/checkout/coupon');
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Toggle Wallet
+  Future<Response> toggleWallet(bool useWallet) async {
+    try {
+      final response = await _dio.patch(
+        '/checkout/wallet',
+        data: {'useWallet': useWallet},
+      );
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Get Subscription Plans
+  Future<Response> getSubscriptionPlans() async {
+    try {
+      final response = await _dio.get('/subscription-plans');
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Get Wallet Data
+  Future<Response> getWallet() async {
+    try {
+      final response = await _dio.get('/wallet');
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
 }

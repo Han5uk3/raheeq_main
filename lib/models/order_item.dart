@@ -25,7 +25,7 @@ class OrderCategoryState {
   double get totalPrice {
     return selectedProducts.fold(
       0,
-      (sum, item) => sum + (item.product.price * item.quantity),
+      (sum, item) => sum + ((item.product.price + item.product.deliveryFee) * item.quantity),
     );
   }
 }

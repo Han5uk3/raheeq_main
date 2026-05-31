@@ -8,6 +8,7 @@ class Product {
   final String? message;
   final String? messageAr;
   final double price;
+  final double deliveryFee;
   final String image;
   final bool isHighNeed;
   final List<int> presetQuantities;
@@ -23,6 +24,7 @@ class Product {
     this.message,
     this.messageAr,
     required this.price,
+    this.deliveryFee = 0.0,
     required this.image,
     required this.isHighNeed,
     required this.presetQuantities,
@@ -41,6 +43,7 @@ class Product {
       message: json['message'] as String?,
       messageAr: json['messageAr'] as String?,
       price: (json['price'] as num?)?.toDouble() ?? 0.0,
+      deliveryFee: (json['deliveryFee'] as num?)?.toDouble() ?? 0.0,
       image: json['image'] as String? ?? '',
       isHighNeed: json['isHighNeed'] == true,
       presetQuantities:
@@ -60,6 +63,7 @@ class Product {
       'message': message,
       'messageAr': messageAr,
       'price': price,
+      'deliveryFee': deliveryFee,
       'image': image,
       'isHighNeed': isHighNeed,
       'presetQuantities': presetQuantities,
@@ -84,10 +88,11 @@ class Product {
     return quantities.toList()..sort();
   }
 
-  /// Formats the unit price as a localised string.
+  /// Formats the unit price as a localised string (including delivery fee).
   String formattedPrice(bool isAr) {
+    final double totalUnitPrice = price + deliveryFee;
     final formatted =
-        price.toStringAsFixed(price.truncateToDouble() == price ? 0 : 2);
+        totalUnitPrice.toStringAsFixed(totalUnitPrice.truncateToDouble() == totalUnitPrice ? 0 : 2);
     return isAr ? '$formatted ر.س / وحدة' : '$formatted SAR / unit';
   }
 }

@@ -48,7 +48,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
           : Colors.transparent,
 
       leading: leadingWidget,
-      leadingWidth: showBackButton ? 56 : null,
+      leadingWidth: showBackButton ? 64 : null,
       title: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: isStartAligned
@@ -83,26 +83,16 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   Widget _buildBackButton(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(6.0),
+      padding: const EdgeInsetsDirectional.only(start: 16, top: 4, bottom: 4),
       child: Container(
         decoration: const BoxDecoration(
           color: Colors.white,
           shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 4,
-              offset: Offset(0, 2),
-            ),
-          ],
         ),
-        child: Center(
-          child: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.black, size: 20),
-            onPressed: onBackTap ?? () => Navigator.pop(context),
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(),
-          ),
+        child: IconButton(
+          highlightColor: Colors.transparent,
+          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          onPressed: onBackTap ?? () => Navigator.pop(context),
         ),
       ),
     );
@@ -162,7 +152,7 @@ class CustomSliverAppBar extends StatelessWidget {
         statusBarBrightness: Brightness.light,
       ),
       leading: leadingWidget,
-      leadingWidth: showBackButton ? 56 : null,
+      leadingWidth: showBackButton ? 64 : null,
       actions: actions,
       centerTitle: isStartAligned ? false : centerTitle,
       // If there is no subtitle, place the title in standard AppBar title.
@@ -220,26 +210,16 @@ class CustomSliverAppBar extends StatelessWidget {
 
   Widget _buildBackButton(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.all(8.0),
+      padding: const EdgeInsetsDirectional.only(start: 16, top: 4, bottom: 4),
       child: Container(
         decoration: const BoxDecoration(
           color: Colors.white,
           shape: BoxShape.circle,
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black12,
-              blurRadius: 4,
-              offset: Offset(0, 2),
-            ),
-          ],
         ),
-        child: Center(
-          child: IconButton(
-            icon: const Icon(Icons.arrow_back, color: Colors.black, size: 20),
-            onPressed: onBackTap ?? () => Navigator.pop(context),
-            padding: EdgeInsets.zero,
-            constraints: const BoxConstraints(),
-          ),
+        child: IconButton(
+          highlightColor: Colors.transparent,
+          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          onPressed: onBackTap ?? () => Navigator.pop(context),
         ),
       ),
     );

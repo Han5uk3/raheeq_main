@@ -19,6 +19,7 @@ import 'specific_mosque_page.dart';
 import '../widgets/option_selector_dialog.dart';
 import 'package:raheeq_main/models/selected_category_item.dart';
 import 'package:raheeq_main/pages/order/choose_water_package_screen.dart';
+import 'package:raheeq_main/common_widgets/bottom_action_pill.dart';
 
 class HomeTab extends StatefulWidget {
   const HomeTab({super.key});
@@ -473,64 +474,31 @@ class _HomeTabState extends State<HomeTab> {
             left: 16,
             right: 16,
             bottom: 130,
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: AppColors.buttonBlue,
-                borderRadius: BorderRadius.circular(30),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
-                    blurRadius: 10,
-                    offset: const Offset(0, -2),
-                  ),
-                ],
+            child: BottomActionPill(
+              titleWidget: Text(
+                isAr
+                    ? 'محدد: ${_selectedItems.length} عناصر'
+                    : 'Selected: ${_selectedItems.length} items',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
+                ),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    isAr
-                        ? 'محدد: ${_selectedItems.length} عناصر'
-                        : 'Selected: ${_selectedItems.length} items',
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      // Navigate to QuickServicePage with the first selected item, as a placeholder
-                      if (_selectedItems.isNotEmpty) {
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (_) => ChooseWaterPackageScreen(
-                              selectedCategories: _selectedItems,
-                              availableProducts: List<Product>.from(_products),
-                            ),
-                          ),
-                        );
-                      }
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.white,
-                      foregroundColor: AppColors.buttonBlue,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 24,
-                        vertical: 12,
+              buttonText: isAr ? 'اطلب الآن' : 'Order Now',
+              onButtonTap: () {
+                // Navigate to QuickServicePage with the first selected item, as a placeholder
+                if (_selectedItems.isNotEmpty) {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) => ChooseWaterPackageScreen(
+                        selectedCategories: _selectedItems,
+                        availableProducts: List<Product>.from(_products),
                       ),
                     ),
-                    child: Text(
-                      isAr ? 'اطلب الآن' : 'Order Now',
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                  ),
-                ],
-              ),
+                  );
+                }
+              },
             ),
           ),
       ],
@@ -713,6 +681,123 @@ class _HomeTabState extends State<HomeTab> {
     );
   }
 
+  Future<bool> _showClearBasketDialog(
+    BuildContext context,
+    String targetName,
+    bool isAr,
+  ) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        child: Container(
+          padding: const EdgeInsets.all(24),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withValues(alpha: 0.1),
+                blurRadius: 10,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.warning_amber_rounded,
+                  color: Colors.orange,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                isAr ? 'تحذير' : 'Warning',
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                isAr
+                    ? 'سيتم مسح السلة الحالية والانتقال إلى $targetName.'
+                    : 'Your current basket will be cleared and you will be moved to $targetName.',
+                textAlign: TextAlign.start,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.black54,
+                  height: 1.5,
+                ),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.of(ctx).pop(false),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      child: Text(
+                        isAr ? 'إلغاء' : 'Cancel',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.of(ctx).pop(true),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.buttonBlueDark,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      child: Text(
+                        isAr ? 'مفهوم' : 'I understand',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+    return result == true;
+  }
+
   Widget buildCampaignCard(BuildContext context, Campaign campaign, int index) {
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
     final title = campaign.localizedTitle(isAr);
@@ -725,12 +810,32 @@ class _HomeTabState extends State<HomeTab> {
         : const Color(0xFF086091);
 
     return GestureDetector(
-      onTap: () {
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => CampaignDetailPage(campaign: campaign),
-          ),
-        );
+      onTap: () async {
+        if (_selectedItems.isNotEmpty) {
+          final shouldProceed = await _showClearBasketDialog(
+            context,
+            title,
+            isAr,
+          );
+          if (shouldProceed) {
+            setState(() {
+              _selectedItems.clear();
+            });
+            if (context.mounted) {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => CampaignDetailPage(campaign: campaign),
+                ),
+              );
+            }
+          }
+        } else {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => CampaignDetailPage(campaign: campaign),
+            ),
+          );
+        }
       },
       child: Container(
         height: isEven ? 200 : 150,
@@ -1315,8 +1420,23 @@ class _HomeTabState extends State<HomeTab> {
                             ],
                           ),
                           ElevatedButton(
-                            onPressed: () {
-                              // TODO: Add donate action
+                            onPressed: () async {
+                              if (_selectedItems.isNotEmpty) {
+                                final shouldProceed =
+                                    await _showClearBasketDialog(
+                                      context,
+                                      name,
+                                      isAr,
+                                    );
+                                if (shouldProceed) {
+                                  setState(() {
+                                    _selectedItems.clear();
+                                  });
+                                  // TODO: Add donate action
+                                }
+                              } else {
+                                // TODO: Add donate action
+                              }
                             },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.buttonBlue,

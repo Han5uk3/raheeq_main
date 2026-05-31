@@ -5,7 +5,13 @@ import 'package:raheeq_main/models/product.dart';
 import 'package:raheeq_main/models/place.dart';
 import 'package:raheeq_main/models/city.dart';
 import 'package:raheeq_main/pages/order/contribution_details_page.dart';
+import 'package:raheeq_main/common_widgets/bottom_action_pill.dart';
 import 'package:raheeq_main/utils/colors.dart';
+import 'package:raheeq_main/api/apis.dart';
+import 'package:raheeq_main/models/checkout.dart';
+import 'dart:developer';
+import 'package:raheeq_main/pages/order/subscription_plan_selection_page.dart';
+import 'package:raheeq_main/common_widgets/water_loading.dart';
 
 class ReviewOrderPage extends StatefulWidget {
   final List<OrderCategoryState> orderStates;
@@ -103,7 +109,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                         Expanded(
                           child: _buildDonationOption(
                             isAr: isAr,
-                            title: isAr ? 'شهري' : 'Monthly',
+                            title: isAr ? 'شهري' : 'Subscription',
                             subtitle: isAr ? 'أثر مستدام' : 'Recurring impact',
                             icon: Icons.sync,
                             isSelected: selectedType == 'monthly',
@@ -121,19 +127,8 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                       width: double.infinity,
                       height: 56,
                       child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.pop(ctx);
-                          _navigateToDetails(
-                            context,
-                            isAr
-                                ? (selectedType == 'one_time'
-                                      ? 'تبرع لمرة واحدة'
-                                      : 'تبرع شهري متكرر')
-                                : (selectedType == 'one_time'
-                                      ? 'One-time Donation'
-                                      : 'Monthly Recurring'),
-                          );
-                        },
+                        onPressed: () =>
+                            _processCheckout(context, selectedType, ctx),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(
                             0xFF196482,
@@ -160,6 +155,110 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
         );
       },
     );
+  }
+
+  List<Map<String, dynamic>> _prepareCheckoutItems() {
+    final List<Map<String, dynamic>> items = [];
+    for (final state in widget.orderStates) {
+      final category = state.categoryItem.category;
+      for (final sp in state.selectedProducts) {
+        final item = <String, dynamic>{
+          'productId': sp.product.id,
+          'quantity': sp.quantity,
+        };
+        if (sp.notes != null && sp.notes!.trim().isNotEmpty) {
+          item['note'] = sp.notes!.trim();
+        }
+        final optionType = state.categoryItem.optionType;
+        final slug = category.slug;
+        if (optionType == 'specific') {
+          final specificData = state.categoryItem.specificData;
+          if (specificData is Place) {
+            item['locationId'] = specificData.id;
+          } else if (specificData is City) {
+            item['cityId'] = specificData.id;
+          }
+        } else {
+          item['categorySlug'] = slug;
+        }
+        items.add(item);
+      }
+    }
+    return items;
+  }
+
+  Future<void> _processCheckout(
+    BuildContext context,
+    String selectedType, [
+    BuildContext? dialogCtx,
+  ]) async {
+    final localIsAr = Localizations.localeOf(context).languageCode == 'ar';
+    final items = _prepareCheckoutItems();
+
+    if (selectedType == 'monthly') {
+      if (dialogCtx != null) {
+        Navigator.pop(dialogCtx);
+      }
+      Navigator.of(context).push(
+        MaterialPageRoute(
+          builder: (_) => SubscriptionPlanSelectionPage(
+            checkoutItems: items,
+            orderStates: widget.orderStates,
+          ),
+        ),
+      );
+      return;
+    }
+
+    showDialog(
+      context: dialogCtx ?? context,
+      barrierDismissible: false,
+      builder: (BuildContext loadingCtx) {
+        return const Center(child: WaterLoadingIndicator());
+      },
+    );
+
+    try {
+      final apiService = ApiService();
+      final response = await apiService.createCheckoutQuick(items: items);
+      log('createCheckoutQuick response: ${response.data}');
+
+      final checkoutDataMap = response.data['data'];
+      final checkoutData = Checkout.fromJson(checkoutDataMap);
+
+      Navigator.pop(dialogCtx ?? context); // Close loading dialog
+      if (dialogCtx != null) {
+        Navigator.pop(dialogCtx); // Close donation type dialog
+      }
+
+      if (mounted) {
+        _navigateToDetails(
+          context,
+          localIsAr
+              ? (selectedType == 'one_time'
+                    ? 'تبرع لمرة واحدة'
+                    : 'تبرع شهري متكرر')
+              : (selectedType == 'one_time'
+                    ? 'One-time Donation'
+                    : 'Recurring Donation'),
+          checkoutData: checkoutData,
+        );
+      }
+    } catch (e) {
+      Navigator.pop(dialogCtx ?? context); // Close loading dialog
+      log('Error creating checkout: $e', error: e);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              localIsAr
+                  ? 'حدث خطأ. حاول مرة أخرى'
+                  : 'Error occurred. Try again',
+            ),
+          ),
+        );
+      }
+    }
   }
 
   Widget _buildDonationOption({
@@ -232,12 +331,17 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
     );
   }
 
-  void _navigateToDetails(BuildContext context, String donationType) {
+  void _navigateToDetails(
+    BuildContext context,
+    String donationType, {
+    required Checkout checkoutData,
+  }) {
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => ContributionDetailsPage(
           orderStates: widget.orderStates,
           donationType: donationType,
+          checkoutData: checkoutData,
         ),
       ),
     );
@@ -445,62 +549,32 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         floatingActionButton: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 0),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(30),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.1),
-                  blurRadius: 10,
-                  offset: const Offset(0, 5),
-                ),
-              ],
+          child: BottomActionPill(
+            subtitleWidget: Text(
+              isAr ? 'الإجمالي' : 'Total Price',
+              style: const TextStyle(fontSize: 12, color: Colors.white),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      isAr ? 'الإجمالي' : 'Total Price',
-                      style: const TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
-                    Text(
-                      isAr
-                          ? '${_totalPrice.toStringAsFixed(2)} ر.س'
-                          : 'SAR ${_totalPrice.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.buttonBlueDark,
-                      ),
-                    ),
-                  ],
-                ),
-                ElevatedButton(
-                  onPressed: () => _showDonationTypeDialog(context, isAr),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.buttonBlueDark,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
-                      vertical: 12,
-                    ),
-                  ),
-                  child: Text(
-                    isAr ? 'متابعة' : 'Continue',
-                    style: const TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ],
+            titleWidget: Text(
+              isAr
+                  ? '${_totalPrice.toStringAsFixed(2)} ر.س'
+                  : 'SAR ${_totalPrice.toStringAsFixed(2)}',
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: AppColors.white,
+              ),
             ),
+            buttonText: isAr ? 'متابعة' : 'Continue',
+            onButtonTap: () {
+              final hasChiller = _uniqueProducts.any(
+                (p) => p.slug.toLowerCase().contains('chiller'),
+              );
+              if (hasChiller) {
+                _processCheckout(context, 'one_time');
+              } else {
+                _showDonationTypeDialog(context, isAr);
+              }
+            },
           ),
         ),
         body: Column(

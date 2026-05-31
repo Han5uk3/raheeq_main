@@ -1,10 +1,16 @@
-import 'package:cached_network_image/cached_network_image.dart';
-import 'package:raheeq_main/common_widgets/water_loading.dart';
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:raheeq_main/models/campaign.dart';
 import 'package:raheeq_main/models/product.dart';
 import 'package:raheeq_main/utils/colors.dart';
+import 'package:raheeq_main/api/apis.dart';
+import 'package:raheeq_main/models/checkout.dart';
+import 'package:raheeq_main/pages/order/contribution_details_page.dart';
+import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
+import 'package:raheeq_main/common_widgets/water_loading.dart';
+import 'package:raheeq_main/pages/order/subscription_plan_selection_page.dart';
 
 class CampaignDetailPage extends StatefulWidget {
   final Campaign campaign;
@@ -18,10 +24,30 @@ class CampaignDetailPage extends StatefulWidget {
 class _CampaignDetailPageState extends State<CampaignDetailPage>
     with SingleTickerProviderStateMixin {
   Product? _selectedProduct;
-  int? _selectedQuantity;
-  bool _isCustom = false;
+  Map<String, int> _selectedQuantities = {};
+  Map<String, bool> _isCustomMap = {};
   final TextEditingController _customController = TextEditingController();
   final FocusNode _customFocusNode = FocusNode();
+  Map<String, String> _productNotes = {};
+  Map<String, bool> _isNoteRevealed = {};
+  final TextEditingController _noteController = TextEditingController();
+  final FocusNode _noteFocusNode = FocusNode();
+
+  bool get _hasAnySelection => _selectedQuantities.values.any((qty) => qty > 0);
+
+  void _updateBarAnimation() {
+    if (_hasAnySelection) {
+      if (_barAnimController.status != AnimationStatus.forward &&
+          _barAnimController.status != AnimationStatus.completed) {
+        _barAnimController.forward();
+      }
+    } else {
+      if (_barAnimController.status != AnimationStatus.reverse &&
+          _barAnimController.status != AnimationStatus.dismissed) {
+        _barAnimController.reverse();
+      }
+    }
+  }
 
   late AnimationController _barAnimController;
   late Animation<double> _barSlideAnimation;
@@ -43,6 +69,11 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
       parent: _barAnimController,
       curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
     );
+
+    // Auto-select first product if available
+    if (widget.campaign.products.isNotEmpty) {
+      _selectedProduct = widget.campaign.products.first;
+    }
   }
 
   @override
@@ -50,209 +81,193 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
     _barAnimController.dispose();
     _customController.dispose();
     _customFocusNode.dispose();
+    _noteController.dispose();
+    _noteFocusNode.dispose();
     super.dispose();
   }
 
-  // ─────────────────────── Helpers ───────────────────────
-
   double get _totalAmount {
-    if (_selectedProduct == null || _selectedQuantity == null) return 0;
-    return _selectedProduct!.price * _selectedQuantity!;
+    double total = 0;
+    for (var product in widget.campaign.products) {
+      final qty = _selectedQuantities[product.id];
+      if (qty != null && qty > 0) {
+        total += (product.price + product.deliveryFee) * qty;
+      }
+    }
+    return total;
   }
 
-  List<int> _validQuantities(Product product) => product.validQuantities;
-
-  int _minQuantity(Product product) => product.minQuantity;
-
-  // ─────────────────────── Actions ───────────────────────
-
   void _selectProduct(Product product) {
-    final isSame = _selectedProduct != null &&
-        _selectedProduct!.id == product.id;
-    if (isSame) return;
-
-    _barAnimController.reverse().then((_) {
-      setState(() {
-        _selectedProduct = product;
-        _selectedQuantity = null;
-        _isCustom = false;
+    if (_selectedProduct?.id == product.id) return;
+    setState(() {
+      _selectedProduct = product;
+      _customFocusNode.unfocus();
+      _noteFocusNode.unfocus();
+      if (_isCustomMap[product.id] == true) {
+        _customController.text =
+            _selectedQuantities[product.id]?.toString() ?? '';
+      } else {
         _customController.clear();
-      });
+      }
+      if (_isNoteRevealed[product.id] == true) {
+        _noteController.text = _productNotes[product.id] ?? '';
+      } else {
+        _noteController.clear();
+      }
     });
   }
 
   void _selectQuantity(int quantity) {
     setState(() {
-      _selectedQuantity = quantity;
-      _isCustom = false;
-      _customFocusNode.unfocus();
-    });
-    _barAnimController.forward();
-  }
-
-  void _toggleCustom() {
-    setState(() {
-      _isCustom = !_isCustom;
-      if (_isCustom) {
-        _selectedQuantity = null;
-        _barAnimController.reverse();
-        Future.delayed(
-          const Duration(milliseconds: 100),
-          () => _customFocusNode.requestFocus(),
-        );
+      if (_selectedQuantities[_selectedProduct!.id] == quantity &&
+          _isCustomMap[_selectedProduct!.id] != true) {
+        _selectedQuantities.remove(_selectedProduct!.id);
+      } else {
+        _selectedQuantities[_selectedProduct!.id] = quantity;
+        _isCustomMap[_selectedProduct!.id] = false;
+        _customFocusNode.unfocus();
+        _customController.clear();
       }
     });
+    _updateBarAnimation();
   }
-
-  void _confirmCustom() {
-    final product = _selectedProduct;
-    if (product == null) return;
-    final val = int.tryParse(_customController.text.trim());
-    final min = _minQuantity(product);
-    if (val == null || val < min) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Minimum quantity is $min'),
-          backgroundColor: Colors.redAccent,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12)),
-        ),
-      );
-      return;
-    }
-    setState(() {
-      _selectedQuantity = val;
-      _isCustom = false;
-      _customFocusNode.unfocus();
-    });
-    _barAnimController.forward();
-  }
-
-  // ─────────────────────── Build ───────────────────────
 
   @override
   Widget build(BuildContext context) {
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
-    final campaign = widget.campaign;
-    final title = campaign.localizedTitle(isAr);
-    final description = campaign.localizedDescription(isAr);
-    final imageUrl = campaign.image;
-    final products = campaign.products;
+    final title = widget.campaign.localizedTitle(isAr);
+    final description = widget.campaign.localizedDescription(isAr);
+    final products = widget.campaign.products;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F8FB),
       extendBodyBehindAppBar: true,
       body: Stack(
         children: [
-          // ── Main Scroll ──
-          CustomScrollView(
-            slivers: [
-              // Campaign SliverAppBar
-              _buildSliverAppBar(
-                  context, title, description, imageUrl, isAr),
+          // Background Gradient
+          Container(decoration: const BoxDecoration(color: Color(0x4D91E3FE))),
 
-              // Subscribe banner (shown when canSubscribe is true)
-              if (campaign.canSubscribe)
-                SliverToBoxAdapter(
-                  child: Container(
-                    margin: const EdgeInsets.fromLTRB(16, 20, 16, 0),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 12),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE8F6FD),
-                      borderRadius: BorderRadius.circular(14),
-                      border: Border.all(
-                        color: AppColors.buttonBlueDark.withValues(alpha: 0.25),
-                        width: 1,
-                      ),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(
-                          Icons.repeat_rounded,
-                          color: AppColors.buttonBlueDark,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            isAr
-                                ? 'يمكنك الاشتراك في هذه الحملة لتلقي التبرعات بشكل دوري.'
-                                : 'You can subscribe to this campaign for recurring donations.',
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: AppColors.buttonBlueDark,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-
-              // Section label
-              SliverToBoxAdapter(
-                child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
-                  child: Text(
-                    isAr ? 'اختر منتجاً' : 'Select a Product',
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                      color: Colors.black87,
-                    ),
-                  ),
-                ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CustomAppBar(
+                title: title,
+                subtitle: description,
+                isStartAligned: true,
+                showBackButton: true,
+                hasBackgroundColor: false,
               ),
 
-              // Products list
-              if (products.isEmpty)
-                SliverToBoxAdapter(
-                  child: Center(
-                    child: Padding(
-                      padding: const EdgeInsets.all(40),
-                      child: Text(
-                        isAr
-                            ? 'لا توجد منتجات لهذه الحملة'
-                            : 'No products available',
-                        style: const TextStyle(color: Colors.black45),
+              // Stack for List and Quantity Container to create floating effect
+              Expanded(
+                child: Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    // Quantity Selection Container (Background in Stack)
+                    Positioned(
+                      top: 100, // Start lower so list overlaps it
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(30),
+                            topRight: Radius.circular(30),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, -4),
+                            ),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(30),
+                            topRight: Radius.circular(30),
+                          ),
+                          child: SingleChildScrollView(
+                            padding: const EdgeInsets.only(
+                              left: 12,
+                              right: 12,
+                              top: 85, // 80 overlap + 24 extra space
+                              bottom: 120, // space for bottom bar
+                            ),
+                            child: _selectedProduct != null
+                                ? _buildQuantitySection(context, isAr)
+                                : Center(
+                                    child: Text(
+                                      isAr
+                                          ? 'اختر منتجاً للمتابعة'
+                                          : 'Select a product to continue',
+                                      style: const TextStyle(
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                  ),
+                          ),
+                        ),
                       ),
                     ),
-                  ),
-                )
-              else
-                SliverPadding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        final product = products[index];
-                        return _buildProductCard(context, product, isAr);
-                      },
-                      childCount: products.length,
+
+                    // Horizontal Product List inside a white container (Foreground in Stack)
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      child: Builder(
+                        builder: (context) {
+                          final screenWidth = MediaQuery.of(context).size.width;
+                          // Container margin: 16*2 = 32
+                          // ListView padding: 12*2 = 24
+                          // Spacing for 3 items: 12*2 = 24
+                          // Total taken space without items: 80
+                          final itemWidth = (screenWidth - 80) / 3;
+
+                          return Container(
+                            margin: const EdgeInsets.symmetric(horizontal: 16),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(24),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.08),
+                                  blurRadius: 16,
+                                  offset: const Offset(0, 8),
+                                ),
+                              ],
+                            ),
+                            height: 160,
+                            child: ListView.separated(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                              ),
+                              scrollDirection: Axis.horizontal,
+                              itemCount: products.length,
+                              separatorBuilder: (_, __) =>
+                                  const SizedBox(width: 12),
+                              itemBuilder: (context, index) {
+                                return _buildProductCard(
+                                  products[index],
+                                  isAr,
+                                  itemWidth,
+                                );
+                              },
+                            ),
+                          );
+                        },
+                      ),
                     ),
-                  ),
-                ),
-
-              // Quantity section
-              if (_selectedProduct != null)
-                SliverToBoxAdapter(
-                  child: _buildQuantitySection(context, isAr),
-                ),
-
-              // Bottom padding (room for floating bar)
-              SliverToBoxAdapter(
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 300),
-                  height: _selectedQuantity != null ? 130 : 40,
+                  ],
                 ),
               ),
             ],
           ),
 
-          // ── Floating Bottom Bar ──
+          // Floating Bottom Bar
           AnimatedBuilder(
             animation: _barSlideAnimation,
             builder: (context, child) {
@@ -277,293 +292,42 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
     );
   }
 
-  // ─────────────────────── Sliver App Bar ───────────────────────
-
-  Widget _buildSliverAppBar(
-    BuildContext context,
-    String title,
-    String description,
-    String imageUrl,
-    bool isAr,
-  ) {
-    return SliverAppBar(
-      expandedHeight: 290,
-      pinned: true,
-      stretch: true,
-      backgroundColor: AppColors.buttonBlueDark,
-      systemOverlayStyle: SystemUiOverlayStyle.light,
-      leading: Padding(
-        padding: const EdgeInsets.only(left: 12),
-        child: Container(
-          margin: const EdgeInsets.all(6),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.2),
-            shape: BoxShape.circle,
-          ),
-          child: IconButton(
-            icon: const Icon(Icons.arrow_back_rounded,
-                color: Colors.white, size: 20),
-            onPressed: () => Navigator.of(context).pop(),
-            splashRadius: 20,
-          ),
-        ),
-      ),
-      flexibleSpace: FlexibleSpaceBar(
-        stretchModes: const [
-          StretchMode.zoomBackground,
-          StretchMode.blurBackground,
-        ],
-        background: Stack(
-          fit: StackFit.expand,
-          children: [
-            // Background image
-            CachedNetworkImage(
-              imageUrl: imageUrl,
-              fit: BoxFit.cover,
-              placeholder: (context, url) =>
-                  Container(color: AppColors.buttonBlueDark),
-              errorWidget: (context, url, error) => Container(
-                color: AppColors.buttonBlueDark,
-                child: const Icon(Icons.water_drop,
-                    color: Colors.white54, size: 60),
-              ),
-            ),
-            // Gradient overlay (bottom-heavy)
-            Positioned.fill(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      Colors.black.withValues(alpha: 0.15),
-                      Colors.black.withValues(alpha: 0.75),
-                    ],
-                    stops: const [0.3, 1.0],
-                  ),
-                ),
-              ),
-            ),
-            // Title + description anchored at bottom
-            Positioned(
-              bottom: 28,
-              left: 20,
-              right: 20,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    title,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 26,
-                      fontWeight: FontWeight.w800,
-                      letterSpacing: -0.3,
-                      shadows: [
-                        Shadow(
-                            color: Colors.black38,
-                            blurRadius: 8,
-                            offset: Offset(0, 2)),
-                      ],
-                    ),
-                  ),
-                  if (description.isNotEmpty) ...[
-                    const SizedBox(height: 6),
-                    Text(
-                      description,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: Colors.white.withValues(alpha: 0.9),
-                        fontSize: 14,
-                        fontWeight: FontWeight.w400,
-                        height: 1.4,
-                      ),
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  // ─────────────────────── Product Card ───────────────────────
-
-  Widget _buildProductCard(
-    BuildContext context,
-    Product product,
-    bool isAr,
-  ) {
+  Widget _buildProductCard(Product product, bool isAr, double width) {
+    final isSelected = _selectedProduct?.id == product.id;
     final name = product.localizedName(isAr);
-    final subtitle = product.localizedSubtitle(isAr);
-    final message = product.localizedMessage(isAr);
-    final price = product.price;
-    final imageUrl = product.image;
-    final isHighNeed = product.isHighNeed;
-    final isSelected =
-        _selectedProduct != null &&
-            _selectedProduct!.id == product.id;
 
     return GestureDetector(
       onTap: () => _selectProduct(product),
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 220),
-        margin: const EdgeInsets.only(bottom: 12),
-        padding: const EdgeInsets.all(14),
+        duration: const Duration(milliseconds: 200),
+        width: width,
         decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(18),
-          border: Border.all(
-            color: isSelected
-                ? AppColors.buttonBlueDark
-                : Colors.transparent,
-            width: 2,
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: isSelected
-                  ? AppColors.buttonBlueDark.withValues(alpha: 0.12)
-                  : Colors.black.withValues(alpha: 0.05),
-              blurRadius: isSelected ? 16 : 8,
-              offset: const Offset(0, 4),
-            ),
-          ],
+          color: isSelected ? const Color(0xFF2381A6) : const Color(0xFFF5F5F5),
+          borderRadius: BorderRadius.circular(20),
         ),
-        child: Row(
+        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            // Product image
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Container(
-                width: 72,
-                height: 72,
-                color: const Color(0xFFF0F7FB),
-                child: CachedNetworkImage(
-                  imageUrl: imageUrl,
-                  fit: BoxFit.contain,
-                  placeholder: (context, url) =>
-                      const Center(
-                        child: WaterLoadingIndicator(size: 30),
-                      ),
-                  errorWidget: (context, url, error) => const Icon(
-                    Icons.water_drop,
-                    color: AppColors.buttonBlue,
-                    size: 32,
-                  ),
-                ),
-              ),
+            Icon(
+              product.slug.contains('meal') || product.slug.contains('food')
+                  ? Icons.restaurant_outlined
+                  : product.slug.contains('umbrella')
+                  ? Icons.beach_access_outlined
+                  : Icons.water_drop_outlined,
+              color: isSelected ? Colors.white : Colors.grey[400],
+              size: 32,
             ),
-            const SizedBox(width: 14),
-
-            // Product info
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          name,
-                          style: const TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.black87,
-                          ),
-                        ),
-                      ),
-                      if (isHighNeed)
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 8, vertical: 3),
-                          decoration: BoxDecoration(
-                            color:
-                                Colors.orange.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            isAr ? 'حاجة عالية' : 'High Need',
-                            style: const TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w600,
-                              color: Colors.orange,
-                            ),
-                          ),
-                        ),
-                    ],
-                  ),
-                  const SizedBox(height: 3),
-                  Text(
-                    subtitle,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Colors.black45,
-                      height: 1.3,
-                    ),
-                  ),
-                  if (message != null && message.toString().isNotEmpty) ...[
-                    const SizedBox(height: 3),
-                    Text(
-                      message.toString(),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: Colors.black38,
-                        fontStyle: FontStyle.italic,
-                      ),
-                    ),
-                  ],
-                  const SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF1F9FD),
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    child: Text(
-                      isAr
-                          ? '${price.toStringAsFixed(price.truncateToDouble() == price ? 0 : 2)} ر.س / وحدة'
-                          : '${price.toStringAsFixed(price.truncateToDouble() == price ? 0 : 2)} SAR / unit',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.buttonBlueDark,
-                      ),
-                    ),
-                  ),
-                ],
+            const SizedBox(height: 16),
+            Text(
+              name,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: isSelected ? Colors.white : Colors.grey[600],
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                fontSize: 15,
+                height: 1.3,
               ),
-            ),
-            const SizedBox(width: 10),
-
-            // Selection indicator
-            AnimatedContainer(
-              duration: const Duration(milliseconds: 220),
-              width: 26,
-              height: 26,
-              decoration: BoxDecoration(
-                color: isSelected
-                    ? AppColors.buttonBlueDark
-                    : Colors.transparent,
-                border: Border.all(
-                  color: isSelected
-                      ? AppColors.buttonBlueDark
-                      : Colors.grey.shade300,
-                  width: 2,
-                ),
-                shape: BoxShape.circle,
-              ),
-              child: isSelected
-                  ? const Icon(Icons.check_rounded,
-                      color: Colors.white, size: 14)
-                  : null,
             ),
           ],
         ),
@@ -571,279 +335,270 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
     );
   }
 
-  // ─────────────────────── Quantity Section ───────────────────────
-
   Widget _buildQuantitySection(BuildContext context, bool isAr) {
     final product = _selectedProduct!;
-    final presets = _validQuantities(product);
-    final min = _minQuantity(product);
-    final name = product.localizedName(isAr);
+    final presets = product.validQuantities;
+    final min = product.minQuantity;
 
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.05),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
+    String itemNameEn(int qty) {
+      final isPlural = qty > 1;
+      if (product.slug.contains('meal') || product.slug.contains('food')) {
+        return isPlural ? 'Meals' : 'Meal';
+      } else if (product.slug.contains('umbrella')) {
+        return isPlural ? 'Umbrellas' : 'Umbrella';
+      }
+      return isPlural ? 'Bottles' : 'Bottle';
+    }
+
+    String itemNameAr(int qty) {
+      if (product.slug.contains('meal') || product.slug.contains('food')) {
+        return 'وجبة';
+      } else if (product.slug.contains('umbrella')) {
+        return 'مظلة';
+      }
+      return 'زجاجة';
+    }
+
+    return Card(
+      elevation: 10,
+      color: Colors.white,
+      child: Padding(
+        padding: const EdgeInsets.all(16),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header
             Row(
               children: [
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFF1F9FD),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: const Icon(
-                    Icons.numbers_rounded,
-                    color: AppColors.buttonBlueDark,
-                    size: 18,
-                  ),
-                ),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        isAr ? 'اختر الكمية' : 'Select Quantity',
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.w700,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      Text(
-                        isAr
-                            ? 'لـ: $name'
-                            : 'for: $name',
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.black45,
-                        ),
-                      ),
-                    ],
+                const Icon(Icons.auto_awesome, color: Color(0xFF2381A6)),
+                const SizedBox(width: 8),
+                Text(
+                  isAr ? 'اختر تأثيرك' : 'Select Your Impact',
+                  style: const TextStyle(
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF102840),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 18),
+            const SizedBox(height: 24),
 
-            // Chips
-            Wrap(
-              spacing: 8,
-              runSpacing: 10,
-              children: [
-                // Preset quantity chips
-                ...presets.map((qty) {
-                  final isSelected =
-                      _selectedQuantity == qty && !_isCustom;
-                  return GestureDetector(
-                    onTap: () => _selectQuantity(qty),
-                    child: AnimatedContainer(
-                      duration: const Duration(milliseconds: 200),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 18, vertical: 10),
-                      decoration: BoxDecoration(
-                        color: isSelected
-                            ? AppColors.buttonBlueDark
-                            : const Color(0xFFF4F8FB),
-                        borderRadius: BorderRadius.circular(100),
-                        border: Border.all(
-                          color: isSelected
-                              ? AppColors.buttonBlueDark
-                              : const Color(0xFFE2EAF0),
-                          width: 1.5,
-                        ),
-                        boxShadow: isSelected
-                            ? [
-                                BoxShadow(
-                                  color: AppColors.buttonBlueDark
-                                      .withValues(alpha: 0.25),
-                                  blurRadius: 8,
-                                  offset: const Offset(0, 3),
-                                )
-                              ]
-                            : [],
-                      ),
-                      child: Text(
-                        qty.toString(),
-                        style: TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                          color: isSelected
-                              ? Colors.white
-                              : Colors.black87,
-                        ),
-                      ),
-                    ),
-                  );
-                }),
-
-                // Custom chip
-                GestureDetector(
-                  onTap: _toggleCustom,
-                  child: AnimatedContainer(
-                    duration: const Duration(milliseconds: 200),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 18, vertical: 10),
+            GridView.builder(
+              padding: EdgeInsets.all(0),
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 3,
+                childAspectRatio: 2.0,
+                crossAxisSpacing: 12,
+                mainAxisSpacing: 12,
+              ),
+              itemCount: presets.length,
+              itemBuilder: (context, index) {
+                final qty = presets[index];
+                final price = qty * (product.price + product.deliveryFee);
+                return GestureDetector(
+                  onTap: () => _selectQuantity(qty),
+                  child: Container(
                     decoration: BoxDecoration(
-                      color: _isCustom
-                          ? const Color(0xFF1A6A8F)
-                          : const Color(0xFFF4F8FB),
-                      borderRadius: BorderRadius.circular(100),
+                      color:
+                          _selectedQuantities[product.id] == qty &&
+                              _isCustomMap[product.id] != true
+                          ? const Color(0xFF2381A6).withValues(alpha: 0.1)
+                          : const Color(0xFFF5F5F5),
+                      borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: _isCustom
-                            ? const Color(0xFF1A6A8F)
-                            : const Color(0xFFE2EAF0),
-                        width: 1.5,
+                        color:
+                            _selectedQuantities[product.id] == qty &&
+                                _isCustomMap[product.id] != true
+                            ? const Color(0xFF2381A6)
+                            : Colors.transparent,
+                        width: 2,
                       ),
                     ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
+                    padding: EdgeInsetsDirectional.only(start: 8, end: 8),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(
-                          Icons.edit_rounded,
-                          size: 14,
-                          color: _isCustom
-                              ? Colors.white
-                              : Colors.black54,
-                        ),
-                        const SizedBox(width: 5),
                         Text(
-                          isAr ? 'مخصص' : 'Custom',
-                          style: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: _isCustom
-                                ? Colors.white
-                                : Colors.black87,
+                          isAr
+                              ? '$qty ${itemNameAr(qty)}'
+                              : '$qty ${itemNameEn(qty)}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 12,
+                            color: Colors.black87,
+                          ),
+                        ),
+
+                        Text(
+                          isAr
+                              ? 'ر.س ${price.toInt()}'
+                              : 'SAR ${price.toInt()}',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey,
                           ),
                         ),
                       ],
                     ),
                   ),
-                ),
-              ],
+                );
+              },
             ),
-
-            // Custom input field
-            AnimatedSize(
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeOutCubic,
-              child: _isCustom
-                  ? Padding(
-                      padding: const EdgeInsets.only(top: 16),
-                      child: Row(
-                        children: [
-                          Expanded(
-                            child: TextField(
-                              controller: _customController,
-                              focusNode: _customFocusNode,
-                              keyboardType: TextInputType.number,
-                              inputFormatters: [
-                                FilteringTextInputFormatter
-                                    .digitsOnly,
-                              ],
-                              onSubmitted: (_) => _confirmCustom(),
-                              decoration: InputDecoration(
-                                hintText: isAr
-                                    ? 'أدخل الكمية (الحد الأدنى: $min)'
-                                    : 'Enter quantity (min: $min)',
-                                hintStyle: const TextStyle(
-                                    fontSize: 13,
-                                    color: Colors.black38),
-                                contentPadding:
-                                    const EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                        vertical: 12),
-                                filled: true,
-                                fillColor: const Color(0xFFF4F8FB),
-                                border: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.circular(14),
-                                  borderSide: const BorderSide(
-                                      color: Color(0xFFE2EAF0)),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.circular(14),
-                                  borderSide: const BorderSide(
-                                      color: Color(0xFFE2EAF0)),
-                                ),
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.circular(14),
-                                  borderSide: const BorderSide(
-                                      color: AppColors.buttonBlueDark,
-                                      width: 1.5),
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 10),
-                          GestureDetector(
-                            onTap: _confirmCustom,
-                            child: Container(
-                              padding: const EdgeInsets.all(12),
-                              decoration: BoxDecoration(
-                                color: AppColors.buttonBlueDark,
-                                borderRadius:
-                                    BorderRadius.circular(14),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: AppColors.buttonBlueDark
-                                        .withValues(alpha: 0.3),
-                                    blurRadius: 8,
-                                    offset: const Offset(0, 3),
-                                  )
-                                ],
-                              ),
-                              child: const Icon(
-                                Icons.check_rounded,
-                                color: Colors.white,
-                                size: 22,
-                              ),
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  : const SizedBox.shrink(),
+            const SizedBox(height: 32),
+            Text(
+              isAr
+                  ? 'أو أدخل كمية مخصصة (الأدنى. $min)'
+                  : 'Or enter custom quantity (min. $min)',
+              style: const TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 15,
+                color: Colors.black87,
+              ),
             ),
-
-            // Minimum hint
-            if (!_isCustom) ...[
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  const Icon(Icons.info_outline_rounded,
-                      size: 14, color: Colors.black38),
-                  const SizedBox(width: 5),
-                  Text(
-                    isAr
-                        ? 'الحد الأدنى للطلب: $min وحدة'
-                        : 'Minimum order: $min units',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Colors.black38,
-                    ),
+            const SizedBox(height: 16),
+            Container(
+              decoration: BoxDecoration(
+                color: const Color(0xFFF5F5F5),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: Colors.grey, width: 1.5),
+              ),
+              child: TextField(
+                controller: _customController,
+                focusNode: _customFocusNode,
+                cursorColor: Colors.grey,
+                keyboardType: TextInputType.number,
+                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                onTap: () {
+                  setState(() {
+                    _isCustomMap[product.id] = true;
+                    _selectedQuantities.remove(product.id);
+                    _updateBarAnimation();
+                  });
+                },
+                onChanged: (val) {
+                  final parsed = int.tryParse(val);
+                  if (parsed != null && parsed >= min) {
+                    setState(() {
+                      _selectedQuantities[product.id] = parsed;
+                    });
+                    _updateBarAnimation();
+                  } else {
+                    setState(() {
+                      _selectedQuantities.remove(product.id);
+                    });
+                    _updateBarAnimation();
+                  }
+                },
+                decoration: InputDecoration(
+                  suffixText: isAr ? itemNameAr(2) : itemNameEn(2),
+                  suffixStyle: const TextStyle(
+                    color: Colors.black,
+                    fontWeight: FontWeight.w500,
                   ),
-                ],
+                  hintText: isAr ? 'أدخل الكمية' : 'Enter quantity',
+                  hintStyle: TextStyle(color: Colors.grey[400]),
+                  border: InputBorder.none,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 18,
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(height: 16),
+            if (_isNoteRevealed[product.id] != true)
+              ElevatedButton.icon(
+                onPressed: () {
+                  setState(() {
+                    _isNoteRevealed[product.id] = true;
+                    _noteController.text = _productNotes[product.id] ?? '';
+                  });
+                },
+                icon: const Icon(Icons.note_add_outlined, size: 20),
+                label: Text(isAr ? 'إضافة ملاحظة' : 'Add note'),
+                style: TextButton.styleFrom(
+                  elevation: 3,
+                  backgroundColor: Colors.white,
+                  foregroundColor: const Color(0xFF2381A6),
+                ),
+              )
+            else
+              Container(
+                padding: const EdgeInsets.only(bottom: 16, right: 16, left: 16),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF5F5F5),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: Colors.transparent, width: 1.5),
+                ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          isAr
+                              ? 'ملاحظة - ${product.localizedName(isAr)}'
+                              : 'Note - ${product.localizedName(isAr)}',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 15,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        IconButton(
+                          style: ButtonStyle(
+                            padding: WidgetStatePropertyAll(EdgeInsets.zero),
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _isNoteRevealed[product.id] = false;
+                              _noteController.clear();
+                              _productNotes.remove(product.id);
+                            });
+                          },
+                          icon: const Icon(Icons.close, color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF5F5F5),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.grey, width: 1.5),
+                      ),
+                      child: TextField(
+                        cursorColor: Colors.grey,
+                        controller: _noteController,
+                        focusNode: _noteFocusNode,
+                        maxLines: 3,
+                        onChanged: (val) {
+                          _productNotes[product.id] = val;
+                        },
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 16,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            if (product.deliveryFee > 0 &&
+                _selectedQuantities[product.id] != null) ...[
+              const SizedBox(height: 12),
+              Text(
+                isAr
+                    ? '* شامل ر.س ${(_selectedQuantities[product.id]! * product.deliveryFee).toInt()} توصيل'
+                    : '* Incl. SAR ${(_selectedQuantities[product.id]! * product.deliveryFee).toInt()} delivery',
+                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
               ),
             ],
           ],
@@ -852,147 +607,370 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
     );
   }
 
-  // ─────────────────────── Floating Bar ───────────────────────
-
   Widget _buildFloatingBar(BuildContext context, bool isAr) {
-    final product = _selectedProduct;
-    final price = product?.price ?? 0.0;
-    final qty = _selectedQuantity ?? 0;
     final total = _totalAmount;
+    double deliveryTotal = 0.0;
+    for (var product in widget.campaign.products) {
+      final qty = _selectedQuantities[product.id];
+      if (qty != null) {
+        deliveryTotal += product.deliveryFee * qty;
+      }
+    }
 
     return Container(
-      padding: EdgeInsets.fromLTRB(
-        24,
-        18,
-        24,
-        MediaQuery.of(context).padding.bottom + 18,
-      ),
+      margin: const EdgeInsets.all(
+        16,
+      ).copyWith(bottom: MediaQuery.of(context).padding.bottom + 16),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(28),
-          topRight: Radius.circular(28),
-        ),
+        borderRadius: BorderRadius.circular(40),
+        border: Border.all(color: Colors.grey[200]!),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 20,
-            offset: const Offset(0, -6),
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, -2),
           ),
         ],
       ),
       child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          // Amount info
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  isAr ? 'المبلغ الإجمالي' : 'Total Amount',
-                  style: const TextStyle(
-                    fontSize: 12,
-                    color: Colors.black45,
-                    fontWeight: FontWeight.w500,
-                  ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                isAr ? 'المبلغ المستحق' : 'Payable Amount',
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: Colors.grey,
+                  fontWeight: FontWeight.w500,
                 ),
-                const SizedBox(height: 3),
-                AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 250),
-                  transitionBuilder: (child, anim) => ScaleTransition(
-                    scale: anim,
-                    child: FadeTransition(opacity: anim, child: child),
-                  ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                isAr
+                    ? '${total.toStringAsFixed(total.truncateToDouble() == total ? 0 : 2)} ر.س'
+                    : '${total.toStringAsFixed(total.truncateToDouble() == total ? 0 : 2)} SAR',
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.w900,
+                  color: Color(0xFF102840),
+                ),
+              ),
+              if (deliveryTotal > 0)
+                Padding(
+                  padding: const EdgeInsets.only(top: 2),
                   child: Text(
-                    key: ValueKey(total),
                     isAr
-                        ? '${total.toStringAsFixed(total.truncateToDouble() == total ? 0 : 2)} ر.س'
-                        : '${total.toStringAsFixed(total.truncateToDouble() == total ? 0 : 2)} SAR',
-                    style: const TextStyle(
-                      fontSize: 22,
-                      fontWeight: FontWeight.w800,
-                      color: AppColors.buttonBlueDark,
-                      letterSpacing: -0.5,
-                    ),
-                  ),
-                ),
-                if (qty > 0)
-                  Text(
-                    isAr
-                        ? '$qty وحدة × ${price.toStringAsFixed(price.truncateToDouble() == price ? 0 : 2)} ر.س'
-                        : '$qty units × ${price.toStringAsFixed(price.truncateToDouble() == price ? 0 : 2)} SAR',
+                        ? 'شامل ر.س ${deliveryTotal.toInt()} رسوم التوصيل'
+                        : 'Inclusive of SAR ${deliveryTotal.toInt()} delivery charge',
                     style: const TextStyle(
                       fontSize: 11,
-                      color: Colors.black38,
+                      color: Colors.grey,
+                      fontWeight: FontWeight.w500,
                     ),
                   ),
+                ),
+            ],
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (_hasAnySelection) {
+                _showDonationTypeDialog(context, isAr);
+              }
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: const Color(0xFF1B6A8C),
+              foregroundColor: Colors.white,
+              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+            ),
+            child: Text(
+              isAr ? 'متابعة' : 'Continue',
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showDonationTypeDialog(BuildContext context, bool isAr) {
+    showDialog(
+      context: context,
+      builder: (ctx) {
+        String selectedType = 'one_time';
+
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
+          ),
+          backgroundColor: Colors.white,
+          child: StatefulBuilder(
+            builder: (context, setState) {
+              return Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          isAr ? 'اختر نوع التبرع' : 'Choose Donation Type',
+                          style: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: () {
+                            Navigator.pop(context);
+                          },
+                          icon: const Icon(Icons.close, color: Colors.black87),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      isAr
+                          ? 'ادعم مرة واحدة أو اصنع أثراً مستداماً'
+                          : 'Support once or make a lasting impact',
+                      style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+                    ),
+                    const SizedBox(height: 32),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildDonationOption(
+                            isAr: isAr,
+                            title: isAr ? 'مرة واحدة' : 'One-Time',
+                            subtitle: isAr
+                                ? 'تبرع لمرة واحدة'
+                                : 'Single donation',
+                            icon: Icons.calendar_today_outlined,
+                            isSelected: selectedType == 'one_time',
+                            onTap: () {
+                              setState(() {
+                                selectedType = 'one_time';
+                              });
+                            },
+                          ),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: _buildDonationOption(
+                            isAr: isAr,
+                            title: isAr ? 'شهري' : 'Monthly',
+                            subtitle: isAr ? 'أثر مستدام' : 'Recurring impact',
+                            icon: Icons.sync,
+                            isSelected: selectedType == 'monthly',
+                            onTap: () {
+                              setState(() {
+                                selectedType = 'monthly';
+                              });
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 32),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: ElevatedButton(
+                        onPressed: () async {
+                          final localIsAr =
+                              Localizations.localeOf(context).languageCode ==
+                              'ar';
+                          // Prepare items for checkout
+                          final List<Map<String, dynamic>> items = [];
+
+                          _selectedQuantities.forEach((productId, qty) {
+                            if (qty > 0) {
+                              final note = _productNotes[productId];
+                              final item = <String, dynamic>{
+                                'productId': productId,
+                                'quantity': qty,
+                              };
+                              if (note != null && note.trim().isNotEmpty) {
+                                item['note'] = note.trim();
+                              }
+                              items.add(item);
+                            }
+                          });
+
+                          if (selectedType == 'monthly') {
+                            Navigator.pop(ctx);
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => SubscriptionPlanSelectionPage(
+                                  checkoutItems: items,
+                                  orderStates: const [],
+                                  campaignId: widget.campaign.id,
+                                ),
+                              ),
+                            );
+                            return;
+                          }
+
+                          showDialog(
+                            context: ctx,
+                            barrierDismissible: false,
+                            builder: (BuildContext loadingCtx) {
+                              return const Center(
+                                child: WaterLoadingIndicator(),
+                              );
+                            },
+                          );
+
+                          try {
+                            final apiService = ApiService();
+                            final response = await apiService
+                                .createCheckoutCampaign(
+                                  campaignId: widget.campaign.id,
+                                  items: items,
+                                );
+                            log(
+                              'createCheckoutCampaign response: ${response.data}',
+                            );
+
+                            final checkoutDataMap = response.data['data'];
+                            final checkoutData = Checkout.fromJson(
+                              checkoutDataMap,
+                            );
+
+                            Navigator.pop(ctx); // Close loading dialog
+                            Navigator.pop(ctx); // Close donation type dialog
+
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) => ContributionDetailsPage(
+                                  orderStates: const [], // Empty for campaigns
+                                  donationType: localIsAr
+                                      ? (selectedType == 'one_time'
+                                            ? 'تبرع لمرة واحدة'
+                                            : 'تبرع شهري متكرر')
+                                      : (selectedType == 'one_time'
+                                            ? 'One-time Donation'
+                                            : 'Recurring Donation'),
+                                  checkoutData: checkoutData,
+                                ),
+                              ),
+                            );
+                          } catch (e) {
+                            Navigator.pop(ctx); // Close loading dialog
+                            log('Error creating checkout: $e', error: e);
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  localIsAr
+                                      ? 'حدث خطأ. حاول مرة أخرى'
+                                      : 'Error occurred. Try again',
+                                ),
+                              ),
+                            );
+                          }
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(
+                            0xFF196482,
+                          ), // Darker blue for continue button
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(28),
+                          ),
+                        ),
+                        child: Text(
+                          isAr ? 'متابعة' : 'Continue',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildDonationOption({
+    required bool isAr,
+    required String title,
+    required String subtitle,
+    required IconData icon,
+    required bool isSelected,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 8),
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? const Color(0xFF389BB8)
+                  : const Color(0xFFF5F7FA),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              children: [
+                Icon(
+                  icon,
+                  color: isSelected ? Colors.white : const Color(0xFF389BB8),
+                  size: 36,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  title,
+                  style: TextStyle(
+                    color: isSelected ? Colors.white : AppColors.buttonBlueDark,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: isSelected ? Colors.white70 : Colors.grey[500],
+                    fontSize: 13,
+                  ),
+                ),
               ],
             ),
           ),
-          const SizedBox(width: 16),
-
-          // Continue button
-          GestureDetector(
-            onTap: () {
-              // Booking payload — slug identifies the product on the backend
-              // TODO: Navigate to payment/confirmation step
-              // payload: {
-              //   campaignId: widget.campaign.id,
-              //   productSlug: _selectedProduct?.slug,
-              //   quantity: _selectedQuantity,
-              //   totalAmount: _totalAmount,
-              // }
-            },
-            child: Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 28, vertical: 14),
-              decoration: BoxDecoration(
-                gradient: const LinearGradient(
-                  colors: [Color(0xFF1A6A8F), Color(0xFF11506B)],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+          if (isSelected)
+            Positioned(
+              top: -8,
+              right: isAr ? null : -8,
+              left: isAr ? -8 : null,
+              child: Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF389BB8),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 4),
                 ),
-                borderRadius: BorderRadius.circular(50),
-                boxShadow: [
-                  BoxShadow(
-                    color: AppColors.buttonBlueDark
-                        .withValues(alpha: 0.35),
-                    blurRadius: 14,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text(
-                    isAr ? 'متابعة' : 'Continue',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 15,
-                      fontWeight: FontWeight.w700,
-                      letterSpacing: 0.2,
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  Container(
-                    width: 28,
-                    height: 28,
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.arrow_forward_rounded,
-                      color: Colors.white,
-                      size: 15,
-                    ),
-                  ),
-                ],
               ),
             ),
-          ),
         ],
       ),
     );
