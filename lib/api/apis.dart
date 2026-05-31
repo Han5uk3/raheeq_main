@@ -524,6 +524,23 @@ class ApiService {
     }
   }
 
+  /// Create Checkout - Essential
+  Future<Response> createCheckoutEssential({
+    required List<Map<String, dynamic>> items,
+    Map<String, dynamic>? subscription,
+  }) async {
+    try {
+      final data = <String, dynamic>{'items': items};
+      if (subscription != null) {
+        data['subscription'] = subscription;
+      }
+      final response = await _dio.post('/checkout', data: data);
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   /// Create Checkout - Campaign
   Future<Response> createCheckoutCampaign({
     required String campaignId,
@@ -594,6 +611,91 @@ class ApiService {
       final response = await _dio.get('/wallet');
       return response;
     } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Create Checkout Order
+  Future<Response> createOrder({
+    required String paymentMethod,
+    String? note,
+    String? ibanBankAccountId,
+    dynamic ibanReceipt,
+  }) async {
+    try {
+      if (paymentMethod == 'IBAN') {
+        final Map<String, dynamic> map = {
+          'paymentMethod': paymentMethod,
+          if (note != null) 'note': note,
+          if (ibanBankAccountId != null) 'ibanBankAccountId': ibanBankAccountId,
+        };
+
+        if (ibanReceipt != null) {
+          if (ibanReceipt is String && ibanReceipt.isNotEmpty) {
+            map['ibanReceipt'] = await MultipartFile.fromFile(
+              ibanReceipt,
+              filename: ibanReceipt.split('/').last,
+            );
+          } else if (ibanReceipt is MultipartFile) {
+            map['ibanReceipt'] = ibanReceipt;
+          }
+        }
+        final formData = FormData.fromMap(map);
+        final response = await _dio.post('/checkout/order', data: formData);
+        return response;
+      } else {
+        final data = <String, dynamic>{
+          'paymentMethod': paymentMethod,
+          if (note != null) 'note': note,
+        };
+        final response = await _dio.post('/checkout/order', data: data);
+        return response;
+      }
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Verify Payment
+  Future<Response> verifyPayment({
+    required String orderId,
+    String? transactionId,
+  }) async {
+    try {
+      final data = <String, dynamic>{
+        if (transactionId != null) 'tranRef': transactionId,
+      };
+      
+      final url = '/orders/$orderId/verify-payment';
+      log('API REQUEST: POST $url', name: 'VerifyPayment');
+      log('API REQUEST BODY: $data', name: 'VerifyPayment');
+      
+      final response = await _dio.post(url, data: data);
+      
+      log('API RESPONSE [${response.statusCode}]: ${response.data}', name: 'VerifyPayment');
+      
+      return response;
+    } on DioException catch (e) {
+      log('API ERROR RESPONSE [${e.response?.statusCode}]: ${e.response?.data}', name: 'VerifyPayment');
+      rethrow;
+    } catch (e) {
+      log('API ERROR: $e', name: 'VerifyPayment');
+      rethrow;
+    }
+  }
+
+  /// Get Bank Accounts for IBAN Payment
+  Future<Response> getBankAccounts() async {
+    try {
+      log('API REQUEST: GET /bank-accounts', name: 'GetBankAccounts');
+      final response = await _dio.get('/bank-accounts');
+      log('API RESPONSE [${response.statusCode}]: ${response.data}', name: 'GetBankAccounts');
+      return response;
+    } on DioException catch (e) {
+      log('API ERROR RESPONSE [${e.response?.statusCode}]: ${e.response?.data}', name: 'GetBankAccounts');
+      rethrow;
+    } catch (e) {
+      log('API ERROR: $e', name: 'GetBankAccounts');
       rethrow;
     }
   }

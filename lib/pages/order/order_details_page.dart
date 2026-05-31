@@ -220,8 +220,13 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
 
     try {
       final apiService = ApiService();
-      final response = await apiService.createCheckoutQuick(items: items);
-      log('createCheckoutQuick response: ${response.data}');
+      final isEssential = widget.orderStates.any(
+        (state) => state.categoryItem.category.slug == 'essential_supplies',
+      );
+      final response = isEssential
+          ? await apiService.createCheckoutEssential(items: items)
+          : await apiService.createCheckoutQuick(items: items);
+      log('createCheckout response: ${response.data}');
 
       final checkoutDataMap = response.data['data'];
       final checkoutData = Checkout.fromJson(checkoutDataMap);

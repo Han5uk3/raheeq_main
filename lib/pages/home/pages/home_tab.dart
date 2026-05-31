@@ -13,13 +13,14 @@ import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/api/apis.dart';
 import '../../../storage/auth_storage.dart';
 import 'campaign_detail_page.dart';
-import 'quick_service_page.dart';
 import 'city_selector_page.dart';
 import 'specific_mosque_page.dart';
 import '../widgets/option_selector_dialog.dart';
 import 'package:raheeq_main/models/selected_category_item.dart';
 import 'package:raheeq_main/pages/order/choose_water_package_screen.dart';
 import 'package:raheeq_main/common_widgets/bottom_action_pill.dart';
+import 'package:raheeq_main/pages/order/order_details_page.dart';
+import 'package:raheeq_main/models/order_item.dart';
 
 class HomeTab extends StatefulWidget {
   const HomeTab({super.key});
@@ -31,6 +32,9 @@ class HomeTab extends StatefulWidget {
 
   /// Exposes the cached categories list to external pages.
   static List<Category> get cachedCategories => _HomeTabState._cachedCategories;
+
+  /// Clears the basket. Called after a successful payment.
+  static void clearBasket() => _HomeTabState._clearBasket();
 
   @override
   State<HomeTab> createState() => _HomeTabState();
@@ -51,6 +55,15 @@ class _HomeTabState extends State<HomeTab> {
   // Queue for items added from external pages (e.g., Saved Mosques)
   static final List<SelectedCategoryItem> _pendingItems = [];
 
+  static final Category _essentialCategory = Category(
+    id: 'essential_supplies',
+    slug: 'essential_supplies',
+    labelEn: 'Essential Supplies',
+    labelAr: 'مستلزمات أساسية',
+    image: '',
+    sortOrder: 0,
+  );
+
   bool _isLoading = true;
   String? _errorMessage;
 
@@ -60,6 +73,11 @@ class _HomeTabState extends State<HomeTab> {
   List<Product> _products = [];
   List<Product> _essentialProducts = [];
   static List<SelectedCategoryItem> _selectedItems = [];
+
+  /// Clears the basket. Called after a successful payment.
+  static void _clearBasket() {
+    _selectedItems.clear();
+  }
 
   int _currentIndex = 0;
 
@@ -448,7 +466,7 @@ class _HomeTabState extends State<HomeTab> {
                             child: buildRecentDonationCard(context),
                           ),
                           const SizedBox(height: 24),
-                          buildFeaturedProductsSection(context),
+                          buildEssentialMosqueSuppliesSection(context),
                           const SizedBox(height: 32),
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -486,17 +504,59 @@ class _HomeTabState extends State<HomeTab> {
                 ),
               ),
               buttonText: isAr ? 'اطلب الآن' : 'Order Now',
-              onButtonTap: () {
-                // Navigate to QuickServicePage with the first selected item, as a placeholder
-                if (_selectedItems.isNotEmpty) {
-                  Navigator.of(context).push(
+              onButtonTap: () async {
+                final isEssential = _selectedItems.any(
+                  (i) => i.category.slug == 'essential_supplies',
+                );
+                if (isEssential) {
+                  final mosques = await Navigator.of(context).push(
                     MaterialPageRoute(
-                      builder: (_) => ChooseWaterPackageScreen(
-                        selectedCategories: _selectedItems,
-                        availableProducts: List<Product>.from(_products),
+                      builder: (_) => SpecificMosquePage(
+                        slug: 'mosques',
+                        initialSelections: const [],
+                        title: isAr ? 'اختر المساجد' : 'Choose Mosques',
                       ),
                     ),
                   );
+                  if (mosques != null &&
+                      mosques is List<Place> &&
+                      mosques.isNotEmpty) {
+                    final orderStates = <OrderCategoryState>[];
+                    for (final mosque in mosques) {
+                      orderStates.add(
+                        OrderCategoryState(
+                          categoryItem: SelectedCategoryItem(
+                            category: _essentialCategory,
+                            optionType: 'specific',
+                            specificData: mosque,
+                          ),
+                          selectedProducts: _selectedItems.map((item) {
+                            return SelectedProduct(
+                              product: item.specificData as Product,
+                              quantity: 1,
+                            );
+                          }).toList(),
+                        ),
+                      );
+                    }
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            ReviewOrderPage(orderStates: orderStates),
+                      ),
+                    );
+                  }
+                } else {
+                  if (_selectedItems.isNotEmpty) {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => ChooseWaterPackageScreen(
+                          selectedCategories: _selectedItems,
+                          availableProducts: List<Product>.from(_products),
+                        ),
+                      ),
+                    );
+                  }
                 }
               },
             ),
@@ -1049,6 +1109,24 @@ class _HomeTabState extends State<HomeTab> {
 
             return GestureDetector(
               onTap: () async {
+                if (_selectedItems.isNotEmpty &&
+                    _selectedItems.any(
+                      (item) => item.category.slug == 'essential_supplies',
+                    )) {
+                  final shouldProceed = await _showClearBasketDialog(
+                    context,
+                    label,
+                    isAr,
+                  );
+                  if (shouldProceed) {
+                    setState(() {
+                      _selectedItems.clear();
+                    });
+                  } else {
+                    return;
+                  }
+                }
+
                 if (isSelected && !requiresChoosing) {
                   setState(() {
                     _selectedItems.removeAt(existingIndex);
@@ -1263,7 +1341,7 @@ class _HomeTabState extends State<HomeTab> {
     );
   }
 
-  Widget buildFeaturedProductsSection(BuildContext context) {
+  Widget buildEssentialMosqueSuppliesSection(BuildContext context) {
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
     if (_essentialProducts.isEmpty) return const SizedBox.shrink();
 
@@ -1295,180 +1373,187 @@ class _HomeTabState extends State<HomeTab> {
               final imageUrl = product.image;
               final price = product.price;
 
-              return Container(
-                width: 260,
+              final existingIndex = _selectedItems.indexWhere(
+                (item) =>
+                    item.category.slug == 'essential_supplies' &&
+                    item.specificData is Product &&
+                    (item.specificData as Product).id == product.id,
+              );
+              final isSelected = existingIndex != -1;
 
-                margin: EdgeInsets.only(
-                  left: index == 0 ? 16 : 8,
-                  right: index == _essentialProducts.length - 1 ? 16 : 8,
-                  bottom: 12,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  border: Border.all(color: const Color(0xffE2E2E2), width: 1),
-                  borderRadius: BorderRadius.circular(24),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.03),
-                      blurRadius: 6,
-                      offset: const Offset(0, 3),
+              return GestureDetector(
+                onTap: () async {
+                  if (isSelected) {
+                    setState(() {
+                      _selectedItems.removeAt(existingIndex);
+                    });
+                    return;
+                  }
+
+                  if (_selectedItems.isNotEmpty &&
+                      _selectedItems.any(
+                        (item) => item.category.slug != 'essential_supplies',
+                      )) {
+                    final shouldProceed = await _showClearBasketDialog(
+                      context,
+                      name,
+                      isAr,
+                    );
+                    if (shouldProceed) {
+                      setState(() {
+                        _selectedItems.clear();
+                        _selectedItems.add(
+                          SelectedCategoryItem(
+                            category: _essentialCategory,
+                            optionType: 'essential',
+                            specificData: product,
+                          ),
+                        );
+                      });
+                    }
+                    return;
+                  }
+
+                  setState(() {
+                    _selectedItems.add(
+                      SelectedCategoryItem(
+                        category: _essentialCategory,
+                        optionType: 'essential',
+                        specificData: product,
+                      ),
+                    );
+                  });
+                },
+                child: Container(
+                  width: 260,
+                  margin: EdgeInsets.only(
+                    left: index == 0 ? 16 : 8,
+                    right: index == _essentialProducts.length - 1 ? 16 : 8,
+                    bottom: 12,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isSelected ? const Color(0xFFE8F4FA) : Colors.white,
+                    border: Border.all(
+                      color: isSelected
+                          ? AppColors.buttonBlue
+                          : const Color(0xffE2E2E2),
+                      width: isSelected ? 2 : 1,
                     ),
-                  ],
-                ),
-                child: Padding(
-                  padding: const EdgeInsets.all(12),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      if (product.isHighNeed) ...[
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 3,
-                          ),
-                          decoration: BoxDecoration(
-                            color: const Color(
-                              0xff1A6A8F,
-                            ).withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              Icon(
-                                Icons.trending_up_outlined,
-                                color: AppColors.buttonBlue,
-                                size: 15,
-                              ),
-                              SizedBox(width: 4),
-                              Text(
-                                isAr ? 'حاجة عالية' : 'High Need',
-                                style: const TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.w600,
-                                  color: AppColors.buttonBlue,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 6),
-                      ],
-                      Text(
-                        name,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
+                    borderRadius: BorderRadius.circular(24),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.03),
+                        blurRadius: 6,
+                        offset: const Offset(0, 3),
                       ),
-                      const SizedBox(height: 2),
-                      Text(
-                        subtitle,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.black54,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      Expanded(
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
-                          child: CachedNetworkImage(
-                            imageUrl: imageUrl,
-                            fit: BoxFit.contain,
-                            placeholder: (context, url) => const Center(
-                              child: WaterLoadingIndicator(size: 30),
+                    ],
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(12),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        if (product.isHighNeed) ...[
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3,
                             ),
-                            errorWidget: (context, url, error) => const Icon(
-                              Icons.water_drop,
-                              size: 40,
-                              color: AppColors.buttonBlue,
-                            ),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                isAr ? 'السعر' : 'Starting from',
-                                style: const TextStyle(
-                                  fontSize: 12,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                              Text(
-                                "$price SAR",
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.buttonBlue,
-                                ),
-                              ),
-                            ],
-                          ),
-                          ElevatedButton(
-                            onPressed: () async {
-                              if (_selectedItems.isNotEmpty) {
-                                final shouldProceed =
-                                    await _showClearBasketDialog(
-                                      context,
-                                      name,
-                                      isAr,
-                                    );
-                                if (shouldProceed) {
-                                  setState(() {
-                                    _selectedItems.clear();
-                                  });
-                                  // TODO: Add donate action
-                                }
-                              } else {
-                                // TODO: Add donate action
-                              }
-                            },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.buttonBlue,
-                              minimumSize: const Size(70, 32),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                              ),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              elevation: 0,
+                            decoration: BoxDecoration(
+                              color: const Color(
+                                0xff1A6A8F,
+                              ).withValues(alpha: 0.15),
+                              borderRadius: BorderRadius.circular(20),
                             ),
                             child: Row(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
-                                Text(
-                                  isAr ? 'تبرع الآن' : 'Donate Now',
-                                  style: const TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
+                                Icon(
+                                  Icons.trending_up_outlined,
+                                  color: AppColors.buttonBlue,
+                                  size: 15,
                                 ),
-                                const SizedBox(width: 4),
-                                const Icon(
-                                  Icons.arrow_forward,
-                                  size: 12,
-                                  color: Colors.white,
+                                SizedBox(width: 4),
+                                Text(
+                                  isAr ? 'حاجة عالية' : 'High Need',
+                                  style: const TextStyle(
+                                    fontSize: 10,
+                                    fontWeight: FontWeight.w600,
+                                    color: AppColors.buttonBlue,
+                                  ),
                                 ),
                               ],
                             ),
                           ),
+                          const SizedBox(height: 6),
                         ],
-                      ),
-                    ],
+                        Text(
+                          name,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          subtitle,
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.black54,
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Expanded(
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(16),
+                            child: CachedNetworkImage(
+                              imageUrl: imageUrl,
+                              fit: BoxFit.contain,
+                              placeholder: (context, url) => const Center(
+                                child: WaterLoadingIndicator(size: 30),
+                              ),
+                              errorWidget: (context, url, error) => const Icon(
+                                Icons.water_drop,
+                                size: 40,
+                                color: AppColors.buttonBlue,
+                              ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  isAr ? 'السعر' : 'Starting from',
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                                Text(
+                                  "$price SAR",
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.buttonBlue,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               );
@@ -1885,36 +1970,50 @@ class _HomeTabState extends State<HomeTab> {
   }
 
   Widget buildYourImpactSection(BuildContext context) {
+    final isAr = Localizations.localeOf(context).languageCode == 'ar';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          "Your Impact",
-          style: TextStyle(
+        Text(
+          isAr ? "تأثيرك" : "Your Impact",
+          style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
             color: Colors.black87,
           ),
         ),
         const SizedBox(height: 16),
-        Column(
-          children: [
-            Row(
-              children: [
-                _buildImpactPill(Icons.people, "50", "People Helped"),
-                const SizedBox(width: 12),
-                _buildImpactPill(Icons.water_drop, "85L", "Water Donated"),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                _buildImpactPill(Icons.mosque, "10", "Mosques Served"),
-                const SizedBox(width: 12),
-                _buildImpactPill(Icons.inventory_2, "12", "Water Cartons"),
-              ],
-            ),
-          ],
+        Container(
+          width: double.infinity,
+          padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
+          decoration: BoxDecoration(
+            color: Colors.grey.shade50,
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(color: Colors.grey.shade200),
+          ),
+          child: Column(
+            children: [
+              Icon(Icons.auto_graph_outlined, size: 48, color: Colors.grey.shade400),
+              const SizedBox(height: 12),
+              Text(
+                isAr ? "قريباً..." : "Coming Soon...",
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.grey.shade600,
+                ),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                isAr ? "نعمل على تجهيز إحصائيات تأثيرك." : "We're preparing your impact statistics.",
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 14,
+                  color: Colors.grey.shade500,
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );

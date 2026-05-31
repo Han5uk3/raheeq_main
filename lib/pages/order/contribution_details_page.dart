@@ -1,20 +1,24 @@
+import 'dart:developer';
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_paytabs_bridge/flutter_paytabs_bridge.dart';
 import 'package:flutter_paytabs_bridge/IOSThemeConfiguration.dart';
 import 'package:flutter_paytabs_bridge/PaymentSdkTokeniseType.dart';
+import 'package:flutter_paytabs_bridge/PaymentSdkApms.dart';
+import 'package:raheeq_main/pages/order/payment_status_page.dart';
+import 'package:raheeq_main/pages/order/iban_payment_page.dart';
 import 'package:intl/intl.dart';
-import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
-import 'dart:developer';
-
+import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/models/order_item.dart';
 import 'package:raheeq_main/models/checkout.dart';
+import 'package:raheeq_main/storage/auth_storage.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/common_widgets/bottom_action_pill.dart';
-import 'package:raheeq_main/api/apis.dart';
+import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_paytabs_bridge/BaseBillingShippingInfo.dart';
 import 'package:flutter_paytabs_bridge/PaymentSdkConfigurationDetails.dart';
-import 'package:flutter_paytabs_bridge/flutter_paytabs_bridge.dart';
 
 class ContributionDetailsPage extends StatefulWidget {
   final List<OrderCategoryState> orderStates;
@@ -38,6 +42,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
   final TextEditingController _couponController = TextEditingController();
   bool _isApplyingCoupon = false;
   bool _isTogglingWallet = false;
+  String _selectedPaymentMethod = 'CREDIT_CARD';
 
   @override
   void initState() {
@@ -209,106 +214,397 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
   }
 
   void _confirmAndPay(BuildContext context, bool isAr) {
-    // Basic Paytabs integration setup
-    final billingDetails = BillingDetails(
-      "John Smith",
-      "email@domain.com",
-      "+97311111111",
-      "st. 12",
-      "ae",
-      "dubai",
-      "dubai",
-      "12345",
+    log(
+      'Payment Flow Started: Confirm & Pay clicked. Total Amount: ${_checkoutData.finalTotal}',
+      name: 'CheckoutFlow',
     );
+    if (_checkoutData.finalTotal == 0) {
+      log(
+        'Payment Flow: Order total is 0. Bypassing SDK.',
+        name: 'CheckoutFlow',
+      );
+      _processPayment(
+        context,
+        isAr,
+        'CREDIT_CARD',
+      ); // Method doesn't matter for 0 total
+      return;
+    }
 
-    final shippingDetails = ShippingDetails(
-      "John Smith",
-      "email@domain.com",
-      "+97311111111",
-      "st. 12",
-      "ae",
-      "dubai",
-      "dubai",
-      "12345",
-    );
+    if (_selectedPaymentMethod == 'IBAN') {
+      log('Payment Flow: Selected IBAN', name: 'CheckoutFlow');
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (_) => IbanPaymentPage(isAr: isAr)),
+      );
+    } else {
+      log(
+        'Payment Flow: Selected $_selectedPaymentMethod',
+        name: 'CheckoutFlow',
+      );
+      _processPayment(context, isAr, _selectedPaymentMethod);
+    }
+  }
 
-    final amount = _checkoutData.finalTotal.toDouble();
+  Widget _buildPaymentMethodsGrid(bool isAr) {
+    final methods = [
+      {
+        'id': 'CREDIT_CARD',
+        'title': isAr ? 'بطاقة الائتمان / مدى' : 'Credit Card / Mada',
+        'icon': Icons.credit_card,
+        'color': AppColors.buttonBlueDark,
+      },
+      if (Platform.isIOS)
+        {
+          'id': 'APPLE_PAY',
+          'title': isAr ? 'أبل باي' : 'Apple Pay',
+          'icon': Icons.apple,
+          'color': Colors.black,
+        },
+      {
+        'id': 'STC_PAY',
+        'title': isAr ? 'STC Pay' : 'STC Pay',
+        'icon': Icons.account_balance_wallet,
+        'color': Colors.purple,
+      },
+      {
+        'id': 'IBAN',
+        'title': 'IBAN',
+        'icon': Icons.account_balance,
+        'color': Colors.green,
+      },
+    ];
 
-    final configuration = PaymentSdkConfigurationDetails(
-      profileId: "*profile id*",
-      serverKey: "*server key*",
-      clientKey: "*client key*",
-      cartId: _checkoutData.id,
-      cartDescription: "Donation Order",
-      merchantName: "Raheeq",
-      screentTitle: isAr ? "الدفع" : "Pay with Card",
-      amount: amount > 0 ? amount : 1.0, // Amount should be > 0
-      showBillingInfo: true,
-      forceShippingInfo: false,
-      currencyCode: "SAR",
-      merchantCountryCode: "SA",
-      billingDetails: billingDetails,
-      shippingDetails: shippingDetails,
-      alternativePaymentMethods: [],
-      linkBillingNameWithCardHolderName: true,
-    );
-
-    final theme = IOSThemeConfigurations();
-    theme.logoImage = "assets/logo.png";
-    configuration.iOSThemeConfigurations = theme;
-    configuration.tokeniseType = PaymentSdkTokeniseType.NONE;
-
-    FlutterPaytabsBridge.startCardPayment(configuration, (event) {
-      setState(() {
-        if (event["status"] == "success") {
-          var transactionDetails = event["data"];
-          
-          if (transactionDetails["isSuccess"]) {
-            showDialog(
-              context: context,
-              builder: (ctx) {
-                return AlertDialog(
-                  title: Text(isAr ? 'نجاح' : 'Success'),
-                  content: Text(
-                    isAr
-                        ? 'تم الدفع بنجاح!'
-                        : 'Payment completed successfully!',
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          isAr ? 'طريقة الدفع' : 'Payment Method',
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 12),
+        GridView.builder(
+          padding: EdgeInsets.all(0),
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 2.5,
+          ),
+          itemCount: methods.length,
+          itemBuilder: (context, index) {
+            final method = methods[index];
+            final isSelected = _selectedPaymentMethod == method['id'];
+            return GestureDetector(
+              onTap: () {
+                setState(() {
+                  _selectedPaymentMethod = method['id'] as String;
+                });
+              },
+              child: Container(
+                decoration: BoxDecoration(
+                  color: isSelected
+                      ? (method['color'] as Color).withValues(alpha: 0.1)
+                      : Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: isSelected
+                        ? (method['color'] as Color)
+                        : Colors.grey.shade300,
+                    width: isSelected ? 2 : 1,
                   ),
-                  actions: [
-                    ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(ctx).pop();
-                        Navigator.of(
-                          context,
-                        ).popUntil((route) => route.isFirst);
-                      },
-                      child: Text(isAr ? 'حسناً' : 'OK'),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Icon(
+                      method['icon'] as IconData,
+                      color: method['color'] as Color,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        method['title'] as String,
+                        style: TextStyle(
+                          fontSize: 12,
+                          fontWeight: isSelected
+                              ? FontWeight.bold
+                              : FontWeight.normal,
+                          color: isSelected
+                              ? (method['color'] as Color)
+                              : Colors.black87,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
                     ),
                   ],
-                );
-              },
+                ),
+              ),
             );
-          } else {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content: Text(isAr ? 'فشلت عملية الدفع' : 'Payment failed'),
-                backgroundColor: Colors.red,
+          },
+        ),
+      ],
+    );
+  }
+
+  Future<void> _processPayment(
+    BuildContext context,
+    bool isAr,
+    String paymentMethod,
+  ) async {
+    log(
+      'Payment Flow: Starting _processPayment with method: $paymentMethod',
+      name: 'CheckoutFlow',
+    );
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: WaterLoadingIndicator()),
+    );
+
+    try {
+      final apiService = ApiService();
+      log('Payment Flow: Calling createOrder API...', name: 'CheckoutFlow');
+      final response = await apiService.createOrder(
+        paymentMethod: paymentMethod,
+      );
+      Navigator.pop(context); // close loader
+
+      final data = response.data['data'];
+      final paymentStatus = data['paymentStatus'];
+      final orderId = data['orderId'];
+      final paymentConfig = data['paymentConfig'];
+      log(
+        'Payment Flow: createOrder Response -> paymentStatus: $paymentStatus, orderId: $orderId',
+        name: 'CheckoutFlow',
+      );
+
+      if (paymentStatus == 'PAID' || _checkoutData.finalTotal == 0) {
+        log(
+          'Payment Flow: Status is PAID or Total is 0. Bypassing SDK.',
+          name: 'CheckoutFlow',
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (_) =>
+                PaymentStatusPage(status: PaymentStatus.success, isAr: isAr),
+          ),
+        );
+      } else if (paymentStatus == 'PENDING' && paymentConfig != null) {
+        log(
+          'Payment Flow: Status is PENDING. Preparing SDK configuration.',
+          name: 'CheckoutFlow',
+        );
+        final amount = (paymentConfig['amount'] ?? _checkoutData.finalTotal)
+            .toDouble();
+
+        final userEmail = AuthStorage.user?.email ?? "[EMAIL_ADDRESS]";
+        final userName = AuthStorage.user?.fullName ?? "Customer";
+        final userPhone = (AuthStorage.user?.phoneNumber?.isNotEmpty ?? false)
+            ? AuthStorage.user!.phoneNumber
+            : "+966500000000";
+
+        final billingDetails = BillingDetails(
+          userName,
+          userEmail,
+          userPhone,
+          "st. 12",
+          "sa",
+          "Riyadh",
+          "Riyadh",
+          "12345",
+        );
+
+        final shippingDetails = ShippingDetails(
+          userName,
+          userEmail,
+          userPhone,
+          "st. 12",
+          "sa",
+          "Riyadh",
+          "Riyadh",
+          "12345",
+        );
+
+        log(
+          'Payment Flow: Billing details -> name: $userName, email: $userEmail, phone: $userPhone',
+          name: 'CheckoutFlow',
+        );
+
+        var config = PaymentSdkConfigurationDetails(
+          profileId: paymentConfig['profileId'].toString(),
+          serverKey: paymentConfig['serverKey'],
+          clientKey: paymentConfig['clientKey'],
+          cartId: paymentConfig['cartId'].toString(),
+          cartDescription: "Donation Order",
+          merchantName: paymentConfig['merchantName'] ?? "Raheeq",
+          screentTitle: isAr ? "الدفع" : "Pay with Card",
+          amount: amount > 0 ? amount : 1.0,
+          showBillingInfo: false,
+          forceShippingInfo: false,
+          currencyCode: paymentConfig['currency'] ?? "SAR",
+          merchantCountryCode: "SA",
+          billingDetails: billingDetails,
+          shippingDetails: shippingDetails,
+          alternativePaymentMethods: [],
+          linkBillingNameWithCardHolderName: true,
+          tokeniseType: PaymentSdkTokeniseType.NONE,
+        );
+
+        if (paymentMethod == 'APPLE_PAY') {
+          config.merchantApplePayIndentifier =
+              paymentConfig['applePayMerchantId'];
+          config.simplifyApplePayValidation = true;
+        } else if (paymentMethod == 'STC_PAY') {
+          config.alternativePaymentMethods = [PaymentSdkAPms.STC_PAY];
+        }
+
+        log('Payment Flow: SDK Configuration generated.', name: 'CheckoutFlow');
+
+        final theme = IOSThemeConfigurations();
+        theme.logoImage = "assets/logo.png";
+        config.iOSThemeConfigurations = theme;
+
+        void handlePaymentResult(dynamic event) async {
+          log(
+            'Payment Flow: Received PayTabs SDK event -> ${event.toString()}',
+            name: 'CheckoutFlow',
+          );
+          if (event["status"] == "success") {
+            var transactionDetails = event["data"];
+
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (_) => const Center(child: WaterLoadingIndicator()),
+            );
+
+            try {
+              final txId = transactionDetails["transactionReference"];
+              log(
+                'Payment Flow: Calling verifyPayment with txId: $txId',
+                name: 'CheckoutFlow',
+              );
+              final verifyResponse = await apiService.verifyPayment(
+                orderId: orderId,
+                transactionId: txId,
+              );
+
+              Navigator.pop(context); // close loader
+
+              if (verifyResponse.data['success'] == true) {
+                log(
+                  'Payment Flow: verifyPayment successful.',
+                  name: 'CheckoutFlow',
+                );
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => PaymentStatusPage(
+                      status: PaymentStatus.success,
+                      isAr: isAr,
+                    ),
+                  ),
+                );
+              } else {
+                log(
+                  'Payment Flow: verifyPayment failed: ${verifyResponse.data['message']}',
+                  name: 'CheckoutFlow',
+                );
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => PaymentStatusPage(
+                      status: PaymentStatus.failed,
+                      message: verifyResponse.data['message'],
+                      isAr: isAr,
+                      onRetry: () => Navigator.pop(context),
+                    ),
+                  ),
+                );
+              }
+            } catch (e) {
+              Navigator.pop(context); // close loader
+              log(
+                'Payment Flow: verifyPayment API error: $e',
+                name: 'CheckoutFlow',
+              );
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => PaymentStatusPage(
+                    status: PaymentStatus.failed,
+                    message: isAr
+                        ? 'حدث خطأ أثناء التحقق من الدفع'
+                        : 'Error verifying payment',
+                    isAr: isAr,
+                    onRetry: () => Navigator.pop(context),
+                  ),
+                ),
+              );
+            }
+          } else if (event["status"] == "error") {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => PaymentStatusPage(
+                  status: PaymentStatus.failed,
+                  message: "${event["message"]}",
+                  isAr: isAr,
+                  onRetry: () => Navigator.pop(context),
+                ),
+              ),
+            );
+          } else if (event["status"] == "cancel") {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => PaymentStatusPage(
+                  status: PaymentStatus.failed,
+                  message: isAr
+                      ? 'تم إلغاء عملية الدفع'
+                      : 'Payment was cancelled',
+                  isAr: isAr,
+                  onRetry: () => Navigator.pop(context),
+                ),
               ),
             );
           }
-        } else if (event["status"] == "error") {
-          // Handle error here.
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text("${event["message"]}"),
-              backgroundColor: Colors.red,
-            ),
-          );
-        } else if (event["status"] == "event") {
-          // Handle events here.
         }
-      });
-    });
+
+        if (paymentMethod == 'APPLE_PAY') {
+          FlutterPaytabsBridge.startApplePayPayment(
+            config,
+            handlePaymentResult,
+          );
+        } else if (paymentMethod == 'STC_PAY') {
+          FlutterPaytabsBridge.startAlternativePaymentMethod(
+            config,
+            handlePaymentResult,
+          );
+        } else {
+          FlutterPaytabsBridge.startCardPayment(config, handlePaymentResult);
+        }
+      }
+    } catch (e) {
+      Navigator.pop(context); // close loader
+      log('Error processing payment: $e', error: e);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (_) => PaymentStatusPage(
+            status: PaymentStatus.failed,
+            message: e.toString(),
+            isAr: isAr,
+            onRetry: () => Navigator.pop(context),
+          ),
+        ),
+      );
+    }
   }
 
   Widget _buildSubscriptionDetails(bool isAr) {
@@ -594,7 +890,16 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                 ],
                               ),
                             ),
+                            const SizedBox(height: 24),
+                            _buildPaymentMethodsGrid(isAr),
                             const SizedBox(height: 16),
+                            Text(
+                              "Add Gift Card",
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                             GestureDetector(
                               onTap: () {
                                 //todo gift card workflow
@@ -672,6 +977,13 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                               ),
                             ),
                             const SizedBox(height: 16),
+                            Text(
+                              isAr ? 'كود الخصم' : 'Coupon Code',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                             Card(
                               color: Colors.white,
                               elevation: 3,
@@ -683,14 +995,6 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      isAr ? 'كود الخصم' : 'Coupon Code',
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w600,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 12),
                                     if (_checkoutData.couponCode != null &&
                                         _checkoutData.couponCode!.isNotEmpty)
                                       Container(
@@ -841,6 +1145,13 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                             ),
                             const SizedBox(height: 16),
                             if (_checkoutData.walletBalance > 0) ...[
+                              Text(
+                                isAr ? 'استخدام المحفظة' : 'Use Wallet Balance',
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                               Card(
                                 color: Colors.white,
                                 elevation: 3,
@@ -869,21 +1180,11 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                                 children: [
                                                   Text(
                                                     isAr
-                                                        ? 'استخدام المحفظة'
-                                                        : 'Use Wallet Balance',
-                                                    style: const TextStyle(
-                                                      fontSize: 16,
-                                                      fontWeight:
-                                                          FontWeight.w600,
-                                                    ),
-                                                  ),
-                                                  Text(
-                                                    isAr
                                                         ? 'الرصيد المتاح: ${_checkoutData.walletBalance.toStringAsFixed(2)} ر.س'
                                                         : 'Available: ${_checkoutData.walletBalance.toStringAsFixed(2)} SAR',
                                                     style: const TextStyle(
-                                                      fontSize: 12,
-                                                      color: Colors.grey,
+                                                      fontSize: 14,
+                                                      color: Colors.black,
                                                     ),
                                                   ),
                                                 ],
@@ -944,6 +1245,13 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                               ),
                               const SizedBox(height: 16),
                             ],
+                            Text(
+                              isAr ? 'تفاصيل المساهمة' : 'Contribution Details',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
                             Card(
                               color: Colors.white,
                               elevation: 3,
@@ -955,16 +1263,6 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      isAr
-                                          ? 'تفاصيل المساهمة'
-                                          : 'Contribution Details',
-                                      style: const TextStyle(
-                                        fontSize: 20,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(height: 20),
                                     ...aggregatedProducts.values.map((sp) {
                                       return Padding(
                                         padding: const EdgeInsets.only(

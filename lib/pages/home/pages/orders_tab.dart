@@ -71,26 +71,31 @@ class OrdersTab extends StatelessWidget {
           Expanded(
             child: TabBarView(
               children: [
-                Center(
-                  child: Text(
-                    isAr ? 'لا توجد طلبات جديدة' : 'No new orders',
-                    style: const TextStyle(color: Colors.grey),
-                  ),
-                ),
-                Center(
-                  child: Text(
-                    isAr
-                        ? 'لا توجد طلبات جاري توصيلها'
-                        : 'No orders out for delivery',
-                    style: const TextStyle(color: Colors.grey),
-                  ),
-                ),
-                Center(
-                  child: Text(
-                    isAr ? 'لا توجد طلبات تم توصيلها' : 'No delivered orders',
-                    style: const TextStyle(color: Colors.grey),
-                  ),
-                ),
+                Center(child: Text("Orders will be live soon...")),
+                Center(child: Text("Orders will be live soon...")),
+
+                Center(child: Text("Orders will be live soon...")),
+
+                // Center(
+                //   child: Text(
+                //     isAr ? 'لا توجد طلبات جديدة' : 'No new orders',
+                //     style: const TextStyle(color: Colors.grey),
+                //   ),
+                // ),
+                // Center(
+                //   child: Text(
+                //     isAr
+                //         ? 'لا توجد طلبات جاري توصيلها'
+                //         : 'No orders out for delivery',
+                //     style: const TextStyle(color: Colors.grey),
+                //   ),
+                // ),
+                // Center(
+                //   child: Text(
+                //     isAr ? 'لا توجد طلبات تم توصيلها' : 'No delivered orders',
+                //     style: const TextStyle(color: Colors.grey),
+                //   ),
+                // ),
               ],
             ),
           ),
