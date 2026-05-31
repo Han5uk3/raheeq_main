@@ -3,6 +3,7 @@ import 'package:raheeq_main/common_widgets/custom_bottom_nav.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/pages/home/pages/home_tab.dart';
 import 'package:raheeq_main/pages/home/pages/profile_tab.dart';
+import 'package:raheeq_main/pages/home/pages/orders_tab.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -20,7 +21,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   final List<Widget> _pages = [
     const HomeTab(),
-    const Center(child: Text("My Orders Page", style: TextStyle(fontSize: 24))),
+    const OrdersTab(),
     const Center(child: Text("Impact Page", style: TextStyle(fontSize: 24))),
     const ProfileTab(),
   ];
@@ -139,29 +140,38 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
 
-    if (_currentIndex == 0) {
-      return scaffold;
-    }
+    Widget finalWidget = _currentIndex == 0
+        ? scaffold
+        : Container(
+            color: Colors.white,
+            child: Container(
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topCenter,
+                  end: Alignment.bottomCenter,
+                  colors: [
+                    AppColors.headerlightblue.withValues(alpha: 0.15),
+                    AppColors.headerlightblue,
+                  ],
+                  stops: const [0.0, 0.18],
+                ),
+              ),
+              child: scaffold,
+            ),
+          );
 
-    return Container(
-      color: Colors.white, // Covers the black native window background
-      child: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              AppColors.headerlightblue.withValues(alpha: 0.15),
-              AppColors.headerlightblue,
-            ],
-            stops: const [
-              0.0,
-              0.18,
-            ], // Seamless transition matching status bar + toolbarHeight
-          ),
-        ),
-        child: scaffold,
-      ),
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          if (_currentIndex != 0) {
+            setState(() {
+              _currentIndex = 0;
+            });
+          }
+        }
+      },
+      child: finalWidget,
     );
   }
 }

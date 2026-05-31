@@ -13,11 +13,13 @@ import '../../../utils/colors.dart';
 class SpecificMosquePage extends StatefulWidget {
   final String slug;
   final List<Place> initialSelections;
+  final String? title;
   
   const SpecificMosquePage({
     super.key,
     this.slug = 'mosques',
     this.initialSelections = const [],
+    this.title,
   });
 
   @override
@@ -193,19 +195,19 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
     String listTabText;
 
     if (widget.slug == 'orphanages') {
-      title = isAr ? 'اختر دار أيتام محددة' : 'Choose Specific Orphanage';
+      title = widget.title ?? (isAr ? 'اختر دار أيتام محددة' : 'Choose Specific Orphanage');
       subtitle = isAr
           ? 'اختر داراً لإيصال المياه إليها'
           : 'Select an orphanage to deliver water to';
       listTabText = isAr ? 'قائمة دور الأيتام' : 'List of Orphanages';
     } else if (widget.slug == 'meqat_mosques') {
-      title = isAr ? 'اختر ميقات محدد' : 'Choose Specific Meqat Mosque';
+      title = widget.title ?? (isAr ? 'اختر ميقات محدد' : 'Choose Specific Meqat Mosque');
       subtitle = isAr
           ? 'اختر مسجداً لإيصال المياه إليه'
           : 'Select a mosque to deliver water to';
       listTabText = isAr ? 'قائمة المواقيت' : 'List of Meqat mosques';
     } else {
-      title = isAr ? 'اختر مسجداً محدداً' : 'Choose Specific Mosque';
+      title = widget.title ?? (isAr ? 'اختر مسجداً محدداً' : 'Choose Specific Mosque');
       subtitle = isAr
           ? 'اختر مسجداً لإيصال المياه إليه'
           : 'Select a mosque to deliver water to';

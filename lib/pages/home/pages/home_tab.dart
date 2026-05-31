@@ -1037,10 +1037,6 @@ class _HomeTabState extends State<HomeTab> {
             String imageUrl = category.image.trim();
             final slug = category.slug;
 
-            if (slug == 'specific_mosque') {
-              imageUrl = 'assets/choose_mosque.png';
-            }
-
             final existingIndex = _selectedItems.indexWhere(
               (item) => item.category.id == category.id,
             );
@@ -1111,6 +1107,7 @@ class _HomeTabState extends State<HomeTab> {
                           builder: (_) => SpecificMosquePage(
                             slug: category.slug,
                             initialSelections: currentlySelected,
+                            title: label,
                           ),
                         ),
                       );
@@ -1203,6 +1200,7 @@ class _HomeTabState extends State<HomeTab> {
                       builder: (_) => SpecificMosquePage(
                         slug: category.slug,
                         initialSelections: currentlySelected,
+                        title: label,
                       ),
                     ),
                   );

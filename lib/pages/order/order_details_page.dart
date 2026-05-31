@@ -367,10 +367,6 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
         final slug = category.slug;
         final optionType = state.categoryItem.optionType;
         String originalCategoryLabel = category.localizedLabel(isAr);
-        if (slug == 'specific_mosque') {
-          originalCategoryLabel = isAr ? 'مسجد محدد' : 'Specific Mosque';
-        }
-
         String categoryLabel = originalCategoryLabel;
         String locationText = "";
 

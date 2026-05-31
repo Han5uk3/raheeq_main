@@ -8,6 +8,10 @@ import 'package:raheeq_main/pages/home/pages/my_profile_screen.dart';
 import 'package:raheeq_main/pages/home/pages/saved_mosques_page.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/pages/home/pages/my_wallet_page.dart';
+import 'package:raheeq_main/pages/home/home_screen.dart';
+import 'package:raheeq_main/pages/home/pages/notifications_page.dart';
+import 'package:raheeq_main/pages/home/pages/recurring_donations_page.dart';
+import 'package:raheeq_main/pages/home/pages/app_settings_page.dart';
 
 class ProfileTab extends StatefulWidget {
   const ProfileTab({super.key});
@@ -197,14 +201,10 @@ class _ProfileTabState extends State<ProfileTab> {
                                     icon: Icons.cached_rounded,
                                     title: "Recurring Donations",
                                     onTap: () {
-                                      ScaffoldMessenger.of(
+                                      Navigator.push(
                                         context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            "Redirecting to My recurring donations (subscriptions)...",
-                                          ),
-                                          duration: Duration(seconds: 1),
+                                        MaterialPageRoute(
+                                          builder: (context) => const RecurringDonationsPage(),
                                         ),
                                       );
                                     },
@@ -261,16 +261,7 @@ class _ProfileTabState extends State<ProfileTab> {
                                     icon: Symbols.package_2,
                                     title: "Order History",
                                     onTap: () {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            "Redirecting to My Order History...",
-                                          ),
-                                          duration: Duration(seconds: 1),
-                                        ),
-                                      );
+                                      HomeScreen.switchTabNotifier.value = 1;
                                     },
                                   ),
                                 ]),
@@ -281,28 +272,24 @@ class _ProfileTabState extends State<ProfileTab> {
                                     icon: Icons.notifications_outlined,
                                     title: "Notifications",
                                     onTap: () {
-                                      ScaffoldMessenger.of(
+                                      Navigator.push(
                                         context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            "Redirecting to Notifications...",
-                                          ),
-                                          duration: Duration(seconds: 1),
+                                        MaterialPageRoute(
+                                          builder: (context) => const NotificationsPage(),
                                         ),
                                       );
                                     },
                                   ),
                                   _buildMenuTile(
                                     icon: Icons.shield_outlined,
-                                    title: "Privacy & Security",
+                                    title: "Terms and Conditions",
                                     onTap: () {
                                       ScaffoldMessenger.of(
                                         context,
                                       ).showSnackBar(
                                         const SnackBar(
                                           content: Text(
-                                            "Redirecting to Privacy & Security...",
+                                            "Redirecting to Terms and Conditions...",
                                           ),
                                           duration: Duration(seconds: 1),
                                         ),
@@ -313,14 +300,10 @@ class _ProfileTabState extends State<ProfileTab> {
                                     icon: Icons.settings_outlined,
                                     title: "App Settings",
                                     onTap: () {
-                                      ScaffoldMessenger.of(
+                                      Navigator.push(
                                         context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            "Redirecting to App Settings...",
-                                          ),
-                                          duration: Duration(seconds: 1),
+                                        MaterialPageRoute(
+                                          builder: (context) => const AppSettingsPage(),
                                         ),
                                       );
                                     },

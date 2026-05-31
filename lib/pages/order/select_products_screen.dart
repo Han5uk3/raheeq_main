@@ -102,12 +102,6 @@ class _SelectProductsScreenState extends State<SelectProductsScreen> {
                           final slug = category.slug;
                           final optionType = state.categoryItem.optionType;
                           String categoryLabel = category.localizedLabel(isAr);
-                          if (slug == 'specific_mosque') {
-                            categoryLabel = isAr
-                                ? 'مسجد محدد'
-                                : 'Specific Mosque';
-                          }
-
                           if (optionType == 'specific') {
                             locationText =
                                 state.categoryItem.specificData?.localizedName(

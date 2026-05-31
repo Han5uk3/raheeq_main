@@ -23,6 +23,7 @@ dependencies:
   google_maps_flutter: ^2.17.1
   image_picker: ^1.2.2
   flutter_paytabs_bridge: ^2.7.13
+  package_info_plus: ^8.0.0
 
 dev_dependencies:
   flutter_test:
