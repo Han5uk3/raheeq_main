@@ -1,21 +1,94 @@
 PODS:
+  - Firebase/CoreOnly (12.13.0):
+    - FirebaseCore (~> 12.13.0)
+  - firebase_core (4.9.0):
+    - Firebase/CoreOnly (= 12.13.0)
+    - Flutter
+  - FirebaseCore (12.13.0):
+    - FirebaseCoreInternal (~> 12.13.0)
+    - GoogleUtilities/Environment (~> 8.1)
+    - GoogleUtilities/Logger (~> 8.1)
+  - FirebaseCoreInternal (12.13.0):
+    - "GoogleUtilities/NSData+zlib (~> 8.1)"
   - Flutter (1.0.0)
+  - flutter_paytabs_bridge (2.7.12):
+    - Flutter
+    - PayTabsSDK (= 6.6.54)
+  - Google-Maps-iOS-Utils (6.1.0):
+    - GoogleMaps (~> 9.0)
+  - google_maps_flutter_ios (0.0.1):
+    - Flutter
+    - Google-Maps-iOS-Utils (< 7.0, >= 5.0)
+    - GoogleMaps (< 11.0, >= 8.4)
+  - GoogleMaps (9.4.0):
+    - GoogleMaps/Maps (= 9.4.0)
+  - GoogleMaps/Maps (9.4.0)
+  - GoogleUtilities/Environment (8.1.0):
+    - GoogleUtilities/Privacy
+  - GoogleUtilities/Logger (8.1.0):
+    - GoogleUtilities/Environment
+    - GoogleUtilities/Privacy
+  - "GoogleUtilities/NSData+zlib (8.1.0)":
+    - GoogleUtilities/Privacy
+  - GoogleUtilities/Privacy (8.1.0)
+  - image_picker_ios (0.0.1):
+    - Flutter
+  - package_info_plus (0.4.5):
+    - Flutter
+  - PayTabsSDK (6.6.54)
   - sqflite_darwin (0.0.4):
     - Flutter
     - FlutterMacOS
 
 DEPENDENCIES:
+  - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
   - Flutter (from `Flutter`)
+  - flutter_paytabs_bridge (from `.symlinks/plugins/flutter_paytabs_bridge/ios`)
+  - google_maps_flutter_ios (from `.symlinks/plugins/google_maps_flutter_ios/ios`)
+  - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
+  - package_info_plus (from `.symlinks/plugins/package_info_plus/ios`)
   - sqflite_darwin (from `.symlinks/plugins/sqflite_darwin/darwin`)
 
+SPEC REPOS:
+  trunk:
+    - Firebase
+    - FirebaseCore
+    - FirebaseCoreInternal
+    - Google-Maps-iOS-Utils
+    - GoogleMaps
+    - GoogleUtilities
+    - PayTabsSDK
+
 EXTERNAL SOURCES:
+  firebase_core:
+    :path: ".symlinks/plugins/firebase_core/ios"
   Flutter:
     :path: Flutter
+  flutter_paytabs_bridge:
+    :path: ".symlinks/plugins/flutter_paytabs_bridge/ios"
+  google_maps_flutter_ios:
+    :path: ".symlinks/plugins/google_maps_flutter_ios/ios"
+  image_picker_ios:
+    :path: ".symlinks/plugins/image_picker_ios/ios"
+  package_info_plus:
+    :path: ".symlinks/plugins/package_info_plus/ios"
   sqflite_darwin:
     :path: ".symlinks/plugins/sqflite_darwin/darwin"
 
 SPEC CHECKSUMS:
+  Firebase: 7d62445aeabdaea36f7d372f33052fed9a72514f
+  firebase_core: 0013f886fbd0b4950865551eaab47784424bfdb5
+  FirebaseCore: 58905958aa00a061397a0fd759ae4b55bddb3576
+  FirebaseCoreInternal: 37bee58388fc6d183f0ab1b32d69ae44f2cf8aad
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
+  flutter_paytabs_bridge: 193d7ae44a86bf5a9b618fc839433e721e04012d
+  Google-Maps-iOS-Utils: 0a484b05ed21d88c9f9ebbacb007956edd508a96
+  google_maps_flutter_ios: 17552876e72723da1d41accc22f03b5f7afbde69
+  GoogleMaps: 0608099d4870cac8754bdba9b6953db543432438
+  GoogleUtilities: 00c88b9a86066ef77f0da2fab05f65d7768ed8e1
+  image_picker_ios: e0ece4aa2a75771a7de3fa735d26d90817041326
+  package_info_plus: af8e2ca6888548050f16fa2f1938db7b5a5df499
+  PayTabsSDK: 51d21d0174679d08ee816583266aa5f557ebf5ed
   sqflite_darwin: 20b2a3a3b70e43edae938624ce550a3cbf66a3d0
 
 PODFILE CHECKSUM: 3c63482e143d1b91d2d2560aee9fb04ecc74ac7e
