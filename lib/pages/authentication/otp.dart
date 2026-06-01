@@ -29,11 +29,44 @@ class _OTPState extends State<OTP> {
   Timer? _timer;
   int _secondsRemaining = 60;
   bool _canResend = false;
+  String? _receivedOtp;
+  bool _isLoadingOtp = true;
 
   @override
   void initState() {
     super.initState();
     _startTimer();
+    _fetchOtp();
+  }
+
+  Future<void> _fetchOtp() async {
+    try {
+      final response = await ApiService().requestOtp(
+        phoneNumber: widget.phoneNumber,
+        countryCode: widget.countryCode,
+      );
+
+      if (!mounted) return;
+
+      if (response.statusCode == 200 && response.data['success'] == true) {
+        setState(() {
+          _receivedOtp = response.data['data']?['otp'] ?? 'N/A';
+          _isLoadingOtp = false;
+        });
+      } else {
+        setState(() {
+          _receivedOtp = 'Failed to fetch OTP';
+          _isLoadingOtp = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _receivedOtp = 'Error: ${e.toString()}';
+          _isLoadingOtp = false;
+        });
+      }
+    }
   }
 
   @override
@@ -206,6 +239,62 @@ class _OTPState extends State<OTP> {
                             fontWeight: FontWeight.w500,
                           ),
                         ),
+                        const SizedBox(height: 20),
+                        // OTP Display Section
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: AppColors.buttonBlueDark.withValues(
+                              alpha: 0.1,
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: AppColors.buttonBlueDark.withValues(
+                                alpha: 0.3,
+                              ),
+                              width: 1.5,
+                            ),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                "Your Verification Code",
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  color: Colors.grey[600],
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              if (_isLoadingOtp)
+                                SizedBox(
+                                  height: 30,
+                                  width: 30,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      AppColors.buttonBlueDark,
+                                    ),
+                                  ),
+                                )
+                              else
+                                Text(
+                                  _receivedOtp ?? 'N/A',
+                                  textDirection: TextDirection.ltr,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 28,
+                                    color: AppColors.buttonBlueDark,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 2,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
                         const SizedBox(height: 24),
                         Row(
                           textDirection: TextDirection.ltr,
@@ -372,7 +461,11 @@ class _OTPState extends State<OTP> {
                               if (otp.length < 6) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text(AppLocalizations.of(context)!.enter_valid_otp),
+                                    content: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.enter_valid_otp,
+                                    ),
                                   ),
                                 );
                                 return;
@@ -396,7 +489,11 @@ class _OTPState extends State<OTP> {
                                     // User exists, login successful
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text(AppLocalizations.of(context)!.login_successful),
+                                        content: Text(
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.login_successful,
+                                        ),
                                       ),
                                     );
                                     Navigator.pushAndRemoveUntil(
