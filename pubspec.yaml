@@ -25,6 +25,7 @@ dependencies:
   flutter_paytabs_bridge: ^2.7.13
   package_info_plus: ^8.0.0
   lottie: ^3.3.3
+  collection: ^1.19.1
 
 dev_dependencies:
   flutter_test:

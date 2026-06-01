@@ -7,5 +7,7 @@ abstract class Place {
   String get address;
   String? get image;
 
-  String localizedName(bool isAr);
+  String localizedName(bool isAr) {
+    return isAr ? nameAr : name;
+  }
 }

@@ -64,6 +64,15 @@ class ApiService {
           return handler.next(options);
         },
         onError: (DioException e, handler) async {
+          // Do not attempt token refresh or clear session for unauthenticated
+          // auth endpoints (e.g. verify-otp, request-otp, register). These
+          // endpoints can legitimately return 401 for bad credentials/otp
+          // and should not log the user out or trigger navigation to Login.
+          if (e.requestOptions.path.startsWith('/auth/') &&
+              !e.requestOptions.path.contains('/auth/refresh-token')) {
+            return handler.next(e);
+          }
+
           if (e.response?.statusCode == 401) {
             // Avoid retrying if this is already a refresh token request
             if (e.requestOptions.path.contains('/auth/refresh-token')) {
@@ -665,18 +674,24 @@ class ApiService {
       final data = <String, dynamic>{
         if (transactionId != null) 'tranRef': transactionId,
       };
-      
+
       final url = '/orders/$orderId/verify-payment';
       log('API REQUEST: POST $url', name: 'VerifyPayment');
       log('API REQUEST BODY: $data', name: 'VerifyPayment');
-      
+
       final response = await _dio.post(url, data: data);
-      
-      log('API RESPONSE [${response.statusCode}]: ${response.data}', name: 'VerifyPayment');
-      
+
+      log(
+        'API RESPONSE [${response.statusCode}]: ${response.data}',
+        name: 'VerifyPayment',
+      );
+
       return response;
     } on DioException catch (e) {
-      log('API ERROR RESPONSE [${e.response?.statusCode}]: ${e.response?.data}', name: 'VerifyPayment');
+      log(
+        'API ERROR RESPONSE [${e.response?.statusCode}]: ${e.response?.data}',
+        name: 'VerifyPayment',
+      );
       rethrow;
     } catch (e) {
       log('API ERROR: $e', name: 'VerifyPayment');
@@ -689,10 +704,16 @@ class ApiService {
     try {
       log('API REQUEST: GET /bank-accounts', name: 'GetBankAccounts');
       final response = await _dio.get('/bank-accounts');
-      log('API RESPONSE [${response.statusCode}]: ${response.data}', name: 'GetBankAccounts');
+      log(
+        'API RESPONSE [${response.statusCode}]: ${response.data}',
+        name: 'GetBankAccounts',
+      );
       return response;
     } on DioException catch (e) {
-      log('API ERROR RESPONSE [${e.response?.statusCode}]: ${e.response?.data}', name: 'GetBankAccounts');
+      log(
+        'API ERROR RESPONSE [${e.response?.statusCode}]: ${e.response?.data}',
+        name: 'GetBankAccounts',
+      );
       rethrow;
     } catch (e) {
       log('API ERROR: $e', name: 'GetBankAccounts');

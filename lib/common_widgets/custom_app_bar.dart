@@ -11,7 +11,6 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool showBackButton;
   final VoidCallback? onBackTap;
   final bool hasBackgroundColor;
-
   final bool centerTitle;
   final bool isStartAligned;
 

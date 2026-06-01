@@ -1,11 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
-import 'package:raheeq_main/common_widgets/bottom_action_pill.dart';
 import 'package:raheeq_main/models/order_item.dart';
 import 'package:raheeq_main/models/product.dart';
 import 'package:raheeq_main/models/selected_category_item.dart';
 import 'package:raheeq_main/pages/order/order_details_page.dart';
 import 'package:raheeq_main/utils/colors.dart';
+
+// A lightweight model to represent one "slot" in the horizontal list
+class _ProductSlot {
+  final Product product;
+  final bool isChiller;
+  final int quantity; // 1 for chiller, preset qty for cartons
+
+  const _ProductSlot({
+    required this.product,
+    required this.isChiller,
+    required this.quantity,
+  });
+
+  String get id => '${product.id}_$quantity';
+}
 
 class ChooseWaterPackageScreen extends StatefulWidget {
   final List<SelectedCategoryItem> selectedCategories;
@@ -20,75 +33,142 @@ class ChooseWaterPackageScreen extends StatefulWidget {
   @override
   State<ChooseWaterPackageScreen> createState() =>
       _ChooseWaterPackageScreenState();
-}
 
-class _WaterPackageOption {
-  final Product product;
-  final int? quantity;
-  final bool isCustom;
-
-  _WaterPackageOption(this.product, this.quantity) : isCustom = false;
+  static Future<void> showAsBottomSheet(
+    BuildContext context, {
+    required List<SelectedCategoryItem> selectedCategories,
+    required List<Product> availableProducts,
+  }) {
+    return showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.white,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(20),
+          topRight: Radius.circular(20),
+        ),
+      ),
+      builder: (context) => ChooseWaterPackageScreen(
+        selectedCategories: selectedCategories,
+        availableProducts: availableProducts,
+      ),
+    );
+  }
 }
 
 class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
-  final Map<String, int> _selections = {};
+  // Selected slot IDs
+  String? _selectedChillerSlotId;
+  String? _selectedCartonSlotId;
 
-  List<Product> get _waterProducts {
-    final products = widget.availableProducts
-        .where(
-          (p) =>
-              p.slug.contains('water') ||
-              p.slug.contains('chiller') ||
+  // ── Build the flat list of slots ────────────────────────────────────────────
+
+  List<_ProductSlot> get _slots {
+    final slots = <_ProductSlot>[];
+
+    // 1. Chiller first (always one card)
+    final chiller = widget.availableProducts
+        .where((p) => p.slug.contains('chiller'))
+        .firstOrNull;
+    if (chiller != null) {
+      slots.add(_ProductSlot(product: chiller, isChiller: true, quantity: 1));
+    }
+
+    // 2. One card per preset quantity for every carton product
+    final cartons = widget.availableProducts.where(
+      (p) =>
+          (p.slug.contains('water') ||
               p.slug.contains('bottle') ||
-              p.slug.contains('carton'),
-        )
-        .toList();
+              p.slug.contains('carton')) &&
+          !p.slug.contains('chiller'),
+    );
 
-    products.sort((a, b) {
-      final aIsChiller = a.slug.contains('chiller');
-      final bIsChiller = b.slug.contains('chiller');
-      if (aIsChiller && !bIsChiller) return -1;
-      if (!aIsChiller && bIsChiller) return 1;
-      return 0;
-    });
+    for (final carton in cartons) {
+      final quantities = carton.validQuantities; // already sorted, min first
+      for (final qty in quantities) {
+        slots.add(
+          _ProductSlot(product: carton, isChiller: false, quantity: qty),
+        );
+      }
+    }
 
-    return products;
+    return slots;
   }
 
-  bool get _isContinueEnabled {
-    return _selections.values.any((qty) => qty > 0);
+  // ── Selection helpers ────────────────────────────────────────────────────────
+
+  bool _isSlotSelected(_ProductSlot slot) {
+    return slot.isChiller
+        ? _selectedChillerSlotId == slot.id
+        : _selectedCartonSlotId == slot.id;
   }
 
-  void _updateQuantity(Product product, int qty) {
+  void _toggleSlot(_ProductSlot slot) {
     setState(() {
-      if (qty <= 0) {
-        _selections.remove(product.id);
+      if (slot.isChiller) {
+        _selectedChillerSlotId = _selectedChillerSlotId == slot.id
+            ? null
+            : slot.id;
       } else {
-        _selections[product.id] = qty;
+        // Tapping the already-selected carton deselects it
+        _selectedCartonSlotId = _selectedCartonSlotId == slot.id
+            ? null
+            : slot.id;
       }
     });
   }
 
+  bool get _isContinueEnabled =>
+      _selectedChillerSlotId != null || _selectedCartonSlotId != null;
+
+  // ── Navigation ───────────────────────────────────────────────────────────────
+
   void _navigateToReview() {
-    List<OrderCategoryState> orderStates = widget.selectedCategories.map((
+    if (!_isContinueEnabled) return;
+
+    final allSlots = _slots;
+    final List<SelectedProduct> selectedProducts = [];
+
+    if (_selectedChillerSlotId != null) {
+      final selectedChiller = allSlots.firstWhere(
+        (s) => s.id == _selectedChillerSlotId,
+      );
+      selectedProducts.add(
+        SelectedProduct(product: selectedChiller.product, quantity: 1),
+      );
+    }
+
+    if (_selectedCartonSlotId != null) {
+      final selectedCarton = allSlots.firstWhere(
+        (s) => s.id == _selectedCartonSlotId,
+      );
+      selectedProducts.add(
+        SelectedProduct(
+          product: selectedCarton.product,
+          quantity: selectedCarton.quantity,
+        ),
+      );
+    }
+
+    final List<OrderCategoryState> orderStates = widget.selectedCategories.map((
       categoryItem,
     ) {
-      // Create a fresh list of selected products for each category
-      final List<SelectedProduct> categoryProducts = _selections.entries.map((
-        entry,
-      ) {
-        final product = widget.availableProducts.firstWhere(
-          (p) => p.id == entry.key,
-        );
-        return SelectedProduct(product: product, quantity: entry.value);
-      }).toList();
-
       return OrderCategoryState(
         categoryItem: categoryItem,
-        selectedProducts: categoryProducts,
+        selectedProducts: selectedProducts
+            .map(
+              (sp) => SelectedProduct(
+                product: sp.product,
+                quantity: sp.quantity,
+                notes: sp.notes,
+              ),
+            )
+            .toList(),
       );
     }).toList();
 
+    Navigator.of(context).pop();
     Navigator.of(context).push(
       MaterialPageRoute(
         builder: (_) => ReviewOrderPage(orderStates: orderStates),
@@ -96,280 +176,249 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
     );
   }
 
+  // ── Build ────────────────────────────────────────────────────────────────────
+
   @override
   Widget build(BuildContext context) {
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
     final title = isAr ? 'اختر باقة المياه' : 'Choose Water Package';
     final subtitle = isAr
-        ? 'اختر عدد كراتين وبرادات المياه'
-        : 'Select water cartons and chillers';
+        ? 'اختر باقة المياه التي تناسبك'
+        : 'Select the water package that suits you';
 
-    final products = _waterProducts;
+    final slots = _slots;
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: _isContinueEnabled
-          ? Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 0),
-              child: BottomActionPill(
-                titleWidget: Text(
-                  isAr
-                      ? 'محدد: ${_selections.length} عناصر'
-                      : 'Selected: ${_selections.length} items',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                buttonText: isAr ? 'متابعة' : 'Continue',
-                onButtonTap: _navigateToReview,
-              ),
-            )
-          : null,
-      body: Column(
+    return Container(
+      decoration: const BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.only(
+          topLeft: Radius.circular(10),
+          topRight: Radius.circular(10),
+        ),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          CustomAppBar(
-            hasBackgroundColor: true,
-            isStartAligned: true,
-            title: title,
-            subtitle: subtitle,
-            showBackButton: true,
-            onBackTap: () => Navigator.pop(context),
-          ),
-          Expanded(
+          // Handle bar
+          Padding(
+            padding: const EdgeInsets.only(top: 12.0, bottom: 16.0),
             child: Container(
-              color: const Color(0x4D91E3FE),
-              child: Container(
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(30),
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: ListView.builder(
-                        padding: const EdgeInsets.only(
-                          left: 24,
-                          right: 24,
-                          top: 24,
-                          bottom: 100,
-                        ),
-                        itemCount: products.length,
-                        itemBuilder: (context, index) {
-                          final product = products[index];
-                          final currentQty = _selections[product.id] ?? 0;
-
-                          return Padding(
-                            padding: const EdgeInsets.only(bottom: 24.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  product.localizedName(isAr),
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.buttonBlueDark,
-                                  ),
-                                ),
-                                Text(
-                                  product.localizedSubtitle(isAr),
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.normal,
-                                    color: AppColors.grey,
-                                  ),
-                                ),
-
-                                const SizedBox(height: 12),
-                                ...product.validQuantities.map((qty) {
-                                  final option = _WaterPackageOption(
-                                    product,
-                                    qty,
-                                  );
-                                  return Padding(
-                                    padding: const EdgeInsets.only(
-                                      bottom: 12.0,
-                                    ),
-                                    child: _buildOptionCard(
-                                      option,
-                                      currentQty,
-                                      isAr,
-                                    ),
-                                  );
-                                }).toList(),
-                              ],
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ],
-                ),
+              width: 70,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
               ),
             ),
           ),
-        ],
-      ),
-    );
-  }
 
-  Widget _buildOptionCard(
-    _WaterPackageOption option,
-    int currentQty,
-    bool isAr,
-  ) {
-    final product = option.product;
-    final qty = option.quantity;
-    final isCustom = option.isCustom;
-
-    final bool isSelected = isCustom
-        ? (currentQty > 0 && !product.validQuantities.contains(currentQty))
-        : (currentQty == qty);
-
-    final displayQty = isCustom && isSelected ? currentQty : (qty ?? 0);
-    final totalPrice = displayQty > 0
-        ? ((product.price + product.deliveryFee) * displayQty)
-        : 0.0;
-
-    String title;
-    if (isCustom) {
-      title = isAr
-          ? 'كمية مخصصة (${product.localizedName(isAr)})'
-          : 'Custom Quantity (${product.localizedName(isAr)})';
-      if (isSelected) {
-        title = '$currentQty ${product.localizedName(isAr)}';
-      }
-    } else {
-      title = '$qty ${product.localizedName(isAr)}';
-    }
-
-    return GestureDetector(
-      onTap: () {
-        if (isCustom) {
-          _showCustomQuantityDialog(product, currentQty, isAr);
-        } else {
-          if (isSelected) {
-            _updateQuantity(product, 0);
-          } else {
-            _updateQuantity(product, qty!);
-          }
-        }
-      },
-      child: Card(
-        color: Colors.white,
-        elevation: isSelected ? 3 : 1,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-          side: BorderSide(
-            color: isSelected ? AppColors.buttonBlue : Colors.transparent,
-            width: 2,
-          ),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            children: [
-              Container(
-                width: 60,
-                height: 60,
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF0F4F8),
-                  borderRadius: BorderRadius.circular(12),
+          // Header
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: Row(
+              children: [
+                GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.grey[200],
+                    ),
+                    child: const Icon(
+                      Icons.arrow_back,
+                      size: 20,
+                      color: Colors.black,
+                    ),
+                  ),
                 ),
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: product.image.isNotEmpty
-                      ? Image.network(product.image, fit: BoxFit.cover)
-                      : const Icon(
-                          Icons.water_drop,
-                          color: AppColors.buttonBlue,
-                        ),
-                ),
-              ),
-              const SizedBox(width: 16),
-              Expanded(
-                child: Column(
+                const SizedBox(width: 16),
+                Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
                       title,
                       style: const TextStyle(
-                        fontSize: 16,
+                        fontSize: 18,
                         fontWeight: FontWeight.bold,
+                        color: Colors.black,
                       ),
                     ),
-                    if (!isCustom || isSelected) ...[
-                      const SizedBox(height: 4),
-                      Text(
-                        isAr
-                            ? '${totalPrice.toStringAsFixed(2)} ر.س'
-                            : '${totalPrice.toStringAsFixed(2)} SAR',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: AppColors.buttonBlueDark,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ],
+                    Text(
+                      subtitle,
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
+                    ),
                   ],
                 ),
-              ),
-              if (isSelected)
-                const Icon(Icons.check_circle, color: AppColors.buttonBlue)
-              else if (isCustom)
-                const Icon(Icons.edit, color: Colors.grey, size: 20)
-              else
-                const Icon(Icons.circle_outlined, color: Colors.grey),
-            ],
+              ],
+            ),
           ),
-        ),
+
+          const SizedBox(height: 20),
+
+          // Horizontal slot list
+          SizedBox(
+            height: 230,
+            child: ListView.builder(
+              scrollDirection: Axis.horizontal,
+              itemCount: slots.length,
+              itemBuilder: (context, index) {
+                final slot = slots[index];
+                final isSelected = _isSlotSelected(slot);
+
+                return Padding(
+                  padding: EdgeInsets.only(
+                    left: index == 0 ? 16.0 : 2.0,
+                    right: index == slots.length - 1 ? 16.0 : 2.0,
+                  ),
+                  child: _buildSlotCard(
+                    slot: slot,
+                    isSelected: isSelected,
+                    onTap: () => _toggleSlot(slot),
+                    isAr: isAr,
+                  ),
+                );
+              },
+            ),
+          ),
+
+          // Continue button
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16),
+            child: SizedBox(
+              width: double.infinity,
+              height: 56,
+              child: ElevatedButton(
+                onPressed: _isContinueEnabled ? _navigateToReview : null,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: _isContinueEnabled
+                      ? AppColors.buttonBlueDark
+                      : Colors.grey[300],
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(30),
+                  ),
+                  elevation: 0,
+                  disabledBackgroundColor: Colors.grey[300],
+                ),
+                child: Text(
+                  isAr ? 'متابعة' : 'Continue',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+          // Safe area padding for bottom
+          SizedBox(height: MediaQuery.of(context).padding.bottom),
+        ],
       ),
     );
   }
 
-  void _showCustomQuantityDialog(Product product, int currentQty, bool isAr) {
-    final controller = TextEditingController(
-      text: currentQty > 0 ? currentQty.toString() : '',
-    );
-    showDialog(
-      context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: Text(isAr ? 'أدخل الكمية' : 'Enter Quantity'),
-          content: TextField(
-            controller: controller,
-            keyboardType: TextInputType.number,
-            decoration: const InputDecoration(hintText: 'e.g., 50'),
+  Widget _buildSlotCard({
+    required _ProductSlot slot,
+    required bool isSelected,
+    required VoidCallback onTap,
+    required bool isAr,
+  }) {
+    final product = slot.product;
+    final unitPrice = product.price + product.deliveryFee;
+    final totalPrice = unitPrice * slot.quantity;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: SizedBox(
+        width: 170,
+        height: 200,
+        child: Card(
+          color: Colors.white,
+          elevation: isSelected ? 4 : 1,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+            side: BorderSide(
+              color: isSelected ? AppColors.buttonBlue : Colors.transparent,
+              width: 2,
+            ),
           ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text(isAr ? 'إلغاء' : 'Cancel'),
-            ),
-            ElevatedButton(
-              onPressed: () {
-                final val = int.tryParse(controller.text);
-                if (val != null && val >= product.minQuantity) {
-                  _updateQuantity(product, val);
-                }
-                Navigator.pop(context);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.buttonBlueDark,
-                foregroundColor: Colors.white,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Product image
+              Container(
+                padding: const EdgeInsets.all(8.0),
+                width: double.infinity,
+                height: 120,
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.all(Radius.circular(14)),
+                ),
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.all(Radius.circular(14)),
+                  child: product.image.isNotEmpty
+                      ? Image.network(product.image, fit: BoxFit.cover)
+                      : const Icon(
+                          Icons.water_drop,
+                          color: AppColors.buttonBlue,
+                          size: 40,
+                        ),
+                ),
               ),
-              child: Text(isAr ? 'تأكيد' : 'Confirm'),
-            ),
-          ],
-        );
-      },
+
+              // Details
+              Padding(
+                padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Subtitle row
+                    Text(
+                      slot.isChiller
+                          ? (isAr ? '2 سنة ضمان' : '2 Year Guarantee')
+                          : (isAr ? product.subtitleAr : product.subtitle),
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+
+                    const SizedBox(height: 2),
+
+                    // Product name
+                    Text(
+                      "${slot.quantity} ${product.localizedName(isAr)}",
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black,
+                      ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+
+                    const SizedBox(height: 6),
+
+                    // Price
+                    Text(
+                      isAr
+                          ? '${totalPrice.toStringAsFixed(0)} ر.س'
+                          : '${totalPrice.toStringAsFixed(0)} SAR',
+                      style: const TextStyle(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.buttonBlueDark,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

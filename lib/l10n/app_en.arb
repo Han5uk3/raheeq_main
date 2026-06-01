@@ -28,5 +28,9 @@
   "or": "or",
   "google_signin": "Sign in with Google",
   "apple_signin": "Sign in with Apple",
-  "search": "Search"
+  "search": "Search",
+  "home":"Home",
+  "orders":"Orders",
+  "impact":"Impact",
+  "profile":"Profile"
 }

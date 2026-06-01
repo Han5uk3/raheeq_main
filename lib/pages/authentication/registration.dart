@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:raheeq_main/common_widgets/language_switch.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/pages/home/home_screen.dart';
+import 'package:raheeq_main/pages/authentication/login.dart';
 import 'package:raheeq_main/api/apis.dart';
-import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 
 class Registration extends StatefulWidget {
   final String phoneNumber;
@@ -28,12 +28,23 @@ class _RegistrationState extends State<Registration> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
 
+  // Keys to access individual FormField states so we can query `hasError`
+  final Map<TextEditingController, GlobalKey<FormFieldState<String>>>
+  _fieldKeys = {};
+  final GlobalKey<FormFieldState<String>> _genderFieldKey =
+      GlobalKey<FormFieldState<String>>();
+
   String? _selectedGender;
 
   @override
   void initState() {
     super.initState();
-    _phoneController.text = widget.phoneNumber;
+    _phoneController.text = '${widget.countryCode}${widget.phoneNumber}';
+    // Initialize field keys for each controller
+    _fieldKeys[_firstNameController] = GlobalKey<FormFieldState<String>>();
+    _fieldKeys[_lastNameController] = GlobalKey<FormFieldState<String>>();
+    _fieldKeys[_emailController] = GlobalKey<FormFieldState<String>>();
+    _fieldKeys[_phoneController] = GlobalKey<FormFieldState<String>>();
   }
 
   @override
@@ -49,10 +60,40 @@ class _RegistrationState extends State<Registration> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFB),
-      appBar: CustomAppBar(
+      appBar: AppBar(
+        backgroundColor: AppColors.buttonBlueDark,
         centerTitle: true,
-        showBackButton: true,
-        title: "Complete Profile",
+        toolbarHeight: 80,
+        title: const Text(
+          "Complete Profile",
+          style: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.w700,
+            color: Colors.white,
+          ),
+        ),
+        leading: Padding(
+          padding: const EdgeInsetsDirectional.only(
+            start: 16,
+            top: 4,
+            bottom: 4,
+          ),
+          child: Container(
+            decoration: const BoxDecoration(
+              color: Colors.white,
+              shape: BoxShape.circle,
+            ),
+            child: IconButton(
+              highlightColor: Colors.transparent,
+              icon: const Icon(Icons.arrow_back, color: Colors.black87),
+              onPressed: () => Navigator.pushAndRemoveUntil(
+                context,
+                MaterialPageRoute(builder: (context) => const Login()),
+                (route) => false,
+              ),
+            ),
+          ),
+        ),
         actions: const [
           Padding(
             padding: EdgeInsetsDirectional.only(end: 24),
@@ -92,7 +133,9 @@ class _RegistrationState extends State<Registration> {
                       borderRadius: BorderRadius.circular(25),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.buttonBlueDark.withValues(alpha: 0.1),
+                          color: AppColors.buttonBlueDark.withValues(
+                            alpha: 0.1,
+                          ),
                           blurRadius: 50,
                           offset: const Offset(0, 25),
                         ),
@@ -169,6 +212,7 @@ class _RegistrationState extends State<Registration> {
                             hint: "Enter your email",
                             icon: Icons.email_outlined,
                             keyboardType: TextInputType.emailAddress,
+                            isEmail: true,
                           ),
                           const SizedBox(height: 16),
                           _buildTextField(
@@ -177,6 +221,7 @@ class _RegistrationState extends State<Registration> {
                             hint: "Enter phone number",
                             icon: Icons.phone_outlined,
                             enabled: false, // Pre-filled and locked
+                            isLtr: true,
                           ),
 
                           const SizedBox(height: 16),
@@ -190,36 +235,60 @@ class _RegistrationState extends State<Registration> {
                                   try {
                                     final response = await ApiService().register(
                                       countryCode: widget.countryCode,
-                                      phoneNumber: widget.phoneNumber.replaceAll(widget.countryCode, '').trim(), // Ensure pure phone number
-                                      email: _emailController.text,
-                                      firstName: _firstNameController.text,
-                                      lastName: _lastNameController.text,
-                                      gender: _selectedGender?.toUpperCase() ?? 'MALE',
+                                      phoneNumber: widget.phoneNumber
+                                          .replaceAll(widget.countryCode, '')
+                                          .trim(), // Ensure pure phone number
+                                      email: _emailController.text.trim(),
+                                      firstName: _firstNameController.text
+                                          .trim(),
+                                      lastName: _lastNameController.text.trim(),
+                                      gender:
+                                          _selectedGender?.toUpperCase() ??
+                                          'MALE',
                                       deviceType: 'ANDROID',
-                                      registrationToken: widget.registrationToken,
+                                      registrationToken:
+                                          widget.registrationToken,
                                     );
 
                                     if (!context.mounted) return;
 
-                                    if ((response.statusCode == 200 || response.statusCode == 201) && response.data['success'] == true) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(content: Text('Registration Successful!')),
+                                    if ((response.statusCode == 200 ||
+                                            response.statusCode == 201) &&
+                                        response.data['success'] == true) {
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                            'Registration Successful!',
+                                          ),
+                                        ),
                                       );
                                       Navigator.pushAndRemoveUntil(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) => const HomeScreen(),
+                                          builder: (context) =>
+                                              const HomeScreen(),
                                         ),
                                         (route) => false,
                                       );
                                     } else {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        SnackBar(content: Text(response.data['message'] ?? 'Registration failed')),
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            response.data['message'] ??
+                                                'Registration failed',
+                                          ),
+                                        ),
                                       );
                                     }
                                   } catch (e) {
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text('Error: ${e.toString()}')),
+                                      SnackBar(
+                                        content: Text('Error: ${e.toString()}'),
+                                      ),
                                     );
                                   }
                                 }
@@ -264,7 +333,12 @@ class _RegistrationState extends State<Registration> {
     required IconData icon,
     TextInputType? keyboardType,
     bool enabled = true,
+    bool isEmail = false,
+    bool isLtr = false,
   }) {
+    final fieldKey = _fieldKeys[controller];
+    final hasError = fieldKey?.currentState?.hasError == true;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -278,16 +352,20 @@ class _RegistrationState extends State<Registration> {
         ),
         const SizedBox(height: 8),
         Container(
+          padding: EdgeInsets.only(bottom: hasError == true ? 8 : 0),
           decoration: BoxDecoration(
             color: enabled ? Colors.white : Colors.grey[100],
             borderRadius: BorderRadius.circular(15),
             border: Border.all(color: AppColors.indicatorGrey),
           ),
           child: TextFormField(
+            key: fieldKey,
+            textAlign: isLtr ? TextAlign.end : TextAlign.start,
             controller: controller,
             enabled: enabled,
             keyboardType: keyboardType,
             style: const TextStyle(fontSize: 14),
+            textDirection: isLtr ? TextDirection.ltr : null,
             decoration: InputDecoration(
               hintText: hint,
               hintStyle: TextStyle(color: Colors.grey[400], fontSize: 13),
@@ -301,10 +379,25 @@ class _RegistrationState extends State<Registration> {
                 horizontal: 16,
                 vertical: 12,
               ),
+              isDense: false,
             ),
+            onChanged: (value) {
+              // Validate only this field and update UI immediately
+              fieldKey?.currentState?.validate();
+              setState(() {});
+            },
             validator: (value) {
-              if (value == null || value.isEmpty) {
+              final trimmedValue = value?.trim() ?? '';
+              if (trimmedValue.isEmpty) {
                 return 'This field is required';
+              }
+              if (isEmail) {
+                final emailRegex = RegExp(
+                  r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+                );
+                if (!emailRegex.hasMatch(trimmedValue)) {
+                  return 'Please enter a valid email address';
+                }
               }
               return null;
             },
@@ -315,6 +408,7 @@ class _RegistrationState extends State<Registration> {
   }
 
   Widget _buildGenderDropdown() {
+    final hasError = _selectedGender == null;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -328,7 +422,7 @@ class _RegistrationState extends State<Registration> {
         ),
         const SizedBox(height: 8),
         Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: EdgeInsets.only(bottom: hasError == true ? 8 : 0),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(15),
@@ -336,6 +430,9 @@ class _RegistrationState extends State<Registration> {
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButtonFormField<String>(
+              dropdownColor: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              isExpanded: true,
               initialValue: _selectedGender,
               icon: const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
               hint: Text(
@@ -354,6 +451,9 @@ class _RegistrationState extends State<Registration> {
                 setState(() {
                   _selectedGender = value;
                 });
+                // Validate gender field specifically and refresh UI
+                _genderFieldKey.currentState?.validate();
+                setState(() {});
               },
               decoration: InputDecoration(
                 prefixIcon: Icon(
@@ -362,9 +462,16 @@ class _RegistrationState extends State<Registration> {
                   color: AppColors.buttonBlueDark.withValues(alpha: 0.7),
                 ),
                 border: InputBorder.none,
+                contentPadding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
+                ),
+                isDense: false,
+                errorMaxLines: 2,
               ),
               validator: (value) =>
                   value == null ? 'Please select gender' : null,
+              key: _genderFieldKey,
             ),
           ),
         ),

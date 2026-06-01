@@ -80,4 +80,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get search => 'Search';
+
+  @override
+  String get home => 'Home';
+
+  @override
+  String get orders => 'Orders';
+
+  @override
+  String get impact => 'Impact';
+
+  @override
+  String get profile => 'Profile';
 }

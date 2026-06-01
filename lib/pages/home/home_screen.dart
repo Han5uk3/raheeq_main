@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/common_widgets/custom_bottom_nav.dart';
+import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/pages/home/pages/home_tab.dart';
 import 'package:raheeq_main/pages/home/pages/profile_tab.dart';
@@ -24,13 +25,6 @@ class _HomeScreenState extends State<HomeScreen> {
     const OrdersTab(),
     const Center(child: Text("Impact Page", style: TextStyle(fontSize: 24))),
     const ProfileTab(),
-  ];
-
-  final List<CustomBottomNavItem> _navItems = [
-    CustomBottomNavItem(icon: Icons.home_outlined, label: "Home"),
-    CustomBottomNavItem(icon: Icons.shopping_bag_outlined, label: "My Orders"),
-    CustomBottomNavItem(icon: Icons.auto_graph_outlined, label: "Impact"),
-    CustomBottomNavItem(icon: Icons.person_outline, label: "Profile"),
   ];
 
   @override
@@ -131,7 +125,24 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       bottomNavigationBar: CustomBottomNavBar(
         currentIndex: _currentIndex,
-        items: _navItems,
+        items: [
+          CustomBottomNavItem(
+            icon: Icons.home_outlined,
+            label: AppLocalizations.of(context)!.home,
+          ),
+          CustomBottomNavItem(
+            icon: Icons.shopping_bag_outlined,
+            label: AppLocalizations.of(context)!.orders,
+          ),
+          CustomBottomNavItem(
+            icon: Icons.auto_graph_outlined,
+            label: AppLocalizations.of(context)!.impact,
+          ),
+          CustomBottomNavItem(
+            icon: Icons.person_outline,
+            label: AppLocalizations.of(context)!.profile,
+          ),
+        ],
         onTap: (index) {
           setState(() {
             _currentIndex = index;

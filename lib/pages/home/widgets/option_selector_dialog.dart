@@ -7,11 +7,11 @@ class OptionSelectorDialog extends StatefulWidget {
   final String? initialOption;
 
   const OptionSelectorDialog({
-    Key? key,
+    super.key,
     required this.title,
     this.showClearOption = false,
     this.initialOption,
-  }) : super(key: key);
+  });
 
   @override
   State<OptionSelectorDialog> createState() => _OptionSelectorDialogState();

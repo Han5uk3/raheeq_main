@@ -22,5 +22,9 @@
   "or": "أو",
   "google_signin": "تسجيل الدخول باستخدام Google",
   "apple_signin": "تسجيل الدخول باستخدام Apple",
-  "search": "بحث"
+  "search": "بحث",
+  "home": "الرئيسية",
+  "orders": "الطلبات",
+  "impact": "الأثر",
+  "profile": "الملف الشخصي"
 }

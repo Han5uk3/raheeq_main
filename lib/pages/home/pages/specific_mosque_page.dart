@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
@@ -14,7 +16,7 @@ class SpecificMosquePage extends StatefulWidget {
   final String slug;
   final List<Place> initialSelections;
   final String? title;
-  
+
   const SpecificMosquePage({
     super.key,
     this.slug = 'mosques',
@@ -195,19 +197,25 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
     String listTabText;
 
     if (widget.slug == 'orphanages') {
-      title = widget.title ?? (isAr ? 'اختر دار أيتام محددة' : 'Choose Specific Orphanage');
+      title =
+          widget.title ??
+          (isAr ? 'اختر دار أيتام محددة' : 'Choose Specific Orphanage');
       subtitle = isAr
           ? 'اختر داراً لإيصال المياه إليها'
           : 'Select an orphanage to deliver water to';
       listTabText = isAr ? 'قائمة دور الأيتام' : 'List of Orphanages';
     } else if (widget.slug == 'meqat_mosques') {
-      title = widget.title ?? (isAr ? 'اختر ميقات محدد' : 'Choose Specific Meqat Mosque');
+      title =
+          widget.title ??
+          (isAr ? 'اختر ميقات محدد' : 'Choose Specific Meqat Mosque');
       subtitle = isAr
           ? 'اختر مسجداً لإيصال المياه إليه'
           : 'Select a mosque to deliver water to';
       listTabText = isAr ? 'قائمة المواقيت' : 'List of Meqat mosques';
     } else {
-      title = widget.title ?? (isAr ? 'اختر مسجداً محدداً' : 'Choose Specific Mosque');
+      title =
+          widget.title ??
+          (isAr ? 'اختر مسجداً محدداً' : 'Choose Specific Mosque');
       subtitle = isAr
           ? 'اختر مسجداً لإيصال المياه إليه'
           : 'Select a mosque to deliver water to';
@@ -366,6 +374,9 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
           const Divider(height: 16, color: Colors.transparent),
       itemBuilder: (context, index) {
         final item = _filteredItems[index];
+        log(
+          "Place: ${item.id}, ${item.name}, ${item.nameAr}, ${item.latitude}, ${item.longitude}, ${item.address}, ${item.image}",
+        );
 
         bool isHighNeed = false;
         if (item is Orphanage) {
@@ -373,167 +384,182 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
         }
 
         final isSelected = _selectedItemsList.any((m) => m.id == item.id);
-        return Card(
-          clipBehavior: Clip.antiAlias,
-          color: isSelected ? const Color(0xFFE8F4FA) : Colors.white,
-          elevation: isSelected ? 5 : 3,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-            side: BorderSide(
-              color: isSelected ? AppColors.buttonBlue : Colors.transparent,
-              width: 2,
-            ),
-          ),
-          child: InkWell(
-            onTap: () {
-              setState(() {
-                if (_selectedItemsList.any((m) => m.id == item.id)) {
-                  _selectedItemsList.removeWhere((m) => m.id == item.id);
-                } else {
-                  _selectedItemsList.add(item);
-                }
-              });
-            },
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // Top Image edge to edge
-                if (item.image != null && item.image!.isNotEmpty)
-                  CachedNetworkImage(
-                    imageUrl: item.image!,
-                    height: 140,
-                    fit: BoxFit.cover,
-                    placeholder: (context, url) => Container(
-                      height: 140,
-                      color: Colors.grey[200],
-                      child: const Center(
-                        child: WaterLoadingIndicator(size: 30),
+        return Stack(
+          children: [
+            Card(
+              clipBehavior: Clip.antiAlias,
+              color: isSelected ? const Color(0xFFE8F4FA) : Colors.white,
+              elevation: isSelected ? 5 : 3,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+                side: BorderSide(
+                  color: isSelected ? AppColors.buttonBlue : Colors.transparent,
+                  width: 2,
+                ),
+              ),
+              child: InkWell(
+                onTap: () {
+                  setState(() {
+                    if (_selectedItemsList.any((m) => m.id == item.id)) {
+                      _selectedItemsList.removeWhere((m) => m.id == item.id);
+                    } else {
+                      _selectedItemsList.add(item);
+                    }
+                  });
+                },
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Top Image edge to edge
+                    if (item.image != null && item.image!.isNotEmpty)
+                      CachedNetworkImage(
+                        imageUrl: item.image!,
+                        height: 140,
+                        fit: BoxFit.cover,
+                        placeholder: (context, url) => Container(
+                          height: 140,
+                          color: Colors.grey[200],
+                          child: const Center(
+                            child: WaterLoadingIndicator(size: 30),
+                          ),
+                        ),
+                        errorWidget: (context, url, error) => Container(
+                          height: 140,
+                          color: Colors.grey[100],
+                          child: Icon(
+                            widget.slug == 'orphanages'
+                                ? Icons.home
+                                : Icons.mosque,
+                            size: 40,
+                            color: Colors.grey[400],
+                          ),
+                        ),
+                      )
+                    else
+                      Container(
+                        height: 140,
+                        color: Colors.grey[100],
+                        child: Icon(
+                          widget.slug == 'orphanages'
+                              ? Icons.home
+                              : Icons.mosque,
+                          size: 40,
+                          color: Colors.grey[400],
+                        ),
                       ),
-                    ),
-                    errorWidget: (context, url, error) => Container(
-                      height: 140,
-                      color: Colors.grey[100],
-                      child: Icon(
-                        widget.slug == 'orphanages' ? Icons.home : Icons.mosque,
-                        size: 40,
-                        color: Colors.grey[400],
-                      ),
-                    ),
-                  )
-                else
-                  Container(
-                    height: 140,
-                    color: Colors.grey[100],
-                    child: Icon(
-                      widget.slug == 'orphanages' ? Icons.home : Icons.mosque,
-                      size: 40,
-                      color: Colors.grey[400],
-                    ),
-                  ),
 
-                // Content below image
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
+                    // Content below image
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  item.localizedName(isAr),
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18,
+                          Row(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                item.localizedName(isAr),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 18,
+                                ),
+                              ),
+                              if (widget.slug != 'orphanages')
+                                InkWell(
+                                  onTap: () => _toggleFavorite(item.id),
+                                  radius: 100,
+                                  child: Material(
+                                    shape: CircleBorder(),
+                                    color: Colors.white,
+                                    elevation: 3,
+                                    child: Padding(
+                                      padding: const EdgeInsets.all(8.0),
+                                      child: Icon(
+                                        _favoriteMosqueIds.contains(item.id)
+                                            ? Icons.favorite
+                                            : Icons.favorite_border,
+                                        color:
+                                            _favoriteMosqueIds.contains(item.id)
+                                            ? Colors.redAccent
+                                            : Colors.grey,
+                                        size: 18,
+                                      ),
+                                    ),
                                   ),
                                 ),
-                                const SizedBox(height: 4),
-                                if (item.address.isNotEmpty)
-                                  Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-
-                                    children: [
-                                      Icon(
-                                        Icons.location_on_outlined,
-                                        color: Colors.black,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Expanded(
-                                        child: Text(
-                                          item.address,
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                            color: Colors.grey[600],
-                                            fontSize: 12,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                              ],
-                            ),
+                            ],
                           ),
-                          if (widget.slug != 'orphanages')
-                            IconButton(
-                              icon: Icon(
-                                _favoriteMosqueIds.contains(item.id)
-                                    ? Icons.favorite
-                                    : Icons.favorite_border,
-                                color: _favoriteMosqueIds.contains(item.id)
-                                    ? Colors.redAccent
-                                    : Colors.grey,
-                              ),
-                              onPressed: () => _toggleFavorite(item.id),
-                            ),
-                          if (true)
-                            Container(
-                              margin: const EdgeInsets.only(left: 8, right: 8),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10,
-                                vertical: 6,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColors.buttonBlue.withValues(
-                                  alpha: .2,
+                          const SizedBox(height: 4),
+                          if (item.address.isNotEmpty)
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+
+                              children: [
+                                Icon(
+                                  Icons.location_on_outlined,
+                                  color: Colors.black,
                                 ),
-                                borderRadius: BorderRadius.circular(30),
-                                border: Border.all(color: Colors.transparent),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  const Icon(
-                                    Icons.trending_up_outlined,
-                                    color: AppColors.buttonBlue,
-                                    size: 14,
-                                  ),
-                                  const SizedBox(width: 4),
-                                  Text(
-                                    isAr ? 'الأكثر احتياجاً' : 'High Need',
-                                    style: const TextStyle(
-                                      color: AppColors.buttonBlue,
-                                      fontWeight: FontWeight.bold,
+                                const SizedBox(width: 4),
+                                Expanded(
+                                  child: Text(
+                                    item.address,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: Colors.grey[600],
                                       fontSize: 12,
                                     ),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                         ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            if (true)
+              Positioned(
+                top: 15,
+                right: isAr ? null : 10,
+                left: isAr ? 10 : null,
+                child: Container(
+                  margin: const EdgeInsets.only(left: 8, right: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.buttonBlue.withValues(alpha: .2),
+                    borderRadius: BorderRadius.circular(30),
+                    border: Border.all(color: Colors.transparent),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      const Icon(
+                        Icons.trending_up_outlined,
+                        color: AppColors.buttonBlue,
+                        size: 14,
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        isAr ? 'الأكثر احتياجاً' : 'High Need',
+                        style: const TextStyle(
+                          color: AppColors.buttonBlue,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
                       ),
                     ],
                   ),
                 ),
-              ],
-            ),
-          ),
+              ),
+          ],
         );
       },
     );
@@ -545,7 +571,10 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
         markerId: MarkerId(item.id),
         position: LatLng(item.latitude, item.longitude),
         icon: BitmapDescriptor.defaultMarkerWithHue(
-            _selectedItemsList.any((m) => m.id == item.id) ? BitmapDescriptor.hueGreen : 207.0),
+          _selectedItemsList.any((m) => m.id == item.id)
+              ? BitmapDescriptor.hueGreen
+              : 207.0,
+        ),
         infoWindow: InfoWindow(
           title: item.localizedName(isAr),
           snippet: item.address,
@@ -615,7 +644,10 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
                 final item = _selectedItemsList[index];
                 return Container(
                   margin: const EdgeInsets.only(right: 8),
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.buttonBlue.withOpacity(0.1),
                     borderRadius: BorderRadius.circular(20),
@@ -639,7 +671,11 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
                             _selectedItemsList.remove(item);
                           });
                         },
-                        child: const Icon(Icons.close, size: 16, color: AppColors.buttonBlueDark),
+                        child: const Icon(
+                          Icons.close,
+                          size: 16,
+                          color: AppColors.buttonBlueDark,
+                        ),
                       ),
                     ],
                   ),

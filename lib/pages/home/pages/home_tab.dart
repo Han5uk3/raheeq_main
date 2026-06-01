@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -270,8 +272,8 @@ class _HomeTabState extends State<HomeTab> {
                                 AuthStorage.user?.fullName ?? "Abdullah Hassan",
                                 style: TextStyle(
                                   color: Colors.black.withValues(alpha: 0.8),
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.w600,
+                                  fontSize: 19,
+                                  fontWeight: FontWeight.w700,
                                 ),
                               ),
                               Text(
@@ -279,6 +281,7 @@ class _HomeTabState extends State<HomeTab> {
                                 style: const TextStyle(
                                   color: Colors.black,
                                   fontSize: 14,
+                                  fontWeight: FontWeight.w500,
                                 ),
                               ),
                             ],
@@ -337,6 +340,9 @@ class _HomeTabState extends State<HomeTab> {
                             )
                           : PageView.builder(
                               controller: _pageController,
+                              physics: _bannerData.length > 1
+                                  ? null
+                                  : const NeverScrollableScrollPhysics(),
                               onPageChanged: (index) {
                                 setState(() {
                                   _currentIndex = index % _bannerData.length;
@@ -478,6 +484,9 @@ class _HomeTabState extends State<HomeTab> {
                             child: buildBottomText(context),
                           ),
                           const SizedBox(height: 150),
+                          if (_selectedItems.isNotEmpty) ...{
+                            SizedBox(height: 80),
+                          },
                         ],
                       ),
                     ),
@@ -548,13 +557,10 @@ class _HomeTabState extends State<HomeTab> {
                   }
                 } else {
                   if (_selectedItems.isNotEmpty) {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => ChooseWaterPackageScreen(
-                          selectedCategories: _selectedItems,
-                          availableProducts: List<Product>.from(_products),
-                        ),
-                      ),
+                    ChooseWaterPackageScreen.showAsBottomSheet(
+                      context,
+                      selectedCategories: _selectedItems,
+                      availableProducts: List<Product>.from(_products),
                     );
                   }
                 }
@@ -1369,7 +1375,12 @@ class _HomeTabState extends State<HomeTab> {
             itemBuilder: (context, index) {
               final product = _essentialProducts[index];
               final name = product.localizedName(isAr);
+              log(
+                "Product ${product.id} - $name, isHighNeed: ${product.isHighNeed}",
+              );
+
               final subtitle = product.localizedSubtitle(isAr);
+              log("Subtitle for product ${product.id}: $subtitle");
               final imageUrl = product.image;
               final price = product.price;
 
@@ -1541,7 +1552,7 @@ class _HomeTabState extends State<HomeTab> {
                                   ),
                                 ),
                                 Text(
-                                  "$price SAR",
+                                  "$price ${isAr ? "ر.س" : 'SAR'}",
                                   style: const TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
@@ -1565,6 +1576,7 @@ class _HomeTabState extends State<HomeTab> {
   }
 
   Widget buildRecentDonationCard(BuildContext context) {
+    final isAr = Localizations.localeOf(context).languageCode == 'ar';
     return Container(
       width: double.infinity,
 
@@ -1594,8 +1606,8 @@ class _HomeTabState extends State<HomeTab> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  "Recent Donations",
+                Text(
+                  isAr ? "التبرعات الأخيرة" : "Recent Donations",
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -1604,7 +1616,9 @@ class _HomeTabState extends State<HomeTab> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  "View status and delivery details.",
+                  isAr
+                      ? "عرض الحالة وتفاصيل التسليم."
+                      : "View status and delivery details.",
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.white.withValues(alpha: 0.8),
@@ -1993,7 +2007,11 @@ class _HomeTabState extends State<HomeTab> {
           ),
           child: Column(
             children: [
-              Icon(Icons.auto_graph_outlined, size: 48, color: Colors.grey.shade400),
+              Icon(
+                Icons.auto_graph_outlined,
+                size: 48,
+                color: Colors.grey.shade400,
+              ),
               const SizedBox(height: 12),
               Text(
                 isAr ? "قريباً..." : "Coming Soon...",
@@ -2005,12 +2023,11 @@ class _HomeTabState extends State<HomeTab> {
               ),
               const SizedBox(height: 8),
               Text(
-                isAr ? "نعمل على تجهيز إحصائيات تأثيرك." : "We're preparing your impact statistics.",
+                isAr
+                    ? "نعمل على تجهيز إحصائيات تأثيرك."
+                    : "We're preparing your impact statistics.",
                 textAlign: TextAlign.center,
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.grey.shade500,
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
               ),
             ],
           ),
@@ -2020,11 +2037,12 @@ class _HomeTabState extends State<HomeTab> {
   }
 
   Widget buildBottomText(BuildContext context) {
-    return const Column(
+    final isAr = Localizations.localeOf(context).languageCode == 'ar';
+    return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "Give Water.",
+          isAr ? "أعطِ الماء." : "Give Water.",
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 30,
@@ -2032,7 +2050,7 @@ class _HomeTabState extends State<HomeTab> {
           ),
         ),
         Text(
-          "Deliver Blessings.",
+          isAr ? "يُسلِّم البركات." : "Deliver Blessings.",
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 30,

@@ -79,4 +79,16 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get search => 'بحث';
+
+  @override
+  String get home => 'الرئيسية';
+
+  @override
+  String get orders => 'الطلبات';
+
+  @override
+  String get impact => 'الأثر';
+
+  @override
+  String get profile => 'الملف الشخصي';
 }

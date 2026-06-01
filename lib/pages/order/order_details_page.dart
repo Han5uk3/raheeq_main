@@ -41,6 +41,16 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
     return widget.orderStates.fold(0, (sum, state) => sum + state.totalPrice);
   }
 
+  int get _totalQuantity {
+    return widget.orderStates.fold(0, (sum, state) {
+      return sum +
+          state.selectedProducts.fold(
+            0,
+            (productSum, sp) => productSum + sp.quantity,
+          );
+    });
+  }
+
   void _showDonationTypeDialog(BuildContext context, bool isAr) {
     showDialog(
       context: context,
@@ -464,20 +474,81 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                     ),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
+                        horizontal: 8,
                         vertical: 6,
                       ),
                       decoration: BoxDecoration(
                         color: const Color(0xFFF0F4F8),
                         borderRadius: BorderRadius.circular(12),
                       ),
-                      child: Text(
-                        "${sp.quantity}x",
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.buttonBlue,
-                        ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          AnimatedOpacity(
+                            duration: const Duration(milliseconds: 200),
+                            opacity: sp.quantity > sp.product.minQuantity
+                                ? 1.0
+                                : 0.45,
+                            child: GestureDetector(
+                              onTap: sp.quantity > sp.product.minQuantity
+                                  ? () {
+                                      setState(() {
+                                        sp.quantity -= 1;
+                                      });
+                                    }
+                                  : null,
+                              child: Container(
+                                width: 30,
+                                height: 30,
+                                alignment: Alignment.center,
+                                decoration: BoxDecoration(
+                                  color: sp.quantity > sp.product.minQuantity
+                                      ? Colors.white
+                                      : Colors.grey[200],
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Icon(
+                                  Icons.remove,
+                                  size: 18,
+                                  color: sp.quantity > sp.product.minQuantity
+                                      ? AppColors.buttonBlue
+                                      : Colors.grey,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            "${sp.quantity}x",
+                            style: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.buttonBlue,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                sp.quantity += 1;
+                              });
+                            },
+                            child: Container(
+                              width: 30,
+                              height: 30,
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: AppColors.buttonBlue,
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Icon(
+                                Icons.add,
+                                size: 18,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -551,9 +622,21 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
         floatingActionButton: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 0),
           child: BottomActionPill(
-            subtitleWidget: Text(
-              isAr ? 'الإجمالي' : 'Total Price',
-              style: const TextStyle(fontSize: 12, color: Colors.white),
+            subtitleWidget: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  isAr
+                      ? '$_totalQuantity عنصر' // or choose pluralization if needed
+                      : '$_totalQuantity items',
+                  style: const TextStyle(fontSize: 12, color: Colors.white),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  isAr ? 'الإجمالي' : 'Total Price',
+                  style: const TextStyle(fontSize: 12, color: Colors.white),
+                ),
+              ],
             ),
             titleWidget: Text(
               isAr

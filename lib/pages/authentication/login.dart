@@ -86,12 +86,16 @@ class _LoginState extends State<Login> {
               const SizedBox(height: 24),
               ListTile(
                 leading: CircleAvatar(
-                  backgroundColor: AppColors.buttonBlueDark.withValues(alpha: 0.1),
+                  backgroundColor: AppColors.buttonBlueDark.withValues(
+                    alpha: 0.1,
+                  ),
                   child: FaIcon(
                     provider == 'Google'
                         ? FontAwesomeIcons.google
                         : FontAwesomeIcons.apple,
-                    color: provider == 'Google' ? Colors.redAccent : Colors.black,
+                    color: provider == 'Google'
+                        ? Colors.redAccent
+                        : Colors.black,
                     size: 20,
                   ),
                 ),
@@ -99,7 +103,10 @@ class _LoginState extends State<Login> {
                 subtitle: const Text("Guest User"),
                 onTap: () async {
                   Navigator.pop(context); // Close sheet
-                  await _authenticateSocial(provider, "eyJhbGciOiJSUzI1NiIsImtpZCI6...");
+                  await _authenticateSocial(
+                    provider,
+                    "eyJhbGciOiJSUzI1NiIsImtpZCI6...",
+                  );
                 },
               ),
               const SizedBox(height: 12),
@@ -114,9 +121,8 @@ class _LoginState extends State<Login> {
     showDialog(
       context: context,
       barrierDismissible: false,
-      builder: (context) => const Center(
-        child: WaterLoadingIndicator(size: 30),
-      ),
+      builder: (context) =>
+          const Center(child: WaterLoadingIndicator(size: 30)),
     );
 
     try {
@@ -139,9 +145,9 @@ class _LoginState extends State<Login> {
       if (response.statusCode == 200 && response.data['success'] == true) {
         final resData = response.data['data'];
         if (resData['userExists'] == true) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Login Successful')),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text('Login Successful')));
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => const HomeScreen()),
@@ -150,7 +156,7 @@ class _LoginState extends State<Login> {
         } else {
           final regToken = resData['registrationToken'] ?? '';
           await AuthStorage.saveRegistrationToken(regToken);
-          
+
           if (!mounted) return;
           Navigator.push(
             context,
@@ -165,15 +171,17 @@ class _LoginState extends State<Login> {
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(response.data['message'] ?? 'Authentication failed')),
+          SnackBar(
+            content: Text(response.data['message'] ?? 'Authentication failed'),
+          ),
         );
       }
     } catch (e) {
       if (!mounted) return;
       Navigator.pop(context); // Close loading
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: ${e.toString()}')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
     }
   }
 
@@ -181,9 +189,17 @@ class _LoginState extends State<Login> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFB),
-      appBar: CustomAppBar(
+      appBar: AppBar(
+        backgroundColor: AppColors.buttonBlueDark,
         centerTitle: true,
-        title: AppLocalizations.of(context)!.login,
+        title: Text(
+          AppLocalizations.of(context)!.login,
+          style: const TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.w700,
+            color: Colors.white,
+          ),
+        ),
         actions: const [
           Padding(
             padding: EdgeInsetsDirectional.only(end: 24),
@@ -237,7 +253,9 @@ class _LoginState extends State<Login> {
                       borderRadius: BorderRadius.circular(25),
                       boxShadow: [
                         BoxShadow(
-                          color: AppColors.buttonBlueDark.withValues(alpha: 0.15),
+                          color: AppColors.buttonBlueDark.withValues(
+                            alpha: 0.15,
+                          ),
                           blurRadius: 50,
                           offset: const Offset(0, 25),
                           spreadRadius: -10,
@@ -300,7 +318,9 @@ class _LoginState extends State<Login> {
                                             15,
                                           ),
                                           borderSide: BorderSide(
-                                            color: Colors.grey.withValues(alpha: 0.2),
+                                            color: Colors.grey.withValues(
+                                              alpha: 0.2,
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -397,7 +417,7 @@ class _LoginState extends State<Login> {
                                 );
                                 return;
                               }
-                              
+
                               try {
                                 final response = await ApiService().requestOtp(
                                   phoneNumber: _phoneController.text,
@@ -406,20 +426,25 @@ class _LoginState extends State<Login> {
 
                                 if (!context.mounted) return;
 
-                                if (response.statusCode == 200 && response.data['success'] == true) {
+                                if (response.statusCode == 200 &&
+                                    response.data['success'] == true) {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
                                       builder: (context) => OTP(
                                         phoneNumber: _phoneController.text,
-                                        countryCode: '+${_selectedCountry.phoneCode}',
+                                        countryCode:
+                                            '+${_selectedCountry.phoneCode}',
                                       ),
                                     ),
                                   );
                                 } else {
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     SnackBar(
-                                      content: Text(response.data['message'] ?? 'Failed to send OTP'),
+                                      content: Text(
+                                        response.data['message'] ??
+                                            'Failed to send OTP',
+                                      ),
                                       backgroundColor: Colors.redAccent,
                                     ),
                                   );
