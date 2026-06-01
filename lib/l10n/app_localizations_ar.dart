@@ -9,277 +9,247 @@ class AppLocalizationsAr extends AppLocalizations {
   AppLocalizationsAr([String locale = 'ar']) : super(locale);
 
   @override
-  String get appTitle => 'Ã˜Â±Ã˜Â­Ã™Å Ã™â€š';
+  String get appTitle => 'رحيق';
 
   @override
-  String get welcomeMessage =>
-      'Ã™â€¦Ã˜Â±Ã˜Â­Ã˜Â¨Ã˜Â§Ã™â€¹ Ã˜Â¨Ã™Æ’ Ã™ Ã™Å  Ã˜Â±Ã˜Â­Ã™Å Ã™â€š!';
+  String get welcomeMessage => 'مرحبًا بك في رحيق!';
 
   @override
-  String get onboard1_title => 'Ã˜Â£Ã˜Â¹Ã˜Â·Ã™  Ã˜Â¨Ã˜ÂºÃ˜Â±Ã˜Â¶';
+  String get onboard1_title => 'تبرع بهدف';
 
   @override
   String get onboard1_subtitle =>
-      'Ã˜Â§Ã˜ÂµÃ™â€ Ã˜Â¹ Ã™ Ã˜Â±Ã™â€šÃ˜Â§Ã™â€¹ Ã˜Â­Ã™â€šÃ™Å Ã™â€šÃ™Å Ã˜Â§Ã™â€¹ Ã˜Â¨Ã˜ÂªÃ™Ë†Ã™ Ã™Å Ã˜Â¯ Ã˜Â§Ã™â€žÃ™â€¦Ã™Å Ã˜Â§Ã™â€¡ Ã™â€žÃ™â€¦Ã™â€  Ã™â€¡Ã™â€¦ Ã™ Ã™Å  Ã˜Â£Ã™â€¦Ã˜Â³ Ã˜Â§Ã™â€žÃ˜Â­Ã˜Â§Ã˜Â¬Ã˜Â© Ã˜Â¥Ã™â€žÃ™Å Ã™â€¡Ã˜Â§.';
+      'اصنع فرقًا حقيقيًا من خلال توفير المياه لمن هم في أمسّ الحاجة إليها.';
 
   @override
-  String get onboard2_title =>
-      'Ã˜Â¨Ã˜Â³Ã™Å Ã˜Â·. Ã˜Â´Ã™ Ã˜Â§Ã™ . Ã™â€¦Ã™Ë†Ã˜Â«Ã™Ë†Ã™â€š.';
+  String get onboard2_title => 'بسيط. شفاف. موثوق.';
 
   @override
   String get onboard2_subtitle =>
-      'Ã˜Â§Ã˜Â®Ã˜ÂªÃ˜Â± Ã˜Â£Ã™Å Ã™â€  Ã˜ÂªÃ˜Â±Ã™Å Ã˜Â¯ Ã˜Â£Ã™â€  Ã˜ÂªÃ˜Â¹Ã˜Â·Ã™Å Ã˜Å’ Ã™Ë†Ã˜Â³Ã™â€ Ã˜ÂªÃ™Ë†Ã™â€žÃ™â€° Ã™â€ Ã˜Â­Ã™â€  Ã˜Â§Ã™â€žÃ˜Â¨Ã˜Â§Ã™â€šÃ™Å .';
+      'اختر الجهة التي ترغب بالتبرع لها، وسنتولى الباقي.';
 
   @override
-  String get onboard3_title =>
-      'Ã˜Â§Ã˜Â¨Ã˜Â¯Ã˜Â£ Ã˜Â±Ã˜Â­Ã™â€žÃ˜Â© Ã˜Â§Ã™â€žÃ˜Â¹Ã˜Â·Ã˜Â§Ã˜Â¡ Ã˜Â§Ã™â€žÃ˜Â®Ã˜Â§Ã˜ÂµÃ˜Â© Ã˜Â¨Ã™Æ’';
+  String get onboard3_title => 'ابدأ رحلتك في العطاء';
 
   @override
   String get onboard3_subtitle =>
-      'Ã˜Â¹Ã™â€¦Ã™â€žÃ™Æ’ Ã˜Â§Ã™â€žÃ˜ÂµÃ˜ÂºÃ™Å Ã˜Â± Ã™Å Ã™â€¦Ã™Æ’Ã™â€  Ã˜Â£Ã™â€  Ã™Å Ã˜Â®Ã˜Â¯Ã™â€¦ Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â¦Ã˜Â§Ã˜Âª Ã™Ë†Ã™Å Ã˜Â®Ã™â€žÃ™â€š Ã˜Â®Ã™Å Ã˜Â±Ã˜Â§Ã™â€¹ Ã™â€¦Ã˜Â³Ã˜ÂªÃ™â€¦Ã˜Â±Ã˜Â§Ã™â€¹.';
+      'يمكن لعملك البسيط أن يخدم المئات ويحقق خيرًا مستمرًا.';
 
   @override
-  String get skip => 'Ã˜ÂªÃ˜Â®Ã˜Â·Ã™Å ';
+  String get skip => 'تخطي';
 
   @override
-  String get continue_btn => 'Ã˜Â§Ã˜Â³Ã˜ÂªÃ™â€¦Ã˜Â±Ã˜Â§Ã˜Â±';
+  String get continue_btn => 'متابعة';
 
   @override
-  String get start_donating => 'Ã˜Â§Ã˜Â¨Ã˜Â¯Ã˜Â£ Ã˜Â§Ã™â€žÃ˜ÂªÃ˜Â¨Ã˜Â±Ã˜Â¹';
+  String get start_donating => 'ابدأ التبرع';
 
   @override
-  String get new_to_donate =>
-      'Ã˜Â¬Ã˜Â¯Ã™Å Ã˜Â¯ Ã™ Ã™Å  Ã˜Â§Ã™â€žÃ˜ÂªÃ˜Â¨Ã˜Â±Ã˜Â¹Ã˜Å¸';
+  String get new_to_donate => 'جديد في التبرع؟';
 
   @override
-  String get terms_agree_prefix =>
-      'Ã˜Â¨Ã˜Â§Ã™â€žÃ˜Â§Ã˜Â³Ã˜ÂªÃ™â€¦Ã˜Â±Ã˜Â§Ã˜Â±Ã˜Å’ Ã˜Â£Ã™â€ Ã˜Âª Ã˜ÂªÃ™Ë†Ã˜Â§Ã™ Ã™â€š Ã˜Â¹Ã™â€žÃ™â€° ';
+  String get terms_agree_prefix => 'بالمتابعة، فإنك توافق على ';
 
   @override
-  String get terms_conditions =>
-      'Ã˜Â§Ã™â€žÃ˜Â´Ã˜Â±Ã™Ë†Ã˜Â· Ã™Ë†Ã˜Â§Ã™â€žÃ˜Â£Ã˜Â­Ã™Æ’Ã˜Â§Ã™â€¦';
+  String get terms_conditions => 'الشروط والأحكام';
 
   @override
-  String get and => ' Ã™Ë† ';
+  String get and => ' و ';
 
   @override
-  String get privacy_policy =>
-      'Ã˜Â³Ã™Å Ã˜Â§Ã˜Â³Ã˜Â© Ã˜Â§Ã™â€žÃ˜Â®Ã˜ÂµÃ™Ë†Ã˜ÂµÃ™Å Ã˜Â©';
+  String get privacy_policy => 'سياسة الخصوصية';
 
   @override
-  String get login => 'Ã˜ÂªÃ˜Â³Ã˜Â¬Ã™Å Ã™â€ž Ã˜Â§Ã™â€žÃ˜Â¯Ã˜Â®Ã™Ë†Ã™â€ž';
+  String get login => 'تسجيل الدخول';
 
   @override
-  String get enter_phone =>
-      'Ã˜Â£Ã˜Â¯Ã˜Â®Ã™â€ž Ã˜Â±Ã™â€šÃ™â€¦ Ã˜Â§Ã™â€žÃ™â€¡Ã˜Â§Ã˜ÂªÃ™ ';
+  String get enter_phone => 'أدخل رقم هاتفك المحمول';
 
   @override
   String get otp_message =>
-      'Ã˜Â£Ã˜Â¯Ã˜Â®Ã™â€ž Ã˜Â±Ã™â€šÃ™â€¦ Ã™â€¡Ã˜Â§Ã˜ÂªÃ™ Ã™Æ’ Ã™â€žÃ™â€žÃ™â€¦Ã˜ÂªÃ˜Â§Ã˜Â¨Ã˜Â¹Ã˜Â©.\nÃ˜Â³Ã™â€ Ã˜Â±Ã˜Â³Ã™â€ž Ã™â€žÃ™Æ’ Ã˜Â±Ã™â€¦Ã˜Â² OTP Ã™â€žÃ™â€žÃ˜ÂªÃ˜Â­Ã™â€šÃ™â€š.';
+      'أدخل رقم هاتفك المحمول للمتابعة.\nسنرسل رمز تحقق (OTP) للتأكيد.';
 
   @override
-  String get or => 'Ã˜Â£Ã™Ë†';
+  String get or => 'أو';
 
   @override
-  String get google_signin =>
-      'Ã˜ÂªÃ˜Â³Ã˜Â¬Ã™Å Ã™â€ž Ã˜Â§Ã™â€žÃ˜Â¯Ã˜Â®Ã™Ë†Ã™â€ž Ã˜Â¨Ã˜Â§Ã˜Â³Ã˜ÂªÃ˜Â®Ã˜Â¯Ã˜Â§Ã™â€¦ Google';
+  String get google_signin => 'تسجيل الدخول باستخدام Google';
 
   @override
-  String get apple_signin =>
-      'Ã˜ÂªÃ˜Â³Ã˜Â¬Ã™Å Ã™â€ž Ã˜Â§Ã™â€žÃ˜Â¯Ã˜Â®Ã™Ë†Ã™â€ž Ã˜Â¨Ã˜Â§Ã˜Â³Ã˜ÂªÃ˜Â®Ã˜Â¯Ã˜Â§Ã™â€¦ Apple';
+  String get apple_signin => 'تسجيل الدخول باستخدام Apple';
 
   @override
-  String get search => 'Ã˜Â¨Ã˜Â­Ã˜Â«';
+  String get search => 'بحث';
 
   @override
-  String get home => 'Ã˜Â§Ã™â€žÃ˜Â±Ã˜Â¦Ã™Å Ã˜Â³Ã™Å Ã˜Â©';
+  String get home => 'الرئيسية';
 
   @override
-  String get orders => 'Ã˜Â§Ã™â€žÃ˜Â·Ã™â€žÃ˜Â¨Ã˜Â§Ã˜Âª';
+  String get orders => 'الطلبات';
 
   @override
-  String get impact => 'Ã˜Â§Ã™â€žÃ˜Â£Ã˜Â«Ã˜Â±';
+  String get impact => 'الأثر';
 
   @override
-  String get profile => 'Ã˜Â§Ã™â€žÃ™â€¦Ã™â€žÃ™  Ã˜Â§Ã™â€žÃ˜Â´Ã˜Â®Ã˜ÂµÃ™Å ';
+  String get profile => 'الملف الشخصي';
 
   @override
-  String get logout => 'Ã˜ÂªÃ˜Â³Ã˜Â¬Ã™Å Ã™â€ž Ã˜Â§Ã™â€žÃ˜Â®Ã˜Â±Ã™Ë†Ã˜Â¬';
+  String get logout => 'تسجيل الخروج';
 
   @override
   String get logout_confirmation =>
-      'Ã™â€¡Ã™â€ž Ã˜Â£Ã™â€ Ã˜Âª Ã™â€¦Ã˜ÂªÃ˜Â£Ã™Æ’Ã˜Â¯ Ã˜Â£Ã™â€ Ã™Æ’ Ã˜ÂªÃ˜Â±Ã™Å Ã˜Â¯ Ã˜ÂªÃ˜Â³Ã˜Â¬Ã™Å Ã™â€ž Ã˜Â§Ã™â€žÃ˜Â®Ã˜Â±Ã™Ë†Ã˜Â¬ Ã™â€¦Ã™â€  Ã˜Â±Ã˜Â­Ã™Å Ã™â€šÃ˜Å¸';
+      'هل أنت متأكد أنك تريد تسجيل الخروج من رحيق؟';
 
   @override
-  String get cancel => 'Ã˜Â¥Ã™â€žÃ˜ÂºÃ˜Â§Ã˜Â¡';
+  String get cancel => 'إلغاء';
 
   @override
-  String get no_session =>
-      'Ã™â€žÃ™â€¦ Ã™Å Ã˜ÂªÃ™â€¦ Ã˜Â§Ã™â€žÃ˜Â¹Ã˜Â«Ã™Ë†Ã˜Â± Ã˜Â¹Ã™â€žÃ™â€° Ã˜Â¬Ã™â€žÃ˜Â³Ã˜Â©. Ã˜Â§Ã™â€žÃ˜Â±Ã˜Â¬Ã˜Â§Ã˜Â¡ Ã˜ÂªÃ˜Â³Ã˜Â¬Ã™Å Ã™â€ž Ã˜Â§Ã™â€žÃ˜Â¯Ã˜Â®Ã™Ë†Ã™â€ž.';
+  String get no_session => 'لم يتم العثور على جلسة. يرجى تسجيل الدخول.';
 
   @override
-  String get personal_information =>
-      'Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â¹Ã™â€žÃ™Ë†Ã™â€¦Ã˜Â§Ã˜Âª Ã˜Â§Ã™â€žÃ˜Â´Ã˜Â®Ã˜ÂµÃ™Å Ã˜Â©';
+  String get personal_information => 'المعلومات الشخصية';
 
   @override
-  String get saved_mosques =>
-      'Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â³Ã˜Â§Ã˜Â¬Ã˜Â¯ Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â­Ã™ Ã™Ë†Ã˜Â¸Ã˜Â©';
+  String get saved_mosques => 'المساجد المحفوظة';
 
   @override
-  String get recurring_donations =>
-      'Ã˜Â§Ã™â€žÃ˜ÂªÃ˜Â¨Ã˜Â±Ã˜Â¹Ã˜Â§Ã˜Âª Ã˜Â§Ã™â€žÃ™â€¦Ã˜ÂªÃ™Æ’Ã˜Â±Ã˜Â±Ã˜Â©';
+  String get recurring_donations => 'التبرعات المتكررة';
 
   @override
-  String get tax_receipts =>
-      'Ã˜Â§Ã™â€žÃ˜Â¥Ã™Å Ã˜ÂµÃ˜Â§Ã™â€žÃ˜Â§Ã˜Âª Ã˜Â§Ã™â€žÃ˜Â¶Ã˜Â±Ã™Å Ã˜Â¨Ã™Å Ã˜Â©';
+  String get tax_receipts => 'الإيصالات الضريبية';
 
   @override
-  String get my_wallet => 'Ã™â€¦Ã˜Â­Ã™ Ã˜Â¸Ã˜ÂªÃ™Å ';
+  String get my_wallet => 'محفظتي';
 
   @override
-  String get payment_methods => 'Ã˜Â·Ã˜Â±Ã™â€š Ã˜Â§Ã™â€žÃ˜Â¯Ã™ Ã˜Â¹';
+  String get payment_methods => 'طرق الدفع';
 
   @override
-  String get order_history => 'Ã˜Â³Ã˜Â¬Ã™â€ž Ã˜Â§Ã™â€žÃ˜Â·Ã™â€žÃ˜Â¨Ã˜Â§Ã˜Âª';
+  String get order_history => 'سجل الطلبات';
 
   @override
-  String get notifications => 'Ã˜Â§Ã™â€žÃ˜Â¥Ã˜Â´Ã˜Â¹Ã˜Â§Ã˜Â±Ã˜Â§Ã˜Âª';
+  String get notifications => 'الإشعارات';
 
   @override
-  String get app_settings =>
-      'Ã˜Â¥Ã˜Â¹Ã˜Â¯Ã˜Â§Ã˜Â¯Ã˜Â§Ã˜Âª Ã˜Â§Ã™â€žÃ˜ÂªÃ˜Â·Ã˜Â¨Ã™Å Ã™â€š';
+  String get app_settings => 'إعدادات التطبيق';
 
   @override
-  String get help_center =>
-      'Ã™â€¦Ã˜Â±Ã™Æ’Ã˜Â² Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â³Ã˜Â§Ã˜Â¹Ã˜Â¯Ã˜Â©';
+  String get help_center => 'مركز المساعدة';
 
   @override
-  String get contact_us => 'Ã˜Â§Ã˜ÂªÃ˜ÂµÃ™â€ž Ã˜Â¨Ã™â€ Ã˜Â§';
+  String get contact_us => 'اتصل بنا';
 
   @override
-  String get camera => 'Ã˜Â§Ã™â€žÃ™Æ’Ã˜Â§Ã™â€¦Ã™Å Ã˜Â±Ã˜Â§';
+  String get camera => 'الكاميرا';
 
   @override
-  String get gallery => 'Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â¹Ã˜Â±Ã˜Â¶';
+  String get gallery => 'المعرض';
 
   @override
-  String get first_name => 'Ã˜Â§Ã™â€žÃ˜Â§Ã˜Â³Ã™â€¦ Ã˜Â§Ã™â€žÃ˜Â£Ã™Ë†Ã™â€ž';
+  String get first_name => 'الاسم الأول';
 
   @override
-  String get last_name => 'Ã˜Â§Ã˜Â³Ã™â€¦ Ã˜Â§Ã™â€žÃ˜Â¹Ã˜Â§Ã˜Â¦Ã™â€žÃ˜Â©';
+  String get last_name => 'اسم العائلة';
 
   @override
-  String get email_address =>
-      'Ã˜Â¹Ã™â€ Ã™Ë†Ã˜Â§Ã™â€  Ã˜Â§Ã™â€žÃ˜Â¨Ã˜Â±Ã™Å Ã˜Â¯ Ã˜Â§Ã™â€žÃ˜Â¥Ã™â€žÃ™Æ’Ã˜ÂªÃ˜Â±Ã™Ë†Ã™â€ Ã™Å ';
+  String get email_address => 'البريد الإلكتروني';
 
   @override
-  String get phone_number => 'Ã˜Â±Ã™â€šÃ™â€¦ Ã˜Â§Ã™â€žÃ™â€¡Ã˜Â§Ã˜ÂªÃ™ ';
+  String get phone_number => 'رقم الهاتف';
 
   @override
-  String get profile_updated =>
-      'Ã˜ÂªÃ™â€¦ Ã˜ÂªÃ˜Â­Ã˜Â¯Ã™Å Ã˜Â« Ã˜Â§Ã™â€žÃ™â€¦Ã™â€žÃ™  Ã˜Â§Ã™â€žÃ˜Â´Ã˜Â®Ã˜ÂµÃ™Å  Ã˜Â¨Ã™â€ Ã˜Â¬Ã˜Â§Ã˜Â­!';
+  String get profile_updated => 'تم تحديث الملف الشخصي بنجاح!';
 
   @override
-  String get profile_pic_updated =>
-      'Ã˜ÂªÃ™â€¦ Ã˜ÂªÃ˜Â­Ã˜Â¯Ã™Å Ã˜Â« Ã˜ÂµÃ™Ë†Ã˜Â±Ã˜Â© Ã˜Â§Ã™â€žÃ™â€¦Ã™â€žÃ™  Ã˜Â§Ã™â€žÃ˜Â´Ã˜Â®Ã˜ÂµÃ™Å  Ã˜Â¨Ã™â€ Ã˜Â¬Ã˜Â§Ã˜Â­!';
+  String get profile_pic_updated => 'تم تحديث صورة الملف الشخصي بنجاح!';
 
   @override
-  String get orders_live_soon =>
-      'Ã˜Â§Ã™â€žÃ˜Â·Ã™â€žÃ˜Â¨Ã˜Â§Ã˜Âª Ã˜Â³Ã˜ÂªÃ™Æ’Ã™Ë†Ã™â€  Ã™â€¦Ã˜ÂªÃ˜Â§Ã˜Â­Ã˜Â© Ã™â€šÃ˜Â±Ã™Å Ã˜Â¨Ã˜Â§Ã™â€¹...';
+  String get orders_live_soon => 'سيتم تفعيل الطلبات قريبًا...';
 
   @override
-  String get impact_page => 'Ã˜ÂµÃ™ Ã˜Â­Ã˜Â© Ã˜Â§Ã™â€žÃ˜Â£Ã˜Â«Ã˜Â±';
+  String get impact_page => 'صفحة الأثر';
 
   @override
-  String get no_products_selected =>
-      'Ã™â€žÃ™â€¦ Ã™Å Ã˜ÂªÃ™â€¦ Ã˜ÂªÃ˜Â­Ã˜Â¯Ã™Å Ã˜Â¯ Ã™â€¦Ã™â€ Ã˜ÂªÃ˜Â¬Ã˜Â§Ã˜Âª';
+  String get no_products_selected => 'لم يتم اختيار أي منتجات';
 
   @override
   String get guest_user_email => 'guest_user@suqyarahiq.com';
 
   @override
-  String get guest_user => 'Ã™â€¦Ã˜Â³Ã˜ÂªÃ˜Â®Ã˜Â¯Ã™â€¦ Ã˜Â¶Ã™Å Ã™ ';
+  String get guest_user => 'مستخدم زائر';
 
   @override
-  String get login_successful =>
-      'Ã˜ÂªÃ™â€¦ Ã˜ÂªÃ˜Â³Ã˜Â¬Ã™Å Ã™â€ž Ã˜Â§Ã™â€žÃ˜Â¯Ã˜Â®Ã™Ë†Ã™â€ž Ã˜Â¨Ã™â€ Ã˜Â¬Ã˜Â§Ã˜Â­';
+  String get login_successful => 'تم تسجيل الدخول بنجاح';
 
   @override
-  String get enter_valid_otp =>
-      'Ã˜Â§Ã™â€žÃ˜Â±Ã˜Â¬Ã˜Â§Ã˜Â¡ Ã˜Â¥Ã˜Â¯Ã˜Â®Ã˜Â§Ã™â€ž Ã˜Â±Ã™â€¦Ã˜Â² Ã˜ÂµÃ˜Â­Ã™Å Ã˜Â­';
+  String get enter_valid_otp => 'يرجى إدخال رمز تحقق صالح';
 
   @override
   String removed_from_saved(String name) {
-    return 'Ã˜ÂªÃ™â€¦Ã˜Âª Ã˜Â¥Ã˜Â²Ã˜Â§Ã™â€žÃ˜Â© $name Ã™â€¦Ã™â€  Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â³Ã˜Â§Ã˜Â¬Ã˜Â¯ Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â­Ã™ Ã™Ë†Ã˜Â¸Ã˜Â©.';
+    return 'تمت إزالة $name من المساجد المحفوظة.';
   }
 
   @override
-  String get failed_to_remove_mosque =>
-      'Ã™ Ã˜Â´Ã™â€žÃ˜Âª Ã˜Â¥Ã˜Â²Ã˜Â§Ã™â€žÃ˜Â© Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â³Ã˜Â¬Ã˜Â¯.';
+  String get failed_to_remove_mosque => 'فشل في إزالة المسجد.';
 
   @override
-  String get failed_to_update_favorite =>
-      'Ã™ Ã˜Â´Ã™â€ž Ã˜ÂªÃ˜Â­Ã˜Â¯Ã™Å Ã˜Â« Ã˜Â§Ã™â€žÃ™â€¦Ã™ Ã˜Â¶Ã™â€žÃ˜Â©.';
+  String get failed_to_update_favorite => 'فشل في تحديث المفضلة.';
 
   @override
-  String get failed_to_load_wallet =>
-      'Ã™ Ã˜Â´Ã™â€ž Ã˜ÂªÃ˜Â­Ã™â€¦Ã™Å Ã™â€ž Ã˜Â¨Ã™Å Ã˜Â§Ã™â€ Ã˜Â§Ã˜Âª Ã˜Â§Ã™â€žÃ™â€¦Ã˜Â­Ã™ Ã˜Â¸Ã˜Â©.';
+  String get failed_to_load_wallet => 'فشل في تحميل بيانات المحفظة.';
 
   @override
   String minimum_quantity_is(String min) {
-    return 'Ã˜Â§Ã™â€žÃ˜Â­Ã˜Â¯ Ã˜Â§Ã™â€žÃ˜Â£Ã˜Â¯Ã™â€ Ã™â€° Ã™â€žÃ™â€žÃ™Æ’Ã™â€¦Ã™Å Ã˜Â© Ã™â€¡Ã™Ë† $min';
+    return 'الحد الأدنى للكمية هو $min';
   }
 
   @override
-  String get example_quantity => 'Ã™â€¦Ã˜Â«Ã˜Â§Ã™â€ž: 50';
+  String get example_quantity => 'مثال: 50';
 
   @override
   String error_msg(String error) {
-    return 'Ã˜Â®Ã˜Â·Ã˜Â£: $error';
+    return 'خطأ: $error';
   }
 
   @override
   String failed_to_pick_image(String error) {
-    return 'Ã™ Ã˜Â´Ã™â€ž Ã˜Â§Ã˜Â®Ã˜ÂªÃ™Å Ã˜Â§Ã˜Â± Ã˜Â§Ã™â€žÃ˜ÂµÃ™Ë†Ã˜Â±Ã˜Â©: $error';
+    return 'فشل في اختيار الصورة: $error';
   }
 
   @override
   String failed_upload_simulation(String error) {
-    return 'Ã™ Ã˜Â´Ã™â€žÃ˜Âª Ã™â€¦Ã˜Â­Ã˜Â§Ã™Æ’Ã˜Â§Ã˜Â© Ã˜Â§Ã™â€žÃ˜Â±Ã™ Ã˜Â¹: $error';
+    return 'فشل في محاكاة رفع الملف: $error';
   }
 
   @override
-  String get track_mosque_donations =>
-      'Ã˜ÂªÃ˜ÂªÃ˜Â¨Ã˜Â¹ Ã˜ÂªÃ˜Â¨Ã˜Â±Ã˜Â¹Ã˜Â§Ã˜ÂªÃ™Æ’ Ã™â€žÃ™â€žÃ™â€¦Ã˜Â³Ã˜Â§Ã˜Â¬Ã˜Â¯';
+  String get track_mosque_donations => 'تتبع تبرعاتك للمساجد';
 
   @override
-  String get ongoing_charity_rewards =>
-      'Ã˜Â£Ã˜Â¬Ã™Ë†Ã˜Â± Ã˜ÂµÃ˜Â¯Ã™â€šÃ˜Â§Ã˜ÂªÃ™Æ’ Ã˜Â§Ã™â€žÃ˜Â¬Ã˜Â§Ã˜Â±Ã™Å Ã˜Â©';
+  String get ongoing_charity_rewards => 'أجور صدقتك الجارية';
 
   @override
-  String get manage_account_settings =>
-      'Ã˜Â¥Ã˜Â¯Ã˜Â§Ã˜Â±Ã˜Â© Ã˜Â¥Ã˜Â¹Ã˜Â¯Ã˜Â§Ã˜Â¯Ã˜Â§Ã˜Âª Ã˜Â­Ã˜Â³Ã˜Â§Ã˜Â¨Ã™Æ’';
+  String get manage_account_settings => 'إدارة إعدادات حسابك';
 
   @override
-  String get raheeq => 'Ã˜Â±Ã˜Â­Ã™Å Ã™â€š';
+  String get raheeq => 'رحيق';
 
   @override
-  String get my_orders => 'Ã˜Â·Ã™â€žÃ˜Â¨Ã˜Â§Ã˜ÂªÃ™Å ';
+  String get my_orders => 'طلباتي';
 
   @override
-  String get new_orders => 'Ø·Ù„Ø¨Ø§Øª Ø¬Ø¯ÙŠØ¯Ø©';
+  String get new_orders => 'طلبات جديدة';
 
   @override
-  String get out_for_delivery => 'Ø¬Ø§Ø±ÙŠ Ø§Ù„ØªÙˆØµÙŠÙ„';
+  String get out_for_delivery => 'قيد التوصيل';
 
   @override
-  String get delivered => 'ØªÙ… Ø§Ù„ØªÙˆØµÙŠÙ„';
+  String get delivered => 'تم التسليم';
 
   @override
-  String get transaction_history => 'Ø³Ø¬Ù„ Ø§Ù„Ù…Ø¹Ø§Ù…Ù„Ø§Øª';
+  String get transaction_history => 'سجل المعاملات';
 
   @override
-  String get no_transactions_found => 'لا توجد معاملات.';
+  String get no_transactions_found => 'لم يتم العثور على معاملات.';
 
   @override
   String get current_balance => 'الرصيد الحالي';
@@ -288,7 +258,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get account_section => 'الحساب';
 
   @override
-  String get payment_orders_section => 'الدفع والطلبات';
+  String get payment_orders_section => 'المدفوعات والطلبات';
 
   @override
   String get settings_section => 'الإعدادات';
@@ -297,20 +267,21 @@ class AppLocalizationsAr extends AppLocalizations {
   String get support_section => 'الدعم';
 
   @override
-  String get feature_coming_soon => 'هذه الميزة ستكون متاحة قريباً';
+  String get feature_coming_soon => 'هذه الميزة ستتوفر قريبًا';
 
   @override
-  String get redirecting_payment_methods => 'جاري التحويل إلى طرق الدفع...';
+  String get redirecting_payment_methods =>
+      'جارٍ التحويل إلى طرق الدفع الخاصة بي...';
 
   @override
-  String get redirecting_terms => 'جاري التحويل إلى الشروط والأحكام...';
+  String get redirecting_terms => 'جارٍ التحويل إلى الشروط والأحكام...';
 
   @override
-  String get donations_label => 'تبرعات';
+  String get donations_label => 'التبرعات';
 
   @override
-  String get mosques_label => 'مساجد';
+  String get mosques_label => 'المساجد';
 
   @override
-  String get people_label => 'أشخاص';
+  String get people_label => 'الأشخاص';
 }
