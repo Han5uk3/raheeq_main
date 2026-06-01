@@ -402,7 +402,17 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
         final amount = (paymentConfig['amount'] ?? _checkoutData.finalTotal)
             .toDouble();
 
-        final userEmail = AuthStorage.user?.email ?? "[EMAIL_ADDRESS]";
+        final user = AuthStorage.user;
+        String userEmail = user?.email ?? '';
+        if (userEmail.isEmpty) {
+          final rawUsername = (user != null && (user.firstName.isNotEmpty || user.lastName.isNotEmpty))
+              ? '${user.firstName}${user.lastName}'
+              : 'customer';
+          final sanitizedUsername = rawUsername
+              .toLowerCase()
+              .replaceAll(RegExp(r'[^a-z0-9]'), '');
+          userEmail = '${sanitizedUsername.isNotEmpty ? sanitizedUsername : "customer"}@rahiq.app';
+        }
         final userName = AuthStorage.user?.fullName ?? "Customer";
         final userPhone = (AuthStorage.user?.phoneNumber?.isNotEmpty ?? false)
             ? AuthStorage.user!.phoneNumber

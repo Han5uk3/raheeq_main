@@ -209,11 +209,14 @@ class _RegistrationState extends State<Registration> {
                           const SizedBox(height: 16),
                           _buildTextField(
                             controller: _emailController,
-                            label: AppLocalizations.of(context)!.email_address,
-                            hint: "Enter your email",
+                            label: "${AppLocalizations.of(context)!.email_address} (${Localizations.localeOf(context).languageCode == 'ar' ? 'اختياري' : 'Optional'})",
+                            hint: Localizations.localeOf(context).languageCode == 'ar'
+                                ? "أدخل البريد الإلكتروني (اختياري)"
+                                : "Enter your email (optional)",
                             icon: Icons.email_outlined,
                             keyboardType: TextInputType.emailAddress,
                             isEmail: true,
+                            isOptional: true,
                           ),
                           const SizedBox(height: 16),
                           _buildTextField(
@@ -336,6 +339,7 @@ class _RegistrationState extends State<Registration> {
     bool enabled = true,
     bool isEmail = false,
     bool isLtr = false,
+    bool isOptional = false,
   }) {
     final fieldKey = _fieldKeys[controller];
     final hasError = fieldKey?.currentState?.hasError == true;
@@ -390,6 +394,7 @@ class _RegistrationState extends State<Registration> {
             validator: (value) {
               final trimmedValue = value?.trim() ?? '';
               if (trimmedValue.isEmpty) {
+                if (isOptional) return null;
                 return 'This field is required';
               }
               if (isEmail) {

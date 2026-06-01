@@ -104,6 +104,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
       final response = await ApiService().updateProfile(
         firstName: _firstNameController.text.trim(),
         lastName: _lastNameController.text.trim(),
+        email: _emailController.text.trim(),
         gender: _selectedGender?.toUpperCase() ?? 'MALE',
       );
 
@@ -526,7 +527,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                                       context,
                                     )!.email_address,
                                     hint: "Enter your email",
-                                    enabled: false,
+                                    enabled: _isEditing,
+                                    isOptional: true,
+                                    isEmail: true,
                                   ),
                                   const SizedBox(height: 16),
                                   _buildTextField(
@@ -574,6 +577,8 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
     required String label,
     required String hint,
     bool enabled = true,
+    bool isOptional = false,
+    bool isEmail = false,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -610,8 +615,18 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
               ),
             ),
             validator: (value) {
-              if (value == null || value.trim().isEmpty) {
+              final trimmedValue = value?.trim() ?? '';
+              if (trimmedValue.isEmpty) {
+                if (isOptional) return null;
                 return 'This field is required';
+              }
+              if (isEmail) {
+                final emailRegex = RegExp(
+                  r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+                );
+                if (!emailRegex.hasMatch(trimmedValue)) {
+                  return 'Please enter a valid email address';
+                }
               }
               return null;
             },

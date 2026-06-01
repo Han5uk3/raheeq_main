@@ -183,7 +183,7 @@ class ApiService {
   Future<Response> register({
     required String countryCode,
     required String phoneNumber,
-    required String email,
+    String? email,
     required String firstName,
     required String lastName,
     required String gender,
@@ -369,6 +369,7 @@ class ApiService {
   Future<Response> updateProfile({
     String? firstName,
     String? lastName,
+    String? email,
     String? gender,
     dynamic profileImage, // Can be local file String path or MultipartFile
   }) async {
@@ -376,6 +377,7 @@ class ApiService {
       final Map<String, dynamic> map = {
         'firstName': ?firstName,
         'lastName': ?lastName,
+        'email': ?email,
         'gender': ?gender,
       };
 
