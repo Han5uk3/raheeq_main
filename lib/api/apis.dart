@@ -630,6 +630,8 @@ class ApiService {
     String? note,
     String? ibanBankAccountId,
     dynamic ibanReceipt,
+    ProgressCallback? onSendProgress,
+    ProgressCallback? onReceiveProgress,
   }) async {
     try {
       if (paymentMethod == 'IBAN') {

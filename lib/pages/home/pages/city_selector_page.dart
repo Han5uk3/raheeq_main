@@ -9,9 +9,9 @@ class CitySelectorPage extends StatefulWidget {
   final List<City> initialSelections;
 
   const CitySelectorPage({
-    Key? key,
+    super.key,
     this.initialSelections = const [],
-  }) : super(key: key);
+  });
 
   @override
   State<CitySelectorPage> createState() => _CitySelectorPageState();

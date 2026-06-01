@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
+import 'package:raheeq_main/l10n/app_localizations.dart';
 
 class MyWalletPage extends StatefulWidget {
   const MyWalletPage({super.key});
@@ -38,7 +39,11 @@ class _MyWalletPageState extends State<MyWalletPage> {
         });
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Failed to load wallet data.')),
+            SnackBar(
+              content: Text(
+                AppLocalizations.of(context)!.failed_to_load_wallet,
+              ),
+            ),
           );
         }
       }
@@ -47,9 +52,13 @@ class _MyWalletPageState extends State<MyWalletPage> {
         _isLoading = false;
       });
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text('Error: $e')));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.error_msg(e.toString()),
+            ),
+          ),
+        );
       }
     }
   }
@@ -59,8 +68,8 @@ class _MyWalletPageState extends State<MyWalletPage> {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
-        title: const Text(
-          "My Wallet",
+        title: Text(
+          AppLocalizations.of(context)!.my_wallet,
           style: TextStyle(
             color: Colors.black,
             fontSize: 20,
@@ -88,8 +97,8 @@ class _MyWalletPageState extends State<MyWalletPage> {
                     children: [
                       _buildWalletCard(),
                       const SizedBox(height: 24),
-                      const Text(
-                        "Transaction History",
+                      Text(
+                        AppLocalizations.of(context)!.transaction_history,
                         style: TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -119,7 +128,7 @@ class _MyWalletPageState extends State<MyWalletPage> {
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
           BoxShadow(
-            color: AppColors.buttonBlueDark.withOpacity(0.3),
+            color: AppColors.buttonBlueDark.withValues(alpha: 0.3),
             blurRadius: 10,
             offset: const Offset(0, 5),
           ),
@@ -131,9 +140,9 @@ class _MyWalletPageState extends State<MyWalletPage> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text(
-                "Current Balance",
-                style: TextStyle(
+              Text(
+                AppLocalizations.of(context)!.current_balance,
+                style: const TextStyle(
                   color: Colors.white70,
                   fontSize: 16,
                   fontWeight: FontWeight.w500,
@@ -162,11 +171,11 @@ class _MyWalletPageState extends State<MyWalletPage> {
 
   Widget _buildTransactionsList() {
     if (_transactions.isEmpty) {
-      return const Padding(
+      return Padding(
         padding: EdgeInsets.symmetric(vertical: 40),
         child: Center(
           child: Text(
-            "No transactions found.",
+            AppLocalizations.of(context)!.no_transactions_found,
             style: TextStyle(color: Colors.grey, fontSize: 16),
           ),
         ),
@@ -203,8 +212,8 @@ class _MyWalletPageState extends State<MyWalletPage> {
           ),
           leading: CircleAvatar(
             backgroundColor: isCredit
-                ? Colors.green.withOpacity(0.1)
-                : Colors.red.withOpacity(0.1),
+                ? Colors.green.withValues(alpha: 0.1)
+                : Colors.red.withValues(alpha: 0.1),
             child: Icon(
               isCredit ? Icons.arrow_downward : Icons.arrow_upward,
               color: isCredit ? Colors.green : Colors.red,

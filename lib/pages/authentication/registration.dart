@@ -4,6 +4,7 @@ import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/pages/home/home_screen.dart';
 import 'package:raheeq_main/pages/authentication/login.dart';
 import 'package:raheeq_main/api/apis.dart';
+import 'package:raheeq_main/l10n/app_localizations.dart';
 
 class Registration extends StatefulWidget {
   final String phoneNumber;
@@ -194,21 +195,21 @@ class _RegistrationState extends State<Registration> {
                           const SizedBox(height: 32),
                           _buildTextField(
                             controller: _firstNameController,
-                            label: "First Name",
+                            label: AppLocalizations.of(context)!.first_name,
                             hint: "Enter your first name",
                             icon: Icons.person_outline,
                           ),
                           const SizedBox(height: 16),
                           _buildTextField(
                             controller: _lastNameController,
-                            label: "Last Name",
+                            label: AppLocalizations.of(context)!.last_name,
                             hint: "Enter your last name",
                             icon: Icons.person_outline,
                           ),
                           const SizedBox(height: 16),
                           _buildTextField(
                             controller: _emailController,
-                            label: "Email Address",
+                            label: AppLocalizations.of(context)!.email_address,
                             hint: "Enter your email",
                             icon: Icons.email_outlined,
                             keyboardType: TextInputType.emailAddress,
@@ -217,7 +218,7 @@ class _RegistrationState extends State<Registration> {
                           const SizedBox(height: 16),
                           _buildTextField(
                             controller: _phoneController,
-                            label: "Phone Number",
+                            label: AppLocalizations.of(context)!.phone_number,
                             hint: "Enter phone number",
                             icon: Icons.phone_outlined,
                             enabled: false, // Pre-filled and locked
@@ -287,7 +288,7 @@ class _RegistrationState extends State<Registration> {
                                   } catch (e) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text('Error: ${e.toString()}'),
+                                        content: Text(AppLocalizations.of(context)!.error_msg(e.toString())),
                                       ),
                                     );
                                   }

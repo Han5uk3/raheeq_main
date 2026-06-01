@@ -1,17 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:raheeq_main/api/apis.dart';
+import 'package:raheeq_main/pages/home/home_screen.dart';
+import 'package:raheeq_main/pages/home/pages/app_settings_page.dart';
+import 'package:raheeq_main/pages/home/pages/my_wallet_page.dart';
+import 'package:raheeq_main/pages/home/pages/notifications_page.dart';
 import 'package:raheeq_main/storage/auth_storage.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/models/user.dart';
 import 'package:raheeq_main/pages/home/pages/my_profile_screen.dart';
 import 'package:raheeq_main/pages/home/pages/saved_mosques_page.dart';
-import 'package:raheeq_main/common_widgets/water_loading.dart';
-import 'package:raheeq_main/pages/home/pages/my_wallet_page.dart';
-import 'package:raheeq_main/pages/home/home_screen.dart';
-import 'package:raheeq_main/pages/home/pages/notifications_page.dart';
 import 'package:raheeq_main/pages/home/pages/recurring_donations_page.dart';
-import 'package:raheeq_main/pages/home/pages/app_settings_page.dart';
+import 'package:raheeq_main/l10n/app_localizations.dart';
 
 class ProfileTab extends StatefulWidget {
   const ProfileTab({super.key});
@@ -63,12 +63,12 @@ class _ProfileTabState extends State<ProfileTab> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: const Text("Logout"),
-          content: const Text("Are you sure you want to log out of Raheeq?"),
+          title: Text(AppLocalizations.of(context)!.logout),
+          content: Text(AppLocalizations.of(context)!.logout_confirmation),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context, false),
-              child: const Text("Cancel"),
+              child: Text(AppLocalizations.of(context)!.cancel),
             ),
             ElevatedButton(
               onPressed: () => Navigator.pop(context, true),
@@ -77,7 +77,7 @@ class _ProfileTabState extends State<ProfileTab> {
                 foregroundColor: Colors.white,
                 elevation: 0,
               ),
-              child: const Text("Logout"),
+              child: Text(AppLocalizations.of(context)!.logout),
             ),
           ],
         );
@@ -101,8 +101,8 @@ class _ProfileTabState extends State<ProfileTab> {
   @override
   Widget build(BuildContext context) {
     if (_currentUser == null) {
-      return const Scaffold(
-        body: Center(child: Text("No session found. Please log in.")),
+      return Scaffold(
+        body: Center(child: Text(AppLocalizations.of(context)!.no_session)),
       );
     }
     return Scaffold(
@@ -113,265 +113,294 @@ class _ProfileTabState extends State<ProfileTab> {
             key: const ValueKey('content'),
             physics: const ClampingScrollPhysics(),
             child: Column(
+              children: [
+                // Scrollable Header mimicking the original AppBar
+                Container(
+                  width: double.infinity,
+                  color: const Color(0x4D91E3FE),
+                  padding: const EdgeInsets.fromLTRB(16, 60, 16, 20),
+                  child: Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        // Scrollable Header mimicking the original AppBar
-                        Container(
-                          width: double.infinity,
-                          color: const Color(0x4D91E3FE),
-                          padding: const EdgeInsets.fromLTRB(16, 60, 16, 20),
-                          child: Center(
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Text(
-                                  "Profile",
-                                  style: TextStyle(
-                                    fontSize: 22,
-                                    fontWeight: FontWeight.w700,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                                const SizedBox(height: 2),
-                                const Text(
-                                  "Manage your account settings",
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.w400,
-                                    color: AppColors.headersubtitlecolor,
-                                  ),
-                                ),
-                              ],
-                            ),
+                        Text(
+                          AppLocalizations.of(context)!.profile,
+                          style: const TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.w700,
+                            color: Colors.black,
                           ),
                         ),
-
-                        // Rounded gray sheet containing all sections
-                        Container(
-                          width: double.infinity,
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.only(
-                              topLeft: Radius.circular(30),
-                              topRight: Radius.circular(30),
-                            ),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 24),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const SizedBox(height: 16),
-                                _buildInfoCard(),
-                                const SizedBox(height: 16),
-                                _buildSection("Account", [
-                                  _buildMenuTile(
-                                    icon: Icons.person_outline_rounded,
-                                    title: "Personal Information",
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              const MyProfileScreen(),
-                                        ),
-                                      ).then((_) {
-                                        // Refresh user info when returning from subpage
-                                        if (mounted) {
-                                          setState(() {
-                                            _currentUser = AuthStorage.user;
-                                          });
-                                        }
-                                      });
-                                    },
-                                  ),
-                                  _buildMenuTile(
-                                    icon: Icons.favorite_border_rounded,
-                                    title: "Saved Mosques",
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              const SavedMosquesPage(),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                  _buildMenuTile(
-                                    icon: Icons.cached_rounded,
-                                    title: "Recurring Donations",
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => const RecurringDonationsPage(),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                  _buildMenuTile(
-                                    icon: Icons.description_outlined,
-                                    title: "Tax Receipts",
-                                    onTap: () {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            "Tax Reciepts page coming soon",
-                                          ),
-                                          duration: Duration(seconds: 1),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ]),
-                                const SizedBox(height: 16),
-
-                                _buildSection("Payment & orders", [
-                                  _buildMenuTile(
-                                    icon: Icons.account_balance_wallet_outlined,
-                                    title: "My Wallet",
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => const MyWalletPage(),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                  _buildMenuTile(
-                                    icon: Icons.payment_outlined,
-                                    title: "Payment Methods",
-                                    onTap: () {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            "Redirecting to My Payment Methods...",
-                                          ),
-                                          duration: Duration(seconds: 1),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                  _buildMenuTile(
-                                    icon: Symbols.package_2,
-                                    title: "Order History",
-                                    onTap: () {
-                                      HomeScreen.switchTabNotifier.value = 1;
-                                    },
-                                  ),
-                                ]),
-                                const SizedBox(height: 16),
-
-                                _buildSection("Settings", [
-                                  _buildMenuTile(
-                                    icon: Icons.notifications_outlined,
-                                    title: "Notifications",
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => const NotificationsPage(),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                  _buildMenuTile(
-                                    icon: Icons.shield_outlined,
-                                    title: "Terms and Conditions",
-                                    onTap: () {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            "Redirecting to Terms and Conditions...",
-                                          ),
-                                          duration: Duration(seconds: 1),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                  _buildMenuTile(
-                                    icon: Icons.settings_outlined,
-                                    title: "App Settings",
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => const AppSettingsPage(),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ]),
-                                const SizedBox(height: 16),
-
-                                _buildSection("Support", [
-                                  _buildMenuTile(
-                                    icon: Icons.help_outline,
-                                    title: "Help Center",
-                                    onTap: () {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            "Help Center page coming soon",
-                                          ),
-                                          duration: Duration(seconds: 1),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                  _buildMenuTile(
-                                    icon: Icons.phone_outlined,
-                                    title: "Contact Us",
-                                    onTap: () {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        const SnackBar(
-                                          content: Text(
-                                            "Contact us page coming soon",
-                                          ),
-                                          duration: Duration(seconds: 1),
-                                        ),
-                                      );
-                                    },
-                                  ),
-                                ]),
-
-                                const SizedBox(height: 16),
-
-                                SizedBox(
-                                  width: double.infinity,
-                                  child: ElevatedButton(
-                                    onPressed: _logout,
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: AppColors.buttonBlueDark,
-                                      foregroundColor: Colors.white,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(25),
-                                      ),
-                                      fixedSize: Size(double.infinity, 50),
-                                    ),
-
-                                    child: Text("Log Out"),
-                                  ),
-                                ),
-                                const SizedBox(height: 150),
-                              ],
-                            ),
+                        const SizedBox(height: 2),
+                        Text(
+                          AppLocalizations.of(context)!.manage_account_settings,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w400,
+                            color: AppColors.headersubtitlecolor,
                           ),
                         ),
                       ],
                     ),
                   ),
+                ),
+
+                // Rounded gray sheet containing all sections
+                Container(
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const SizedBox(height: 16),
+                        _buildInfoCard(),
+                        const SizedBox(height: 16),
+                        _buildSection(
+                          AppLocalizations.of(context)!.account_section,
+                          [
+                            _buildMenuTile(
+                              icon: Icons.person_outline_rounded,
+                              title: AppLocalizations.of(
+                                context,
+                              )!.personal_information,
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const MyProfileScreen(),
+                                  ),
+                                ).then((_) {
+                                  // Refresh user info when returning from subpage
+                                  if (mounted) {
+                                    setState(() {
+                                      _currentUser = AuthStorage.user;
+                                    });
+                                  }
+                                });
+                              },
+                            ),
+                            _buildMenuTile(
+                              icon: Icons.favorite_border_rounded,
+                              title: AppLocalizations.of(
+                                context,
+                              )!.saved_mosques,
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const SavedMosquesPage(),
+                                  ),
+                                );
+                              },
+                            ),
+                            _buildMenuTile(
+                              icon: Icons.cached_rounded,
+                              title: AppLocalizations.of(
+                                context,
+                              )!.recurring_donations,
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const RecurringDonationsPage(),
+                                  ),
+                                );
+                              },
+                            ),
+                            _buildMenuTile(
+                              icon: Icons.description_outlined,
+                              title: AppLocalizations.of(context)!.tax_receipts,
+                              onTap: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.feature_coming_soon,
+                                    ),
+                                    duration: Duration(seconds: 1),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+
+                        _buildSection(
+                          AppLocalizations.of(context)!.payment_orders_section,
+                          [
+                            _buildMenuTile(
+                              icon: Icons.account_balance_wallet_outlined,
+                              title: AppLocalizations.of(context)!.my_wallet,
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const MyWalletPage(),
+                                  ),
+                                );
+                              },
+                            ),
+                            _buildMenuTile(
+                              icon: Icons.payment_outlined,
+                              title: AppLocalizations.of(
+                                context,
+                              )!.payment_methods,
+                              onTap: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.redirecting_payment_methods,
+                                    ),
+                                    duration: Duration(seconds: 1),
+                                  ),
+                                );
+                              },
+                            ),
+                            _buildMenuTile(
+                              icon: Symbols.package_2,
+                              title: AppLocalizations.of(
+                                context,
+                              )!.order_history,
+                              onTap: () {
+                                HomeScreen.switchTabNotifier.value = 1;
+                              },
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+
+                        _buildSection(
+                          AppLocalizations.of(context)!.settings_section,
+                          [
+                            _buildMenuTile(
+                              icon: Icons.notifications_outlined,
+                              title: AppLocalizations.of(
+                                context,
+                              )!.notifications,
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const NotificationsPage(),
+                                  ),
+                                );
+                              },
+                            ),
+                            _buildMenuTile(
+                              icon: Icons.shield_outlined,
+                              title: AppLocalizations.of(
+                                context,
+                              )!.terms_conditions,
+                              onTap: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.redirecting_terms,
+                                    ),
+                                    duration: Duration(seconds: 1),
+                                  ),
+                                );
+                              },
+                            ),
+                            _buildMenuTile(
+                              icon: Icons.settings_outlined,
+                              title: AppLocalizations.of(context)!.app_settings,
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        const AppSettingsPage(),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 16),
+
+                        _buildSection(
+                          AppLocalizations.of(context)!.support_section,
+                          [
+                            _buildMenuTile(
+                              icon: Icons.help_outline,
+                              title: AppLocalizations.of(context)!.help_center,
+                              onTap: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.feature_coming_soon,
+                                    ),
+                                    duration: Duration(seconds: 1),
+                                  ),
+                                );
+                              },
+                            ),
+                            _buildMenuTile(
+                              icon: Icons.phone_outlined,
+                              title: AppLocalizations.of(context)!.contact_us,
+                              onTap: () {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.feature_coming_soon,
+                                    ),
+                                    duration: Duration(seconds: 1),
+                                  ),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
+
+                        const SizedBox(height: 16),
+
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: _logout,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.buttonBlueDark,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(25),
+                              ),
+                              fixedSize: Size(double.infinity, 50),
+                            ),
+
+                            child: Text(AppLocalizations.of(context)!.logout),
+                          ),
+                        ),
+                        const SizedBox(height: 150),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -494,9 +523,18 @@ class _ProfileTabState extends State<ProfileTab> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _buildInfoCardItem("24", "Donations"),
-                _buildInfoCardItem("8", "Mosques"),
-                _buildInfoCardItem("2.4K", "People"),
+                _buildInfoCardItem(
+                  "24",
+                  AppLocalizations.of(context)!.donations_label,
+                ),
+                _buildInfoCardItem(
+                  "8",
+                  AppLocalizations.of(context)!.mosques_label,
+                ),
+                _buildInfoCardItem(
+                  "2.4K",
+                  AppLocalizations.of(context)!.people_label,
+                ),
               ],
             ),
           ],

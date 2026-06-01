@@ -11,6 +11,7 @@ import '../../../models/meqat_mosque.dart';
 import '../../../models/orphanage.dart';
 import '../../../models/place.dart';
 import '../../../utils/colors.dart';
+import 'package:raheeq_main/l10n/app_localizations.dart';
 
 class SpecificMosquePage extends StatefulWidget {
   final String slug;
@@ -119,7 +120,11 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
           }
         });
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to update favorite.')),
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)!.failed_to_update_favorite,
+            ),
+          ),
         );
       }
     }
@@ -522,7 +527,7 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
                 ),
               ),
             ),
-            if (true)
+            if (isHighNeed)
               Positioned(
                 top: 15,
                 right: isAr ? null : 10,
@@ -649,7 +654,7 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
                     vertical: 8,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.buttonBlue.withOpacity(0.1),
+                    color: AppColors.buttonBlue.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(color: AppColors.buttonBlue),
                   ),

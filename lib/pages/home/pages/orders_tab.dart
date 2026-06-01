@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/utils/colors.dart';
+import 'package:raheeq_main/l10n/app_localizations.dart';
 
 class OrdersTab extends StatelessWidget {
   const OrdersTab({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final isAr = Localizations.localeOf(context).languageCode == 'ar';
-
     return DefaultTabController(
       length: 3,
       child: Column(
@@ -42,7 +41,7 @@ class OrdersTab extends StatelessWidget {
                   Tab(
                     child: Center(
                       child: Text(
-                        isAr ? 'طلبات جديدة' : 'New Orders',
+                        AppLocalizations.of(context)!.new_orders,
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -50,7 +49,7 @@ class OrdersTab extends StatelessWidget {
                   Tab(
                     child: Center(
                       child: Text(
-                        isAr ? 'جاري التوصيل' : 'Out for Delivery',
+                        AppLocalizations.of(context)!.out_for_delivery,
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -58,7 +57,7 @@ class OrdersTab extends StatelessWidget {
                   Tab(
                     child: Center(
                       child: Text(
-                        isAr ? 'تم التوصيل' : 'Delivered',
+                        AppLocalizations.of(context)!.delivered,
                         textAlign: TextAlign.center,
                       ),
                     ),
@@ -71,10 +70,9 @@ class OrdersTab extends StatelessWidget {
           Expanded(
             child: TabBarView(
               children: [
-                Center(child: Text("Orders will be live soon...")),
-                Center(child: Text("Orders will be live soon...")),
-
-                Center(child: Text("Orders will be live soon...")),
+                Center(child: Text(AppLocalizations.of(context)!.orders_live_soon)),
+                Center(child: Text(AppLocalizations.of(context)!.orders_live_soon)),
+                Center(child: Text(AppLocalizations.of(context)!.orders_live_soon)),
 
                 // Center(
                 //   child: Text(

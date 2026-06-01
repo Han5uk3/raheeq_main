@@ -3,6 +3,7 @@ import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:raheeq_main/models/order_item.dart';
 import 'package:raheeq_main/models/product.dart';
 import 'package:raheeq_main/utils/colors.dart';
+import 'package:raheeq_main/l10n/app_localizations.dart';
 
 class ProductSelectionPage extends StatefulWidget {
   final OrderCategoryState orderState;
@@ -21,7 +22,7 @@ class ProductSelectionPage extends StatefulWidget {
 class _ProductSelectionPageState extends State<ProductSelectionPage> {
   // Map of productId to SelectedProduct
   late Map<String, SelectedProduct> _selections;
-  
+
   @override
   void initState() {
     super.initState();
@@ -43,7 +44,10 @@ class _ProductSelectionPageState extends State<ProductSelectionPage> {
         if (_selections.containsKey(product.id)) {
           _selections[product.id]!.quantity = qty;
         } else {
-          _selections[product.id] = SelectedProduct(product: product, quantity: qty);
+          _selections[product.id] = SelectedProduct(
+            product: product,
+            quantity: qty,
+          );
         }
       }
     });
@@ -67,7 +71,9 @@ class _ProductSelectionPageState extends State<ProductSelectionPage> {
   Widget build(BuildContext context) {
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
     final title = widget.orderState.categoryItem.category.localizedLabel(isAr);
-    final subtitle = isAr ? 'تحديد الكميات والملاحظات' : 'Select quantities and notes';
+    final subtitle = isAr
+        ? 'تحديد الكميات والملاحظات'
+        : 'Select quantities and notes';
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -84,57 +90,61 @@ class _ProductSelectionPageState extends State<ProductSelectionPage> {
           Expanded(
             child: Container(
               color: const Color(0x4D91E3FE),
-              child: Container(
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(30),
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: ListView.separated(
-                        padding: const EdgeInsets.all(24),
-                        itemCount: widget.availableProducts.length,
-                        separatorBuilder: (_, __) => const SizedBox(height: 16),
-                        itemBuilder: (context, index) {
-                          final product = widget.availableProducts[index];
-                          final selection = _selections[product.id];
-                          final currentQty = selection?.quantity ?? 0;
 
-                          return _buildProductCard(product, currentQty, selection?.notes ?? '', isAr);
-                        },
-                      ),
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(30),
+                  topRight: Radius.circular(30),
+                ),
+              ),
+              child: Column(
+                children: [
+                  Expanded(
+                    child: ListView.separated(
+                      padding: const EdgeInsets.all(24),
+                      itemCount: widget.availableProducts.length,
+                      separatorBuilder: (_, _) => const SizedBox(height: 16),
+                      itemBuilder: (context, index) {
+                        final product = widget.availableProducts[index];
+                        final selection = _selections[product.id];
+                        final currentQty = selection?.quantity ?? 0;
+
+                        return _buildProductCard(
+                          product,
+                          currentQty,
+                          selection?.notes ?? '',
+                          isAr,
+                        );
+                      },
                     ),
-                    Padding(
-                      padding: const EdgeInsets.all(24.0),
-                      child: SizedBox(
-                        width: double.infinity,
-                        height: 56,
-                        child: ElevatedButton(
-                          onPressed: _saveAndReturn,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.buttonBlueDark,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(28),
-                            ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: SizedBox(
+                      width: double.infinity,
+                      height: 56,
+                      child: ElevatedButton(
+                        onPressed: _saveAndReturn,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.buttonBlueDark,
+                          foregroundColor: Colors.white,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(28),
                           ),
-                          child: Text(
-                            isAr ? 'حفظ والعودة' : 'Save & Return',
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
+                        ),
+                        child: Text(
+                          isAr ? 'حفظ والعودة' : 'Save & Return',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -143,7 +153,12 @@ class _ProductSelectionPageState extends State<ProductSelectionPage> {
     );
   }
 
-  Widget _buildProductCard(Product product, int currentQty, String notes, bool isAr) {
+  Widget _buildProductCard(
+    Product product,
+    int currentQty,
+    String notes,
+    bool isAr,
+  ) {
     final quantities = product.validQuantities;
 
     return Card(
@@ -229,7 +244,8 @@ class _ProductSelectionPageState extends State<ProductSelectionPage> {
                 // Custom Amount Input Trigger
                 ActionChip(
                   label: Text(isAr ? 'كمية مخصصة' : 'Custom'),
-                  onPressed: () => _showCustomQuantityDialog(product, currentQty, isAr),
+                  onPressed: () =>
+                      _showCustomQuantityDialog(product, currentQty, isAr),
                   backgroundColor: Colors.grey[200],
                 ),
               ],
@@ -237,17 +253,21 @@ class _ProductSelectionPageState extends State<ProductSelectionPage> {
             if (currentQty > 0) ...[
               const SizedBox(height: 16),
               TextField(
-                controller: TextEditingController(text: notes)..selection = TextSelection.collapsed(offset: notes.length),
+                controller: TextEditingController(text: notes)
+                  ..selection = TextSelection.collapsed(offset: notes.length),
                 decoration: InputDecoration(
                   labelText: isAr ? 'ملاحظات (اختياري)' : 'Notes (Optional)',
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 12,
+                  ),
                 ),
                 onChanged: (val) => _updateNotes(product, val),
               ),
-            ]
+            ],
           ],
         ),
       ),
@@ -255,7 +275,9 @@ class _ProductSelectionPageState extends State<ProductSelectionPage> {
   }
 
   void _showCustomQuantityDialog(Product product, int currentQty, bool isAr) {
-    final controller = TextEditingController(text: currentQty > 0 ? currentQty.toString() : '');
+    final controller = TextEditingController(
+      text: currentQty > 0 ? currentQty.toString() : '',
+    );
     showDialog(
       context: context,
       builder: (context) {
@@ -265,7 +287,7 @@ class _ProductSelectionPageState extends State<ProductSelectionPage> {
             controller: controller,
             keyboardType: TextInputType.number,
             decoration: InputDecoration(
-              hintText: 'e.g., 50',
+              hintText: AppLocalizations.of(context)!.example_quantity,
             ),
           ),
           actions: [

@@ -103,7 +103,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                   ),
                                 );
                               },
-                              activeColor: AppColors.buttonBlue,
+                              activeThumbColor: AppColors.buttonBlueDark,
                             ),
                           ],
                         ),
@@ -127,7 +127,8 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                           border: Border.all(color: const Color(0xFFEAEFF2)),
                           boxShadow: [
                             BoxShadow(
-                              color: Colors.black.withOpacity(0.05),
+                              color: Colors.grey.withValues(alpha: 0.2),
+                              spreadRadius: 1,
                               blurRadius: 10,
                               offset: const Offset(0, 4),
                             ),

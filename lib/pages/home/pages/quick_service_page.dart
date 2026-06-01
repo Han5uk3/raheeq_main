@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:raheeq_main/models/category.dart';
 import 'package:raheeq_main/models/product.dart';
 import 'package:raheeq_main/utils/colors.dart';
+import 'package:raheeq_main/l10n/app_localizations.dart';
 
 class QuickServicePage extends StatefulWidget {
   final Category category;
@@ -121,7 +122,7 @@ class _QuickServicePageState extends State<QuickServicePage>
     if (val == null || val < min) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Minimum quantity is $min'),
+          content: Text(AppLocalizations.of(context)!.minimum_quantity_is(min.toString())),
           backgroundColor: Colors.redAccent,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(

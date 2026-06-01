@@ -13,7 +13,6 @@ import 'package:raheeq_main/pages/authentication/registration.dart';
 import 'package:raheeq_main/pages/home/home_screen.dart';
 import 'package:raheeq_main/storage/auth_storage.dart';
 import 'package:raheeq_main/api/apis.dart';
-import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -99,8 +98,8 @@ class _LoginState extends State<Login> {
                     size: 20,
                   ),
                 ),
-                title: const Text("guest_user@suqyarahiq.com"),
-                subtitle: const Text("Guest User"),
+                title: Text(AppLocalizations.of(context)!.guest_user_email),
+                subtitle: Text(AppLocalizations.of(context)!.guest_user),
                 onTap: () async {
                   Navigator.pop(context); // Close sheet
                   await _authenticateSocial(
@@ -145,9 +144,11 @@ class _LoginState extends State<Login> {
       if (response.statusCode == 200 && response.data['success'] == true) {
         final resData = response.data['data'];
         if (resData['userExists'] == true) {
-          ScaffoldMessenger.of(
-            context,
-          ).showSnackBar(const SnackBar(content: Text('Login Successful')));
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.login_successful),
+            ),
+          );
           Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(builder: (context) => const HomeScreen()),
@@ -179,9 +180,11 @@ class _LoginState extends State<Login> {
     } catch (e) {
       if (!mounted) return;
       Navigator.pop(context); // Close loading
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(AppLocalizations.of(context)!.error_msg(e.toString())),
+        ),
+      );
     }
   }
 
@@ -452,7 +455,11 @@ class _LoginState extends State<Login> {
                               } catch (e) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text('Error: ${e.toString()}'),
+                                    content: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.error_msg(e.toString()),
+                                    ),
                                     backgroundColor: Colors.redAccent,
                                   ),
                                 );

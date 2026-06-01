@@ -10,6 +10,7 @@ import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/pages/home/home_screen.dart';
 import 'package:raheeq_main/pages/home/pages/home_tab.dart';
+import 'package:raheeq_main/l10n/app_localizations.dart';
 
 class SavedMosquesPage extends StatefulWidget {
   const SavedMosquesPage({super.key});
@@ -22,7 +23,7 @@ class _SavedMosquesPageState extends State<SavedMosquesPage> {
   final ApiService _apiService = ApiService();
   bool _isLoading = true;
   List<Place> _savedMosques = [];
-  List<Place> _selectedItemsList = [];
+  final List<Place> _selectedItemsList = [];
   String? _errorMessage;
 
   // A synthetic Category representing mosques for the order queue
@@ -78,7 +79,7 @@ class _SavedMosquesPageState extends State<SavedMosquesPage> {
       await _apiService.deleteFavoriteMosque(item.id);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("${item.name} removed from saved mosques.")),
+          SnackBar(content: Text(AppLocalizations.of(context)!.removed_from_saved(item.name))),
         );
       }
     } catch (e) {
@@ -86,7 +87,7 @@ class _SavedMosquesPageState extends State<SavedMosquesPage> {
       _fetchSavedMosques();
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Failed to remove mosque.")),
+          SnackBar(content: Text(AppLocalizations.of(context)!.failed_to_remove_mosque)),
         );
       }
     }
@@ -308,7 +309,7 @@ class _SavedMosquesPageState extends State<SavedMosquesPage> {
                   margin: const EdgeInsets.only(right: 8),
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
-                    color: AppColors.buttonBlue.withOpacity(0.1),
+                    color: AppColors.buttonBlue.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(color: AppColors.buttonBlue),
                   ),

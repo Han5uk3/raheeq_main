@@ -1293,7 +1293,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                           ],
                                         ),
                                       );
-                                    }).toList(),
+                                    }),
                                     _buildSubscriptionDetails(isAr),
                                     const Divider(height: 16),
                                     _buildPriceRow(

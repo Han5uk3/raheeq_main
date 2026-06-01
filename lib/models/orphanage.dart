@@ -2,14 +2,22 @@ import 'mosque.dart';
 import 'place.dart';
 
 class Orphanage implements Place {
+  @override
   final String id;
+  @override
   final String name;
+  @override
   final String nameAr;
   final String type;
+
   final String? zoneId;
+  @override
   final double latitude;
+  @override
   final double longitude;
+  @override
   final String address;
+  @override
   final String? image;
   final String? about;
   final String? aboutAr;
@@ -56,12 +64,18 @@ class Orphanage implements Place {
       isHighNeed: json['isHighNeed'] as bool? ?? false,
       capacity: json['capacity'] as int?,
       isActive: json['isActive'] as bool? ?? true,
-      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt']) : null,
-      updatedAt: json['updatedAt'] != null ? DateTime.tryParse(json['updatedAt']) : null,
-      zone: json['zone'] != null ? Zone.fromJson(json['zone'] as Map<String, dynamic>) : null,
+      createdAt: json['createdAt'] != null
+          ? DateTime.tryParse(json['createdAt'])
+          : null,
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.tryParse(json['updatedAt'])
+          : null,
+      zone: json['zone'] != null
+          ? Zone.fromJson(json['zone'] as Map<String, dynamic>)
+          : null,
     );
   }
-
+  @override
   String localizedName(bool isAr) {
     return isAr ? nameAr : name;
   }

@@ -20,12 +20,14 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
 
-  final List<Widget> _pages = [
-    const HomeTab(),
-    const OrdersTab(),
-    const Center(child: Text("Impact Page", style: TextStyle(fontSize: 24))),
-    const ProfileTab(),
-  ];
+  List<Widget> _buildPages(BuildContext context) {
+    return [
+      const HomeTab(),
+      const OrdersTab(),
+      Center(child: Text(AppLocalizations.of(context)!.impact_page, style: const TextStyle(fontSize: 24))),
+      const ProfileTab(),
+    ];
+  }
 
   @override
   void initState() {
@@ -49,27 +51,27 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  String _getAppBarTitle() {
+  String _getAppBarTitle(BuildContext context) {
     switch (_currentIndex) {
       case 1:
-        return "My Orders";
+        return AppLocalizations.of(context)!.my_orders;
       case 2:
-        return "Impact";
+        return AppLocalizations.of(context)!.impact_page;
       case 3:
-        return "Profile";
+        return AppLocalizations.of(context)!.profile;
       default:
-        return "Raheeq";
+        return AppLocalizations.of(context)!.raheeq;
     }
   }
 
-  String _getAppBarSubtitle() {
+  String _getAppBarSubtitle(BuildContext context) {
     switch (_currentIndex) {
       case 1:
-        return "Track your mosque donations";
+        return AppLocalizations.of(context)!.track_mosque_donations;
       case 2:
-        return "Your ongoing charity rewards";
+        return AppLocalizations.of(context)!.ongoing_charity_rewards;
       case 3:
-        return "Manage your account settings";
+        return AppLocalizations.of(context)!.manage_account_settings;
       default:
         return "";
     }
@@ -83,8 +85,8 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: (_currentIndex == 0 || _currentIndex == 3)
           ? null
           : CustomAppBar(
-              title: _getAppBarTitle(),
-              subtitle: _getAppBarSubtitle(),
+              title: _getAppBarTitle(context),
+              subtitle: _getAppBarSubtitle(context),
               centerTitle: true,
             ),
       body: AnimatedSwitcher(
@@ -113,13 +115,13 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
           child: (_currentIndex == 0 || _currentIndex == 3)
-              ? _pages[_currentIndex]
+              ? _buildPages(context)[_currentIndex]
               : ClipRRect(
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(30),
                     topRight: Radius.circular(30),
                   ),
-                  child: _pages[_currentIndex],
+                  child: _buildPages(context)[_currentIndex],
                 ),
         ),
       ),

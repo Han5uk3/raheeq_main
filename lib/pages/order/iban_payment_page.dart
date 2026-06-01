@@ -241,7 +241,7 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
                           ],
                         ),
                       );
-                    }).toList(),
+                    }),
                   const SizedBox(height: 32),
                   Text(
                     widget.isAr ? '1. رقم العملية:' : '1. Transaction Number :',

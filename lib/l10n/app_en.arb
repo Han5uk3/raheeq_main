@@ -29,8 +29,103 @@
   "google_signin": "Sign in with Google",
   "apple_signin": "Sign in with Apple",
   "search": "Search",
-  "home":"Home",
-  "orders":"Orders",
-  "impact":"Impact",
-  "profile":"Profile"
+  "home": "Home",
+  "orders": "Orders",
+  "impact": "Impact",
+  "profile": "Profile",
+  "logout": "Logout",
+  "logout_confirmation": "Are you sure you want to log out of Raheeq?",
+  "cancel": "Cancel",
+  "no_session": "No session found. Please log in.",
+  "personal_information": "Personal Information",
+  "saved_mosques": "Saved Mosques",
+  "recurring_donations": "Recurring Donations",
+  "tax_receipts": "Tax Receipts",
+  "my_wallet": "My Wallet",
+  "payment_methods": "Payment Methods",
+  "order_history": "Order History",
+  "notifications": "Notifications",
+  "app_settings": "App Settings",
+  "help_center": "Help Center",
+  "contact_us": "Contact Us",
+  "camera": "Camera",
+  "gallery": "Gallery",
+  "first_name": "First Name",
+  "last_name": "Last Name",
+  "email_address": "Email Address",
+  "phone_number": "Phone Number",
+  "profile_updated": "Profile updated successfully!",
+  "profile_pic_updated": "Profile picture updated successfully!",
+  "orders_live_soon": "Orders will be live soon...",
+  "impact_page": "Impact Page",
+  "no_products_selected": "No products selected",
+  "guest_user_email": "guest_user@suqyarahiq.com",
+  "guest_user": "Guest User",
+  "login_successful": "Login Successful",
+  "enter_valid_otp": "Please enter valid OTP",
+  "removed_from_saved": "{name} removed from saved mosques.",
+  "@removed_from_saved": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "failed_to_remove_mosque": "Failed to remove mosque.",
+  "failed_to_update_favorite": "Failed to update favorite.",
+  "failed_to_load_wallet": "Failed to load wallet data.",
+  "minimum_quantity_is": "Minimum quantity is {min}",
+  "@minimum_quantity_is": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  },
+  "example_quantity": "e.g., 50",
+  "error_msg": "Error: {error}",
+  "@error_msg": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "failed_to_pick_image": "Failed to pick image: {error}",
+  "@failed_to_pick_image": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "failed_upload_simulation": "Failed upload simulation: {error}",
+  "@failed_upload_simulation": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "track_mosque_donations": "Track your mosque donations",
+  "ongoing_charity_rewards": "Your ongoing charity rewards",
+  "manage_account_settings": "Manage your account settings",
+  "raheeq": "Raheeq",
+  "my_orders": "My Orders",
+  "new_orders": "New Orders",
+  "out_for_delivery": "Out for Delivery",
+  "delivered": "Delivered",
+  "transaction_history": "Transaction History",
+  "no_transactions_found": "No transactions found.",
+  "current_balance": "Current Balance",
+  "account_section": "Account",
+  "payment_orders_section": "Payment & orders",
+  "settings_section": "Settings",
+  "support_section": "Support",
+  "feature_coming_soon": "This feature is coming soon",
+  "redirecting_payment_methods": "Redirecting to My Payment Methods...",
+  "redirecting_terms": "Redirecting to Terms and Conditions...",
+  "donations_label": "Donations",
+  "mosques_label": "Mosques",
+  "people_label": "People"
 }

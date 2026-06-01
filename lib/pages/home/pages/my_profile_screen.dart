@@ -9,6 +9,7 @@ import 'package:raheeq_main/models/user.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
+import 'package:raheeq_main/l10n/app_localizations.dart';
 
 class MyProfileScreen extends StatefulWidget {
   const MyProfileScreen({super.key});
@@ -109,8 +110,8 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
       if (response.statusCode == 200 && response.data['success'] == true) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("Profile updated successfully!"),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.profile_updated),
               backgroundColor: Colors.green,
               behavior: SnackBarBehavior.floating,
             ),
@@ -136,7 +137,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Error: ${e.toString()}"),
+            content: Text(
+              AppLocalizations.of(context)!.error_msg(e.toString()),
+            ),
             backgroundColor: Colors.redAccent,
           ),
         );
@@ -153,16 +156,26 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   Future<void> _pickAvatar(ImageSource source) async {
     try {
       final picker = ImagePicker();
-      final pickedFile = await picker.pickImage(source: source, imageQuality: 80);
+      final pickedFile = await picker.pickImage(
+        source: source,
+        imageQuality: 80,
+      );
       if (pickedFile != null) {
         await _updateAvatar(pickedFile.path);
       }
     } catch (e, stackTrace) {
-      log('Error picking image: $e', name: 'Profile', error: e, stackTrace: stackTrace);
+      log(
+        'Error picking image: $e',
+        name: 'Profile',
+        error: e,
+        stackTrace: stackTrace,
+      );
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Failed to pick image: ${e.toString()}"),
+            content: Text(
+              AppLocalizations.of(context)!.failed_to_pick_image(e.toString()),
+            ),
             backgroundColor: Colors.redAccent,
           ),
         );
@@ -206,7 +219,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                 children: [
                   _buildAvatarOption(
                     icon: Icons.camera_alt_outlined,
-                    label: "Camera",
+                    label: AppLocalizations.of(context)!.camera,
                     onTap: () {
                       Navigator.pop(context);
                       _pickAvatar(ImageSource.camera);
@@ -214,7 +227,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                   ),
                   _buildAvatarOption(
                     icon: Icons.photo_library_outlined,
-                    label: "Gallery",
+                    label: AppLocalizations.of(context)!.gallery,
                     onTap: () {
                       Navigator.pop(context);
                       _pickAvatar(ImageSource.gallery);
@@ -270,8 +283,8 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
       if (response.statusCode == 200 && response.data['success'] == true) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(
-              content: Text("Profile picture updated successfully!"),
+            SnackBar(
+              content: Text(AppLocalizations.of(context)!.profile_pic_updated),
               backgroundColor: Colors.green,
               behavior: SnackBarBehavior.floating,
             ),
@@ -285,7 +298,11 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text("Failed upload simulation: ${e.toString()}"),
+            content: Text(
+              AppLocalizations.of(
+                context,
+              )!.failed_upload_simulation(e.toString()),
+            ),
             backgroundColor: Colors.redAccent,
           ),
         );
@@ -302,8 +319,8 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   @override
   Widget build(BuildContext context) {
     if (_currentUser == null) {
-      return const Scaffold(
-        body: Center(child: Text("No session found. Please log in.")),
+      return Scaffold(
+        body: Center(child: Text(AppLocalizations.of(context)!.no_session)),
       );
     }
 
@@ -312,83 +329,81 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: CustomAppBar(
-        title: "Personal Information",
+        title: AppLocalizations.of(context)!.personal_information,
         isStartAligned: true,
         showBackButton: true,
         height: 120,
         actions: [
-                    Padding(
-                      padding: const EdgeInsets.all(8.0),
-                      child: Container(
-                        width: 40,
-                        height: 40,
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          shape: BoxShape.circle,
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black12,
-                              blurRadius: 4,
-                              offset: Offset(0, 2),
-                            ),
-                          ],
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Container(
+              width: 40,
+              height: 40,
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 4,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+              ),
+              child: Center(
+                child: _isSaving
+                    ? SizedBox(
+                        width: 16,
+                        height: 16,
+                        child: WaterLoadingIndicator(size: 30),
+                      )
+                    : IconButton(
+                        icon: Icon(
+                          _isEditing
+                              ? Symbols.save_sharp
+                              : Symbols.edit_square_sharp,
+                          color: Colors.black,
+                          size: 20,
                         ),
-                        child: Center(
-                          child: _isSaving
-                              ? SizedBox(
-                                  width: 16,
-                                  height: 16,
-                                  child: WaterLoadingIndicator(size: 30),
-                                )
-                              : IconButton(
-                                  icon: Icon(
-                                    _isEditing
-                                        ? Symbols.save_sharp
-                                        : Symbols.edit_square_sharp,
-                                    color: Colors.black,
-                                    size: 20,
-                                  ),
-                                  onPressed: () {
-                                    if (_isEditing) {
-                                      _saveProfileChanges();
-                                    } else {
-                                      setState(() {
-                                        _isEditing = true;
-                                      });
-                                    }
-                                  },
-                                  padding: EdgeInsets.zero,
-                                  constraints: const BoxConstraints(),
-                                ),
-                        ),
+                        onPressed: () {
+                          if (_isEditing) {
+                            _saveProfileChanges();
+                          } else {
+                            setState(() {
+                              _isEditing = true;
+                            });
+                          }
+                        },
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
                       ),
-                    ),
-                    const SizedBox(width: 8),
-                  ],
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+        ],
       ),
       body: Stack(
         children: [
           Stack(
-              children: [
-                Container(
-                  height: 130,
-                  decoration: const BoxDecoration(
-                    color: Color(0x4D91E3FE),
+            children: [
+              Container(
+                height: 130,
+                decoration: const BoxDecoration(color: Color(0x4D91E3FE)),
+              ),
+              Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFF8FAFB),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(30),
+                    topRight: Radius.circular(30),
                   ),
                 ),
-                Container(
-                  width: double.infinity,
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFF8FAFB),
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
-                  ),
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        // Upper blue header block with avatar and details
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      // Upper blue header block with avatar and details
                       Card(
                         margin: EdgeInsets.all(24),
                         color: Colors.white,
@@ -489,28 +504,36 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                                 children: [
                                   _buildTextField(
                                     controller: _firstNameController,
-                                    label: "First Name",
+                                    label: AppLocalizations.of(
+                                      context,
+                                    )!.first_name,
                                     hint: "Enter your first name",
                                     enabled: _isEditing,
                                   ),
                                   const SizedBox(height: 16),
                                   _buildTextField(
                                     controller: _lastNameController,
-                                    label: "Last Name",
+                                    label: AppLocalizations.of(
+                                      context,
+                                    )!.last_name,
                                     hint: "Enter your last name",
                                     enabled: _isEditing,
                                   ),
                                   const SizedBox(height: 16),
                                   _buildTextField(
                                     controller: _emailController,
-                                    label: "Email Address",
+                                    label: AppLocalizations.of(
+                                      context,
+                                    )!.email_address,
                                     hint: "Enter your email",
                                     enabled: false,
                                   ),
                                   const SizedBox(height: 16),
                                   _buildTextField(
                                     controller: _phoneController,
-                                    label: "Phone Number",
+                                    label: AppLocalizations.of(
+                                      context,
+                                    )!.phone_number,
                                     hint: "Enter your phone number",
                                     enabled: false,
                                   ),
@@ -523,12 +546,12 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                           ],
                         ),
                       ),
-                      ],
-                    ),
+                    ],
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
+          ),
           AnimatedSwitcher(
             duration: const Duration(milliseconds: 500),
             child: (_isLoading || _isSaving)

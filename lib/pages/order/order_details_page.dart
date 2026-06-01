@@ -12,6 +12,7 @@ import 'package:raheeq_main/models/checkout.dart';
 import 'dart:developer';
 import 'package:raheeq_main/pages/order/subscription_plan_selection_page.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
+import 'package:raheeq_main/l10n/app_localizations.dart';
 
 class ReviewOrderPage extends StatefulWidget {
   final List<OrderCategoryState> orderStates;
@@ -608,7 +609,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
               showBackButton: true,
               onBackTap: () => Navigator.pop(context),
             ),
-            const Expanded(child: Center(child: Text('No products selected'))),
+            Expanded(child: Center(child: Text(AppLocalizations.of(context)!.no_products_selected))),
           ],
         ),
       );

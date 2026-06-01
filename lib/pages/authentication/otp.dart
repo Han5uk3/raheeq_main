@@ -8,6 +8,7 @@ import 'package:raheeq_main/pages/authentication/registration.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/pages/home/home_screen.dart';
 import 'package:raheeq_main/storage/auth_storage.dart';
+import 'package:raheeq_main/l10n/app_localizations.dart';
 
 class OTP extends StatefulWidget {
   final String phoneNumber;
@@ -370,8 +371,8 @@ class _OTPState extends State<OTP> {
                                   .join();
                               if (otp.length < 6) {
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('Please enter valid OTP'),
+                                  SnackBar(
+                                    content: Text(AppLocalizations.of(context)!.enter_valid_otp),
                                   ),
                                 );
                                 return;
@@ -394,8 +395,8 @@ class _OTPState extends State<OTP> {
                                   if (data['userExists'] == true) {
                                     // User exists, login successful
                                     ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Login Successful'),
+                                      SnackBar(
+                                        content: Text(AppLocalizations.of(context)!.login_successful),
                                       ),
                                     );
                                     Navigator.pushAndRemoveUntil(
