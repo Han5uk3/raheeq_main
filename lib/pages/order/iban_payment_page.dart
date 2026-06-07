@@ -22,6 +22,7 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
   bool _isLoading = true;
   List<dynamic> _bankAccounts = [];
   File? _receiptImage;
+  String? _selectedBankAccountId;
 
   @override
   void initState() {
@@ -45,6 +46,9 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
                 int.tryParse(b['sortOrder']?.toString() ?? '0') ?? 0;
             return orderA.compareTo(orderB);
           });
+          if (_bankAccounts.isNotEmpty) {
+            _selectedBankAccountId = _bankAccounts.first['id']?.toString() ?? _bankAccounts.first['_id']?.toString();
+          }
           _isLoading = false;
         });
       }
@@ -71,11 +75,25 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
   }
 
   Future<void> _submitOrder() async {
+    if (_selectedBankAccountId == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            widget.isAr
+                ? 'الرجاء اختيار حساب بنكي'
+                : 'Please select a bank account',
+          ),
+        ),
+      );
+      return;
+    }
     if (_receiptImage == null && transactionController.text == '') {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            AppLocalizations.of(context)!.please_attach_the_transfer_receipt_and_enter_the_transaction_number,
+            AppLocalizations.of(
+              context,
+            )!.please_attach_the_transfer_receipt_and_enter_the_transaction_number,
           ),
         ),
       );
@@ -111,6 +129,7 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
     try {
       final response = await _apiService.createOrder(
         paymentMethod: 'IBAN',
+        ibanBankAccountId: _selectedBankAccountId,
         ibanReceipt: _receiptImage!.path,
       );
 
@@ -169,6 +188,13 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+                  const SizedBox(height: 4),
+                  Text(
+                    widget.isAr
+                        ? 'يرجى تحديد الحساب البنكي المخصص للتحويل الخاص بك.'
+                        : 'Please select the designated bank account for your transfer.',
+                    style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+                  ),
                   const SizedBox(height: 16),
                   if (_bankAccounts.isEmpty)
                     Text(
@@ -176,60 +202,76 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
                     )
                   else
                     ..._bankAccounts.map((account) {
-                      return Container(
-                        margin: const EdgeInsetsDirectional.only(bottom: 12),
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          border: Border.all(
-                            color: Colors.grey.shade300,
-                            width: 1,
+                      final accountId =
+                          account['id']?.toString() ??
+                          account['_id']?.toString();
+                      final isSelected = _selectedBankAccountId == accountId;
+
+                      return GestureDetector(
+                        onTap: () {
+                          setState(() {
+                            _selectedBankAccountId = accountId;
+                          });
+                        },
+                        child: Container(
+                          margin: const EdgeInsetsDirectional.only(bottom: 12),
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                              color: isSelected
+                                  ? AppColors.buttonBlueDark
+                                  : Colors.grey.shade300,
+                              width: isSelected ? 2 : 1,
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                            color: isSelected
+                                ? AppColors.buttonBlueDark.withOpacity(0.05)
+                                : const Color(0xFFF9F9F9),
                           ),
-                          borderRadius: BorderRadius.circular(12),
-                          color: const Color(0xFFF9F9F9),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Row(
-                              children: [
-                                if (account['logo'] != null) ...[
-                                  Image.network(
-                                    account['logo'],
-                                    height: 40,
-                                    width: 40,
-                                    errorBuilder: (_, __, ___) => const Icon(
-                                      Icons.account_balance,
-                                      size: 40,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  if (account['logo'] != null) ...[
+                                    Image.network(
+                                      account['logo'],
+                                      height: 40,
+                                      width: 40,
+                                      errorBuilder: (_, __, ___) => const Icon(
+                                        Icons.account_balance,
+                                        size: 40,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                  ],
+                                  Expanded(
+                                    child: Text(
+                                      (widget.isAr
+                                              ? account['nameAr']?.toString()
+                                              : account['name']?.toString()) ??
+                                          '',
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                        color: AppColors.buttonBlueDark,
+                                      ),
                                     ),
                                   ),
-                                  const SizedBox(width: 12),
                                 ],
-                                Expanded(
-                                  child: Text(
-                                    (widget.isAr
-                                            ? account['nameAr']?.toString()
-                                            : account['name']?.toString()) ??
-                                        '',
-                                    style: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                      color: AppColors.buttonBlueDark,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                            const SizedBox(height: 12),
-                            _buildDetailRow(
-                              AppLocalizations.of(context)!.account_number,
-                              account['accountNumber']?.toString() ?? '',
-                            ),
-                            const SizedBox(height: 8),
-                            _buildDetailRow(
-                              'IBAN:',
-                              account['ibanNumber']?.toString() ?? '',
-                            ),
-                          ],
+                              ),
+                              const SizedBox(height: 12),
+                              _buildDetailRow(
+                                AppLocalizations.of(context)!.account_number,
+                                account['accountNumber']?.toString() ?? '',
+                              ),
+                              const SizedBox(height: 8),
+                              _buildDetailRow(
+                                'IBAN:',
+                                account['ibanNumber']?.toString() ?? '',
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     }),
@@ -252,7 +294,9 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
                       controller: transactionController,
                       decoration: InputDecoration(
                         border: InputBorder.none,
-                        hintText: AppLocalizations.of(context)!.enter_transaction_number,
+                        hintText: AppLocalizations.of(
+                          context,
+                        )!.enter_transaction_number,
                       ),
                     ),
                   ),
@@ -296,7 +340,9 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  AppLocalizations.of(context)!.tap_to_select_image,
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.tap_to_select_image,
                                   style: const TextStyle(color: Colors.grey),
                                 ),
                               ],

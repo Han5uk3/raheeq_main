@@ -174,9 +174,9 @@ class _HomeTabState extends State<HomeTab> {
         if (unreadRes.statusCode == 200 && unreadRes.data['success'] == true) {
           final countData = unreadRes.data['data'];
           if (countData != null && countData['count'] != null) {
-             _unreadNotificationsCount = countData['count'] as int;
+            _unreadNotificationsCount = countData['count'] as int;
           } else if (countData is int) {
-             _unreadNotificationsCount = countData;
+            _unreadNotificationsCount = countData;
           }
         }
       } catch (e) {
@@ -324,20 +324,26 @@ class _HomeTabState extends State<HomeTab> {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) => const NotificationsPage(),
+                                          builder: (context) =>
+                                              const NotificationsPage(),
                                         ),
                                       ).then((_) {
                                         _fetchHomeData(); // Refresh badge on return
                                       });
                                     },
                                     customBorder: const CircleBorder(),
-                                    child: Badge(
-                                      isLabelVisible: _unreadNotificationsCount > 0,
-                                      label: Text('$_unreadNotificationsCount'),
-                                      child: const Icon(
-                                        Icons.notifications_none_rounded,
-                                        color: AppColors.buttonBlueDark,
-                                        size: 20,
+                                    child: Center(
+                                      child: Badge(
+                                        isLabelVisible:
+                                            _unreadNotificationsCount > 0,
+                                        label: Text(
+                                          '$_unreadNotificationsCount',
+                                        ),
+                                        child: const Icon(
+                                          Icons.notifications_none_rounded,
+                                          color: AppColors.buttonBlueDark,
+                                          size: 20,
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -488,12 +494,13 @@ class _HomeTabState extends State<HomeTab> {
                                     .asMap()
                                     .entries
                                     .map((entry) {
-                                  return buildCampaignCard(
-                                    context,
-                                    entry.value,
-                                    entry.key,
-                                  );
-                                }).toList(),
+                                      return buildCampaignCard(
+                                        context,
+                                        entry.value,
+                                        entry.key,
+                                      );
+                                    })
+                                    .toList(),
                               ),
                             ),
 
@@ -536,10 +543,12 @@ class _HomeTabState extends State<HomeTab> {
           Positioned(
             left: 16,
             right: 16,
-            bottom: 130,
+            bottom: 116,
             child: BottomActionPill(
               titleWidget: Text(
-                isAr ? "محدد: ${_selectedItems.length} عناصر" : "Selected: ${_selectedItems.length} items",
+                isAr
+                    ? "محدد: ${_selectedItems.length} عناصر"
+                    : "Selected: ${_selectedItems.length} items",
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -830,7 +839,9 @@ class _HomeTabState extends State<HomeTab> {
               ),
               const SizedBox(height: 12),
               Text(
-                AppLocalizations.of(context)!.your_current_basket_will_be_cleared_and_you_will_be_moved_to_targetname,
+                AppLocalizations.of(
+                  context,
+                )!.your_current_basket_will_be_cleared_and_you_will_be_moved_to_targetname,
                 textAlign: TextAlign.start,
                 style: const TextStyle(
                   fontSize: 14,
@@ -1644,7 +1655,9 @@ class _HomeTabState extends State<HomeTab> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  AppLocalizations.of(context)!.view_status_and_delivery_details,
+                  AppLocalizations.of(
+                    context,
+                  )!.view_status_and_delivery_details,
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.white.withValues(alpha: 0.8),
@@ -2008,7 +2021,9 @@ class _HomeTabState extends State<HomeTab> {
               ),
               const SizedBox(height: 8),
               Text(
-                isAr ? "نحن نجهز إحصائيات الأثر الخاصة بك." : "We're preparing your impact statistics.",
+                isAr
+                    ? "نحن نجهز إحصائيات الأثر الخاصة بك."
+                    : "We're preparing your impact statistics.",
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
               ),

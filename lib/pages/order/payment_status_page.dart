@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:raheeq_main/pages/home/pages/home_tab.dart';
 import 'package:raheeq_main/utils/colors.dart';
+import 'package:raheeq_main/pages/home/home_screen.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 
 enum PaymentStatus { success, failed, pendingApproval }
@@ -48,7 +49,7 @@ class PaymentStatusPage extends StatelessWidget {
         lottieUrl =
             'https://lottie.host/b02cb06a-a827-4a7b-a2eb-45de4e0bf31c/zZ7Z7Z7Z7Z.json'; // Reusing success for pending
         title = AppLocalizations.of(context)!.pending_approval;
-        description = AppLocalizations.of(context)!.bank_transfer_receipt_received_awaiting_admin_approval;
+        description = isAr ? 'تم استلام طلبك، وسيتم التأكيد بعد التحقق من الدفع.' : 'Your order is placed, confirmation will be done after verification of payment.';
         color = Colors.orange;
         break;
     }
@@ -125,30 +126,90 @@ class PaymentStatusPage extends StatelessWidget {
                 ),
                 const SizedBox(height: 12),
               ],
-              ElevatedButton(
-                onPressed: () {
-                  if (status == PaymentStatus.success ||
-                      status == PaymentStatus.pendingApproval) {
-                    HomeTab.clearBasket();
-                  }
-                  Navigator.of(context).popUntil((route) => route.isFirst);
-                },
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.buttonBlueDark,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+              if (status == PaymentStatus.pendingApproval) ...[
+                Row(
+                  children: [
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          HomeTab.clearBasket();
+                          HomeScreen.switchTabNotifier.value = 1;
+                          Navigator.of(context).popUntil((route) => route.isFirst);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: AppColors.buttonBlueDark,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          side: const BorderSide(
+                            color: AppColors.buttonBlueDark,
+                            width: 1,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          isAr ? 'الطلبات' : 'Orders',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: ElevatedButton(
+                        onPressed: () {
+                          HomeTab.clearBasket();
+                          Navigator.of(context).popUntil((route) => route.isFirst);
+                        },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.buttonBlueDark,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        child: Text(
+                          AppLocalizations.of(context)!.back_to_home,
+                          textAlign: TextAlign.center,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ] else ...[
+                ElevatedButton(
+                  onPressed: () {
+                    if (status == PaymentStatus.success ||
+                        status == PaymentStatus.pendingApproval) {
+                      HomeTab.clearBasket();
+                    }
+                    Navigator.of(context).popUntil((route) => route.isFirst);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.buttonBlueDark,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: Text(
+                    AppLocalizations.of(context)!.back_to_home,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
                 ),
-                child: Text(
-                  AppLocalizations.of(context)!.back_to_home,
-                  style: const TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
+              ],
               const SizedBox(height: 24),
             ],
           ),

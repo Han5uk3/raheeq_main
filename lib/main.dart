@@ -6,6 +6,9 @@ import 'firebase_options.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/pages/splashScreen/splash.dart';
 import 'package:raheeq_main/storage/auth_storage.dart';
+import 'package:permission_handler/permission_handler.dart';
+
+import 'package:raheeq_main/services/notification_service.dart';
 
 final ValueNotifier<Locale> localeNotifier = ValueNotifier(const Locale('en'));
 
@@ -15,6 +18,12 @@ void main() async {
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );
+  
+  await Permission.notification.request();
+
+  // Initialize notification service
+  await NotificationService().init();
+  
   runApp(const MainApp());
 }
 
