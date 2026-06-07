@@ -25,6 +25,7 @@ class _ProfileTabState extends State<ProfileTab> {
   bool _isLoading = false;
   bool _isSaving = false; // Used for logout loading state
   User? _currentUser;
+  int _unreadNotificationsCount = 0;
 
   @override
   void initState() {
@@ -46,6 +47,27 @@ class _ProfileTabState extends State<ProfileTab> {
           setState(() {
             _currentUser = AuthStorage.user;
           });
+        }
+      }
+    } catch (e) {
+      // Fail silently
+    }
+    try {
+      final unreadRes = await ApiService().getUnreadNotificationsCount();
+      if (unreadRes.statusCode == 200 && unreadRes.data['success'] == true) {
+        final countData = unreadRes.data['data'];
+        if (countData != null && countData['count'] != null) {
+          if (mounted) {
+            setState(() {
+              _unreadNotificationsCount = countData['count'] as int;
+            });
+          }
+        } else if (countData is int) {
+          if (mounted) {
+            setState(() {
+              _unreadNotificationsCount = countData;
+            });
+          }
         }
       }
     } catch (e) {
@@ -293,6 +315,7 @@ class _ProfileTabState extends State<ProfileTab> {
                               title: AppLocalizations.of(
                                 context,
                               )!.notifications,
+                              badgeCount: _unreadNotificationsCount,
                               onTap: () {
                                 Navigator.push(
                                   context,
@@ -300,7 +323,9 @@ class _ProfileTabState extends State<ProfileTab> {
                                     builder: (context) =>
                                         const NotificationsPage(),
                                   ),
-                                );
+                                ).then((_) {
+                                  _refreshProfile();
+                                });
                               },
                             ),
                             _buildMenuTile(
@@ -563,8 +588,8 @@ class _ProfileTabState extends State<ProfileTab> {
   Widget _buildMenuTile({
     required IconData icon,
     required String title,
-
     required VoidCallback onTap,
+    int badgeCount = 0,
   }) {
     return Material(
       color: Colors.transparent,
@@ -583,7 +608,11 @@ class _ProfileTabState extends State<ProfileTab> {
                 ),
                 child: Transform.scale(
                   scaleX: isRtl(context) ? -1 : 1,
-                  child: Icon(icon, color: const Color(0xFF48B3D2), size: 22),
+                  child: Badge(
+                    isLabelVisible: badgeCount > 0,
+                    label: Text('$badgeCount'),
+                    child: Icon(icon, color: const Color(0xFF48B3D2), size: 22),
+                  ),
                 ),
               ),
               const SizedBox(width: 16),

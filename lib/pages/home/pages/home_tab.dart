@@ -24,6 +24,7 @@ import 'package:raheeq_main/pages/order/choose_water_package_screen.dart';
 import 'package:raheeq_main/common_widgets/bottom_action_pill.dart';
 import 'package:raheeq_main/pages/order/order_details_page.dart';
 import 'package:raheeq_main/models/order_item.dart';
+import 'package:raheeq_main/pages/home/pages/notifications_page.dart';
 
 class HomeTab extends StatefulWidget {
   const HomeTab({super.key});
@@ -83,6 +84,7 @@ class _HomeTabState extends State<HomeTab> {
   }
 
   int _currentIndex = 0;
+  int _unreadNotificationsCount = 0;
 
   @override
   void initState() {
@@ -166,6 +168,20 @@ class _HomeTabState extends State<HomeTab> {
       try {
         await ApiService().getProfile();
       } catch (_) {}
+
+      try {
+        final unreadRes = await ApiService().getUnreadNotificationsCount();
+        if (unreadRes.statusCode == 200 && unreadRes.data['success'] == true) {
+          final countData = unreadRes.data['data'];
+          if (countData != null && countData['count'] != null) {
+             _unreadNotificationsCount = countData['count'] as int;
+          } else if (countData is int) {
+             _unreadNotificationsCount = countData;
+          }
+        }
+      } catch (e) {
+        log('Error fetching unread notifications count: $e', name: 'HomeTab');
+      }
 
       final response = await ApiService().getHome();
       if (response.statusCode == 200 && response.data['success'] == true) {
@@ -304,12 +320,25 @@ class _HomeTabState extends State<HomeTab> {
                                 child: Material(
                                   color: Colors.transparent,
                                   child: InkWell(
-                                    onTap: () {},
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => const NotificationsPage(),
+                                        ),
+                                      ).then((_) {
+                                        _fetchHomeData(); // Refresh badge on return
+                                      });
+                                    },
                                     customBorder: const CircleBorder(),
-                                    child: const Icon(
-                                      Icons.notifications_none_rounded,
-                                      color: AppColors.buttonBlueDark,
-                                      size: 20,
+                                    child: Badge(
+                                      isLabelVisible: _unreadNotificationsCount > 0,
+                                      label: Text('$_unreadNotificationsCount'),
+                                      child: const Icon(
+                                        Icons.notifications_none_rounded,
+                                        color: AppColors.buttonBlueDark,
+                                        size: 20,
+                                      ),
                                     ),
                                   ),
                                 ),

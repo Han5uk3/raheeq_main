@@ -724,4 +724,155 @@ class ApiService {
       rethrow;
     }
   }
+
+  /// Get All Notifications
+  Future<Response> getNotifications({int page = 1, int limit = 20}) async {
+    try {
+      final response = await _dio.get('/notifications', queryParameters: {
+        'page': page,
+        'limit': limit,
+      });
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Get Unread Notifications Count
+  Future<Response> getUnreadNotificationsCount() async {
+    try {
+      final response = await _dio.get('/notifications/unread-count');
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Read Notification
+  Future<Response> readNotification(String id) async {
+    try {
+      final response = await _dio.patch('/notifications/$id/read');
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Read All Notifications
+  Future<Response> readAllNotifications() async {
+    try {
+      final response = await _dio.patch('/notifications/read-all');
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Delete Notification
+  Future<Response> deleteNotification(String id) async {
+    try {
+      final response = await _dio.delete('/notifications/$id');
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Delete All Notifications
+  Future<Response> clearAllNotifications() async {
+    try {
+      final response = await _dio.delete('/notifications');
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Get My Orders
+  Future<Response> getMyOrders({int page = 1, int limit = 20}) async {
+    try {
+      final response = await _dio.get('/orders', queryParameters: {
+        'page': page,
+        'limit': limit,
+      });
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Get Order Details
+  Future<Response> getOrderDetails(String id) async {
+    try {
+      final response = await _dio.get('/orders/$id');
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Get My Subscriptions
+  Future<Response> getMySubscriptions({int page = 1, int limit = 10}) async {
+    try {
+      final response = await _dio.get('/subscriptions', queryParameters: {
+        'page': page,
+        'limit': limit,
+      });
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Get Subscription Details
+  Future<Response> getSubscriptionDetails(String id) async {
+    try {
+      final response = await _dio.get('/subscriptions/$id');
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Get Sub Orders by Order ID
+  Future<Response> getSubOrdersByOrderId(String orderId) async {
+    try {
+      final response = await _dio.get('/orders/$orderId/sub-orders');
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Rate Order (Sub Order)
+  Future<Response> rateOrder({
+    required String subOrderId,
+    required int rating,
+    required String reviewText,
+  }) async {
+    try {
+      final data = {
+        'rating': rating,
+        'reviewText': reviewText,
+      };
+      final response = await _dio.post('/orders/sub-orders/$subOrderId/review', data: data);
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Get User Ratings (Reviews)
+  Future<Response> getReviews({int page = 1, int limit = 20}) async {
+    try {
+      final response = await _dio.get('/orders/reviews', queryParameters: {
+        'page': page,
+        'limit': limit,
+      });
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
 }
+
