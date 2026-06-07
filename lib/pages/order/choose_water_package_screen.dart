@@ -1,4 +1,6 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/models/order_item.dart';
 import 'package:raheeq_main/models/product.dart';
 import 'package:raheeq_main/models/selected_category_item.dart';
@@ -69,7 +71,7 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
 
     // 1. Chiller first (always one card)
     final chiller = widget.availableProducts
-        .where((p) => p.slug.contains('chiller'))
+        .where((p) => p.serialNumber == 2)
         .firstOrNull;
     if (chiller != null) {
       slots.add(_ProductSlot(product: chiller, isChiller: true, quantity: 1));
@@ -77,11 +79,7 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
 
     // 2. One card per preset quantity for every carton product
     final cartons = widget.availableProducts.where(
-      (p) =>
-          (p.slug.contains('water') ||
-              p.slug.contains('bottle') ||
-              p.slug.contains('carton')) &&
-          !p.slug.contains('chiller'),
+      (p) => p.serialNumber == 1 || p.serialNumber == 4,
     );
 
     for (final carton in cartons) {
@@ -259,7 +257,7 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
 
           // Horizontal slot list
           SizedBox(
-            height: 230,
+            height: 210,
             child: ListView.builder(
               scrollDirection: Axis.horizontal,
               itemCount: slots.length,
@@ -333,7 +331,7 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
     return GestureDetector(
       onTap: onTap,
       child: SizedBox(
-        width: 170,
+        width: 125,
         height: 200,
         child: Card(
           color: Colors.white,
@@ -352,7 +350,7 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
               Container(
                 padding: const EdgeInsets.all(8.0),
                 width: double.infinity,
-                height: 120,
+                height: 100,
                 decoration: const BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.all(Radius.circular(14)),
@@ -360,59 +358,82 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
                 child: ClipRRect(
                   borderRadius: const BorderRadius.all(Radius.circular(14)),
                   child: product.image.isNotEmpty
-                      ? Image.network(product.image, fit: BoxFit.cover)
-                      : const Icon(
-                          Icons.water_drop,
-                          color: AppColors.buttonBlue,
-                          size: 40,
+                      ? CachedNetworkImage(
+                          imageUrl: product.image,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => Center(
+                            child: SizedBox(
+                              height: 20,
+                              child: WaterLoadingIndicator(),
+                            ),
+                          ),
+                          errorWidget: (context, url, error) => const Center(
+                            child: Icon(
+                              Icons.water_drop,
+                              color: AppColors.buttonBlue,
+                              size: 40,
+                            ),
+                          ),
+                        )
+                      : const Center(
+                          child: Icon(
+                            Icons.water_drop,
+                            color: AppColors.buttonBlue,
+                            size: 40,
+                          ),
                         ),
                 ),
               ),
 
               // Details
-              Padding(
-                padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Subtitle row
-                    Text(
-                      slot.isChiller
-                          ? (isAr ? '2 سنة ضمان' : '2 Year Guarantee')
-                          : (isAr ? product.subtitleAr : product.subtitle),
-                      style: const TextStyle(fontSize: 12, color: Colors.grey),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
 
-                    const SizedBox(height: 2),
-
-                    // Product name
-                    Text(
-                      "${slot.quantity} ${product.localizedName(isAr)}",
-                      style: const TextStyle(
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      // Subtitle row
+                      Text(
+                        slot.isChiller
+                            ? (isAr ? '2 سنة ضمان' : '2 Year Guarantee')
+                            : (isAr ? product.subtitleAr : product.subtitle),
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: Colors.grey,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                    ),
 
-                    const SizedBox(height: 6),
-
-                    // Price
-                    Text(
-                      isAr
-                          ? '${totalPrice.toStringAsFixed(0)} ر.س'
-                          : '${totalPrice.toStringAsFixed(0)} SAR',
-                      style: const TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: AppColors.buttonBlueDark,
+                      // Product name
+                      Text(
+                        "${slot.quantity} ${product.localizedName(isAr)}",
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                  ],
+
+                      const Spacer(),
+
+                      // Price
+                      Text(
+                        isAr
+                            ? '${totalPrice.toStringAsFixed(0)} ر.س'
+                            : '${totalPrice.toStringAsFixed(0)} SAR',
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.buttonBlueDark,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ],

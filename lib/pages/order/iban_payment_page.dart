@@ -5,6 +5,7 @@ import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/pages/order/payment_status_page.dart';
 import 'package:raheeq_main/utils/colors.dart';
+import 'package:raheeq_main/l10n/app_localizations.dart';
 
 class IbanPaymentPage extends StatefulWidget {
   final bool isAr;
@@ -52,9 +53,7 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            widget.isAr
-                ? 'فشل تحميل الحسابات البنكية'
-                : 'Failed to load bank accounts',
+            AppLocalizations.of(context)!.failed_to_load_bank_accounts,
           ),
         ),
       );
@@ -76,9 +75,7 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            widget.isAr
-                ? 'الرجاء إرفاق إيصال التحويل وإدخال رقم العملية'
-                : 'Please attach the transfer receipt and enter the transaction number',
+            AppLocalizations.of(context)!.please_attach_the_transfer_receipt_and_enter_the_transaction_number,
           ),
         ),
       );
@@ -88,9 +85,7 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            widget.isAr
-                ? 'الرجاء إرفاق إيصال التحويل'
-                : 'Please attach the transfer receipt',
+            AppLocalizations.of(context)!.please_attach_the_transfer_receipt,
           ),
         ),
       );
@@ -100,9 +95,7 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text(
-            widget.isAr
-                ? 'الرجاء إدخال رقم العملية'
-                : 'Please enter transaction number',
+            AppLocalizations.of(context)!.please_enter_transaction_number,
           ),
         ),
       );
@@ -157,7 +150,7 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text(widget.isAr ? 'تحويل بنكي (IBAN)' : 'IBAN Bank Transfer'),
+        title: Text(AppLocalizations.of(context)!.iban_bank_transfer),
         backgroundColor: Colors.white,
         elevation: 0,
         foregroundColor: Colors.black,
@@ -170,7 +163,7 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    widget.isAr ? 'حساباتنا المصرفية' : 'Our Bank Accounts',
+                    AppLocalizations.of(context)!.our_bank_accounts,
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -179,14 +172,12 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
                   const SizedBox(height: 16),
                   if (_bankAccounts.isEmpty)
                     Text(
-                      widget.isAr
-                          ? 'لا توجد حسابات بنكية متاحة'
-                          : 'No bank accounts available',
+                      AppLocalizations.of(context)!.no_bank_accounts_available,
                     )
                   else
                     ..._bankAccounts.map((account) {
                       return Container(
-                        margin: const EdgeInsets.only(bottom: 12),
+                        margin: const EdgeInsetsDirectional.only(bottom: 12),
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           border: Border.all(
@@ -230,7 +221,7 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
                             ),
                             const SizedBox(height: 12),
                             _buildDetailRow(
-                              widget.isAr ? 'رقم الحساب:' : 'Account Number:',
+                              AppLocalizations.of(context)!.account_number,
                               account['accountNumber']?.toString() ?? '',
                             ),
                             const SizedBox(height: 8),
@@ -244,7 +235,7 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
                     }),
                   const SizedBox(height: 32),
                   Text(
-                    widget.isAr ? '1. رقم العملية:' : '1. Transaction Number :',
+                    AppLocalizations.of(context)!.one_transaction_number,
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -261,17 +252,13 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
                       controller: transactionController,
                       decoration: InputDecoration(
                         border: InputBorder.none,
-                        hintText: widget.isAr
-                            ? 'أدخل رقم العملية'
-                            : 'Enter transaction number',
+                        hintText: AppLocalizations.of(context)!.enter_transaction_number,
                       ),
                     ),
                   ),
                   const SizedBox(height: 24),
                   Text(
-                    widget.isAr
-                        ? '2. أرفق إيصال التحويل'
-                        : '2. Attach Transfer Receipt',
+                    AppLocalizations.of(context)!.two_attach_transfer_receipt,
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -309,9 +296,7 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  widget.isAr
-                                      ? 'اضغط لاختيار صورة'
-                                      : 'Tap to select image',
+                                  AppLocalizations.of(context)!.tap_to_select_image,
                                   style: const TextStyle(color: Colors.grey),
                                 ),
                               ],
@@ -331,7 +316,7 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
                         ),
                       ),
                       child: Text(
-                        widget.isAr ? 'تأكيد وإرسال' : 'Confirm & Submit',
+                        AppLocalizations.of(context)!.confirm_submit,
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,

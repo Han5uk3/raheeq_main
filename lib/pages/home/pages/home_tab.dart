@@ -1,10 +1,10 @@
+import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'dart:developer';
 
 import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:raheeq_main/common_widgets/language_switch.dart';
 import 'package:raheeq_main/models/banner_data.dart';
 import 'package:raheeq_main/models/campaign.dart';
 import 'package:raheeq_main/models/category.dart';
@@ -12,6 +12,7 @@ import 'package:raheeq_main/models/city.dart';
 import 'package:raheeq_main/models/place.dart';
 import 'package:raheeq_main/models/product.dart';
 import 'package:raheeq_main/utils/colors.dart';
+import 'package:raheeq_main/utils/rtl_helpers.dart';
 import 'package:raheeq_main/api/apis.dart';
 import '../../../storage/auth_storage.dart';
 import 'campaign_detail_page.dart';
@@ -247,8 +248,8 @@ class _HomeTabState extends State<HomeTab> {
           child: Container(
             decoration: const BoxDecoration(
               gradient: LinearGradient(
-                begin: Alignment.centerLeft,
-                end: Alignment.centerRight,
+                begin: AlignmentDirectional.centerStart,
+                end: AlignmentDirectional.centerEnd,
                 colors: [Color(0x4D91E3FE), Color(0xFF6EC4E0)],
               ),
             ),
@@ -261,7 +262,12 @@ class _HomeTabState extends State<HomeTab> {
                   children: [
                     // Header Section
                     Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 60, 16, 20),
+                      padding: const EdgeInsetsDirectional.fromSTEB(
+                        16,
+                        60,
+                        16,
+                        20,
+                      ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -277,7 +283,7 @@ class _HomeTabState extends State<HomeTab> {
                                 ),
                               ),
                               Text(
-                                isAr ? "السلام عليكم" : "Assalamu Alaikum",
+                                AppLocalizations.of(context)!.assalamu_alaikum,
                                 style: const TextStyle(
                                   color: Colors.black,
                                   fontSize: 14,
@@ -288,8 +294,6 @@ class _HomeTabState extends State<HomeTab> {
                           ),
                           Row(
                             children: [
-                              const LanguageSwitchButton(),
-                              const SizedBox(width: 12),
                               Container(
                                 width: 40,
                                 height: 40,
@@ -443,21 +447,24 @@ class _HomeTabState extends State<HomeTab> {
                         children: [
                           const SizedBox(height: 24),
                           // Campaigns Section (Dynamic Cards)
-                          if (_campaigns.isNotEmpty)
+                          if (_campaigns.any((c) => c.products.isNotEmpty))
                             Padding(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16,
                               ),
                               child: Column(
-                                children: List.generate(_campaigns.length, (
-                                  index,
-                                ) {
+                                children: _campaigns
+                                    .where((c) => c.products.isNotEmpty)
+                                    .toList()
+                                    .asMap()
+                                    .entries
+                                    .map((entry) {
                                   return buildCampaignCard(
                                     context,
-                                    _campaigns[index],
-                                    index,
+                                    entry.value,
+                                    entry.key,
                                   );
-                                }),
+                                }).toList(),
                               ),
                             ),
 
@@ -503,16 +510,14 @@ class _HomeTabState extends State<HomeTab> {
             bottom: 130,
             child: BottomActionPill(
               titleWidget: Text(
-                isAr
-                    ? 'محدد: ${_selectedItems.length} عناصر'
-                    : 'Selected: ${_selectedItems.length} items',
+                isAr ? "محدد: ${_selectedItems.length} عناصر" : "Selected: ${_selectedItems.length} items",
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
                   color: Colors.white,
                 ),
               ),
-              buttonText: isAr ? 'اطلب الآن' : 'Order Now',
+              buttonText: AppLocalizations.of(context)!.order_now,
               onButtonTap: () async {
                 final isEssential = _selectedItems.any(
                   (i) => i.category.slug == 'essential_supplies',
@@ -523,7 +528,7 @@ class _HomeTabState extends State<HomeTab> {
                       builder: (_) => SpecificMosquePage(
                         slug: 'mosques',
                         initialSelections: const [],
-                        title: isAr ? 'اختر المساجد' : 'Choose Mosques',
+                        title: AppLocalizations.of(context)!.choose_mosques,
                       ),
                     ),
                   );
@@ -577,8 +582,8 @@ class _HomeTabState extends State<HomeTab> {
       child: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.centerLeft,
-            end: Alignment.centerRight,
+            begin: AlignmentDirectional.centerStart,
+            end: AlignmentDirectional.centerEnd,
             colors: [Color(0x4D91E3FE), Color(0xFF6EC4E0)],
           ),
         ),
@@ -587,7 +592,7 @@ class _HomeTabState extends State<HomeTab> {
           child: Column(
             children: [
               Padding(
-                padding: const EdgeInsets.fromLTRB(16, 60, 16, 20),
+                padding: const EdgeInsetsDirectional.fromSTEB(16, 60, 16, 20),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -712,9 +717,7 @@ class _HomeTabState extends State<HomeTab> {
               ),
               const SizedBox(height: 16),
               Text(
-                isAr
-                    ? "حدث خطأ أثناء تحميل البيانات"
-                    : "Failed to load home page",
+                AppLocalizations.of(context)!.failed_to_load_home_page,
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -731,7 +734,7 @@ class _HomeTabState extends State<HomeTab> {
               ElevatedButton.icon(
                 onPressed: _fetchHomeData,
                 icon: const Icon(Icons.refresh),
-                label: Text(isAr ? "إعادة المحاولة" : "Retry"),
+                label: Text(AppLocalizations.of(context)!.retry),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.buttonBlue,
                   foregroundColor: Colors.white,
@@ -789,7 +792,7 @@ class _HomeTabState extends State<HomeTab> {
               ),
               const SizedBox(height: 16),
               Text(
-                isAr ? 'تحذير' : 'Warning',
+                AppLocalizations.of(context)!.warning,
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -798,9 +801,7 @@ class _HomeTabState extends State<HomeTab> {
               ),
               const SizedBox(height: 12),
               Text(
-                isAr
-                    ? 'سيتم مسح السلة الحالية والانتقال إلى $targetName.'
-                    : 'Your current basket will be cleared and you will be moved to $targetName.',
+                AppLocalizations.of(context)!.your_current_basket_will_be_cleared_and_you_will_be_moved_to_targetname,
                 textAlign: TextAlign.start,
                 style: const TextStyle(
                   fontSize: 14,
@@ -823,7 +824,7 @@ class _HomeTabState extends State<HomeTab> {
                         ),
                       ),
                       child: Text(
-                        isAr ? 'إلغاء' : 'Cancel',
+                        AppLocalizations.of(context)!.cancel,
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -845,7 +846,7 @@ class _HomeTabState extends State<HomeTab> {
                         ),
                       ),
                       child: Text(
-                        isAr ? 'مفهوم' : 'I understand',
+                        AppLocalizations.of(context)!.i_understand,
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
@@ -906,7 +907,7 @@ class _HomeTabState extends State<HomeTab> {
       child: Container(
         height: isEven ? 200 : 150,
         width: double.infinity,
-        margin: const EdgeInsets.only(bottom: 16),
+        margin: const EdgeInsetsDirectional.only(bottom: 16),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
@@ -959,7 +960,7 @@ class _HomeTabState extends State<HomeTab> {
               //           ),
               //           const SizedBox(width: 4),
               //           Text(
-              //             isAr ? 'اشتراك متاح' : 'Subscribe',
+              //             AppLocalizations.of(context)!.subscribe,
               //             style: const TextStyle(
               //               fontSize: 11,
               //               fontWeight: FontWeight.w700,
@@ -972,10 +973,10 @@ class _HomeTabState extends State<HomeTab> {
               //   ),
               // Text content
               Padding(
-                padding: EdgeInsets.only(
-                  left: 20,
+                padding: EdgeInsetsDirectional.only(
+                  start: 20,
                   top: isEven ? 40 : 25,
-                  right: 20,
+                  end: 20,
                   bottom: 20,
                 ),
                 child: LayoutBuilder(
@@ -1024,7 +1025,7 @@ class _HomeTabState extends State<HomeTab> {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Text(
-                                      isAr ? 'تبرع الآن   ' : 'Donate Now   ',
+                                      AppLocalizations.of(context)!.donate_now,
                                       style: const TextStyle(
                                         fontSize: 13,
                                         fontWeight: FontWeight.w600,
@@ -1037,9 +1038,9 @@ class _HomeTabState extends State<HomeTab> {
                                         color: Colors.white,
                                         shape: BoxShape.circle,
                                       ),
-                                      child: const Icon(
+                                      child: Icon(
                                         size: 12,
-                                        Icons.arrow_forward,
+                                        forwardArrowIcon(context),
                                         color: Colors.black,
                                       ),
                                     ),
@@ -1068,7 +1069,7 @@ class _HomeTabState extends State<HomeTab> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          isAr ? "أعمال سريعة" : "Quick Actions",
+          AppLocalizations.of(context)!.quick_actions,
           style: const TextStyle(
             fontSize: 20,
             fontWeight: FontWeight.bold,
@@ -1076,9 +1077,7 @@ class _HomeTabState extends State<HomeTab> {
           ),
         ),
         Text(
-          isAr
-              ? "اختر قضيتك واصنع فرقاً"
-              : "Choose your cause and make an impact",
+          AppLocalizations.of(context)!.choose_your_cause_and_make_an_impact,
           style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w500,
@@ -1357,7 +1356,7 @@ class _HomeTabState extends State<HomeTab> {
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
-            isAr ? "مستلزمات المساجد الأساسية" : "Essential Mosque Supplies",
+            AppLocalizations.of(context)!.essential_mosque_supplies,
             style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
@@ -1437,9 +1436,9 @@ class _HomeTabState extends State<HomeTab> {
                 },
                 child: Container(
                   width: 260,
-                  margin: EdgeInsets.only(
-                    left: index == 0 ? 16 : 8,
-                    right: index == _essentialProducts.length - 1 ? 16 : 8,
+                  margin: EdgeInsetsDirectional.only(
+                    start: index == 0 ? 16 : 8,
+                    end: index == _essentialProducts.length - 1 ? 16 : 8,
                     bottom: 12,
                   ),
                   decoration: BoxDecoration(
@@ -1486,7 +1485,7 @@ class _HomeTabState extends State<HomeTab> {
                                 ),
                                 SizedBox(width: 4),
                                 Text(
-                                  isAr ? 'حاجة عالية' : 'High Need',
+                                  AppLocalizations.of(context)!.high_need,
                                   style: const TextStyle(
                                     fontSize: 10,
                                     fontWeight: FontWeight.w600,
@@ -1545,14 +1544,14 @@ class _HomeTabState extends State<HomeTab> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  isAr ? 'السعر' : 'Starting from',
+                                  AppLocalizations.of(context)!.starting_from,
                                   style: const TextStyle(
                                     fontSize: 12,
                                     color: Colors.grey,
                                   ),
                                 ),
                                 Text(
-                                  "$price ${isAr ? "ر.س" : 'SAR'}",
+                                  "$price ${AppLocalizations.of(context)!.sar}",
                                   style: const TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
@@ -1584,8 +1583,8 @@ class _HomeTabState extends State<HomeTab> {
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [Color(0xFF1A6A8F), Color(0xFF91E3FE)],
-          begin: Alignment.centerLeft,
-          end: Alignment.centerRight,
+          begin: AlignmentDirectional.centerStart,
+          end: AlignmentDirectional.centerEnd,
         ),
         borderRadius: BorderRadius.circular(20),
       ),
@@ -1607,7 +1606,7 @@ class _HomeTabState extends State<HomeTab> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  isAr ? "التبرعات الأخيرة" : "Recent Donations",
+                  AppLocalizations.of(context)!.recent_donations,
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -1616,9 +1615,7 @@ class _HomeTabState extends State<HomeTab> {
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  isAr
-                      ? "عرض الحالة وتفاصيل التسليم."
-                      : "View status and delivery details.",
+                  AppLocalizations.of(context)!.view_status_and_delivery_details,
                   style: TextStyle(
                     fontSize: 12,
                     color: Colors.white.withValues(alpha: 0.8),
@@ -1633,8 +1630,8 @@ class _HomeTabState extends State<HomeTab> {
               color: Colors.white,
               shape: BoxShape.circle,
             ),
-            child: const Icon(
-              Icons.arrow_forward,
+            child: Icon(
+              forwardArrowIcon(context),
               size: 14,
               color: AppColors.buttonBlueDark,
             ),
@@ -1735,9 +1732,9 @@ class _HomeTabState extends State<HomeTab> {
           ),
         ),
         if (onClear != null)
-          Positioned(
+          PositionedDirectional(
             top: -4,
-            right: -4,
+            end: -4,
             child: GestureDetector(
               onTap: onClear,
               child: Container(
@@ -1803,9 +1800,9 @@ class _HomeTabState extends State<HomeTab> {
   ) {
     return Container(
       width: 260,
-      margin: EdgeInsets.only(
-        left: index == 0 ? 16 : 8,
-        right: index == totalLength - 1 ? 16 : 8,
+      margin: EdgeInsetsDirectional.only(
+        start: index == 0 ? 16 : 8,
+        end: index == totalLength - 1 ? 16 : 8,
       ),
       decoration: BoxDecoration(
         color: Colors.white,
@@ -1816,10 +1813,10 @@ class _HomeTabState extends State<HomeTab> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.only(
-              left: 16,
+            padding: const EdgeInsetsDirectional.only(
+              start: 16,
               top: 16,
-              right: 16,
+              end: 16,
               bottom: 8,
             ),
             child: buildHighNeedBadge(context),
@@ -1859,7 +1856,11 @@ class _HomeTabState extends State<HomeTab> {
             ),
           ),
           Padding(
-            padding: const EdgeInsets.only(left: 16, right: 16, top: 16),
+            padding: const EdgeInsetsDirectional.only(
+              start: 16,
+              end: 16,
+              top: 16,
+            ),
             child: ClipRRect(
               borderRadius: const BorderRadius.all(Radius.circular(12)),
               child: SizedBox(
@@ -1890,7 +1891,7 @@ class _HomeTabState extends State<HomeTab> {
                     color: AppColors.buttonBlue,
                     borderRadius: BorderRadius.circular(18),
                   ),
-                  child: const Row(
+                  child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
@@ -1902,7 +1903,11 @@ class _HomeTabState extends State<HomeTab> {
                         ),
                       ),
                       SizedBox(width: 8),
-                      Icon(Icons.arrow_forward, size: 16, color: Colors.white),
+                      Icon(
+                        forwardArrowIcon(context),
+                        size: 16,
+                        color: Colors.white,
+                      ),
                     ],
                   ),
                 ),
@@ -1940,7 +1945,7 @@ class _HomeTabState extends State<HomeTab> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          isAr ? "تأثيرك" : "Your Impact",
+          AppLocalizations.of(context)!.your_impact,
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,
@@ -1965,7 +1970,7 @@ class _HomeTabState extends State<HomeTab> {
               ),
               const SizedBox(height: 12),
               Text(
-                isAr ? "قريباً..." : "Coming Soon...",
+                AppLocalizations.of(context)!.coming_soon,
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -1974,9 +1979,7 @@ class _HomeTabState extends State<HomeTab> {
               ),
               const SizedBox(height: 8),
               Text(
-                isAr
-                    ? "نعمل على تجهيز إحصائيات تأثيرك."
-                    : "We're preparing your impact statistics.",
+                isAr ? "نحن نجهز إحصائيات الأثر الخاصة بك." : "We're preparing your impact statistics.",
                 textAlign: TextAlign.center,
                 style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
               ),
@@ -1993,7 +1996,7 @@ class _HomeTabState extends State<HomeTab> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          isAr ? "أعطِ الماء." : "Give Water.",
+          AppLocalizations.of(context)!.give_water,
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 30,
@@ -2001,7 +2004,7 @@ class _HomeTabState extends State<HomeTab> {
           ),
         ),
         Text(
-          isAr ? "يُسلِّم البركات." : "Deliver Blessings.",
+          AppLocalizations.of(context)!.deliver_blessings,
           style: TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: 30,

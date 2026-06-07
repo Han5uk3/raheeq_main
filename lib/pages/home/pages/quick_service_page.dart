@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:raheeq_main/models/category.dart';
 import 'package:raheeq_main/models/product.dart';
 import 'package:raheeq_main/utils/colors.dart';
+import 'package:raheeq_main/utils/rtl_helpers.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 
 class QuickServicePage extends StatefulWidget {
@@ -73,8 +74,8 @@ class _QuickServicePageState extends State<QuickServicePage>
   // ─────────────────────── Actions ───────────────────────
 
   void _selectProduct(Product product) {
-    final isSame = _selectedProduct != null &&
-        _selectedProduct!.id == product.id;
+    final isSame =
+        _selectedProduct != null && _selectedProduct!.id == product.id;
     if (isSame) return;
 
     _barAnimController.reverse().then((_) {
@@ -104,12 +105,9 @@ class _QuickServicePageState extends State<QuickServicePage>
       if (_isCustom) {
         _selectedQuantity = null;
         _barAnimController.reverse();
-        Future.delayed(
-          const Duration(milliseconds: 100),
-          () {
-            if (mounted) _customFocusNode.requestFocus();
-          },
-        );
+        Future.delayed(const Duration(milliseconds: 100), () {
+          if (mounted) _customFocusNode.requestFocus();
+        });
       }
     });
   }
@@ -122,11 +120,14 @@ class _QuickServicePageState extends State<QuickServicePage>
     if (val == null || val < min) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(AppLocalizations.of(context)!.minimum_quantity_is(min.toString())),
+          content: Text(
+            AppLocalizations.of(context)!.minimum_quantity_is(min.toString()),
+          ),
           backgroundColor: Colors.redAccent,
           behavior: SnackBarBehavior.floating,
           shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12)),
+            borderRadius: BorderRadius.circular(12),
+          ),
         ),
       );
       return;
@@ -158,15 +159,14 @@ class _QuickServicePageState extends State<QuickServicePage>
           CustomScrollView(
             slivers: [
               // Category SliverAppBar
-              _buildSliverAppBar(
-                  context, label, subtitle, imageUrl, isAr),
+              _buildSliverAppBar(context, label, subtitle, imageUrl, isAr),
 
               // Section label
               SliverToBoxAdapter(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(20, 24, 20, 12),
+                  padding: const EdgeInsetsDirectional.fromSTEB(20, 24, 20, 12),
                   child: Text(
-                    isAr ? 'اختر منتجاً' : 'Select a Product',
+                    AppLocalizations.of(context)!.select_a_product,
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.w700,
@@ -183,9 +183,7 @@ class _QuickServicePageState extends State<QuickServicePage>
                     child: Padding(
                       padding: const EdgeInsets.all(40),
                       child: Text(
-                        isAr
-                            ? 'لا توجد منتجات متاحة'
-                            : 'No products available',
+                        AppLocalizations.of(context)!.no_products_available,
                         style: const TextStyle(color: Colors.black45),
                       ),
                     ),
@@ -195,22 +193,16 @@ class _QuickServicePageState extends State<QuickServicePage>
                 SliverPadding(
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   sliver: SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        final product = widget.products[index];
-                        return _buildProductCard(
-                            context, product, isAr);
-                      },
-                      childCount: widget.products.length,
-                    ),
+                    delegate: SliverChildBuilderDelegate((context, index) {
+                      final product = widget.products[index];
+                      return _buildProductCard(context, product, isAr);
+                    }, childCount: widget.products.length),
                   ),
                 ),
 
               // Quantity section
               if (_selectedProduct != null)
-                SliverToBoxAdapter(
-                  child: _buildQuantitySection(context, isAr),
-                ),
+                SliverToBoxAdapter(child: _buildQuantitySection(context, isAr)),
 
               // Bottom padding
               SliverToBoxAdapter(
@@ -226,8 +218,7 @@ class _QuickServicePageState extends State<QuickServicePage>
           AnimatedBuilder(
             animation: _barSlideAnimation,
             builder: (context, child) {
-              final offset =
-                  (1.0 - _barSlideAnimation.value) * 150;
+              final offset = (1.0 - _barSlideAnimation.value) * 150;
               return Positioned(
                 bottom: 0,
                 left: 0,
@@ -235,8 +226,7 @@ class _QuickServicePageState extends State<QuickServicePage>
                 child: Transform.translate(
                   offset: Offset(0, offset),
                   child: Opacity(
-                    opacity:
-                        _barFadeAnimation.value.clamp(0.0, 1.0),
+                    opacity: _barFadeAnimation.value.clamp(0.0, 1.0),
                     child: child!,
                   ),
                 ),
@@ -265,7 +255,7 @@ class _QuickServicePageState extends State<QuickServicePage>
       backgroundColor: AppColors.buttonBlueDark,
       systemOverlayStyle: SystemUiOverlayStyle.light,
       leading: Padding(
-        padding: const EdgeInsets.only(left: 12),
+        padding: const EdgeInsetsDirectional.only(start: 12),
         child: Container(
           margin: const EdgeInsets.all(6),
           decoration: BoxDecoration(
@@ -273,8 +263,7 @@ class _QuickServicePageState extends State<QuickServicePage>
             shape: BoxShape.circle,
           ),
           child: IconButton(
-            icon: const Icon(Icons.arrow_back_rounded,
-                color: Colors.white, size: 20),
+            icon: Icon(backArrowIcon(context), color: Colors.white, size: 20),
             onPressed: () => Navigator.of(context).pop(),
             splashRadius: 20,
           ),
@@ -296,8 +285,11 @@ class _QuickServicePageState extends State<QuickServicePage>
                   Container(color: AppColors.buttonBlueDark),
               errorWidget: (context, url, error) => Container(
                 color: AppColors.buttonBlueDark,
-                child: const Icon(Icons.water_drop,
-                    color: Colors.white54, size: 60),
+                child: const Icon(
+                  Icons.water_drop,
+                  color: Colors.white54,
+                  size: 60,
+                ),
               ),
             ),
             // Gradient overlay
@@ -328,17 +320,18 @@ class _QuickServicePageState extends State<QuickServicePage>
                   // "Quick Services" chip
                   Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 4),
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
-                      color:
-                          Colors.white.withValues(alpha: 0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                          color: Colors.white
-                              .withValues(alpha: 0.3)),
+                        color: Colors.white.withValues(alpha: 0.3),
+                      ),
                     ),
                     child: Text(
-                      isAr ? 'خدمات سريعة' : 'Quick Services',
+                      AppLocalizations.of(context)!.quick_services,
                       style: const TextStyle(
                         color: Colors.white,
                         fontSize: 11,
@@ -357,22 +350,21 @@ class _QuickServicePageState extends State<QuickServicePage>
                       letterSpacing: -0.3,
                       shadows: [
                         Shadow(
-                            color: Colors.black38,
-                            blurRadius: 8,
-                            offset: Offset(0, 2)),
+                          color: Colors.black38,
+                          blurRadius: 8,
+                          offset: Offset(0, 2),
+                        ),
                       ],
                     ),
                   ),
-                  if (subtitle != null &&
-                      subtitle.isNotEmpty) ...[
+                  if (subtitle != null && subtitle.isNotEmpty) ...[
                     const SizedBox(height: 4),
                     Text(
                       subtitle,
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color:
-                            Colors.white.withValues(alpha: 0.9),
+                        color: Colors.white.withValues(alpha: 0.9),
                         fontSize: 13,
                         fontWeight: FontWeight.w400,
                         height: 1.4,
@@ -390,39 +382,32 @@ class _QuickServicePageState extends State<QuickServicePage>
 
   // ─────────────────────── Product Card ───────────────────────
 
-  Widget _buildProductCard(
-    BuildContext context,
-    Product product,
-    bool isAr,
-  ) {
+  Widget _buildProductCard(BuildContext context, Product product, bool isAr) {
     final name = product.localizedName(isAr);
     final subtitle = product.localizedSubtitle(isAr);
     final price = product.price;
     final imageUrl = product.image;
     final isHighNeed = product.isHighNeed;
-    final isSelected = _selectedProduct != null &&
-        _selectedProduct!.id == product.id;
+    final isSelected =
+        _selectedProduct != null && _selectedProduct!.id == product.id;
 
     return GestureDetector(
       onTap: () => _selectProduct(product),
       child: AnimatedContainer(
         duration: const Duration(milliseconds: 220),
-        margin: const EdgeInsets.only(bottom: 12),
+        margin: const EdgeInsetsDirectional.only(bottom: 12),
         padding: const EdgeInsets.all(14),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(18),
           border: Border.all(
-            color: isSelected
-                ? AppColors.buttonBlueDark
-                : Colors.transparent,
+            color: isSelected ? AppColors.buttonBlueDark : Colors.transparent,
             width: 2,
           ),
           boxShadow: [
             BoxShadow(
               color: isSelected
-                  ? AppColors.buttonBlueDark
-                      .withValues(alpha: 0.12)
+                  ? AppColors.buttonBlueDark.withValues(alpha: 0.12)
                   : Colors.black.withValues(alpha: 0.05),
               blurRadius: isSelected ? 16 : 8,
               offset: const Offset(0, 4),
@@ -442,11 +427,8 @@ class _QuickServicePageState extends State<QuickServicePage>
                   imageUrl: imageUrl,
                   fit: BoxFit.contain,
                   placeholder: (context, url) =>
-                      const Center(
-                        child: WaterLoadingIndicator(size: 30),
-                      ),
-                  errorWidget: (context, url, error) =>
-                      const Icon(
+                      const Center(child: WaterLoadingIndicator(size: 30)),
+                  errorWidget: (context, url, error) => const Icon(
                     Icons.water_drop,
                     color: AppColors.buttonBlue,
                     size: 32,
@@ -475,20 +457,16 @@ class _QuickServicePageState extends State<QuickServicePage>
                       ),
                       if (isHighNeed)
                         Container(
-                          padding:
-                              const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 3),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 3,
+                          ),
                           decoration: BoxDecoration(
-                            color: Colors.orange
-                                .withValues(alpha: 0.15),
-                            borderRadius:
-                                BorderRadius.circular(20),
+                            color: Colors.orange.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
-                            isAr
-                                ? 'حاجة عالية'
-                                : 'High Need',
+                            AppLocalizations.of(context)!.high_need,
                             style: const TextStyle(
                               fontSize: 10,
                               fontWeight: FontWeight.w600,
@@ -512,15 +490,15 @@ class _QuickServicePageState extends State<QuickServicePage>
                   const SizedBox(height: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 10, vertical: 4),
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: const Color(0xFFF1F9FD),
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      isAr
-                          ? '${price.toStringAsFixed(price.truncateToDouble() == price ? 0 : 2)} ر.س / وحدة'
-                          : '${price.toStringAsFixed(price.truncateToDouble() == price ? 0 : 2)} SAR / unit',
+                      isAr ? "${price.toStringAsFixed(price.truncateToDouble() == price ? 0 : 2)} ر.س / وحدة" : "${price.toStringAsFixed(price.truncateToDouble() == price ? 0 : 2)} SAR / unit",
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
@@ -551,8 +529,11 @@ class _QuickServicePageState extends State<QuickServicePage>
                 shape: BoxShape.circle,
               ),
               child: isSelected
-                  ? const Icon(Icons.check_rounded,
-                      color: Colors.white, size: 14)
+                  ? const Icon(
+                      Icons.check_rounded,
+                      color: Colors.white,
+                      size: 14,
+                    )
                   : null,
             ),
           ],
@@ -563,15 +544,14 @@ class _QuickServicePageState extends State<QuickServicePage>
 
   // ─────────────────────── Quantity Section ───────────────────────
 
-  Widget _buildQuantitySection(
-      BuildContext context, bool isAr) {
+  Widget _buildQuantitySection(BuildContext context, bool isAr) {
     final product = _selectedProduct!;
     final presets = _validQuantities(product);
     final min = _minQuantity(product);
     final name = product.localizedName(isAr);
 
     return Padding(
-      padding: const EdgeInsets.fromLTRB(16, 4, 16, 12),
+      padding: const EdgeInsetsDirectional.fromSTEB(16, 4, 16, 12),
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
@@ -606,13 +586,10 @@ class _QuickServicePageState extends State<QuickServicePage>
                 const SizedBox(width: 10),
                 Expanded(
                   child: Column(
-                    crossAxisAlignment:
-                        CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        isAr
-                            ? 'اختر الكمية'
-                            : 'Select Quantity',
+                        AppLocalizations.of(context)!.select_quantity,
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w700,
@@ -620,7 +597,7 @@ class _QuickServicePageState extends State<QuickServicePage>
                         ),
                       ),
                       Text(
-                        isAr ? 'لـ: $name' : 'for: $name',
+                        AppLocalizations.of(context)!.for_name,
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: const TextStyle(
@@ -642,21 +619,20 @@ class _QuickServicePageState extends State<QuickServicePage>
               children: [
                 // Preset quantity chips
                 ...presets.map((qty) {
-                  final isSelected =
-                      _selectedQuantity == qty && !_isCustom;
+                  final isSelected = _selectedQuantity == qty && !_isCustom;
                   return GestureDetector(
                     onTap: () => _selectQuantity(qty),
                     child: AnimatedContainer(
-                      duration:
-                          const Duration(milliseconds: 200),
+                      duration: const Duration(milliseconds: 200),
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 18, vertical: 10),
+                        horizontal: 18,
+                        vertical: 10,
+                      ),
                       decoration: BoxDecoration(
                         color: isSelected
                             ? AppColors.buttonBlueDark
                             : const Color(0xFFF4F8FB),
-                        borderRadius:
-                            BorderRadius.circular(100),
+                        borderRadius: BorderRadius.circular(100),
                         border: Border.all(
                           color: isSelected
                               ? AppColors.buttonBlueDark
@@ -666,12 +642,11 @@ class _QuickServicePageState extends State<QuickServicePage>
                         boxShadow: isSelected
                             ? [
                                 BoxShadow(
-                                  color: AppColors
-                                      .buttonBlueDark
-                                      .withValues(alpha: 0.25),
+                                  color: AppColors.buttonBlueDark.withValues(
+                                    alpha: 0.25,
+                                  ),
                                   blurRadius: 8,
-                                  offset:
-                                      const Offset(0, 3),
+                                  offset: const Offset(0, 3),
                                 ),
                               ]
                             : [],
@@ -681,9 +656,7 @@ class _QuickServicePageState extends State<QuickServicePage>
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w600,
-                          color: isSelected
-                              ? Colors.white
-                              : Colors.black87,
+                          color: isSelected ? Colors.white : Colors.black87,
                         ),
                       ),
                     ),
@@ -694,16 +667,16 @@ class _QuickServicePageState extends State<QuickServicePage>
                 GestureDetector(
                   onTap: _toggleCustom,
                   child: AnimatedContainer(
-                    duration:
-                        const Duration(milliseconds: 200),
+                    duration: const Duration(milliseconds: 200),
                     padding: const EdgeInsets.symmetric(
-                        horizontal: 18, vertical: 10),
+                      horizontal: 18,
+                      vertical: 10,
+                    ),
                     decoration: BoxDecoration(
                       color: _isCustom
                           ? const Color(0xFF1A6A8F)
                           : const Color(0xFFF4F8FB),
-                      borderRadius:
-                          BorderRadius.circular(100),
+                      borderRadius: BorderRadius.circular(100),
                       border: Border.all(
                         color: _isCustom
                             ? const Color(0xFF1A6A8F)
@@ -717,19 +690,15 @@ class _QuickServicePageState extends State<QuickServicePage>
                         Icon(
                           Icons.edit_rounded,
                           size: 14,
-                          color: _isCustom
-                              ? Colors.white
-                              : Colors.black54,
+                          color: _isCustom ? Colors.white : Colors.black54,
                         ),
                         const SizedBox(width: 5),
                         Text(
-                          isAr ? 'مخصص' : 'Custom',
+                          AppLocalizations.of(context)!.custom,
                           style: TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
-                            color: _isCustom
-                                ? Colors.white
-                                : Colors.black87,
+                            color: _isCustom ? Colors.white : Colors.black87,
                           ),
                         ),
                       ],
@@ -745,65 +714,46 @@ class _QuickServicePageState extends State<QuickServicePage>
               curve: Curves.easeOutCubic,
               child: _isCustom
                   ? Padding(
-                      padding: const EdgeInsets.only(top: 16),
+                      padding: const EdgeInsetsDirectional.only(top: 16),
                       child: Row(
                         children: [
                           Expanded(
                             child: TextField(
                               controller: _customController,
                               focusNode: _customFocusNode,
-                              keyboardType:
-                                  TextInputType.number,
+                              keyboardType: TextInputType.number,
                               inputFormatters: [
-                                FilteringTextInputFormatter
-                                    .digitsOnly,
+                                FilteringTextInputFormatter.digitsOnly,
                               ],
-                              onSubmitted: (_) =>
-                                  _confirmCustom(),
+                              onSubmitted: (_) => _confirmCustom(),
                               decoration: InputDecoration(
-                                hintText: isAr
-                                    ? 'أدخل الكمية (الحد الأدنى: $min)'
-                                    : 'Enter quantity (min: $min)',
+                                hintText: AppLocalizations.of(context)!.enter_quantity_min_min,
                                 hintStyle: const TextStyle(
-                                    fontSize: 13,
-                                    color: Colors.black38),
-                                contentPadding:
-                                    const EdgeInsets
-                                        .symmetric(
+                                  fontSize: 13,
+                                  color: Colors.black38,
+                                ),
+                                contentPadding: const EdgeInsets.symmetric(
                                   horizontal: 16,
                                   vertical: 12,
                                 ),
                                 filled: true,
-                                fillColor:
-                                    const Color(0xFFF4F8FB),
+                                fillColor: const Color(0xFFF4F8FB),
                                 border: OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.circular(
-                                          14),
-                                  borderSide:
-                                      const BorderSide(
-                                          color: Color(
-                                              0xFFE2EAF0)),
+                                  borderRadius: BorderRadius.circular(14),
+                                  borderSide: const BorderSide(
+                                    color: Color(0xFFE2EAF0),
+                                  ),
                                 ),
-                                enabledBorder:
-                                    OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.circular(
-                                          14),
-                                  borderSide:
-                                      const BorderSide(
-                                          color: Color(
-                                              0xFFE2EAF0)),
+                                enabledBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                  borderSide: const BorderSide(
+                                    color: Color(0xFFE2EAF0),
+                                  ),
                                 ),
-                                focusedBorder:
-                                    OutlineInputBorder(
-                                  borderRadius:
-                                      BorderRadius.circular(
-                                          14),
-                                  borderSide:
-                                      const BorderSide(
-                                    color: AppColors
-                                        .buttonBlueDark,
+                                focusedBorder: OutlineInputBorder(
+                                  borderRadius: BorderRadius.circular(14),
+                                  borderSide: const BorderSide(
+                                    color: AppColors.buttonBlueDark,
                                     width: 1.5,
                                   ),
                                 ),
@@ -814,22 +764,17 @@ class _QuickServicePageState extends State<QuickServicePage>
                           GestureDetector(
                             onTap: _confirmCustom,
                             child: Container(
-                              padding:
-                                  const EdgeInsets.all(12),
+                              padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color:
-                                    AppColors.buttonBlueDark,
-                                borderRadius:
-                                    BorderRadius.circular(14),
+                                color: AppColors.buttonBlueDark,
+                                borderRadius: BorderRadius.circular(14),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: AppColors
-                                        .buttonBlueDark
-                                        .withValues(
-                                            alpha: 0.3),
+                                    color: AppColors.buttonBlueDark.withValues(
+                                      alpha: 0.3,
+                                    ),
                                     blurRadius: 8,
-                                    offset:
-                                        const Offset(0, 3),
+                                    offset: const Offset(0, 3),
                                   ),
                                 ],
                               ),
@@ -851,17 +796,15 @@ class _QuickServicePageState extends State<QuickServicePage>
               const SizedBox(height: 12),
               Row(
                 children: [
-                  const Icon(Icons.info_outline_rounded,
-                      size: 14, color: Colors.black38),
+                  const Icon(
+                    Icons.info_outline_rounded,
+                    size: 14,
+                    color: Colors.black38,
+                  ),
                   const SizedBox(width: 5),
                   Text(
-                    isAr
-                        ? 'الحد الأدنى للطلب: $min وحدة'
-                        : 'Minimum order: $min units',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: Colors.black38,
-                    ),
+                    AppLocalizations.of(context)!.minimum_order_min_units,
+                    style: const TextStyle(fontSize: 12, color: Colors.black38),
                   ),
                 ],
               ),
@@ -881,7 +824,7 @@ class _QuickServicePageState extends State<QuickServicePage>
     final total = _totalAmount;
 
     return Container(
-      padding: EdgeInsets.fromLTRB(
+      padding: EdgeInsetsDirectional.fromSTEB(
         24,
         18,
         24,
@@ -910,7 +853,7 @@ class _QuickServicePageState extends State<QuickServicePage>
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  isAr ? 'المبلغ الإجمالي' : 'Total Amount',
+                  AppLocalizations.of(context)!.total_amount,
                   style: const TextStyle(
                     fontSize: 12,
                     color: Colors.black45,
@@ -920,17 +863,13 @@ class _QuickServicePageState extends State<QuickServicePage>
                 const SizedBox(height: 3),
                 AnimatedSwitcher(
                   duration: const Duration(milliseconds: 250),
-                  transitionBuilder: (child, anim) =>
-                      ScaleTransition(
+                  transitionBuilder: (child, anim) => ScaleTransition(
                     scale: anim,
-                    child: FadeTransition(
-                        opacity: anim, child: child),
+                    child: FadeTransition(opacity: anim, child: child),
                   ),
                   child: Text(
                     key: ValueKey(total),
-                    isAr
-                        ? '${total.toStringAsFixed(total.truncateToDouble() == total ? 0 : 2)} ر.س'
-                        : '${total.toStringAsFixed(total.truncateToDouble() == total ? 0 : 2)} SAR',
+                    isAr ? "${total.toStringAsFixed(total.truncateToDouble() == total ? 0 : 2)} ر.س" : "${total.toStringAsFixed(total.truncateToDouble() == total ? 0 : 2)} SAR",
                     style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w800,
@@ -941,13 +880,8 @@ class _QuickServicePageState extends State<QuickServicePage>
                 ),
                 if (qty > 0)
                   Text(
-                    isAr
-                        ? '$qty وحدة × ${price.toStringAsFixed(price.truncateToDouble() == price ? 0 : 2)} ر.س'
-                        : '$qty units × ${price.toStringAsFixed(price.truncateToDouble() == price ? 0 : 2)} SAR',
-                    style: const TextStyle(
-                      fontSize: 11,
-                      color: Colors.black38,
-                    ),
+                    isAr ? "$qty وحدة × ${price.toStringAsFixed(price.truncateToDouble() == price ? 0 : 2)} ر.س" : "$qty units × ${price.toStringAsFixed(price.truncateToDouble() == price ? 0 : 2)} SAR",
+                    style: const TextStyle(fontSize: 11, color: Colors.black38),
                   ),
               ],
             ),
@@ -960,22 +894,17 @@ class _QuickServicePageState extends State<QuickServicePage>
               // TODO: Navigate to payment/confirmation step
             },
             child: Container(
-              padding: const EdgeInsets.symmetric(
-                  horizontal: 28, vertical: 14),
+              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 14),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [
-                    Color(0xFF1A6A8F),
-                    Color(0xFF11506B)
-                  ],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
+                  colors: [Color(0xFF1A6A8F), Color(0xFF11506B)],
+                  begin: AlignmentDirectional.topStart,
+                  end: AlignmentDirectional.bottomEnd,
                 ),
                 borderRadius: BorderRadius.circular(50),
                 boxShadow: [
                   BoxShadow(
-                    color: AppColors.buttonBlueDark
-                        .withValues(alpha: 0.35),
+                    color: AppColors.buttonBlueDark.withValues(alpha: 0.35),
                     blurRadius: 14,
                     offset: const Offset(0, 5),
                   ),
@@ -985,7 +914,7 @@ class _QuickServicePageState extends State<QuickServicePage>
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Text(
-                    isAr ? 'متابعة' : 'Continue',
+                    AppLocalizations.of(context)!.continue_btn,
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 15,
@@ -998,12 +927,11 @@ class _QuickServicePageState extends State<QuickServicePage>
                     width: 28,
                     height: 28,
                     decoration: BoxDecoration(
-                      color:
-                          Colors.white.withValues(alpha: 0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       shape: BoxShape.circle,
                     ),
-                    child: const Icon(
-                      Icons.arrow_forward_rounded,
+                    child: Icon(
+                      forwardArrowIcon(context),
                       color: Colors.white,
                       size: 15,
                     ),

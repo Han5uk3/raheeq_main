@@ -24,7 +24,12 @@ class _HomeScreenState extends State<HomeScreen> {
     return [
       const HomeTab(),
       const OrdersTab(),
-      Center(child: Text(AppLocalizations.of(context)!.impact_page, style: const TextStyle(fontSize: 24))),
+      Center(
+        child: Text(
+          AppLocalizations.of(context)!.contact_us,
+          style: const TextStyle(fontSize: 24),
+        ),
+      ),
       const ProfileTab(),
     ];
   }
@@ -56,7 +61,7 @@ class _HomeScreenState extends State<HomeScreen> {
       case 1:
         return AppLocalizations.of(context)!.my_orders;
       case 2:
-        return AppLocalizations.of(context)!.impact_page;
+        return AppLocalizations.of(context)!.contact_us;
       case 3:
         return AppLocalizations.of(context)!.profile;
       default:
@@ -69,7 +74,7 @@ class _HomeScreenState extends State<HomeScreen> {
       case 1:
         return AppLocalizations.of(context)!.track_mosque_donations;
       case 2:
-        return AppLocalizations.of(context)!.ongoing_charity_rewards;
+        return "";
       case 3:
         return AppLocalizations.of(context)!.manage_account_settings;
       default:
@@ -137,8 +142,8 @@ class _HomeScreenState extends State<HomeScreen> {
             label: AppLocalizations.of(context)!.orders,
           ),
           CustomBottomNavItem(
-            icon: Icons.auto_graph_outlined,
-            label: AppLocalizations.of(context)!.impact,
+            icon: Icons.support_agent_outlined,
+            label: AppLocalizations.of(context)!.contact_us,
           ),
           CustomBottomNavItem(
             icon: Icons.person_outline,

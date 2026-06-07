@@ -1,3 +1,4 @@
+import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:raheeq_main/models/order_item.dart';
@@ -6,6 +7,7 @@ import 'package:raheeq_main/models/selected_category_item.dart';
 import 'package:raheeq_main/pages/order/product_selection_page.dart';
 import 'package:raheeq_main/pages/order/order_details_page.dart';
 import 'package:raheeq_main/utils/colors.dart';
+import 'package:raheeq_main/utils/rtl_helpers.dart';
 
 class SelectProductsScreen extends StatefulWidget {
   final List<SelectedCategoryItem> selectedCategories;
@@ -57,10 +59,8 @@ class _SelectProductsScreenState extends State<SelectProductsScreen> {
   @override
   Widget build(BuildContext context) {
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
-    final title = isAr ? 'تحديد المنتجات' : 'Select Products';
-    final subtitle = isAr
-        ? 'اختر المنتجات لكل فئة'
-        : 'Choose products for each category';
+    final title = AppLocalizations.of(context)!.select_products;
+    final subtitle = AppLocalizations.of(context)!.choose_products_for_each_category;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -110,31 +110,23 @@ class _SelectProductsScreenState extends State<SelectProductsScreen> {
                                 "";
                           } else if (optionType == 'most_in_need') {
                             if (slug == 'orphanages') {
-                              locationText = isAr
-                                  ? 'دار أيتام الأشد حاجة'
-                                  : 'Most needy orphanage';
+                              locationText = AppLocalizations.of(context)!.most_needy_orphanage;
                             } else if (slug == 'meqat_mosques') {
-                              locationText = isAr
-                                  ? 'مسجد ميقات الأشد حاجة'
-                                  : 'Most needy meqat mosque';
+                              locationText = AppLocalizations.of(context)!.most_needy_meqat_mosque;
                             } else if (slug == 'mosques_in_need') {
                               final city =
                                   state.categoryItem.specificData as String?;
                               locationText =
-                                  (isAr
-                                      ? 'الأشد حاجة في '
-                                      : 'Most in need in ') +
+                                  (AppLocalizations.of(context)!.most_in_need_in) +
                                   (city ?? '');
                             } else {
-                              locationText = isAr
-                                  ? 'الأشد حاجة'
-                                  : 'Most in need';
+                              locationText = AppLocalizations.of(context)!.most_in_need;
                             }
                           } else if (slug == 'remote_mosques' ||
                               slug == 'cemeteries') {
                             locationText = "";
                           } else {
-                            locationText = isAr ? "غير محدد" : "General";
+                            locationText = AppLocalizations.of(context)!.general;
                           }
 
                           return Card(
@@ -204,13 +196,11 @@ class _SelectProductsScreenState extends State<SelectProductsScreen> {
                                           ],
                                           if (hasProducts)
                                             Padding(
-                                              padding: const EdgeInsets.only(
+                                              padding: const EdgeInsetsDirectional.only(
                                                 top: 8.0,
                                               ),
                                               child: Text(
-                                                isAr
-                                                    ? "تم اختيار ${state.selectedProducts.length} منتجات"
-                                                    : "${state.selectedProducts.length} products selected",
+                                                isAr ? "تم اختيار ${state.selectedProducts.length} منتجات" : "${state.selectedProducts.length} products selected",
                                                 style: const TextStyle(
                                                   color: Colors.green,
                                                   fontWeight: FontWeight.bold,
@@ -222,7 +212,7 @@ class _SelectProductsScreenState extends State<SelectProductsScreen> {
                                       ),
                                     ),
                                     Icon(
-                                      Icons.chevron_right,
+                                      chevronEndIcon(context),
                                       color: Colors.grey[400],
                                     ),
                                   ],
@@ -259,7 +249,7 @@ class _SelectProductsScreenState extends State<SelectProductsScreen> {
                             ),
                           ),
                           child: Text(
-                            isAr ? 'متابعة' : 'Continue',
+                            AppLocalizations.of(context)!.continue_btn,
                             style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,

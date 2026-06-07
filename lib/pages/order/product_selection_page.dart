@@ -71,9 +71,7 @@ class _ProductSelectionPageState extends State<ProductSelectionPage> {
   Widget build(BuildContext context) {
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
     final title = widget.orderState.categoryItem.category.localizedLabel(isAr);
-    final subtitle = isAr
-        ? 'تحديد الكميات والملاحظات'
-        : 'Select quantities and notes';
+    final subtitle = AppLocalizations.of(context)!.select_quantities_and_notes;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -135,7 +133,7 @@ class _ProductSelectionPageState extends State<ProductSelectionPage> {
                           ),
                         ),
                         child: Text(
-                          isAr ? 'حفظ والعودة' : 'Save & Return',
+                          AppLocalizations.of(context)!.save_return,
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -216,7 +214,7 @@ class _ProductSelectionPageState extends State<ProductSelectionPage> {
             ),
             const SizedBox(height: 16),
             Text(
-              isAr ? 'الكمية' : 'Quantity',
+              AppLocalizations.of(context)!.quantity,
               style: const TextStyle(fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 8),
@@ -243,7 +241,7 @@ class _ProductSelectionPageState extends State<ProductSelectionPage> {
                   ),
                 // Custom Amount Input Trigger
                 ActionChip(
-                  label: Text(isAr ? 'كمية مخصصة' : 'Custom'),
+                  label: Text(AppLocalizations.of(context)!.custom),
                   onPressed: () =>
                       _showCustomQuantityDialog(product, currentQty, isAr),
                   backgroundColor: Colors.grey[200],
@@ -256,7 +254,7 @@ class _ProductSelectionPageState extends State<ProductSelectionPage> {
                 controller: TextEditingController(text: notes)
                   ..selection = TextSelection.collapsed(offset: notes.length),
                 decoration: InputDecoration(
-                  labelText: isAr ? 'ملاحظات (اختياري)' : 'Notes (Optional)',
+                  labelText: AppLocalizations.of(context)!.notes_optional,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -282,7 +280,7 @@ class _ProductSelectionPageState extends State<ProductSelectionPage> {
       context: context,
       builder: (context) {
         return AlertDialog(
-          title: Text(isAr ? 'أدخل الكمية' : 'Enter Quantity'),
+          title: Text(AppLocalizations.of(context)!.enter_quantity_204),
           content: TextField(
             controller: controller,
             keyboardType: TextInputType.number,
@@ -293,7 +291,7 @@ class _ProductSelectionPageState extends State<ProductSelectionPage> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: Text(isAr ? 'إلغاء' : 'Cancel'),
+              child: Text(AppLocalizations.of(context)!.cancel),
             ),
             ElevatedButton(
               onPressed: () {
@@ -303,7 +301,7 @@ class _ProductSelectionPageState extends State<ProductSelectionPage> {
                 }
                 Navigator.pop(context);
               },
-              child: Text(isAr ? 'تأكيد' : 'Confirm'),
+              child: Text(AppLocalizations.of(context)!.confirm),
             ),
           ],
         );

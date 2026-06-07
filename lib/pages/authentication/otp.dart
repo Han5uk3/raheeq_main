@@ -9,6 +9,7 @@ import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/pages/home/home_screen.dart';
 import 'package:raheeq_main/storage/auth_storage.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
+import 'package:raheeq_main/utils/rtl_helpers.dart';
 
 class OTP extends StatefulWidget {
   final String phoneNumber;
@@ -133,9 +134,9 @@ class _OTPState extends State<OTP> {
         centerTitle: true,
         backgroundColor: AppColors.buttonBlueDark,
         elevation: 0,
-        title: const Text(
-          "Enter Verification Code",
-          style: TextStyle(
+        title: Text(
+          AppLocalizations.of(context)!.enter_verification_code,
+          style: const TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.w700,
             color: Colors.white,
@@ -154,7 +155,8 @@ class _OTPState extends State<OTP> {
             ),
             child: IconButton(
               highlightColor: Colors.transparent,
-              icon: const Icon(Icons.arrow_back, color: Colors.black87),
+              icon: Icon(backArrowIcon(context)),
+              color: Colors.black87,
               onPressed: () => Navigator.pop(context),
             ),
           ),
@@ -172,7 +174,7 @@ class _OTPState extends State<OTP> {
                     bottomRight: Radius.circular(40),
                   ),
                   child: Container(
-                    padding: const EdgeInsets.only(bottom: 30),
+                    padding: const EdgeInsetsDirectional.only(bottom: 30),
                     height: MediaQuery.of(context).size.height * 0.35,
                     width: MediaQuery.of(context).size.width,
                     decoration: BoxDecoration(
@@ -189,10 +191,10 @@ class _OTPState extends State<OTP> {
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.only(
+                  padding: EdgeInsetsDirectional.only(
                     top: MediaQuery.of(context).size.height * 0.35 - 50,
-                    left: 24,
-                    right: 24,
+                    start: 24,
+                    end: 24,
                     bottom: 40,
                   ),
                   child: Container(
@@ -221,7 +223,7 @@ class _OTPState extends State<OTP> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          "We have sent OTP on your mobile number",
+                          AppLocalizations.of(context)!.otp_sent_message,
                           textAlign: TextAlign.start,
                           style: TextStyle(
                             fontSize: 12,
@@ -260,7 +262,7 @@ class _OTPState extends State<OTP> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Text(
-                                "Your Verification Code",
+                                AppLocalizations.of(context)!.your_verification_code,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 11,
@@ -357,8 +359,8 @@ class _OTPState extends State<OTP> {
                             children: [
                               Text(
                                 _canResend
-                                    ? "Didn't receive code? "
-                                    : "Resend code in ",
+                                    ? AppLocalizations.of(context)!.did_not_receive_code
+                                    : AppLocalizations.of(context)!.resend_code_in,
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: Colors.grey[600],
@@ -430,7 +432,7 @@ class _OTPState extends State<OTP> {
                                     }
                                   },
                                   child: Text(
-                                    "Resend",
+                                    AppLocalizations.of(context)!.resend,
                                     style: TextStyle(
                                       fontSize: 12,
                                       color: AppColors.buttonBlueDark,
@@ -559,9 +561,9 @@ class _OTPState extends State<OTP> {
                                 borderRadius: BorderRadius.circular(35),
                               ),
                             ),
-                            child: const Text(
-                              "Continue",
-                              style: TextStyle(
+                            child: Text(
+                              AppLocalizations.of(context)!.continue_btn,
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.w600,
                               ),

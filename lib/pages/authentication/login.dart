@@ -206,7 +206,7 @@ class _LoginState extends State<Login> {
         actions: const [
           Padding(
             padding: EdgeInsetsDirectional.only(end: 24),
-            child: LanguageSwitchButton(),
+            child: LanguageSwitchButton(isFromLogin: true),
           ),
         ],
       ),
@@ -222,9 +222,9 @@ class _LoginState extends State<Login> {
                     bottomRight: Radius.circular(40),
                   ),
                   child: Container(
-                    padding: const EdgeInsets.only(
-                      left: 20,
-                      right: 20,
+                    padding: const EdgeInsetsDirectional.only(
+                      start: 20,
+                      end: 20,
                       bottom: 35,
                     ),
                     height: MediaQuery.of(context).size.height * 0.35,
@@ -243,10 +243,10 @@ class _LoginState extends State<Login> {
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.only(
+                  padding: EdgeInsetsDirectional.only(
                     top: MediaQuery.of(context).size.height * 0.35 - 50,
-                    left: 24,
-                    right: 24,
+                    start: 24,
+                    end: 24,
                     bottom: 40,
                   ),
                   child: Container(

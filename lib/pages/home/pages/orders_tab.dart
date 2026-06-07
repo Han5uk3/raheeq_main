@@ -76,7 +76,7 @@ class OrdersTab extends StatelessWidget {
 
                 // Center(
                 //   child: Text(
-                //     isAr ? 'لا توجد طلبات جديدة' : 'No new orders',
+                //     AppLocalizations.of(context)!.no_new_orders,
                 //     style: const TextStyle(color: Colors.grey),
                 //   ),
                 // ),
@@ -90,7 +90,7 @@ class OrdersTab extends StatelessWidget {
                 // ),
                 // Center(
                 //   child: Text(
-                //     isAr ? 'لا توجد طلبات تم توصيلها' : 'No delivered orders',
+                //     AppLocalizations.of(context)!.no_delivered_orders,
                 //     style: const TextStyle(color: Colors.grey),
                 //   ),
                 // ),

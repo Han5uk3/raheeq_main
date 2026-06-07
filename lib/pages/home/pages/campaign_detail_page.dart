@@ -1,3 +1,4 @@
+import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
@@ -10,7 +11,10 @@ import 'package:raheeq_main/models/checkout.dart';
 import 'package:raheeq_main/pages/order/contribution_details_page.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
-import 'package:raheeq_main/pages/order/subscription_plan_selection_page.dart';
+import 'package:raheeq_main/common_widgets/donation_type_bottom_sheet.dart';
+import 'package:raheeq_main/common_widgets/subscription_plans_bottom_sheet.dart';
+import 'package:raheeq_main/common_widgets/subscription_details_bottom_sheet.dart';
+import 'package:raheeq_main/models/subscription_plan.dart';
 
 class CampaignDetailPage extends StatefulWidget {
   final Campaign campaign;
@@ -189,9 +193,9 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
                             topRight: Radius.circular(30),
                           ),
                           child: SingleChildScrollView(
-                            padding: const EdgeInsets.only(
-                              left: 12,
-                              right: 12,
+                            padding: const EdgeInsetsDirectional.only(
+                              start: 12,
+                              end: 12,
                               top: 85, // 80 overlap + 24 extra space
                               bottom: 120, // space for bottom bar
                             ),
@@ -199,9 +203,9 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
                                 ? _buildQuantitySection(context, isAr)
                                 : Center(
                                     child: Text(
-                                      isAr
-                                          ? 'اختر منتجاً للمتابعة'
-                                          : 'Select a product to continue',
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.select_a_product_to_continue,
                                       style: const TextStyle(
                                         color: Colors.grey,
                                       ),
@@ -310,9 +314,9 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(
-              product.slug.contains('meal') || product.slug.contains('food')
+              product.serialNumber == 3
                   ? Icons.restaurant_outlined
-                  : product.slug.contains('umbrella')
+                  : product.serialNumber == 5
                   ? Icons.beach_access_outlined
                   : Icons.water_drop_outlined,
               color: isSelected ? Colors.white : Colors.grey[400],
@@ -342,18 +346,18 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
 
     String itemNameEn(int qty) {
       final isPlural = qty > 1;
-      if (product.slug.contains('meal') || product.slug.contains('food')) {
+      if (product.serialNumber == 3) {
         return isPlural ? 'Meals' : 'Meal';
-      } else if (product.slug.contains('umbrella')) {
+      } else if (product.serialNumber == 5) {
         return isPlural ? 'Umbrellas' : 'Umbrella';
       }
       return isPlural ? 'Bottles' : 'Bottle';
     }
 
     String itemNameAr(int qty) {
-      if (product.slug.contains('meal') || product.slug.contains('food')) {
+      if (product.serialNumber == 3) {
         return 'وجبة';
-      } else if (product.slug.contains('umbrella')) {
+      } else if (product.serialNumber == 5) {
         return 'مظلة';
       }
       return 'زجاجة';
@@ -372,7 +376,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
                 const Icon(Icons.auto_awesome, color: Color(0xFF2381A6)),
                 const SizedBox(width: 8),
                 Text(
-                  isAr ? 'اختر تأثيرك' : 'Select Your Impact',
+                  AppLocalizations.of(context)!.select_your_impact,
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
@@ -423,8 +427,8 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
                       children: [
                         Text(
                           isAr
-                              ? '$qty ${itemNameAr(qty)}'
-                              : '$qty ${itemNameEn(qty)}',
+                              ? "$qty ${itemNameAr(qty)}"
+                              : "$qty ${itemNameEn(qty)}",
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 12,
@@ -434,8 +438,8 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
 
                         Text(
                           isAr
-                              ? 'ر.س ${price.toInt()}'
-                              : 'SAR ${price.toInt()}',
+                              ? "ر.س ${price.toInt()}"
+                              : "SAR ${price.toInt()}",
                           style: const TextStyle(
                             fontSize: 14,
                             color: Colors.grey,
@@ -449,9 +453,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
             ),
             const SizedBox(height: 32),
             Text(
-              isAr
-                  ? 'أو أدخل كمية مخصصة (الأدنى. $min)'
-                  : 'Or enter custom quantity (min. $min)',
+              AppLocalizations.of(context)!.or_enter_custom_quantity_min_min,
               style: const TextStyle(
                 fontWeight: FontWeight.w600,
                 fontSize: 15,
@@ -498,7 +500,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
                     color: Colors.black,
                     fontWeight: FontWeight.w500,
                   ),
-                  hintText: isAr ? 'أدخل الكمية' : 'Enter quantity',
+                  hintText: AppLocalizations.of(context)!.enter_quantity,
                   hintStyle: TextStyle(color: Colors.grey[400]),
                   border: InputBorder.none,
                   contentPadding: const EdgeInsets.symmetric(
@@ -518,7 +520,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
                   });
                 },
                 icon: const Icon(Icons.note_add_outlined, size: 20),
-                label: Text(isAr ? 'إضافة ملاحظة' : 'Add note'),
+                label: Text(AppLocalizations.of(context)!.add_note),
                 style: TextButton.styleFrom(
                   elevation: 3,
                   backgroundColor: Colors.white,
@@ -527,7 +529,11 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
               )
             else
               Container(
-                padding: const EdgeInsets.only(bottom: 16, right: 16, left: 16),
+                padding: const EdgeInsetsDirectional.only(
+                  bottom: 16,
+                  end: 16,
+                  start: 16,
+                ),
                 decoration: BoxDecoration(
                   color: const Color(0xFFF5F5F5),
                   borderRadius: BorderRadius.circular(16),
@@ -542,8 +548,8 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
                       children: [
                         Text(
                           isAr
-                              ? 'ملاحظة - ${product.localizedName(isAr)}'
-                              : 'Note - ${product.localizedName(isAr)}',
+                              ? "ملاحظة - ${product.localizedName(isAr)}"
+                              : "Note - ${product.localizedName(isAr)}",
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 15,
@@ -596,8 +602,8 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
               const SizedBox(height: 12),
               Text(
                 isAr
-                    ? '* شامل ر.س ${(_selectedQuantities[product.id]! * product.deliveryFee).toInt()} توصيل'
-                    : '* Incl. SAR ${(_selectedQuantities[product.id]! * product.deliveryFee).toInt()} delivery',
+                    ? "* شامل ر.س ${(_selectedQuantities[product.id]! * product.deliveryFee).toInt()} توصيل"
+                    : "* Incl. SAR ${(_selectedQuantities[product.id]! * product.deliveryFee).toInt()} delivery",
                 style: TextStyle(fontSize: 12, color: Colors.grey[600]),
               ),
             ],
@@ -642,7 +648,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                isAr ? 'المبلغ المستحق' : 'Payable Amount',
+                AppLocalizations.of(context)!.payable_amount,
                 style: const TextStyle(
                   fontSize: 12,
                   color: Colors.grey,
@@ -652,8 +658,8 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
               const SizedBox(height: 4),
               Text(
                 isAr
-                    ? '${total.toStringAsFixed(total.truncateToDouble() == total ? 0 : 2)} ر.س'
-                    : '${total.toStringAsFixed(total.truncateToDouble() == total ? 0 : 2)} SAR',
+                    ? "${total.toStringAsFixed(total.truncateToDouble() == total ? 0 : 2)} ر.س"
+                    : "${total.toStringAsFixed(total.truncateToDouble() == total ? 0 : 2)} SAR",
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w900,
@@ -662,11 +668,11 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
               ),
               if (deliveryTotal > 0)
                 Padding(
-                  padding: const EdgeInsets.only(top: 2),
+                  padding: const EdgeInsetsDirectional.only(top: 2),
                   child: Text(
                     isAr
-                        ? 'شامل ر.س ${deliveryTotal.toInt()} رسوم التوصيل'
-                        : 'Inclusive of SAR ${deliveryTotal.toInt()} delivery charge',
+                        ? "شامل ر.س ${deliveryTotal.toInt()} رسوم التوصيل"
+                        : "Inclusive of SAR ${deliveryTotal.toInt()} delivery charge",
                     style: const TextStyle(
                       fontSize: 11,
                       color: Colors.grey,
@@ -678,6 +684,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
           ),
           ElevatedButton(
             onPressed: () {
+              FocusManager.instance.primaryFocus?.unfocus();
               if (_hasAnySelection) {
                 _showDonationTypeDialog(context, isAr);
               }
@@ -691,7 +698,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
               ),
             ),
             child: Text(
-              isAr ? 'متابعة' : 'Continue',
+              AppLocalizations.of(context)!.continue_btn,
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
           ),
@@ -700,279 +707,119 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
     );
   }
 
+  List<Map<String, dynamic>> _prepareCheckoutItems() {
+    final List<Map<String, dynamic>> items = [];
+    _selectedQuantities.forEach((productId, qty) {
+      if (qty > 0) {
+        final note = _productNotes[productId];
+        final item = <String, dynamic>{
+          'productId': productId,
+          'quantity': qty,
+        };
+        if (note != null && note.trim().isNotEmpty) {
+          item['note'] = note.trim();
+        }
+        items.add(item);
+      }
+    });
+    return items;
+  }
+
   void _showDonationTypeDialog(BuildContext context, bool isAr) {
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      builder: (ctx) {
-        String selectedType = 'one_time';
-
-        return Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
-          ),
-          backgroundColor: Colors.white,
-          child: StatefulBuilder(
-            builder: (context, setState) {
-              return Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          isAr ? 'اختر نوع التبرع' : 'Choose Donation Type',
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        IconButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          icon: const Icon(Icons.close, color: Colors.black87),
-                        ),
-                      ],
-                    ),
-                    Text(
-                      isAr
-                          ? 'ادعم مرة واحدة أو اصنع أثراً مستداماً'
-                          : 'Support once or make a lasting impact',
-                      style: TextStyle(fontSize: 14, color: Colors.grey[500]),
-                    ),
-                    const SizedBox(height: 32),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: _buildDonationOption(
-                            isAr: isAr,
-                            title: isAr ? 'مرة واحدة' : 'One-Time',
-                            subtitle: isAr
-                                ? 'تبرع لمرة واحدة'
-                                : 'Single donation',
-                            icon: Icons.calendar_today_outlined,
-                            isSelected: selectedType == 'one_time',
-                            onTap: () {
-                              setState(() {
-                                selectedType = 'one_time';
-                              });
-                            },
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: _buildDonationOption(
-                            isAr: isAr,
-                            title: isAr ? 'شهري' : 'Monthly',
-                            subtitle: isAr ? 'أثر مستدام' : 'Recurring impact',
-                            icon: Icons.sync,
-                            isSelected: selectedType == 'monthly',
-                            onTap: () {
-                              setState(() {
-                                selectedType = 'monthly';
-                              });
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 32),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 56,
-                      child: ElevatedButton(
-                        onPressed: () async {
-                          final localIsAr =
-                              Localizations.localeOf(context).languageCode ==
-                              'ar';
-                          // Prepare items for checkout
-                          final List<Map<String, dynamic>> items = [];
-
-                          _selectedQuantities.forEach((productId, qty) {
-                            if (qty > 0) {
-                              final note = _productNotes[productId];
-                              final item = <String, dynamic>{
-                                'productId': productId,
-                                'quantity': qty,
-                              };
-                              if (note != null && note.trim().isNotEmpty) {
-                                item['note'] = note.trim();
-                              }
-                              items.add(item);
-                            }
-                          });
-
-                          if (selectedType == 'monthly') {
-                            Navigator.pop(ctx);
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => SubscriptionPlanSelectionPage(
-                                  checkoutItems: items,
-                                  orderStates: const [],
-                                  campaignId: widget.campaign.id,
-                                ),
-                              ),
-                            );
-                            return;
-                          }
-
-                          showDialog(
-                            context: ctx,
-                            barrierDismissible: false,
-                            builder: (BuildContext loadingCtx) {
-                              return const Center(
-                                child: WaterLoadingIndicator(),
-                              );
-                            },
-                          );
-
-                          try {
-                            final apiService = ApiService();
-                            final response = await apiService
-                                .createCheckoutCampaign(
-                                  campaignId: widget.campaign.id,
-                                  items: items,
-                                );
-                            log(
-                              'createCheckoutCampaign response: ${response.data}',
-                            );
-
-                            final checkoutDataMap = response.data['data'];
-                            final checkoutData = Checkout.fromJson(
-                              checkoutDataMap,
-                            );
-
-                            Navigator.pop(ctx); // Close loading dialog
-                            Navigator.pop(ctx); // Close donation type dialog
-
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) => ContributionDetailsPage(
-                                  orderStates: const [], // Empty for campaigns
-                                  donationType: localIsAr
-                                      ? (selectedType == 'one_time'
-                                            ? 'تبرع لمرة واحدة'
-                                            : 'تبرع شهري متكرر')
-                                      : (selectedType == 'one_time'
-                                            ? 'One-time Donation'
-                                            : 'Recurring Donation'),
-                                  checkoutData: checkoutData,
-                                ),
-                              ),
-                            );
-                          } catch (e) {
-                            Navigator.pop(ctx); // Close loading dialog
-                            log('Error creating checkout: $e', error: e);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  localIsAr
-                                      ? 'حدث خطأ. حاول مرة أخرى'
-                                      : 'Error occurred. Try again',
-                                ),
-                              ),
-                            );
-                          }
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(
-                            0xFF196482,
-                          ), // Darker blue for continue button
-                          foregroundColor: Colors.white,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(28),
-                          ),
-                        ),
-                        child: Text(
-                          isAr ? 'متابعة' : 'Continue',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        );
-      },
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => DonationTypeBottomSheet(
+        onOneTimeSelected: () => _processOneTimeCheckout(context, isAr),
+        onMonthlySelected: () => _showSubscriptionPlansBottomSheet(context, isAr),
+      ),
     );
   }
 
-  Widget _buildDonationOption({
-    required bool isAr,
-    required String title,
-    required String subtitle,
-    required IconData icon,
-    required bool isSelected,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Stack(
-        clipBehavior: Clip.none,
-        children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 8),
-            decoration: BoxDecoration(
-              color: isSelected
-                  ? const Color(0xFF389BB8)
-                  : const Color(0xFFF5F7FA),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Column(
-              children: [
-                Icon(
-                  icon,
-                  color: isSelected ? Colors.white : const Color(0xFF389BB8),
-                  size: 36,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: isSelected ? Colors.white : AppColors.buttonBlueDark,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: isSelected ? Colors.white70 : Colors.grey[500],
-                    fontSize: 13,
-                  ),
-                ),
-              ],
-            ),
-          ),
-          if (isSelected)
-            Positioned(
-              top: -8,
-              right: isAr ? null : -8,
-              left: isAr ? -8 : null,
-              child: Container(
-                width: 24,
-                height: 24,
-                decoration: BoxDecoration(
-                  color: const Color(0xFF389BB8),
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 4),
-                ),
-              ),
-            ),
-        ],
+  void _showSubscriptionPlansBottomSheet(BuildContext context, bool isAr) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => SubscriptionPlansBottomSheet(
+        onPlanSelected: (plan) {
+          _showSubscriptionDetailsBottomSheet(context, plan, isAr);
+        },
+        onBack: () {
+          _showDonationTypeDialog(context, isAr);
+        },
       ),
     );
+  }
+
+  void _showSubscriptionDetailsBottomSheet(BuildContext context, SubscriptionPlan plan, bool isAr) {
+    final items = _prepareCheckoutItems();
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => SubscriptionDetailsBottomSheet(
+        plan: plan,
+        checkoutItems: items,
+        orderStates: const [],
+        campaignId: widget.campaign.id,
+        onBack: () {
+          _showSubscriptionPlansBottomSheet(context, isAr);
+        },
+      ),
+    );
+  }
+
+  Future<void> _processOneTimeCheckout(BuildContext context, bool isAr) async {
+    final items = _prepareCheckoutItems();
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext loadingCtx) {
+        return const Center(
+          child: WaterLoadingIndicator(),
+        );
+      },
+    );
+
+    try {
+      final apiService = ApiService();
+      final response = await apiService.createCheckoutCampaign(
+        campaignId: widget.campaign.id,
+        items: items,
+      );
+      log('createCheckoutCampaign response: ${response.data}');
+
+      final checkoutDataMap = response.data['data'];
+      final checkoutData = Checkout.fromJson(checkoutDataMap);
+
+      Navigator.pop(context); // Close loading dialog
+
+      if (mounted) {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => ContributionDetailsPage(
+              orderStates: const [], // Empty for campaigns
+              donationType: isAr ? 'تبرع لمرة واحدة' : 'One-time Donation',
+              checkoutData: checkoutData,
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      Navigator.pop(context); // Close loading dialog
+      log('Error creating checkout: $e', error: e);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              isAr ? 'حدث خطأ. حاول مرة أخرى' : 'Error occurred. Try again',
+            ),
+          ),
+        );
+      }
+    }
   }
 }

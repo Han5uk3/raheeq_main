@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:raheeq_main/utils/colors.dart';
+import 'package:raheeq_main/utils/rtl_helpers.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String title;
@@ -90,7 +91,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
         child: IconButton(
           highlightColor: Colors.transparent,
-          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          icon: Icon(backArrowIcon(context)),
+          color: Colors.black87,
           onPressed: onBackTap ?? () => Navigator.pop(context),
         ),
       ),
@@ -172,7 +174,7 @@ class CustomSliverAppBar extends StatelessWidget {
             ? LayoutBuilder(
                 builder: (context, constraints) {
                   return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 16, 0),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.end,
                       crossAxisAlignment: isStartAligned
@@ -217,7 +219,8 @@ class CustomSliverAppBar extends StatelessWidget {
         ),
         child: IconButton(
           highlightColor: Colors.transparent,
-          icon: const Icon(Icons.arrow_back, color: Colors.black87),
+          icon: Icon(backArrowIcon(context)),
+          color: Colors.black87,
           onPressed: onBackTap ?? () => Navigator.pop(context),
         ),
       ),

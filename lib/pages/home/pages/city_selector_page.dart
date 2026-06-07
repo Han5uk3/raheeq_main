@@ -1,3 +1,4 @@
+import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
@@ -100,7 +101,7 @@ class _CitySelectorPageState extends State<CitySelectorPage> {
               child: Row(
                 children: _selectedItemsList.map((item) {
                   return Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
+                    padding: const EdgeInsetsDirectional.only(end: 8.0),
                     child: Chip(
                       backgroundColor: const Color(0xFFE8F4FA),
                       side: BorderSide.none,
@@ -142,7 +143,7 @@ class _CitySelectorPageState extends State<CitySelectorPage> {
                       ),
                     ),
                     child: Text(
-                      isAr ? 'إزالة التحديد' : 'Clear All',
+                      AppLocalizations.of(context)!.clear_all,
                       style: const TextStyle(
                         color: Colors.redAccent,
                         fontWeight: FontWeight.bold,
@@ -165,7 +166,7 @@ class _CitySelectorPageState extends State<CitySelectorPage> {
                       ),
                     ),
                     child: Text(
-                      isAr ? 'تأكيد الاختيار' : 'Confirm Selection',
+                      AppLocalizations.of(context)!.confirm_selection,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -185,8 +186,8 @@ class _CitySelectorPageState extends State<CitySelectorPage> {
   @override
   Widget build(BuildContext context) {
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
-    final title = isAr ? 'اختر مدناً' : 'Choose Cities';
-    final subtitle = isAr ? 'اختر المدن الأكثر احتياجاً' : 'Select the most needy cities';
+    final title = AppLocalizations.of(context)!.choose_cities;
+    final subtitle = AppLocalizations.of(context)!.select_the_most_needy_cities;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -230,7 +231,7 @@ class _CitySelectorPageState extends State<CitySelectorPage> {
                         child: TextField(
                           controller: _searchController,
                           decoration: InputDecoration(
-                            hintText: isAr ? 'ابحث عن مدينة...' : 'Search for a city...',
+                            hintText: AppLocalizations.of(context)!.search_for_a_city,
                             prefixIcon: const Icon(Icons.search, color: Colors.grey),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(30),
@@ -249,7 +250,7 @@ class _CitySelectorPageState extends State<CitySelectorPage> {
                   child: _isLoading
                       ? const Center(child: WaterLoadingIndicator(size: 30))
                       : _filteredCities.isEmpty
-                          ? Center(child: Text(isAr ? 'لا توجد مدن' : 'No cities found'))
+                          ? Center(child: Text(AppLocalizations.of(context)!.no_cities_found))
                           : ListView.separated(
                               padding: const EdgeInsets.all(16),
                               itemCount: _filteredCities.length,

@@ -5,6 +5,7 @@ import 'package:raheeq_main/pages/home/home_screen.dart';
 import 'package:raheeq_main/pages/authentication/login.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
+import 'package:raheeq_main/utils/rtl_helpers.dart';
 
 class Registration extends StatefulWidget {
   final String phoneNumber;
@@ -86,7 +87,8 @@ class _RegistrationState extends State<Registration> {
             ),
             child: IconButton(
               highlightColor: Colors.transparent,
-              icon: const Icon(Icons.arrow_back, color: Colors.black87),
+              icon: Icon(backArrowIcon(context)),
+              color: Colors.black87,
               onPressed: () => Navigator.pushAndRemoveUntil(
                 context,
                 MaterialPageRoute(builder: (context) => const Login()),
@@ -98,7 +100,7 @@ class _RegistrationState extends State<Registration> {
         actions: const [
           Padding(
             padding: EdgeInsetsDirectional.only(end: 24),
-            child: LanguageSwitchButton(),
+            child: LanguageSwitchButton(isFromLogin: false),
           ),
         ],
       ),
@@ -121,10 +123,10 @@ class _RegistrationState extends State<Registration> {
                   ),
                 ),
                 Padding(
-                  padding: EdgeInsets.only(
+                  padding: EdgeInsetsDirectional.only(
                     top: MediaQuery.of(context).size.height * 0.05,
-                    left: 24,
-                    right: 24,
+                    start: 24,
+                    end: 24,
                     bottom: 40,
                   ),
                   child: Container(
@@ -169,9 +171,9 @@ class _RegistrationState extends State<Registration> {
                                     ),
                                   ),
                                 ),
-                                Positioned(
+                                PositionedDirectional(
                                   bottom: 0,
-                                  right: 0,
+                                  end: 0,
                                   child: Container(
                                     padding: const EdgeInsets.all(8),
                                     decoration: BoxDecoration(
@@ -209,8 +211,11 @@ class _RegistrationState extends State<Registration> {
                           const SizedBox(height: 16),
                           _buildTextField(
                             controller: _emailController,
-                            label: "${AppLocalizations.of(context)!.email_address} (${Localizations.localeOf(context).languageCode == 'ar' ? 'اختياري' : 'Optional'})",
-                            hint: Localizations.localeOf(context).languageCode == 'ar'
+                            label:
+                                "${AppLocalizations.of(context)!.email_address} (${Localizations.localeOf(context).languageCode == 'ar' ? 'اختياري' : 'Optional'})",
+                            hint:
+                                Localizations.localeOf(context).languageCode ==
+                                    'ar'
                                 ? "أدخل البريد الإلكتروني (اختياري)"
                                 : "Enter your email (optional)",
                             icon: Icons.email_outlined,
@@ -291,7 +296,11 @@ class _RegistrationState extends State<Registration> {
                                   } catch (e) {
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text(AppLocalizations.of(context)!.error_msg(e.toString())),
+                                        content: Text(
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.error_msg(e.toString()),
+                                        ),
                                       ),
                                     );
                                   }
@@ -357,7 +366,7 @@ class _RegistrationState extends State<Registration> {
         ),
         const SizedBox(height: 8),
         Container(
-          padding: EdgeInsets.only(bottom: hasError == true ? 8 : 0),
+          padding: EdgeInsetsDirectional.only(bottom: hasError == true ? 8 : 0),
           decoration: BoxDecoration(
             color: enabled ? Colors.white : Colors.grey[100],
             borderRadius: BorderRadius.circular(15),
@@ -428,7 +437,7 @@ class _RegistrationState extends State<Registration> {
         ),
         const SizedBox(height: 8),
         Container(
-          padding: EdgeInsets.only(bottom: hasError == true ? 8 : 0),
+          padding: EdgeInsetsDirectional.only(bottom: hasError == true ? 8 : 0),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(15),

@@ -204,27 +204,21 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
     if (widget.slug == 'orphanages') {
       title =
           widget.title ??
-          (isAr ? 'اختر دار أيتام محددة' : 'Choose Specific Orphanage');
-      subtitle = isAr
-          ? 'اختر داراً لإيصال المياه إليها'
-          : 'Select an orphanage to deliver water to';
-      listTabText = isAr ? 'قائمة دور الأيتام' : 'List of Orphanages';
+          (AppLocalizations.of(context)!.choose_specific_orphanage);
+      subtitle = AppLocalizations.of(context)!.select_an_orphanage_to_deliver_water_to;
+      listTabText = AppLocalizations.of(context)!.list_of_orphanages;
     } else if (widget.slug == 'meqat_mosques') {
       title =
           widget.title ??
-          (isAr ? 'اختر ميقات محدد' : 'Choose Specific Meqat Mosque');
-      subtitle = isAr
-          ? 'اختر مسجداً لإيصال المياه إليه'
-          : 'Select a mosque to deliver water to';
-      listTabText = isAr ? 'قائمة المواقيت' : 'List of Meqat mosques';
+          (AppLocalizations.of(context)!.choose_specific_meqat_mosque);
+      subtitle = AppLocalizations.of(context)!.select_a_mosque_to_deliver_water_to;
+      listTabText = AppLocalizations.of(context)!.list_of_meqat_mosques;
     } else {
       title =
           widget.title ??
-          (isAr ? 'اختر مسجداً محدداً' : 'Choose Specific Mosque');
-      subtitle = isAr
-          ? 'اختر مسجداً لإيصال المياه إليه'
-          : 'Select a mosque to deliver water to';
-      listTabText = isAr ? 'قائمة المساجد' : 'List of Mosques';
+          (AppLocalizations.of(context)!.choose_specific_mosque);
+      subtitle = AppLocalizations.of(context)!.select_a_mosque_to_deliver_water_to;
+      listTabText = AppLocalizations.of(context)!.list_of_mosques;
     }
 
     return Scaffold(
@@ -266,7 +260,7 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
                   indicatorSize: TabBarIndicatorSize.label,
                   tabs: [
                     Tab(text: listTabText),
-                    Tab(text: isAr ? 'الاختيار من الخريطة' : 'Choose from Map'),
+                    Tab(text: AppLocalizations.of(context)!.choose_from_map),
                   ],
                 ),
                 Expanded(
@@ -300,10 +294,10 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
           controller: _searchController,
           decoration: InputDecoration(
             hintText: widget.slug == 'orphanages'
-                ? (isAr ? 'بحث في دور الأيتام...' : 'Search orphanages...')
+                ? (AppLocalizations.of(context)!.search_orphanages)
                 : widget.slug == 'meqat_mosques'
-                ? (isAr ? 'بحث في المواقيت...' : 'Search meqat mosques...')
-                : (isAr ? 'بحث في المساجد...' : 'Search mosques...'),
+                ? (AppLocalizations.of(context)!.search_meqat_mosques)
+                : (AppLocalizations.of(context)!.search_mosques),
             hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
             prefixIcon: const Icon(Icons.search, color: Colors.grey),
             border: InputBorder.none,
@@ -328,7 +322,7 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
             dropdownColor: Colors.white,
             borderRadius: BorderRadius.circular(15),
             hint: Text(
-              isAr ? 'اختر المدينة' : 'Select city',
+              AppLocalizations.of(context)!.select_city,
               style: TextStyle(color: Colors.grey[400], fontSize: 14),
             ),
             value: _selectedCity,
@@ -364,11 +358,11 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
     if (_filteredItems.isEmpty) {
       String emptyText;
       if (widget.slug == 'orphanages') {
-        emptyText = isAr ? 'لا توجد دور أيتام' : 'No orphanages found';
+        emptyText = AppLocalizations.of(context)!.no_orphanages_found;
       } else if (widget.slug == 'meqat_mosques') {
-        emptyText = isAr ? 'لا توجد مواقيت' : 'No meqat mosques found';
+        emptyText = AppLocalizations.of(context)!.no_meqat_mosques_found;
       } else {
-        emptyText = isAr ? 'لا توجد مساجد' : 'No mosques found';
+        emptyText = AppLocalizations.of(context)!.no_mosques_found;
       }
       return Center(child: Text(emptyText));
     }
@@ -533,7 +527,7 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
                 right: isAr ? null : 10,
                 left: isAr ? 10 : null,
                 child: Container(
-                  margin: const EdgeInsets.only(left: 8, right: 8),
+                  margin: const EdgeInsetsDirectional.only(start: 8, end: 8),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 10,
                     vertical: 6,
@@ -553,7 +547,7 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
                       ),
                       const SizedBox(width: 4),
                       Text(
-                        isAr ? 'الأكثر احتياجاً' : 'High Need',
+                        AppLocalizations.of(context)!.high_need,
                         style: const TextStyle(
                           color: AppColors.buttonBlue,
                           fontWeight: FontWeight.bold,
@@ -648,7 +642,7 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
               itemBuilder: (context, index) {
                 final item = _selectedItemsList[index];
                 return Container(
-                  margin: const EdgeInsets.only(right: 8),
+                  margin: const EdgeInsetsDirectional.only(end: 8),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 12,
                     vertical: 8,
@@ -706,7 +700,7 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
                       borderRadius: BorderRadius.circular(30),
                     ),
                   ),
-                  child: Text(isAr ? 'مسح الكل' : 'Clear All'),
+                  child: Text(AppLocalizations.of(context)!.clear_all),
                 ),
               ),
               const SizedBox(width: 12),
@@ -725,7 +719,7 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
                     ),
                   ),
                   child: Text(
-                    isAr ? 'تأكيد الاختيار' : 'Confirm Selection',
+                    AppLocalizations.of(context)!.confirm_selection,
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),

@@ -12,6 +12,7 @@ import 'package:raheeq_main/pages/home/pages/my_profile_screen.dart';
 import 'package:raheeq_main/pages/home/pages/saved_mosques_page.dart';
 import 'package:raheeq_main/pages/home/pages/recurring_donations_page.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
+import 'package:raheeq_main/utils/rtl_helpers.dart';
 
 class ProfileTab extends StatefulWidget {
   const ProfileTab({super.key});
@@ -118,7 +119,7 @@ class _ProfileTabState extends State<ProfileTab> {
                 Container(
                   width: double.infinity,
                   color: const Color(0x4D91E3FE),
-                  padding: const EdgeInsets.fromLTRB(16, 60, 16, 20),
+                  padding: const EdgeInsetsDirectional.fromSTEB(16, 60, 16, 20),
                   child: Center(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
@@ -459,8 +460,8 @@ class _ProfileTabState extends State<ProfileTab> {
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     gradient: const LinearGradient(
-                      begin: Alignment.bottomRight,
-                      end: Alignment.topLeft,
+                      begin: AlignmentDirectional.bottomEnd,
+                      end: AlignmentDirectional.topStart,
                       colors: [
                         Color(
                           0xFFBCECF5,
@@ -580,7 +581,10 @@ class _ProfileTabState extends State<ProfileTab> {
                   color: const Color(0xFFF2F4F5),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Icon(icon, color: const Color(0xFF48B3D2), size: 22),
+                child: Transform.scale(
+                  scaleX: isRtl(context) ? -1 : 1,
+                  child: Icon(icon, color: const Color(0xFF48B3D2), size: 22),
+                ),
               ),
               const SizedBox(width: 16),
               Expanded(
@@ -598,10 +602,14 @@ class _ProfileTabState extends State<ProfileTab> {
                   ],
                 ),
               ),
-              Icon(
-                Icons.arrow_forward_ios_rounded,
-                color: Colors.grey[300],
-                size: 14,
+              Transform.scale(
+                scaleX: isRtl(context) ? -1 : 1,
+                child: Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  color: Colors.grey[300],
+                  size: 14,
+                  textDirection: TextDirection.ltr,
+                ),
               ),
             ],
           ),

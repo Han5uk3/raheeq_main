@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/utils/colors.dart';
+import 'package:raheeq_main/utils/rtl_helpers.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 
@@ -80,7 +81,7 @@ class _MyWalletPageState extends State<MyWalletPage> {
         elevation: 0,
         centerTitle: true,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new, color: Colors.black),
+          icon: Icon(backArrowIcon(context), color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -122,8 +123,8 @@ class _MyWalletPageState extends State<MyWalletPage> {
       decoration: BoxDecoration(
         gradient: const LinearGradient(
           colors: [AppColors.buttonBlueDark, AppColors.headerlightblue],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+          begin: AlignmentDirectional.topStart,
+          end: AlignmentDirectional.bottomEnd,
         ),
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
@@ -224,7 +225,7 @@ class _MyWalletPageState extends State<MyWalletPage> {
             style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
           ),
           subtitle: Padding(
-            padding: const EdgeInsets.only(top: 4),
+            padding: const EdgeInsetsDirectional.only(top: 4),
             child: Text(
               formattedDate,
               style: const TextStyle(color: Colors.grey, fontSize: 12),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:raheeq_main/l10n/app_localizations.dart';
 import '../../../utils/colors.dart';
 
 class OptionSelectorDialog extends StatefulWidget {
@@ -91,52 +92,83 @@ class _OptionSelectorDialogState extends State<OptionSelectorDialog> {
             const SizedBox(height: 24),
 
             if (widget.showClearOption) ...[
-              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context).pop('clear');
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.redAccent,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      child: Text(
+                        AppLocalizations.of(context)!.clear_all,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: _selectedOption == null
+                          ? null
+                          : () {
+                              Navigator.of(context).pop(_selectedOption);
+                            },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.buttonBlueDark,
+                        foregroundColor: Colors.white,
+                        disabledBackgroundColor: Colors.grey.shade300,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(30),
+                        ),
+                      ),
+                      child: Text(
+                        continueText,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ] else ...[
               ElevatedButton(
-                onPressed: () {
-                  Navigator.of(context).pop('clear');
-                },
+                onPressed: _selectedOption == null
+                    ? null
+                    : () {
+                        Navigator.of(context).pop(_selectedOption);
+                      },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.redAccent,
+                  backgroundColor: AppColors.buttonBlueDark,
                   foregroundColor: Colors.white,
+                  disabledBackgroundColor: Colors.grey.shade300,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),
                 ),
                 child: Text(
-                  isAr ? 'إزالة التحديد' : 'Clear Selection',
+                  continueText,
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
               ),
-              const SizedBox(height: 8),
             ],
-            ElevatedButton(
-              onPressed: _selectedOption == null
-                  ? null
-                  : () {
-                      Navigator.of(context).pop(_selectedOption);
-                    },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.buttonBlueDark,
-                foregroundColor: Colors.white,
-                disabledBackgroundColor: Colors.grey.shade300,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-              ),
-              child: Text(
-                continueText,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
           ],
         ),
       ),

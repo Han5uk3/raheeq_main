@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:raheeq_main/pages/home/pages/home_tab.dart';
 import 'package:raheeq_main/utils/colors.dart';
+import 'package:raheeq_main/l10n/app_localizations.dart';
 
 enum PaymentStatus { success, failed, pendingApproval }
 
@@ -30,30 +31,24 @@ class PaymentStatusPage extends StatelessWidget {
       case PaymentStatus.success:
         lottieUrl =
             'https://lottie.host/b02cb06a-a827-4a7b-a2eb-45de4e0bf31c/zZ7Z7Z7Z7Z.json'; // Public success animation
-        title = isAr ? 'تم الدفع بنجاح!' : 'Payment Successful!';
-        description = isAr
-            ? 'شكراً لتبرعك. جعله الله في ميزان حسناتك.'
-            : 'Thank you for your donation.';
+        title = AppLocalizations.of(context)!.payment_successful;
+        description = AppLocalizations.of(context)!.thank_you_for_your_donation;
         color = Colors.green;
         break;
       case PaymentStatus.failed:
         lottieUrl =
             'https://lottie.host/8cd58752-dfaf-426c-a496-c146e4941d3b/zZ7Z7Z7Z7Z.json'; // Public failed animation
-        title = isAr ? 'فشلت عملية الدفع' : 'Payment Failed';
+        title = AppLocalizations.of(context)!.payment_failed;
         description =
             message ??
-            (isAr
-                ? 'حدث خطأ أثناء معالجة الدفع.'
-                : 'An error occurred while processing the payment.');
+            (AppLocalizations.of(context)!.an_error_occurred_while_processing_the_payment);
         color = Colors.red;
         break;
       case PaymentStatus.pendingApproval:
         lottieUrl =
             'https://lottie.host/b02cb06a-a827-4a7b-a2eb-45de4e0bf31c/zZ7Z7Z7Z7Z.json'; // Reusing success for pending
-        title = isAr ? 'قيد المراجعة' : 'Pending Approval';
-        description = isAr
-            ? 'تم استلام طلب التحويل البنكي وهو قيد المراجعة.'
-            : 'Bank transfer receipt received. Awaiting admin approval.';
+        title = AppLocalizations.of(context)!.pending_approval;
+        description = AppLocalizations.of(context)!.bank_transfer_receipt_received_awaiting_admin_approval;
         color = Colors.orange;
         break;
     }
@@ -121,7 +116,7 @@ class PaymentStatusPage extends StatelessWidget {
                     ),
                   ),
                   child: Text(
-                    isAr ? 'إعادة المحاولة' : 'Retry Payment',
+                    AppLocalizations.of(context)!.retry_payment,
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -146,7 +141,7 @@ class PaymentStatusPage extends StatelessWidget {
                   ),
                 ),
                 child: Text(
-                  isAr ? 'العودة للرئيسية' : 'Back to Home',
+                  AppLocalizations.of(context)!.back_to_home,
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,

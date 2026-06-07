@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../authentication/login.dart';
 import '../../storage/auth_storage.dart';
 import '../../pages/home/home_screen.dart';
+import 'package:raheeq_main/l10n/app_localizations.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -73,11 +74,11 @@ class _SplashScreenState extends State<SplashScreen>
               mainAxisSize: MainAxisSize.min,
               children: [
                 Stack(
-                  alignment: Alignment.centerLeft,
+                  alignment: AlignmentDirectional.centerStart,
                   children: [
                     Image.asset('assets/logobg.png', width: 100, height: 100),
                     Padding(
-                      padding: const EdgeInsets.only(left: 20.0),
+                      padding: const EdgeInsetsDirectional.only(start: 20.0),
                       child: Image.asset(
                         'assets/logo.png',
                         width: 100,
@@ -87,9 +88,9 @@ class _SplashScreenState extends State<SplashScreen>
                   ],
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  'Serve The Guest of Allah',
-                  style: TextStyle(
+                Text(
+                  AppLocalizations.of(context)!.serveTheGuestOfAllah,
+                  style: const TextStyle(
                     color: Colors.white,
                     fontSize: 12,
                     fontWeight: FontWeight.bold,

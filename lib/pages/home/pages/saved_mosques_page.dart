@@ -134,8 +134,8 @@ class _SavedMosquesPageState extends State<SavedMosquesPage> {
           CustomAppBar(
             hasBackgroundColor: true,
             isStartAligned: true,
-            title: isAr ? 'المساجد المحفوظة' : 'Saved Mosques',
-            subtitle: isAr ? 'المساجد المفضلة لديك' : 'Your favorite mosques',
+            title: AppLocalizations.of(context)!.saved_mosques,
+            subtitle: AppLocalizations.of(context)!.your_favorite_mosques,
             showBackButton: true,
             onBackTap: () => Navigator.pop(context),
           ),
@@ -147,9 +147,7 @@ class _SavedMosquesPageState extends State<SavedMosquesPage> {
                 : _savedMosques.isEmpty
                 ? Center(
                     child: Text(
-                      isAr
-                          ? 'لا توجد مساجد محفوظة.'
-                          : 'No saved mosques found.',
+                      AppLocalizations.of(context)!.no_saved_mosques_found,
                     ),
                   )
                 : ListView.separated(
@@ -306,7 +304,7 @@ class _SavedMosquesPageState extends State<SavedMosquesPage> {
               itemBuilder: (context, index) {
                 final item = _selectedItemsList[index];
                 return Container(
-                  margin: const EdgeInsets.only(right: 8),
+                  margin: const EdgeInsetsDirectional.only(end: 8),
                   padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
                   decoration: BoxDecoration(
                     color: AppColors.buttonBlue.withValues(alpha: 0.1),
@@ -353,7 +351,7 @@ class _SavedMosquesPageState extends State<SavedMosquesPage> {
                       borderRadius: BorderRadius.circular(30),
                     ),
                   ),
-                  child: Text(isAr ? 'مسح الكل' : 'Clear All'),
+                  child: Text(AppLocalizations.of(context)!.clear_all),
                 ),
               ),
               const SizedBox(width: 12),
@@ -370,7 +368,7 @@ class _SavedMosquesPageState extends State<SavedMosquesPage> {
                     ),
                   ),
                   child: Text(
-                    isAr ? 'متابعة' : 'Continue',
+                    AppLocalizations.of(context)!.continue_btn,
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                 ),

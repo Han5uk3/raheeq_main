@@ -1,3 +1,4 @@
+import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:raheeq_main/utils/colors.dart';
@@ -8,8 +9,8 @@ class NotificationsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
-    final title = isAr ? 'الإشعارات' : 'Notifications';
-    final subtitle = isAr ? 'آخر التحديثات والتنبيهات' : 'Latest updates and alerts';
+    final title = AppLocalizations.of(context)!.notifications;
+    final subtitle = AppLocalizations.of(context)!.latest_updates_and_alerts;
 
     return Scaffold(
       backgroundColor: Colors.white,

@@ -1,6 +1,8 @@
+import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
+import 'package:raheeq_main/common_widgets/language_switch.dart';
 import 'package:raheeq_main/utils/colors.dart';
 
 class AppSettingsPage extends StatefulWidget {
@@ -32,8 +34,8 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
   @override
   Widget build(BuildContext context) {
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
-    final title = isAr ? 'إعدادات التطبيق' : 'App Settings';
-    final subtitle = isAr ? 'إدارة التفضيلات ومعلومات التطبيق' : 'Manage preferences and app info';
+    final title = AppLocalizations.of(context)!.app_settings;
+    final subtitle = AppLocalizations.of(context)!.manage_preferences_and_app_info;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -64,9 +66,47 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Language Switch
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFF2F4F5),
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.language,
+                                  color: AppColors.buttonBlue,
+                                ),
+                                const SizedBox(width: 16),
+                                Text(
+                                  AppLocalizations.of(context)!.app_language,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const LanguageSwitchButton(isFromLogin: false),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+
                       // Dark Mode Switch
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
                         decoration: BoxDecoration(
                           color: const Color(0xFFF2F4F5),
                           borderRadius: BorderRadius.circular(16),
@@ -77,12 +117,14 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                             Row(
                               children: [
                                 Icon(
-                                  _isDarkMode ? Icons.dark_mode : Icons.light_mode,
+                                  _isDarkMode
+                                      ? Icons.dark_mode
+                                      : Icons.light_mode,
                                   color: AppColors.buttonBlue,
                                 ),
                                 const SizedBox(width: 16),
                                 Text(
-                                  isAr ? 'الوضع الداكن' : 'Dark Mode',
+                                  AppLocalizations.of(context)!.dark_mode,
                                   style: const TextStyle(
                                     fontSize: 16,
                                     fontWeight: FontWeight.w500,
@@ -98,7 +140,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                                 });
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text(isAr ? 'تبديل السمة قريباً' : 'Theme switching coming soon'),
+                                    content: Text(
+                                      AppLocalizations.of(context)!.theme_switching_coming_soon,
+                                    ),
                                     duration: const Duration(seconds: 1),
                                   ),
                                 );
@@ -109,10 +153,10 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                         ),
                       ),
                       const SizedBox(height: 24),
-                      
+
                       // App Info Card
                       Text(
-                        isAr ? 'معلومات التطبيق' : 'App Information',
+                        AppLocalizations.of(context)!.app_information,
                         style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
@@ -136,12 +180,21 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                         ),
                         child: Column(
                           children: [
-                            _buildInfoRow(isAr ? 'الإصدار' : 'Version', _appVersion.isEmpty ? '...' : _appVersion),
+                            _buildInfoRow(
+                              AppLocalizations.of(context)!.version,
+                              _appVersion.isEmpty ? '...' : _appVersion,
+                            ),
                             const Padding(
                               padding: EdgeInsets.symmetric(vertical: 12),
-                              child: Divider(height: 1, color: Color(0xFFEAEFF2)),
+                              child: Divider(
+                                height: 1,
+                                color: Color(0xFFEAEFF2),
+                              ),
                             ),
-                            _buildInfoRow(isAr ? 'رقم البناء' : 'Build Number', _buildNumber.isEmpty ? '...' : _buildNumber),
+                            _buildInfoRow(
+                              AppLocalizations.of(context)!.build_number,
+                              _buildNumber.isEmpty ? '...' : _buildNumber,
+                            ),
                           ],
                         ),
                       ),

@@ -24,7 +24,7 @@ class CustomBottomNavBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color: Colors.transparent,
-      padding: const EdgeInsets.fromLTRB(16, 0, 16, 40),
+      padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 16, 40),
       child: Container(
         height: 85,
         decoration: BoxDecoration(
@@ -57,8 +57,8 @@ class CustomBottomNavBar extends StatelessWidget {
                     decoration: BoxDecoration(
                       gradient: isSelected
                           ? const LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
+                              begin: AlignmentDirectional.topStart,
+                              end: AlignmentDirectional.bottomEnd,
                               colors: [
                                 Color(0xFF1A6A8F),
                                 Color(0xFF1D6F94),

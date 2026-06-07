@@ -1,3 +1,4 @@
+import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:raheeq_main/utils/colors.dart';
@@ -9,8 +10,8 @@ class RecurringDonationsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
-    final title = isAr ? 'التبرعات المتكررة' : 'Recurring Donations';
-    final subtitle = isAr ? 'إدارة اشتراكاتك' : 'Manage your subscriptions';
+    final title = AppLocalizations.of(context)!.recurring_donations;
+    final subtitle = AppLocalizations.of(context)!.manage_your_subscriptions;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -41,7 +42,7 @@ class RecurringDonationsPage extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        isAr ? "لا توجد اشتراكات نشطة" : "No active subscriptions",
+                        AppLocalizations.of(context)!.no_active_subscriptions,
                         style: const TextStyle(
                           color: AppColors.headersubtitlecolor,
                           fontSize: 16,
@@ -65,7 +66,7 @@ class RecurringDonationsPage extends StatelessWidget {
                           ),
                         ),
                         child: Text(
-                          isAr ? 'اطلب الآن' : 'Order Now',
+                          AppLocalizations.of(context)!.order_now,
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,

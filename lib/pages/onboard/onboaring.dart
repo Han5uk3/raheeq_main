@@ -64,7 +64,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  const LanguageSwitchButton(),
+                  const LanguageSwitchButton(isFromLogin: false),
 
                   AnimatedOpacity(
                     duration: const Duration(milliseconds: 300),
@@ -167,7 +167,9 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                         onPressed: () {
                           Navigator.pushReplacement(
                             context,
-                            MaterialPageRoute(builder: (context) => const Login()),
+                            MaterialPageRoute(
+                              builder: (context) => const Login(),
+                            ),
                           );
                         },
                         style: ElevatedButton.styleFrom(

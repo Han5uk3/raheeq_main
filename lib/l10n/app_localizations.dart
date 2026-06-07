@@ -619,6 +619,1112 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'People'**
   String get people_label;
+
+  /// No description provided for @serveTheGuestOfAllah.
+  ///
+  /// In en, this message translates to:
+  /// **'Serve The Guest of Allah'**
+  String get serveTheGuestOfAllah;
+
+  /// No description provided for @build_number.
+  ///
+  /// In en, this message translates to:
+  /// **'Build Number'**
+  String get build_number;
+
+  /// No description provided for @version.
+  ///
+  /// In en, this message translates to:
+  /// **'Version'**
+  String get version;
+
+  /// No description provided for @app_information.
+  ///
+  /// In en, this message translates to:
+  /// **'App Information'**
+  String get app_information;
+
+  /// No description provided for @theme_switching_coming_soon.
+  ///
+  /// In en, this message translates to:
+  /// **'Theme switching coming soon'**
+  String get theme_switching_coming_soon;
+
+  /// No description provided for @dark_mode.
+  ///
+  /// In en, this message translates to:
+  /// **'Dark Mode'**
+  String get dark_mode;
+
+  /// No description provided for @app_language.
+  ///
+  /// In en, this message translates to:
+  /// **'App Language'**
+  String get app_language;
+
+  /// No description provided for @manage_preferences_and_app_info.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage preferences and app info'**
+  String get manage_preferences_and_app_info;
+
+  /// No description provided for @recurring_impact.
+  ///
+  /// In en, this message translates to:
+  /// **'Recurring impact'**
+  String get recurring_impact;
+
+  /// No description provided for @monthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get monthly;
+
+  /// No description provided for @single_donation.
+  ///
+  /// In en, this message translates to:
+  /// **'Single donation'**
+  String get single_donation;
+
+  /// No description provided for @one_time.
+  ///
+  /// In en, this message translates to:
+  /// **'One-Time'**
+  String get one_time;
+
+  /// No description provided for @support_once_or_make_a_lasting_impact.
+  ///
+  /// In en, this message translates to:
+  /// **'Support once or make a lasting impact'**
+  String get support_once_or_make_a_lasting_impact;
+
+  /// No description provided for @choose_donation_type.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Donation Type'**
+  String get choose_donation_type;
+
+  /// No description provided for @payable_amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Payable Amount'**
+  String get payable_amount;
+
+  /// No description provided for @add_note.
+  ///
+  /// In en, this message translates to:
+  /// **'Add note'**
+  String get add_note;
+
+  /// No description provided for @enter_quantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter quantity'**
+  String get enter_quantity;
+
+  /// No description provided for @or_enter_custom_quantity_min_min.
+  ///
+  /// In en, this message translates to:
+  /// **'Or enter custom quantity (min. \$min)'**
+  String get or_enter_custom_quantity_min_min;
+
+  /// No description provided for @select_your_impact.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Your Impact'**
+  String get select_your_impact;
+
+  /// No description provided for @select_a_product_to_continue.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a product to continue'**
+  String get select_a_product_to_continue;
+
+  /// No description provided for @no_cities_found.
+  ///
+  /// In en, this message translates to:
+  /// **'No cities found'**
+  String get no_cities_found;
+
+  /// No description provided for @search_for_a_city.
+  ///
+  /// In en, this message translates to:
+  /// **'Search for a city...'**
+  String get search_for_a_city;
+
+  /// No description provided for @select_the_most_needy_cities.
+  ///
+  /// In en, this message translates to:
+  /// **'Select the most needy cities'**
+  String get select_the_most_needy_cities;
+
+  /// No description provided for @choose_cities.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Cities'**
+  String get choose_cities;
+
+  /// No description provided for @confirm_selection.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm Selection'**
+  String get confirm_selection;
+
+  /// No description provided for @clear_all.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear All'**
+  String get clear_all;
+
+  /// No description provided for @deliver_blessings.
+  ///
+  /// In en, this message translates to:
+  /// **'Deliver Blessings.'**
+  String get deliver_blessings;
+
+  /// No description provided for @give_water.
+  ///
+  /// In en, this message translates to:
+  /// **'Give Water.'**
+  String get give_water;
+
+  /// No description provided for @we.
+  ///
+  /// In en, this message translates to:
+  /// **'We'**
+  String get we;
+
+  /// No description provided for @coming_soon.
+  ///
+  /// In en, this message translates to:
+  /// **'Coming Soon...'**
+  String get coming_soon;
+
+  /// No description provided for @your_impact.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Impact'**
+  String get your_impact;
+
+  /// No description provided for @view_status_and_delivery_details.
+  ///
+  /// In en, this message translates to:
+  /// **'View status and delivery details.'**
+  String get view_status_and_delivery_details;
+
+  /// No description provided for @recent_donations.
+  ///
+  /// In en, this message translates to:
+  /// **'Recent Donations'**
+  String get recent_donations;
+
+  /// No description provided for @sar.
+  ///
+  /// In en, this message translates to:
+  /// **'SAR'**
+  String get sar;
+
+  /// No description provided for @starting_from.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting from'**
+  String get starting_from;
+
+  /// No description provided for @high_need.
+  ///
+  /// In en, this message translates to:
+  /// **'High Need'**
+  String get high_need;
+
+  /// No description provided for @essential_mosque_supplies.
+  ///
+  /// In en, this message translates to:
+  /// **'Essential Mosque Supplies'**
+  String get essential_mosque_supplies;
+
+  /// No description provided for @choose_your_cause_and_make_an_impact.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose your cause and make an impact'**
+  String get choose_your_cause_and_make_an_impact;
+
+  /// No description provided for @quick_actions.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Actions'**
+  String get quick_actions;
+
+  /// No description provided for @donate_now.
+  ///
+  /// In en, this message translates to:
+  /// **'Donate Now   '**
+  String get donate_now;
+
+  /// No description provided for @subscribe.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscribe'**
+  String get subscribe;
+
+  /// No description provided for @i_understand.
+  ///
+  /// In en, this message translates to:
+  /// **'I understand'**
+  String get i_understand;
+
+  /// No description provided for @your_current_basket_will_be_cleared_and_you_will_be_moved_to_targetname.
+  ///
+  /// In en, this message translates to:
+  /// **'Your current basket will be cleared and you will be moved to \$targetName.'**
+  String
+  get your_current_basket_will_be_cleared_and_you_will_be_moved_to_targetname;
+
+  /// No description provided for @warning.
+  ///
+  /// In en, this message translates to:
+  /// **'Warning'**
+  String get warning;
+
+  /// No description provided for @retry.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry'**
+  String get retry;
+
+  /// No description provided for @failed_to_load_home_page.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load home page'**
+  String get failed_to_load_home_page;
+
+  /// No description provided for @choose_mosques.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Mosques'**
+  String get choose_mosques;
+
+  /// No description provided for @order_now.
+  ///
+  /// In en, this message translates to:
+  /// **'Order Now'**
+  String get order_now;
+
+  /// No description provided for @assalamu_alaikum.
+  ///
+  /// In en, this message translates to:
+  /// **'Assalamu Alaikum'**
+  String get assalamu_alaikum;
+
+  /// No description provided for @latest_updates_and_alerts.
+  ///
+  /// In en, this message translates to:
+  /// **'Latest updates and alerts'**
+  String get latest_updates_and_alerts;
+
+  /// No description provided for @no_delivered_orders.
+  ///
+  /// In en, this message translates to:
+  /// **'No delivered orders'**
+  String get no_delivered_orders;
+
+  /// No description provided for @no_new_orders.
+  ///
+  /// In en, this message translates to:
+  /// **'No new orders'**
+  String get no_new_orders;
+
+  /// No description provided for @total_amount.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Amount'**
+  String get total_amount;
+
+  /// No description provided for @minimum_order_min_units.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimum order: \$min units'**
+  String get minimum_order_min_units;
+
+  /// No description provided for @enter_quantity_min_min.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter quantity (min: \$min)'**
+  String get enter_quantity_min_min;
+
+  /// No description provided for @custom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom'**
+  String get custom;
+
+  /// No description provided for @for_name.
+  ///
+  /// In en, this message translates to:
+  /// **'for: \$name'**
+  String get for_name;
+
+  /// No description provided for @select_quantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Quantity'**
+  String get select_quantity;
+
+  /// No description provided for @quick_services.
+  ///
+  /// In en, this message translates to:
+  /// **'Quick Services'**
+  String get quick_services;
+
+  /// No description provided for @no_products_available.
+  ///
+  /// In en, this message translates to:
+  /// **'No products available'**
+  String get no_products_available;
+
+  /// No description provided for @select_a_product.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a Product'**
+  String get select_a_product;
+
+  /// No description provided for @no_active_subscriptions.
+  ///
+  /// In en, this message translates to:
+  /// **'No active subscriptions'**
+  String get no_active_subscriptions;
+
+  /// No description provided for @manage_your_subscriptions.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage your subscriptions'**
+  String get manage_your_subscriptions;
+
+  /// No description provided for @no_saved_mosques_found.
+  ///
+  /// In en, this message translates to:
+  /// **'No saved mosques found.'**
+  String get no_saved_mosques_found;
+
+  /// No description provided for @your_favorite_mosques.
+  ///
+  /// In en, this message translates to:
+  /// **'Your favorite mosques'**
+  String get your_favorite_mosques;
+
+  /// No description provided for @no_mosques_found.
+  ///
+  /// In en, this message translates to:
+  /// **'No mosques found'**
+  String get no_mosques_found;
+
+  /// No description provided for @no_meqat_mosques_found.
+  ///
+  /// In en, this message translates to:
+  /// **'No meqat mosques found'**
+  String get no_meqat_mosques_found;
+
+  /// No description provided for @no_orphanages_found.
+  ///
+  /// In en, this message translates to:
+  /// **'No orphanages found'**
+  String get no_orphanages_found;
+
+  /// No description provided for @select_city.
+  ///
+  /// In en, this message translates to:
+  /// **'Select city'**
+  String get select_city;
+
+  /// No description provided for @search_mosques.
+  ///
+  /// In en, this message translates to:
+  /// **'Search mosques...'**
+  String get search_mosques;
+
+  /// No description provided for @search_meqat_mosques.
+  ///
+  /// In en, this message translates to:
+  /// **'Search meqat mosques...'**
+  String get search_meqat_mosques;
+
+  /// No description provided for @search_orphanages.
+  ///
+  /// In en, this message translates to:
+  /// **'Search orphanages...'**
+  String get search_orphanages;
+
+  /// No description provided for @choose_from_map.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose from Map'**
+  String get choose_from_map;
+
+  /// No description provided for @list_of_mosques.
+  ///
+  /// In en, this message translates to:
+  /// **'List of Mosques'**
+  String get list_of_mosques;
+
+  /// No description provided for @select_a_mosque_to_deliver_water_to.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a mosque to deliver water to'**
+  String get select_a_mosque_to_deliver_water_to;
+
+  /// No description provided for @choose_specific_mosque.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Specific Mosque'**
+  String get choose_specific_mosque;
+
+  /// No description provided for @list_of_meqat_mosques.
+  ///
+  /// In en, this message translates to:
+  /// **'List of Meqat mosques'**
+  String get list_of_meqat_mosques;
+
+  /// No description provided for @choose_specific_meqat_mosque.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Specific Meqat Mosque'**
+  String get choose_specific_meqat_mosque;
+
+  /// No description provided for @list_of_orphanages.
+  ///
+  /// In en, this message translates to:
+  /// **'List of Orphanages'**
+  String get list_of_orphanages;
+
+  /// No description provided for @select_an_orphanage_to_deliver_water_to.
+  ///
+  /// In en, this message translates to:
+  /// **'Select an orphanage to deliver water to'**
+  String get select_an_orphanage_to_deliver_water_to;
+
+  /// No description provided for @choose_specific_orphanage.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Specific Orphanage'**
+  String get choose_specific_orphanage;
+
+  /// No description provided for @clear_selection.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear Selection'**
+  String get clear_selection;
+
+  /// No description provided for @choose_donation_type_108.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose donation type'**
+  String get choose_donation_type_108;
+
+  /// No description provided for @specific.
+  ///
+  /// In en, this message translates to:
+  /// **'Specific'**
+  String get specific;
+
+  /// No description provided for @most_needy.
+  ///
+  /// In en, this message translates to:
+  /// **'Most needy'**
+  String get most_needy;
+
+  /// No description provided for @two_year_guarantee.
+  ///
+  /// In en, this message translates to:
+  /// **'2 Year Guarantee'**
+  String get two_year_guarantee;
+
+  /// No description provided for @select_the_water_package_that_suits_you.
+  ///
+  /// In en, this message translates to:
+  /// **'Select the water package that suits you'**
+  String get select_the_water_package_that_suits_you;
+
+  /// No description provided for @choose_water_package.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Water Package'**
+  String get choose_water_package;
+
+  /// No description provided for @free.
+  ///
+  /// In en, this message translates to:
+  /// **'Free'**
+  String get free;
+
+  /// No description provided for @confirm_pay.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm & Pay'**
+  String get confirm_pay;
+
+  /// No description provided for @wallet_applied.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet Applied'**
+  String get wallet_applied;
+
+  /// No description provided for @discount.
+  ///
+  /// In en, this message translates to:
+  /// **'Discount'**
+  String get discount;
+
+  /// No description provided for @vat.
+  ///
+  /// In en, this message translates to:
+  /// **'VAT'**
+  String get vat;
+
+  /// No description provided for @delivery_fee.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery Fee'**
+  String get delivery_fee;
+
+  /// No description provided for @subtotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Subtotal'**
+  String get subtotal;
+
+  /// No description provided for @contribution_details.
+  ///
+  /// In en, this message translates to:
+  /// **'Contribution Details'**
+  String get contribution_details;
+
+  /// No description provided for @apply.
+  ///
+  /// In en, this message translates to:
+  /// **'Apply'**
+  String get apply;
+
+  /// No description provided for @remove.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove'**
+  String get remove;
+
+  /// No description provided for @use_wallet_balance.
+  ///
+  /// In en, this message translates to:
+  /// **'Use Wallet Balance'**
+  String get use_wallet_balance;
+
+  /// No description provided for @enter_coupon_code.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter coupon code'**
+  String get enter_coupon_code;
+
+  /// No description provided for @coupon_code.
+  ///
+  /// In en, this message translates to:
+  /// **'Coupon Code'**
+  String get coupon_code;
+
+  /// No description provided for @do_you_want_to_give_a_gift_to_someone_close_to_you.
+  ///
+  /// In en, this message translates to:
+  /// **'Do you want to give a gift to someone close to you?'**
+  String get do_you_want_to_give_a_gift_to_someone_close_to_you;
+
+  /// No description provided for @donation_type.
+  ///
+  /// In en, this message translates to:
+  /// **'Donation Type'**
+  String get donation_type;
+
+  /// No description provided for @final_review_and_payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Final review and payment'**
+  String get final_review_and_payment;
+
+  /// No description provided for @payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment'**
+  String get payment;
+
+  /// No description provided for @subscription_details.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription Details'**
+  String get subscription_details;
+
+  /// No description provided for @delivery_days.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery Days'**
+  String get delivery_days;
+
+  /// No description provided for @months.
+  ///
+  /// In en, this message translates to:
+  /// **'Months'**
+  String get months;
+
+  /// No description provided for @start_date.
+  ///
+  /// In en, this message translates to:
+  /// **'Start Date'**
+  String get start_date;
+
+  /// No description provided for @end_date.
+  ///
+  /// In en, this message translates to:
+  /// **'End Date'**
+  String get end_date;
+
+  /// No description provided for @total_days.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Days'**
+  String get total_days;
+
+  /// No description provided for @payment_was_cancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment was cancelled'**
+  String get payment_was_cancelled;
+
+  /// No description provided for @error_verifying_payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Error verifying payment'**
+  String get error_verifying_payment;
+
+  /// No description provided for @pay_with_card.
+  ///
+  /// In en, this message translates to:
+  /// **'Pay with Card'**
+  String get pay_with_card;
+
+  /// No description provided for @payment_method.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment Method'**
+  String get payment_method;
+
+  /// No description provided for @stc_pay.
+  ///
+  /// In en, this message translates to:
+  /// **'STC Pay'**
+  String get stc_pay;
+
+  /// No description provided for @apple_pay.
+  ///
+  /// In en, this message translates to:
+  /// **'Apple Pay'**
+  String get apple_pay;
+
+  /// No description provided for @credit_card_mada.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit Card / Mada'**
+  String get credit_card_mada;
+
+  /// No description provided for @failed_to_apply_wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to apply wallet'**
+  String get failed_to_apply_wallet;
+
+  /// No description provided for @insufficient_balance_to_apply_wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Insufficient balance to apply wallet'**
+  String get insufficient_balance_to_apply_wallet;
+
+  /// No description provided for @failed_to_remove_coupon.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to remove coupon'**
+  String get failed_to_remove_coupon;
+
+  /// No description provided for @coupon_removed_successfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Coupon removed successfully'**
+  String get coupon_removed_successfully;
+
+  /// No description provided for @invalid_coupon_code.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid coupon code'**
+  String get invalid_coupon_code;
+
+  /// No description provided for @coupon_applied_successfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Coupon applied successfully'**
+  String get coupon_applied_successfully;
+
+  /// No description provided for @confirm_submit.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm & Submit'**
+  String get confirm_submit;
+
+  /// No description provided for @tap_to_select_image.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap to select image'**
+  String get tap_to_select_image;
+
+  /// No description provided for @two_attach_transfer_receipt.
+  ///
+  /// In en, this message translates to:
+  /// **'2. Attach Transfer Receipt'**
+  String get two_attach_transfer_receipt;
+
+  /// No description provided for @enter_transaction_number.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter transaction number'**
+  String get enter_transaction_number;
+
+  /// No description provided for @enter_verification_code.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter Verification Code'**
+  String get enter_verification_code;
+
+  /// No description provided for @otp_sent_message.
+  ///
+  /// In en, this message translates to:
+  /// **'We have sent OTP on your mobile number'**
+  String get otp_sent_message;
+
+  /// No description provided for @your_verification_code.
+  ///
+  /// In en, this message translates to:
+  /// **'Your Verification Code'**
+  String get your_verification_code;
+
+  /// No description provided for @did_not_receive_code.
+  ///
+  /// In en, this message translates to:
+  /// **'Didn\'t receive code? '**
+  String get did_not_receive_code;
+
+  /// No description provided for @resend_code_in.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend code in '**
+  String get resend_code_in;
+
+  /// No description provided for @resend.
+  ///
+  /// In en, this message translates to:
+  /// **'Resend'**
+  String get resend;
+
+  /// No description provided for @one_transaction_number.
+  ///
+  /// In en, this message translates to:
+  /// **'1. Transaction Number :'**
+  String get one_transaction_number;
+
+  /// No description provided for @account_number.
+  ///
+  /// In en, this message translates to:
+  /// **'Account Number:'**
+  String get account_number;
+
+  /// No description provided for @no_bank_accounts_available.
+  ///
+  /// In en, this message translates to:
+  /// **'No bank accounts available'**
+  String get no_bank_accounts_available;
+
+  /// No description provided for @our_bank_accounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Our Bank Accounts'**
+  String get our_bank_accounts;
+
+  /// No description provided for @iban_bank_transfer.
+  ///
+  /// In en, this message translates to:
+  /// **'IBAN Bank Transfer'**
+  String get iban_bank_transfer;
+
+  /// No description provided for @please_enter_transaction_number.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter transaction number'**
+  String get please_enter_transaction_number;
+
+  /// No description provided for @please_attach_the_transfer_receipt.
+  ///
+  /// In en, this message translates to:
+  /// **'Please attach the transfer receipt'**
+  String get please_attach_the_transfer_receipt;
+
+  /// No description provided for @please_attach_the_transfer_receipt_and_enter_the_transaction_number.
+  ///
+  /// In en, this message translates to:
+  /// **'Please attach the transfer receipt and enter the transaction number'**
+  String
+  get please_attach_the_transfer_receipt_and_enter_the_transaction_number;
+
+  /// No description provided for @failed_to_load_bank_accounts.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load bank accounts'**
+  String get failed_to_load_bank_accounts;
+
+  /// No description provided for @total_price.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Price'**
+  String get total_price;
+
+  /// No description provided for @verify_your_order_details.
+  ///
+  /// In en, this message translates to:
+  /// **'Verify your order details'**
+  String get verify_your_order_details;
+
+  /// No description provided for @order_details.
+  ///
+  /// In en, this message translates to:
+  /// **'Order Details'**
+  String get order_details;
+
+  /// No description provided for @would_you_like_to_add_a_note_to_the_delivery_agent.
+  ///
+  /// In en, this message translates to:
+  /// **'Would you like to add a note to the delivery agent?'**
+  String get would_you_like_to_add_a_note_to_the_delivery_agent;
+
+  /// No description provided for @general.
+  ///
+  /// In en, this message translates to:
+  /// **'General'**
+  String get general;
+
+  /// No description provided for @most_in_need.
+  ///
+  /// In en, this message translates to:
+  /// **'Most in need'**
+  String get most_in_need;
+
+  /// No description provided for @most_needy_meqat_mosque.
+  ///
+  /// In en, this message translates to:
+  /// **'Most needy meqat mosque'**
+  String get most_needy_meqat_mosque;
+
+  /// No description provided for @most_needy_orphanage.
+  ///
+  /// In en, this message translates to:
+  /// **'Most needy orphanage'**
+  String get most_needy_orphanage;
+
+  /// No description provided for @subscription.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription'**
+  String get subscription;
+
+  /// No description provided for @back_to_home.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to Home'**
+  String get back_to_home;
+
+  /// No description provided for @retry_payment.
+  ///
+  /// In en, this message translates to:
+  /// **'Retry Payment'**
+  String get retry_payment;
+
+  /// No description provided for @bank_transfer_receipt_received_awaiting_admin_approval.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank transfer receipt received. Awaiting admin approval.'**
+  String get bank_transfer_receipt_received_awaiting_admin_approval;
+
+  /// No description provided for @pending_approval.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending Approval'**
+  String get pending_approval;
+
+  /// No description provided for @an_error_occurred_while_processing_the_payment.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred while processing the payment.'**
+  String get an_error_occurred_while_processing_the_payment;
+
+  /// No description provided for @payment_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment Failed'**
+  String get payment_failed;
+
+  /// No description provided for @thank_you_for_your_donation.
+  ///
+  /// In en, this message translates to:
+  /// **'Thank you for your donation.'**
+  String get thank_you_for_your_donation;
+
+  /// No description provided for @payment_successful.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment Successful!'**
+  String get payment_successful;
+
+  /// No description provided for @confirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirm'**
+  String get confirm;
+
+  /// No description provided for @enter_quantity_204.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter Quantity'**
+  String get enter_quantity_204;
+
+  /// No description provided for @notes_optional.
+  ///
+  /// In en, this message translates to:
+  /// **'Notes (Optional)'**
+  String get notes_optional;
+
+  /// No description provided for @quantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Quantity'**
+  String get quantity;
+
+  /// No description provided for @save_return.
+  ///
+  /// In en, this message translates to:
+  /// **'Save & Return'**
+  String get save_return;
+
+  /// No description provided for @select_quantities_and_notes.
+  ///
+  /// In en, this message translates to:
+  /// **'Select quantities and notes'**
+  String get select_quantities_and_notes;
+
+  /// No description provided for @most_in_need_in.
+  ///
+  /// In en, this message translates to:
+  /// **'Most in need in '**
+  String get most_in_need_in;
+
+  /// No description provided for @choose_products_for_each_category.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose products for each category'**
+  String get choose_products_for_each_category;
+
+  /// No description provided for @select_products.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Products'**
+  String get select_products;
+
+  /// No description provided for @no_plans_available_at_the_moment.
+  ///
+  /// In en, this message translates to:
+  /// **'No plans available at the moment'**
+  String get no_plans_available_at_the_moment;
+
+  /// No description provided for @choose_a_subscription_plan.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a subscription plan'**
+  String get choose_a_subscription_plan;
+
+  /// No description provided for @subscription_plans.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription Plans'**
+  String get subscription_plans;
+
+  /// No description provided for @customize_plan.
+  ///
+  /// In en, this message translates to:
+  /// **'Customize Plan'**
+  String get customize_plan;
+
+  /// No description provided for @delivery_days_select_maxallowed.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery Days (Select \$maxAllowed)'**
+  String get delivery_days_select_maxallowed;
+
+  /// No description provided for @sun.
+  ///
+  /// In en, this message translates to:
+  /// **'Sun'**
+  String get sun;
+
+  /// No description provided for @sat.
+  ///
+  /// In en, this message translates to:
+  /// **'Sat'**
+  String get sat;
+
+  /// No description provided for @fri.
+  ///
+  /// In en, this message translates to:
+  /// **'Fri'**
+  String get fri;
+
+  /// No description provided for @thu.
+  ///
+  /// In en, this message translates to:
+  /// **'Thu'**
+  String get thu;
+
+  /// No description provided for @wed.
+  ///
+  /// In en, this message translates to:
+  /// **'Wed'**
+  String get wed;
+
+  /// No description provided for @tue.
+  ///
+  /// In en, this message translates to:
+  /// **'Tue'**
+  String get tue;
+
+  /// No description provided for @mon.
+  ///
+  /// In en, this message translates to:
+  /// **'Mon'**
+  String get mon;
+
+  /// No description provided for @subscription_duration_months.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription Duration (Months)'**
+  String get subscription_duration_months;
+
+  /// No description provided for @select_date.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Date'**
+  String get select_date;
+
+  /// No description provided for @recurring_donation.
+  ///
+  /// In en, this message translates to:
+  /// **'Recurring Donation'**
+  String get recurring_donation;
 }
 
 class _AppLocalizationsDelegate

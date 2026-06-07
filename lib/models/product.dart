@@ -1,6 +1,6 @@
 class Product {
   final String id;
-  final String slug;
+  final int serialNumber;
   final String name;
   final String nameAr;
   final String subtitle;
@@ -16,7 +16,7 @@ class Product {
 
   const Product({
     required this.id,
-    required this.slug,
+    required this.serialNumber,
     required this.name,
     required this.nameAr,
     required this.subtitle,
@@ -35,7 +35,7 @@ class Product {
     final rawPresets = json['presetQuantities'] as List<dynamic>?;
     return Product(
       id: json['id'] as String? ?? '',
-      slug: json['slug'] as String? ?? '',
+      serialNumber: (json['serialNumber'] as num?)?.toInt() ?? 0,
       name: json['name'] as String? ?? '',
       nameAr: json['nameAr'] as String? ?? '',
       subtitle: json['subtitle'] as String? ?? '',
@@ -55,7 +55,7 @@ class Product {
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'slug': slug,
+      'serialNumber': serialNumber,
       'name': name,
       'nameAr': nameAr,
       'subtitle': subtitle,
