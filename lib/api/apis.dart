@@ -636,6 +636,8 @@ class ApiService {
     ProgressCallback? onReceiveProgress,
   }) async {
     try {
+      final url = '/checkout/order';
+      log('API REQUEST: POST $url', name: 'CreateOrder');
       if (paymentMethod == 'IBAN') {
         final Map<String, dynamic> map = {
           'paymentMethod': paymentMethod,
@@ -653,33 +655,48 @@ class ApiService {
             map['ibanReceipt'] = ibanReceipt;
           }
         }
+        log('API REQUEST BODY (FormData map): $map', name: 'CreateOrder');
         final formData = FormData.fromMap(map);
-        final response = await _dio.post('/checkout/order', data: formData);
+        final response = await _dio.post(url, data: formData);
+        log(
+          'API RESPONSE [${response.statusCode}]: ${response.data}',
+          name: 'CreateOrder',
+        );
         return response;
       } else {
         final data = <String, dynamic>{
           'paymentMethod': paymentMethod,
           if (note != null) 'note': note,
         };
-        final response = await _dio.post('/checkout/order', data: data);
+        log('API REQUEST BODY: $data', name: 'CreateOrder');
+        final response = await _dio.post(url, data: data);
+        log(
+          'API RESPONSE [${response.statusCode}]: ${response.data}',
+          name: 'CreateOrder',
+        );
         return response;
       }
+    } on DioException catch (e) {
+      log(
+        'API ERROR RESPONSE [${e.response?.statusCode}]: ${e.response?.data}',
+        name: 'CreateOrder',
+      );
+      rethrow;
     } catch (e) {
+      log('API ERROR: $e', name: 'CreateOrder');
       rethrow;
     }
   }
 
   /// Verify Payment
   Future<Response> verifyPayment({
-    required String orderId,
+    required String paymentId,
     String? transactionId,
   }) async {
     try {
-      final data = <String, dynamic>{
-        if (transactionId != null) 'tranRef': transactionId,
-      };
+      final data = <String, dynamic>{'tranRef': ?transactionId};
 
-      final url = '/orders/$orderId/verify-payment';
+      final url = '/orders/$paymentId/verify-payment';
       log('API REQUEST: POST $url', name: 'VerifyPayment');
       log('API REQUEST BODY: $data', name: 'VerifyPayment');
 
@@ -728,10 +745,10 @@ class ApiService {
   /// Get All Notifications
   Future<Response> getNotifications({int page = 1, int limit = 20}) async {
     try {
-      final response = await _dio.get('/notifications', queryParameters: {
-        'page': page,
-        'limit': limit,
-      });
+      final response = await _dio.get(
+        '/notifications',
+        queryParameters: {'page': page, 'limit': limit},
+      );
       return response;
     } catch (e) {
       rethrow;
@@ -791,10 +808,10 @@ class ApiService {
   /// Get My Orders
   Future<Response> getMyOrders({int page = 1, int limit = 20}) async {
     try {
-      final response = await _dio.get('/orders', queryParameters: {
-        'page': page,
-        'limit': limit,
-      });
+      final response = await _dio.get(
+        '/orders',
+        queryParameters: {'page': page, 'limit': limit},
+      );
       return response;
     } catch (e) {
       rethrow;
@@ -814,10 +831,10 @@ class ApiService {
   /// Get My Subscriptions
   Future<Response> getMySubscriptions({int page = 1, int limit = 10}) async {
     try {
-      final response = await _dio.get('/subscriptions', queryParameters: {
-        'page': page,
-        'limit': limit,
-      });
+      final response = await _dio.get(
+        '/subscriptions',
+        queryParameters: {'page': page, 'limit': limit},
+      );
       return response;
     } catch (e) {
       rethrow;
@@ -851,11 +868,11 @@ class ApiService {
     required String reviewText,
   }) async {
     try {
-      final data = {
-        'rating': rating,
-        'reviewText': reviewText,
-      };
-      final response = await _dio.post('/orders/sub-orders/$subOrderId/review', data: data);
+      final data = {'rating': rating, 'reviewText': reviewText};
+      final response = await _dio.post(
+        '/orders/sub-orders/$subOrderId/review',
+        data: data,
+      );
       return response;
     } catch (e) {
       rethrow;
@@ -865,14 +882,13 @@ class ApiService {
   /// Get User Ratings (Reviews)
   Future<Response> getReviews({int page = 1, int limit = 20}) async {
     try {
-      final response = await _dio.get('/orders/reviews', queryParameters: {
-        'page': page,
-        'limit': limit,
-      });
+      final response = await _dio.get(
+        '/orders/reviews',
+        queryParameters: {'page': page, 'limit': limit},
+      );
       return response;
     } catch (e) {
       rethrow;
     }
   }
 }
-

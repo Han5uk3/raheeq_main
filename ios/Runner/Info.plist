@@ -68,5 +68,10 @@
 	<string>This app uses your location to provide location-based services and features.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>This app uses your camera to capture photos and videos.</string>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>fetch</string>
+		<string>remote-notification</string>
+	</array>
 </dict>
 </plist>

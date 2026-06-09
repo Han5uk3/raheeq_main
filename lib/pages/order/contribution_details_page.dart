@@ -171,7 +171,9 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
     } on DioException catch (e) {
       log('Error toggling wallet: $e', error: e);
       if (mounted) {
-        String errorMessage = AppLocalizations.of(context)!.failed_to_apply_wallet;
+        String errorMessage = AppLocalizations.of(
+          context,
+        )!.failed_to_apply_wallet;
 
         if (e.response?.statusCode == 400 &&
             e.response?.data is Map &&
@@ -183,7 +185,9 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                       'insufficient balance',
                     ) ==
                     true)) {
-          errorMessage = AppLocalizations.of(context)!.insufficient_balance_to_apply_wallet;
+          errorMessage = AppLocalizations.of(
+            context,
+          )!.insufficient_balance_to_apply_wallet;
         }
 
         ScaffoldMessenger.of(context).showSnackBar(
@@ -195,9 +199,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              AppLocalizations.of(context)!.failed_to_apply_wallet,
-            ),
+            content: Text(AppLocalizations.of(context)!.failed_to_apply_wallet),
             backgroundColor: Colors.red,
           ),
         );
@@ -374,9 +376,10 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
       final data = response.data['data'];
       final paymentStatus = data['paymentStatus'];
       final orderId = data['orderId'];
+      final paymentId = data['paymentId'];
       final paymentConfig = data['paymentConfig'];
       log(
-        'Payment Flow: createOrder Response -> paymentStatus: $paymentStatus, orderId: $orderId',
+        'Payment Flow: createOrder Response -> paymentStatus: $paymentStatus, orderId: $orderId, paymentId: $paymentId',
         name: 'CheckoutFlow',
       );
 
@@ -502,7 +505,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                 name: 'CheckoutFlow',
               );
               final verifyResponse = await apiService.verifyPayment(
-                orderId: orderId,
+                paymentId: paymentId,
                 transactionId: txId,
               );
 
@@ -550,7 +553,9 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                 MaterialPageRoute(
                   builder: (_) => PaymentStatusPage(
                     status: PaymentStatus.failed,
-                    message: AppLocalizations.of(context)!.error_verifying_payment,
+                    message: AppLocalizations.of(
+                      context,
+                    )!.error_verifying_payment,
                     isAr: isAr,
                     onRetry: () => Navigator.pop(context),
                   ),
@@ -654,7 +659,10 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
         final days =
             endDate.difference(startDate).inDays + 1; // Assuming inclusive
         rows.add(
-          _buildSubscriptionRow(AppLocalizations.of(context)!.total_days, '$days'),
+          _buildSubscriptionRow(
+            AppLocalizations.of(context)!.total_days,
+            '$days',
+          ),
         );
         rows.add(
           _buildSubscriptionRow(
@@ -672,7 +680,10 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
     } else if (type == 'MONTHLY' || type == 'ONCE_A_MONTH') {
       if (months != null) {
         rows.add(
-          _buildSubscriptionRow(AppLocalizations.of(context)!.months, '$months'),
+          _buildSubscriptionRow(
+            AppLocalizations.of(context)!.months,
+            '$months',
+          ),
         );
       }
       if (startDate != null) {
@@ -688,7 +699,10 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
         type == 'TWICE_A_WEEK') {
       if (months != null) {
         rows.add(
-          _buildSubscriptionRow(AppLocalizations.of(context)!.months, '$months'),
+          _buildSubscriptionRow(
+            AppLocalizations.of(context)!.months,
+            '$months',
+          ),
         );
       }
       if (daysOfWeek != null && daysOfWeek.isNotEmpty) {
@@ -877,7 +891,9 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                           CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          AppLocalizations.of(context)!.donation_type,
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.donation_type,
                                           style: const TextStyle(
                                             fontSize: 14,
                                             color: Colors.grey,
@@ -949,7 +965,9 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                               color: AppColors.buttonBlueDark,
                                             ),
                                             Text(
-                                              AppLocalizations.of(context)!.do_you_want_to_give_a_gift_to_someone_close_to_you,
+                                              AppLocalizations.of(
+                                                context,
+                                              )!.do_you_want_to_give_a_gift_to_someone_close_to_you,
                                               style: const TextStyle(
                                                 fontSize: 14,
                                                 fontWeight: FontWeight.w400,
@@ -1067,7 +1085,9 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                                       waveColor2: Colors.white,
                                                     )
                                                   : Text(
-                                                      AppLocalizations.of(context)!.remove,
+                                                      AppLocalizations.of(
+                                                        context,
+                                                      )!.remove,
                                                       style: const TextStyle(
                                                         fontWeight:
                                                             FontWeight.bold,
@@ -1098,7 +1118,9 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                                         horizontal: 16,
                                                         vertical: 8,
                                                       ),
-                                                  hintText: AppLocalizations.of(context)!.enter_coupon_code,
+                                                  hintText: AppLocalizations.of(
+                                                    context,
+                                                  )!.enter_coupon_code,
                                                 ),
                                               ),
                                             ),
@@ -1134,7 +1156,9 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                                     waveColor2: Colors.white,
                                                   )
                                                 : Text(
-                                                    AppLocalizations.of(context)!.apply,
+                                                    AppLocalizations.of(
+                                                      context,
+                                                    )!.apply,
                                                     style: const TextStyle(
                                                       fontWeight:
                                                           FontWeight.bold,
@@ -1150,7 +1174,9 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                             const SizedBox(height: 16),
                             if (_checkoutData.walletBalance > 0) ...[
                               Text(
-                                AppLocalizations.of(context)!.use_wallet_balance,
+                                AppLocalizations.of(
+                                  context,
+                                )!.use_wallet_balance,
                                 style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.bold,
@@ -1183,7 +1209,9 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                                     CrossAxisAlignment.start,
                                                 children: [
                                                   Text(
-                                                    isAr ? "الرصيد المتاح: ${_checkoutData.walletBalance.toStringAsFixed(2)} ر.س" : "Available: ${_checkoutData.walletBalance.toStringAsFixed(2)} SAR",
+                                                    isAr
+                                                        ? "الرصيد المتاح: ${_checkoutData.walletBalance.toStringAsFixed(2)} ر.س"
+                                                        : "Available: ${_checkoutData.walletBalance.toStringAsFixed(2)} SAR",
                                                     style: const TextStyle(
                                                       fontSize: 14,
                                                       color: Colors.black,
@@ -1230,8 +1258,12 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                               )
                                             : Text(
                                                 _checkoutData.useWallet
-                                                    ? (AppLocalizations.of(context)!.remove)
-                                                    : (AppLocalizations.of(context)!.apply),
+                                                    ? (AppLocalizations.of(
+                                                        context,
+                                                      )!.remove)
+                                                    : (AppLocalizations.of(
+                                                        context,
+                                                      )!.apply),
                                                 style: const TextStyle(
                                                   fontWeight: FontWeight.bold,
                                                 ),
@@ -1244,7 +1276,9 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                               const SizedBox(height: 16),
                             ],
                             Text(
-                              AppLocalizations.of(context)!.contribution_details,
+                              AppLocalizations.of(
+                                context,
+                              )!.contribution_details,
                               style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -1263,9 +1297,10 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                   children: [
                                     ...aggregatedProducts.values.map((sp) {
                                       return Padding(
-                                        padding: const EdgeInsetsDirectional.only(
-                                          bottom: 12.0,
-                                        ),
+                                        padding:
+                                            const EdgeInsetsDirectional.only(
+                                              bottom: 12.0,
+                                            ),
                                         child: Row(
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceBetween,
@@ -1280,7 +1315,9 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                               ),
                                             ),
                                             Text(
-                                              isAr ? "${(sp.product.price * sp.quantity).toStringAsFixed(2)} ر.س" : "${(sp.product.price * sp.quantity).toStringAsFixed(2)} SAR",
+                                              isAr
+                                                  ? "${(sp.product.price * sp.quantity).toStringAsFixed(2)} ر.س"
+                                                  : "${(sp.product.price * sp.quantity).toStringAsFixed(2)} SAR",
                                               style: const TextStyle(
                                                 fontSize: 15,
                                                 fontWeight: FontWeight.w700,
@@ -1304,7 +1341,9 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                                   .totalDeliveryFee) >
                                         0)
                                       _buildPriceRow(
-                                        AppLocalizations.of(context)!.delivery_fee,
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.delivery_fee,
                                         _checkoutData.totalDeliveryFee > 0
                                             ? _checkoutData.totalDeliveryFee
                                             : widget
@@ -1327,7 +1366,9 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                       ),
                                     if (_checkoutData.walletAmountUsed > 0)
                                       _buildPriceRow(
-                                        AppLocalizations.of(context)!.wallet_applied,
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.wallet_applied,
                                         -_checkoutData.walletAmountUsed,
                                         isAr,
                                       ),
@@ -1337,14 +1378,18 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                           MainAxisAlignment.spaceBetween,
                                       children: [
                                         Text(
-                                          AppLocalizations.of(context)!.total_amount,
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.total_amount,
                                           style: const TextStyle(
                                             fontSize: 14,
                                             fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                         Text(
-                                          isAr ? "${_checkoutData.finalTotal.toStringAsFixed(2)} ر.س" : "SAR ${_checkoutData.finalTotal.toStringAsFixed(2)}",
+                                          isAr
+                                              ? "${_checkoutData.finalTotal.toStringAsFixed(2)} ر.س"
+                                              : "SAR ${_checkoutData.finalTotal.toStringAsFixed(2)}",
                                           style: const TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.bold,
@@ -1362,7 +1407,12 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                       ),
                     ),
                     Padding(
-                      padding: const EdgeInsetsDirectional.fromSTEB(24, 0, 24, 24),
+                      padding: const EdgeInsetsDirectional.fromSTEB(
+                        24,
+                        0,
+                        24,
+                        24,
+                      ),
                       child: BottomActionPill(
                         subtitleWidget: Text(
                           AppLocalizations.of(context)!.total_amount,
@@ -1372,7 +1422,9 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                           ),
                         ),
                         titleWidget: Text(
-                          isAr ? "${_checkoutData.finalTotal.toStringAsFixed(2)} ر.س" : "SAR ${_checkoutData.finalTotal.toStringAsFixed(2)}",
+                          isAr
+                              ? "${_checkoutData.finalTotal.toStringAsFixed(2)} ر.س"
+                              : "SAR ${_checkoutData.finalTotal.toStringAsFixed(2)}",
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
@@ -1413,7 +1465,9 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
           Row(
             children: [
               Text(
-                isAr ? "${value.toStringAsFixed(2)} ر.س" : "${value.toStringAsFixed(2)} SAR",
+                isAr
+                    ? "${value.toStringAsFixed(2)} ر.س"
+                    : "${value.toStringAsFixed(2)} SAR",
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: isFree ? FontWeight.normal : FontWeight.w600,

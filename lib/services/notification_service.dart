@@ -28,6 +28,18 @@ class NotificationService {
   Future<void> init() async {
     if (_isInitialized) return;
 
+    // Request permissions for iOS and Android 13+
+    NotificationSettings settings = await _firebaseMessaging.requestPermission(
+      alert: true,
+      announcement: false,
+      badge: true,
+      carPlay: false,
+      criticalAlert: false,
+      provisional: false,
+      sound: true,
+    );
+    debugPrint('User granted permission: ${settings.authorizationStatus}');
+
     // Register background handler
     FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
