@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:raheeq_main/models/campaign.dart';
 import 'package:raheeq_main/models/product.dart';
-import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/models/checkout.dart';
 import 'package:raheeq_main/pages/order/contribution_details_page.dart';
@@ -712,10 +711,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
     _selectedQuantities.forEach((productId, qty) {
       if (qty > 0) {
         final note = _productNotes[productId];
-        final item = <String, dynamic>{
-          'productId': productId,
-          'quantity': qty,
-        };
+        final item = <String, dynamic>{'productId': productId, 'quantity': qty};
         if (note != null && note.trim().isNotEmpty) {
           item['note'] = note.trim();
         }
@@ -732,7 +728,8 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
       backgroundColor: Colors.transparent,
       builder: (ctx) => DonationTypeBottomSheet(
         onOneTimeSelected: () => _processOneTimeCheckout(context, isAr),
-        onMonthlySelected: () => _showSubscriptionPlansBottomSheet(context, isAr),
+        onMonthlySelected: () =>
+            _showSubscriptionPlansBottomSheet(context, isAr),
       ),
     );
   }
@@ -753,7 +750,11 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
     );
   }
 
-  void _showSubscriptionDetailsBottomSheet(BuildContext context, SubscriptionPlan plan, bool isAr) {
+  void _showSubscriptionDetailsBottomSheet(
+    BuildContext context,
+    SubscriptionPlan plan,
+    bool isAr,
+  ) {
     final items = _prepareCheckoutItems();
     showModalBottomSheet(
       context: context,
@@ -778,9 +779,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
       context: context,
       barrierDismissible: false,
       builder: (BuildContext loadingCtx) {
-        return const Center(
-          child: WaterLoadingIndicator(),
-        );
+        return const Center(child: WaterLoadingIndicator());
       },
     );
 

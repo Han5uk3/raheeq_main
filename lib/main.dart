@@ -3,7 +3,7 @@ import 'package:freshchat_sdk/freshchat_sdk.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
-import 'package:freshchat_sdk/freshchat_user.dart';
+
 import 'firebase_options.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/pages/splashScreen/splash.dart';
@@ -47,7 +47,7 @@ Future<void> _initDependencies() async {
       freshchatDomain != null &&
       freshchatDomain.isNotEmpty) {
     Freshchat.init(freshchatAppId, freshchatAppKey, freshchatDomain);
-    
+
     // Initialize Freshchat service listeners
     FreshchatService.init();
 

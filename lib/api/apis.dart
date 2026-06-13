@@ -197,7 +197,7 @@ class ApiService {
       final data = {
         'countryCode': countryCode,
         'phoneNumber': phoneNumber,
-        'email': email,
+        if (email != null && email.isNotEmpty) 'email': email,
         'firstName': firstName,
         'lastName': lastName,
         'gender': gender,
