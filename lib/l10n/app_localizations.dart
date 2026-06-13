@@ -1749,6 +1749,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Recurring Donation'**
   String get recurring_donation;
+
+  /// No description provided for @too_many_attempts.
+  ///
+  /// In en, this message translates to:
+  /// **'Too many attempts. Please try again later.'**
+  String get too_many_attempts;
 }
 
 class _AppLocalizationsDelegate

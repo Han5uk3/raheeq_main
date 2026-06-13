@@ -870,4 +870,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get recurring_donation => 'Recurring Donation';
+
+  @override
+  String get too_many_attempts => 'Too many attempts. Please try again later.';
 }

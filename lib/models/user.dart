@@ -8,6 +8,7 @@ class User {
   final String? avatarUrl;
   final String gender;
   final double walletBalance;
+  final String? freshchatRestoreId;
 
   User({
     required this.id,
@@ -19,6 +20,7 @@ class User {
     this.avatarUrl,
     required this.gender,
     this.walletBalance = 0.0,
+    this.freshchatRestoreId,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -39,6 +41,7 @@ class User {
       avatarUrl: json['avatarUrl'] as String?,
       gender: json['gender'] ?? 'MALE',
       walletBalance: balance,
+      freshchatRestoreId: json['freshchatRestoreId'] as String?,
     );
   }
 
@@ -55,6 +58,7 @@ class User {
       'wallet': {
         'balance': walletBalance,
       },
+      'freshchatRestoreId': freshchatRestoreId,
     };
   }
 

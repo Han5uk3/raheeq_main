@@ -274,5 +274,6 @@
   "mon": "الاثنين",
   "subscription_duration_months": "مدة الاشتراك (بالأشهر)",
   "select_date": "اختر التاريخ",
-  "recurring_donation": "تبرع شهري متكرر"
+  "recurring_donation": "تبرع شهري متكرر",
+  "too_many_attempts": "محاولات كثيرة جدًا. يرجى المحاولة مرة أخرى لاحقًا."
 }

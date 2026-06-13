@@ -865,4 +865,8 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get recurring_donation => 'تبرع شهري متكرر';
+
+  @override
+  String get too_many_attempts =>
+      'محاولات كثيرة جدًا. يرجى المحاولة مرة أخرى لاحقًا.';
 }

@@ -355,6 +355,38 @@ class ApiService {
     }
   }
 
+  /// Generate Freshchat JWT Token
+  Future<Response> generateFreshchatToken(String freshchatUuid) async {
+    try {
+      log('API REQUEST: POST /me/freshchat-token with freshchatUuid: $freshchatUuid', name: 'FreshchatAPI');
+      final response = await _dio.post(
+        '/me/freshchat-token',
+        data: {'freshchatUuid': freshchatUuid},
+      );
+      log('API RESPONSE [${response.statusCode}]: ${response.data}', name: 'FreshchatAPI');
+      return response;
+    } catch (e) {
+      log('Error generating freshchat token: $e', name: 'FreshchatAPI', error: e);
+      rethrow;
+    }
+  }
+
+  /// Save Freshchat Restore ID
+  Future<Response> saveFreshchatRestoreId(String restoreId) async {
+    try {
+      log('API REQUEST: POST /me/freshchat-restore-id with restoreId: $restoreId', name: 'FreshchatAPI');
+      final response = await _dio.post(
+        '/me/freshchat-restore-id',
+        data: {'restoreId': restoreId},
+      );
+      log('API RESPONSE [${response.statusCode}]: ${response.data}', name: 'FreshchatAPI');
+      return response;
+    } catch (e) {
+      log('Error saving freshchat restore ID: $e', name: 'FreshchatAPI', error: e);
+      rethrow;
+    }
+  }
+
   /// Get Home page data
   Future<Response> getHome() async {
     try {

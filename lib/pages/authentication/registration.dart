@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/common_widgets/language_switch.dart';
 import 'package:raheeq_main/utils/colors.dart';
@@ -230,7 +231,9 @@ class _RegistrationState extends State<Registration> {
                             hint: "Enter phone number",
                             icon: Icons.phone_outlined,
                             enabled: false, // Pre-filled and locked
-                            isLtr: true,
+                            isRtl:
+                                Localizations.localeOf(context).languageCode ==
+                                'ar',
                           ),
 
                           const SizedBox(height: 16),
@@ -294,13 +297,46 @@ class _RegistrationState extends State<Registration> {
                                       );
                                     }
                                   } catch (e) {
+                                    String errorMessage = 'Registration failed';
+                                    try {
+                                      if (e is DioException &&
+                                          e.response?.data != null) {
+                                        final data = e.response!.data;
+                                        if (data is Map) {
+                                          if (data['details'] != null &&
+                                              data['details'] is List &&
+                                              data['details'].isNotEmpty) {
+                                            errorMessage =
+                                                data['details'][0]['message']
+                                                    ?.toString() ??
+                                                data['message']?.toString() ??
+                                                'Validation error';
+                                          } else if (data['message'] != null) {
+                                            errorMessage = data['message']
+                                                .toString();
+                                          }
+                                        }
+                                      } else if (e.toString().contains(
+                                        'DioException',
+                                      )) {
+                                        // Fallback if type check somehow fails
+                                        errorMessage =
+                                            'Validation error. Please check your inputs.';
+                                      } else {
+                                        errorMessage = AppLocalizations.of(
+                                          context,
+                                        )!.error_msg(e.toString());
+                                      }
+                                    } catch (_) {
+                                      errorMessage = AppLocalizations.of(
+                                        context,
+                                      )!.error_msg(e.toString());
+                                    }
+
                                     ScaffoldMessenger.of(context).showSnackBar(
                                       SnackBar(
-                                        content: Text(
-                                          AppLocalizations.of(
-                                            context,
-                                          )!.error_msg(e.toString()),
-                                        ),
+                                        content: Text(errorMessage),
+                                        backgroundColor: Colors.redAccent,
                                       ),
                                     );
                                   }
@@ -347,7 +383,7 @@ class _RegistrationState extends State<Registration> {
     TextInputType? keyboardType,
     bool enabled = true,
     bool isEmail = false,
-    bool isLtr = false,
+    bool isRtl = false,
     bool isOptional = false,
   }) {
     final fieldKey = _fieldKeys[controller];
@@ -374,12 +410,12 @@ class _RegistrationState extends State<Registration> {
           ),
           child: TextFormField(
             key: fieldKey,
-            textAlign: isLtr ? TextAlign.end : TextAlign.start,
+            textAlign: isRtl ? TextAlign.end : TextAlign.start,
             controller: controller,
             enabled: enabled,
             keyboardType: keyboardType,
             style: const TextStyle(fontSize: 14),
-            textDirection: isLtr ? TextDirection.ltr : null,
+            textDirection: isRtl ? TextDirection.ltr : null,
             decoration: InputDecoration(
               hintText: hint,
               hintStyle: TextStyle(color: Colors.grey[400], fontSize: 13),

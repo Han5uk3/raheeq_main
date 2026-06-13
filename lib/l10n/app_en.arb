@@ -315,5 +315,6 @@
   "mon": "Mon",
   "subscription_duration_months": "Subscription Duration (Months)",
   "select_date": "Select Date",
-  "recurring_donation": "Recurring Donation"
+  "recurring_donation": "Recurring Donation",
+  "too_many_attempts": "Too many attempts. Please try again later."
 }

@@ -4,6 +4,7 @@ import 'package:hive_flutter/hive_flutter.dart';
 import '../models/user.dart';
 import '../pages/authentication/login.dart';
 import 'package:freshchat_sdk/freshchat_sdk.dart';
+import '../services/freshchat_service.dart';
 
 class AuthStorage {
   static const String boxName = 'authBox';
@@ -50,15 +51,7 @@ class AuthStorage {
     try {
       final currentUser = user;
       if (currentUser != null) {
-        FreshchatUser freshchatUser = await Freshchat.getUser;
-        freshchatUser.setFirstName(currentUser.firstName);
-        freshchatUser.setLastName(currentUser.lastName);
-        freshchatUser.setEmail(currentUser.email);
-        freshchatUser.setPhone(
-          currentUser.countryCode,
-          currentUser.phoneNumber,
-        );
-        Freshchat.setUser(freshchatUser);
+        await FreshchatService.identifyUser(currentUser);
       }
     } catch (e) {
       debugPrint("Failed to set Freshchat user: $e");

@@ -13,6 +13,7 @@ import 'package:raheeq_main/pages/authentication/registration.dart';
 import 'package:raheeq_main/pages/home/home_screen.dart';
 import 'package:raheeq_main/storage/auth_storage.dart';
 import 'package:raheeq_main/api/apis.dart';
+import 'package:dio/dio.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -433,6 +434,8 @@ class _LoginState extends State<Login> {
 
                                 if (response.statusCode == 200 &&
                                     response.data['success'] == true) {
+                                  final receivedOtp =
+                                      response.data['data']?['otp']?.toString();
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -440,6 +443,7 @@ class _LoginState extends State<Login> {
                                         phoneNumber: _phoneController.text,
                                         countryCode:
                                             '+${_selectedCountry.phoneCode}',
+                                        receivedOtp: receivedOtp,
                                       ),
                                     ),
                                   );
@@ -455,13 +459,20 @@ class _LoginState extends State<Login> {
                                   );
                                 }
                               } catch (e) {
+                                String errorMessage;
+                                if (e is DioException &&
+                                    e.response?.statusCode == 429) {
+                                  errorMessage = AppLocalizations.of(
+                                    context,
+                                  )!.too_many_attempts;
+                                } else {
+                                  errorMessage = AppLocalizations.of(
+                                    context,
+                                  )!.error_msg(e.toString());
+                                }
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text(
-                                      AppLocalizations.of(
-                                        context,
-                                      )!.error_msg(e.toString()),
-                                    ),
+                                    content: Text(errorMessage),
                                     backgroundColor: Colors.redAccent,
                                   ),
                                 );

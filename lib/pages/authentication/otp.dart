@@ -14,7 +14,13 @@ import 'package:raheeq_main/utils/rtl_helpers.dart';
 class OTP extends StatefulWidget {
   final String phoneNumber;
   final String countryCode;
-  const OTP({super.key, required this.phoneNumber, required this.countryCode});
+  final String? receivedOtp;
+  const OTP({
+    super.key,
+    required this.phoneNumber,
+    required this.countryCode,
+    this.receivedOtp,
+  });
 
   @override
   State<OTP> createState() => _OTPState();
@@ -37,38 +43,11 @@ class _OTPState extends State<OTP> {
   void initState() {
     super.initState();
     _startTimer();
-    _fetchOtp();
+    _receivedOtp = widget.receivedOtp;
+    _isLoadingOtp = false;
   }
 
-  Future<void> _fetchOtp() async {
-    try {
-      final response = await ApiService().requestOtp(
-        phoneNumber: widget.phoneNumber,
-        countryCode: widget.countryCode,
-      );
 
-      if (!mounted) return;
-
-      if (response.statusCode == 200 && response.data['success'] == true) {
-        setState(() {
-          _receivedOtp = response.data['data']?['otp'] ?? 'N/A';
-          _isLoadingOtp = false;
-        });
-      } else {
-        setState(() {
-          _receivedOtp = 'Failed to fetch OTP';
-          _isLoadingOtp = false;
-        });
-      }
-    } catch (e) {
-      if (mounted) {
-        setState(() {
-          _receivedOtp = 'Error: ${e.toString()}';
-          _isLoadingOtp = false;
-        });
-      }
-    }
-  }
 
   @override
   void dispose() {
@@ -402,6 +381,9 @@ class _OTPState extends State<OTP> {
                                           ),
                                         );
                                         _startTimer();
+                                        setState(() {
+                                          _receivedOtp = response.data['data']?['otp']?.toString() ?? 'N/A';
+                                        });
                                       } else {
                                         ScaffoldMessenger.of(
                                           context,
@@ -419,13 +401,15 @@ class _OTPState extends State<OTP> {
                                       if (context.mounted) {
                                         Navigator.pop(context); // Close loader
                                       }
+                                      String errorMessage = 'Error: ${e.toString()}';
+                                      if (e is DioException && e.response?.statusCode == 429) {
+                                        errorMessage = AppLocalizations.of(context)!.too_many_attempts;
+                                      }
                                       ScaffoldMessenger.of(
                                         context,
                                       ).showSnackBar(
                                         SnackBar(
-                                          content: Text(
-                                            'Error: ${e.toString()}',
-                                          ),
+                                          content: Text(errorMessage),
                                           backgroundColor: Colors.redAccent,
                                         ),
                                       );
