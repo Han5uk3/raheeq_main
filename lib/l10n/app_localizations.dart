@@ -416,6 +416,24 @@ abstract class AppLocalizations {
   /// **'No products selected'**
   String get no_products_selected;
 
+  /// No description provided for @order.
+  ///
+  /// In en, this message translates to:
+  /// **'Order'**
+  String get order;
+
+  /// No description provided for @date.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get date;
+
+  /// No description provided for @time.
+  ///
+  /// In en, this message translates to:
+  /// **'Time'**
+  String get time;
+
   /// No description provided for @guest_user_email.
   ///
   /// In en, this message translates to:
@@ -427,6 +445,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Guest User'**
   String get guest_user;
+
+  /// No description provided for @no_orders_out_for_delivery.
+  ///
+  /// In en, this message translates to:
+  /// **'No orders out for delivery'**
+  String get no_orders_out_for_delivery;
 
   /// No description provided for @login_successful.
   ///

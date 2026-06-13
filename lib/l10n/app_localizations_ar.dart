@@ -173,10 +173,22 @@ class AppLocalizationsAr extends AppLocalizations {
   String get no_products_selected => 'لم يتم اختيار أي منتجات';
 
   @override
+  String get order => 'الطلب';
+
+  @override
+  String get date => 'التاريخ';
+
+  @override
+  String get time => 'الوقت';
+
+  @override
   String get guest_user_email => 'guest_user@suqyarahiq.com';
 
   @override
   String get guest_user => 'مستخدم زائر';
+
+  @override
+  String get no_orders_out_for_delivery => 'لا توجد طلبات جاري توصيلها';
 
   @override
   String get login_successful => 'تم تسجيل الدخول بنجاح';

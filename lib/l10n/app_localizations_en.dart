@@ -173,10 +173,22 @@ class AppLocalizationsEn extends AppLocalizations {
   String get no_products_selected => 'No products selected';
 
   @override
+  String get order => 'Order';
+
+  @override
+  String get date => 'Date';
+
+  @override
+  String get time => 'Time';
+
+  @override
   String get guest_user_email => 'guest_user@suqyarahiq.com';
 
   @override
   String get guest_user => 'Guest User';
+
+  @override
+  String get no_orders_out_for_delivery => 'No orders out for delivery';
 
   @override
   String get login_successful => 'Login Successful';

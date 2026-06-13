@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:freshchat_sdk/freshchat_user.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/user.dart';
 import '../pages/authentication/login.dart';
+import 'package:freshchat_sdk/freshchat_sdk.dart';
 
 class AuthStorage {
   static const String boxName = 'authBox';
@@ -11,10 +13,13 @@ class AuthStorage {
   static const String userDataKey = 'userData';
 
   // Global key for programmatic routing (e.g. token invalidation redirection)
-  static final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+  static final GlobalKey<NavigatorState> navigatorKey =
+      GlobalKey<NavigatorState>();
 
   // ValueNotifier to track active login state
-  static final ValueNotifier<bool> isLoggedInNotifier = ValueNotifier<bool>(false);
+  static final ValueNotifier<bool> isLoggedInNotifier = ValueNotifier<bool>(
+    false,
+  );
 
   static Future<void> init() async {
     await Hive.initFlutter();
@@ -41,11 +46,28 @@ class AuthStorage {
 
   static Future<void> saveUserData(Map<String, dynamic> userData) async {
     await _box.put(userDataKey, userData);
+
+    try {
+      final currentUser = user;
+      if (currentUser != null) {
+        FreshchatUser freshchatUser = await Freshchat.getUser;
+        freshchatUser.setFirstName(currentUser.firstName);
+        freshchatUser.setLastName(currentUser.lastName);
+        freshchatUser.setEmail(currentUser.email);
+        freshchatUser.setPhone(
+          currentUser.countryCode,
+          currentUser.phoneNumber,
+        );
+        Freshchat.setUser(freshchatUser);
+      }
+    } catch (e) {
+      debugPrint("Failed to set Freshchat user: $e");
+    }
   }
 
   static String? get accessToken => _box.get(accessTokenKey);
   static String? get refreshToken => _box.get(refreshTokenKey);
-  
+
   static User? get user {
     final raw = _box.get(userDataKey);
     if (raw == null) return null;
@@ -56,7 +78,13 @@ class AuthStorage {
   static Future<void> clear() async {
     await _box.clear();
     isLoggedInNotifier.value = false;
-    
+
+    try {
+      Freshchat.resetUser();
+    } catch (e) {
+      debugPrint("Failed to reset Freshchat user: $e");
+    }
+
     // Programmatically push to Login on session failure
     navigatorKey.currentState?.pushAndRemoveUntil(
       MaterialPageRoute(builder: (_) => const Login()),

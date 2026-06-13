@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:freshchat_sdk/freshchat_sdk.dart';
 import 'package:raheeq_main/common_widgets/custom_bottom_nav.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/utils/colors.dart';
@@ -94,41 +95,26 @@ class _HomeScreenState extends State<HomeScreen> {
               subtitle: _getAppBarSubtitle(context),
               centerTitle: true,
             ),
-      body: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 350),
-        transitionBuilder: (Widget child, Animation<double> animation) {
-          return FadeTransition(
-            opacity: animation,
-            child: SlideTransition(
-              position: Tween<Offset>(
-                begin: const Offset(0, 0.02),
-                end: Offset.zero,
-              ).animate(animation),
-              child: child,
-            ),
-          );
-        },
-        child: Container(
-          key: ValueKey<int>(_currentIndex),
-          decoration: (_currentIndex == 0 || _currentIndex == 3)
-              ? null
-              : const BoxDecoration(
-                  color: Color(0xFFF8FAFB),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(30),
-                  ),
+      body: Container(
+        key: ValueKey<int>(_currentIndex),
+        decoration: (_currentIndex == 0 || _currentIndex == 3)
+            ? null
+            : const BoxDecoration(
+                color: Color(0xFFF8FAFB),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(30),
+                  topRight: Radius.circular(30),
                 ),
-          child: (_currentIndex == 0 || _currentIndex == 3)
-              ? _buildPages(context)[_currentIndex]
-              : ClipRRect(
-                  borderRadius: const BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(30),
-                  ),
-                  child: _buildPages(context)[_currentIndex],
+              ),
+        child: (_currentIndex == 0 || _currentIndex == 3)
+            ? _buildPages(context)[_currentIndex]
+            : ClipRRect(
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(30),
+                  topRight: Radius.circular(30),
                 ),
-        ),
+                child: _buildPages(context)[_currentIndex],
+              ),
       ),
       bottomNavigationBar: CustomBottomNavBar(
         currentIndex: _currentIndex,
@@ -151,9 +137,16 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
         onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
+          if (index == 2) {
+            Freshchat.showConversations(
+              tags: const ["chat_with_us"],
+              filteredViewTitle: "Rahiq Support",
+            );
+          } else {
+            setState(() {
+              _currentIndex = index;
+            });
+          }
         },
       ),
     );

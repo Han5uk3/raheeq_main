@@ -194,6 +194,8 @@ class _LoginState extends State<Login> {
       backgroundColor: const Color(0xFFF8FAFB),
       appBar: AppBar(
         backgroundColor: AppColors.buttonBlueDark,
+
+        shape: Border.all(width: 0, color: AppColors.buttonBlueDark),
         centerTitle: true,
         title: Text(
           AppLocalizations.of(context)!.login,

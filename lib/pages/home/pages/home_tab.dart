@@ -543,7 +543,7 @@ class _HomeTabState extends State<HomeTab> {
           Positioned(
             left: 16,
             right: 16,
-            bottom: 116,
+            bottom: 130,
             child: BottomActionPill(
               titleWidget: Text(
                 isAr

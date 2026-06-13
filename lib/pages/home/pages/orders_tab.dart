@@ -5,6 +5,7 @@ import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/models/order_response_model.dart';
 import 'package:raheeq_main/pages/order/booking_details_page.dart';
 import 'package:intl/intl.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class OrdersTab extends StatefulWidget {
   const OrdersTab({super.key});
@@ -36,11 +37,20 @@ class _OrdersTabState extends State<OrdersTab> {
       final response = await ApiService().getMyOrders();
       if (response.statusCode == 200 && response.data['success'] == true) {
         final data = response.data['data']['items'] as List;
-        final orders = data.map((json) => OrderResponseModel.fromJson(json)).toList();
+        final orders = data
+            .map((json) => OrderResponseModel.fromJson(json))
+            .toList();
 
         setState(() {
-          _newOrders = orders.where((o) => o.status == 'PENDING' || o.status == 'PROCESSING').toList();
-          _outForDelivery = orders.where((o) => o.status == 'DISPATCHED' || o.status == 'OUT_FOR_DELIVERY').toList();
+          _newOrders = orders
+              .where((o) => o.status == 'PENDING' || o.status == 'PROCESSING')
+              .toList();
+          _outForDelivery = orders
+              .where(
+                (o) =>
+                    o.status == 'DISPATCHED' || o.status == 'OUT_FOR_DELIVERY',
+              )
+              .toList();
           _delivered = orders.where((o) => o.status == 'DELIVERED').toList();
           _isLoading = false;
         });
@@ -120,9 +130,7 @@ class _OrdersTabState extends State<OrdersTab> {
             ),
           ),
           const SizedBox(height: 16),
-          Expanded(
-            child: _buildContent(),
-          ),
+          Expanded(child: _buildContent()),
         ],
       ),
     );
@@ -130,7 +138,9 @@ class _OrdersTabState extends State<OrdersTab> {
 
   Widget _buildContent() {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator(color: AppColors.buttonBlueDark));
+      return const Center(
+        child: CircularProgressIndicator(color: AppColors.buttonBlueDark),
+      );
     }
 
     if (_errorMessage != null) {
@@ -143,8 +153,8 @@ class _OrdersTabState extends State<OrdersTab> {
             Text(_errorMessage!, style: const TextStyle(color: Colors.grey)),
             TextButton(
               onPressed: _fetchOrders,
-              child: const Text("Retry"),
-            )
+              child: Text(AppLocalizations.of(context)!.retry),
+            ),
           ],
         ),
       );
@@ -152,20 +162,29 @@ class _OrdersTabState extends State<OrdersTab> {
 
     return TabBarView(
       children: [
-        _buildOrdersList(_newOrders, AppLocalizations.of(context)!.no_new_orders),
-        _buildOrdersList(_outForDelivery, Localizations.localeOf(context).languageCode == 'ar' ? 'لا توجد طلبات جاري توصيلها' : 'No orders out for delivery'),
-        _buildOrdersList(_delivered, AppLocalizations.of(context)!.no_delivered_orders),
+        _buildOrdersList(
+          _newOrders,
+          AppLocalizations.of(context)!.no_new_orders,
+        ),
+        _buildOrdersList(
+          _outForDelivery,
+          AppLocalizations.of(context)!.no_orders_out_for_delivery,
+        ),
+        _buildOrdersList(
+          _delivered,
+          AppLocalizations.of(context)!.no_delivered_orders,
+        ),
       ],
     );
   }
 
-  Widget _buildOrdersList(List<OrderResponseModel> orders, String emptyMessage) {
+  Widget _buildOrdersList(
+    List<OrderResponseModel> orders,
+    String emptyMessage,
+  ) {
     if (orders.isEmpty) {
       return Center(
-        child: Text(
-          emptyMessage,
-          style: const TextStyle(color: Colors.grey),
-        ),
+        child: Text(emptyMessage, style: const TextStyle(color: Colors.grey)),
       );
     }
 
@@ -173,7 +192,7 @@ class _OrdersTabState extends State<OrdersTab> {
       onRefresh: _fetchOrders,
       color: AppColors.buttonBlue,
       child: ListView.separated(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(16, 16, 16, 150),
         itemCount: orders.length,
         separatorBuilder: (context, index) => const SizedBox(height: 12),
         itemBuilder: (context, index) {
@@ -185,112 +204,7 @@ class _OrdersTabState extends State<OrdersTab> {
   }
 
   Widget _buildOrderCard(OrderResponseModel order) {
-    final isAr = Localizations.localeOf(context).languageCode == 'ar';
-    final dateFormat = DateFormat('MMM dd, yyyy - hh:mm a');
-    final formattedDate = dateFormat.format(order.createdAt.toLocal());
-
-    // Use a fallback text if app localizations for order_number is not available directly
-    // Wait, let's use 'Order' and 'طلب' if not available in AppLocalizations.
-    final orderPrefix = isAr ? 'الطلب' : 'Order';
-
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) => BookingDetailsPage(orderId: order.id),
-            ),
-          );
-        },
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    '$orderPrefix #${order.subOrderNumber}',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: AppColors.buttonBlueDark,
-                    ),
-                  ),
-                  Text(
-                    formattedDate,
-                    style: const TextStyle(color: Colors.grey, fontSize: 12),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 12),
-              if (order.product != null)
-                Row(
-                  children: [
-                    const Icon(Icons.inventory_2_outlined, size: 16, color: Colors.grey),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        '${order.product!.quantity}x ${isAr ? order.product!.nameAr : order.product!.name}',
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                    ),
-                  ],
-                ),
-              if (order.target != null) ...[
-                const SizedBox(height: 6),
-                Row(
-                  children: [
-                    const Icon(Icons.location_on_outlined, size: 16, color: Colors.grey),
-                    const SizedBox(width: 8),
-                    Expanded(
-                      child: Text(
-                        isAr ? order.target!.labelAr : order.target!.label,
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-              const SizedBox(height: 12),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                    decoration: BoxDecoration(
-                      color: _getStatusColor(order.status).withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Text(
-                      order.status,
-                      style: TextStyle(
-                        color: _getStatusColor(order.status),
-                        fontWeight: FontWeight.bold,
-                        fontSize: 12,
-                      ),
-                    ),
-                  ),
-                  Text(
-                    isAr ? '${order.totalAmount} ر.س' : 'SAR ${order.totalAmount}',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                      color: AppColors.buttonBlue,
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
+    return _OrderCard(order: order);
   }
 
   Color _getStatusColor(String status) {
@@ -308,5 +222,272 @@ class _OrdersTabState extends State<OrdersTab> {
       default:
         return Colors.grey;
     }
+  }
+}
+
+class _OrderCard extends StatefulWidget {
+  final OrderResponseModel order;
+
+  const _OrderCard({required this.order});
+
+  @override
+  State<_OrderCard> createState() => _OrderCardState();
+}
+
+class _OrderCardState extends State<_OrderCard> {
+  bool _isExpanded = false;
+
+  @override
+  Widget build(BuildContext context) {
+    final isAr = Localizations.localeOf(context).languageCode == 'ar';
+    final dateFormat = DateFormat('MMM dd, yyyy');
+    final timeFormat = DateFormat('hh:mm a');
+    final orderDate = widget.order.createdAt.toLocal();
+    final formattedDate = dateFormat.format(orderDate);
+    final formattedTime = timeFormat.format(orderDate);
+
+    final String imageUrl =
+        widget.order.product?.image ?? widget.order.target?.image ?? '';
+
+    String locationTitle = '';
+    if (widget.order.target != null && widget.order.target!.label.isNotEmpty) {
+      locationTitle = isAr
+          ? widget.order.target!.labelAr
+          : widget.order.target!.label;
+    } else if (widget.order.product != null) {
+      locationTitle = isAr
+          ? widget.order.product!.nameAr
+          : widget.order.product!.name;
+    }
+
+    final String address =
+        widget.order.locationDetails != null &&
+            widget.order.locationDetails!['address'] != null
+        ? widget.order.locationDetails!['address'].toString()
+        : '';
+
+    final String totalCost = isAr
+        ? '${widget.order.totalAmount} ر.س'
+        : 'SAR ${widget.order.totalAmount}';
+
+    return Card(
+      color: Colors.white,
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: InkWell(
+        onTap: () {
+          setState(() {
+            _isExpanded = !_isExpanded;
+          });
+        },
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(8),
+                    child: imageUrl.isNotEmpty
+                        ? CachedNetworkImage(
+                            imageUrl: imageUrl,
+                            width: 60,
+                            height: 60,
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) => Container(
+                              color: Colors.grey[200],
+                              width: 60,
+                              height: 60,
+                              child: const Center(
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              ),
+                            ),
+                            errorWidget: (context, url, error) => Container(
+                              color: Colors.grey[200],
+                              width: 60,
+                              height: 60,
+                              child: const Icon(
+                                Icons.image_not_supported,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          )
+                        : Container(
+                            color: Colors.grey[200],
+                            width: 60,
+                            height: 60,
+                            child: const Icon(
+                              Icons.inventory_2_outlined,
+                              color: Colors.grey,
+                            ),
+                          ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          locationTitle,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                        if (address.isNotEmpty) ...[
+                          const SizedBox(height: 4),
+                          Text(
+                            address,
+                            style: const TextStyle(
+                              color: Colors.grey,
+                              fontSize: 14,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
+                          ),
+                        ],
+                        const SizedBox(height: 4),
+                        Text(
+                          totalCost,
+                          style: const TextStyle(
+                            color: AppColors.buttonBlue,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              AnimatedSize(
+                duration: const Duration(milliseconds: 300),
+                alignment: Alignment.topCenter,
+                curve: Curves.easeInOut,
+                child: _isExpanded
+                    ? Column(
+                        children: [
+                          const SizedBox(height: 12),
+                          const Divider(),
+                          const SizedBox(height: 12),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                AppLocalizations.of(context)!.date,
+                                style: const TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              Text(
+                                formattedDate,
+                                style: const TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 4),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                AppLocalizations.of(context)!.time,
+                                style: const TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 14,
+                                ),
+                              ),
+                              Text(
+                                formattedTime,
+                                style: const TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+
+                          const SizedBox(height: 16),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.buttonBlueDark,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    // Placeholder for track order
+                                  },
+                                  child: Text(
+                                    isAr ? 'تتبع الطلب' : 'Track Order',
+                                    style: const TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 12),
+                              Expanded(
+                                child: OutlinedButton(
+                                  style: OutlinedButton.styleFrom(
+                                    side: const BorderSide(
+                                      color: AppColors.buttonBlueDark,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            BookingDetailsPage(
+                                              orderId: widget.order.id,
+                                            ),
+                                      ),
+                                    );
+                                  },
+                                  child: Text(
+                                    isAr ? 'عرض الإيصال' : 'View Receipt',
+                                    style: const TextStyle(
+                                      color: AppColors.buttonBlueDark,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          const Icon(
+                            Icons.keyboard_arrow_up,
+                            color: Colors.grey,
+                          ),
+                        ],
+                      )
+                    : const SizedBox(
+                        width: double.infinity,
+                        child: Column(
+                          children: [
+                            SizedBox(height: 12),
+                            Icon(Icons.keyboard_arrow_down, color: Colors.grey),
+                          ],
+                        ),
+                      ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
