@@ -42,7 +42,8 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
         });
       } else {
         setState(() {
-          _errorMessage = response.data['message'] ?? 'Failed to load order details';
+          _errorMessage =
+              response.data['message'] ?? 'Failed to load order details';
           _isLoading = false;
         });
       }
@@ -63,7 +64,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
     } catch (_) {
       title = "Order Details";
     }
-    
+
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
 
     return Scaffold(
@@ -100,7 +101,9 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
 
   Widget _buildContent(bool isAr) {
     if (_isLoading) {
-      return const Center(child: CircularProgressIndicator(color: AppColors.buttonBlueDark));
+      return const Center(
+        child: CircularProgressIndicator(color: AppColors.buttonBlueDark),
+      );
     }
 
     if (_errorMessage != null || _order == null) {
@@ -110,11 +113,14 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
           children: [
             const Icon(Icons.error_outline, color: Colors.redAccent, size: 48),
             const SizedBox(height: 16),
-            Text(_errorMessage ?? "Error", style: const TextStyle(color: Colors.grey)),
+            Text(
+              _errorMessage ?? "Error",
+              style: const TextStyle(color: Colors.grey),
+            ),
             TextButton(
               onPressed: _fetchOrderDetails,
               child: const Text("Retry"),
-            )
+            ),
           ],
         ),
       );
@@ -144,7 +150,10 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                 ),
                 const SizedBox(height: 8),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: _getStatusColor(order.status).withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(12),
@@ -203,12 +212,18 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                     children: [
                       Text(
                         isAr ? order.product!.nameAr : order.product!.name,
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         '${isAr ? 'الكمية' : 'Quantity'}: ${order.product!.quantity}',
-                        style: const TextStyle(fontSize: 14, color: Colors.grey),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey,
+                        ),
                       ),
                     ],
                   ),
@@ -253,12 +268,18 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                     children: [
                       Text(
                         isAr ? order.target!.labelAr : order.target!.label,
-                        style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         order.target!.type,
-                        style: const TextStyle(fontSize: 14, color: Colors.grey),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey,
+                        ),
                       ),
                     ],
                   ),
@@ -277,11 +298,23 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
-            _buildFinancialRow(isAr ? 'قيمة المنتجات' : 'Amount', order.financials!.amount, isAr),
+            _buildFinancialRow(
+              isAr ? 'قيمة المنتجات' : 'Amount',
+              order.financials!.amount,
+              isAr,
+            ),
             const SizedBox(height: 12),
-            _buildFinancialRow(isAr ? 'رسوم التوصيل' : 'Delivery Fee', order.financials!.deliveryFee, isAr),
+            _buildFinancialRow(
+              isAr ? 'رسوم التوصيل' : 'Delivery Fee',
+              order.financials!.deliveryFee,
+              isAr,
+            ),
             const SizedBox(height: 12),
-            _buildFinancialRow(isAr ? 'ضريبة القيمة المضافة' : 'VAT', order.financials!.vatAmount, isAr),
+            _buildFinancialRow(
+              isAr ? 'ضريبة القيمة المضافة' : 'VAT',
+              order.financials!.vatAmount,
+              isAr,
+            ),
             const SizedBox(height: 16),
             _buildFinancialRow(
               isAr ? 'الإجمالي' : 'Total Amount',
@@ -295,7 +328,12 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
     );
   }
 
-  Widget _buildFinancialRow(String label, double amount, bool isAr, {bool isTotal = false}) {
+  Widget _buildFinancialRow(
+    String label,
+    double amount,
+    bool isAr, {
+    bool isTotal = false,
+  }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [

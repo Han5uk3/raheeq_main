@@ -311,7 +311,9 @@ class _SubscriptionPlansBottomSheetState
                   ),
                 ),
 
-              if (!_isLoadingPlans && _plans.isNotEmpty && _selectedPlan != null)
+              if (!_isLoadingPlans &&
+                  _plans.isNotEmpty &&
+                  _selectedPlan != null)
                 Padding(
                   padding: const EdgeInsets.all(24.0),
                   child: SizedBox(
@@ -322,7 +324,9 @@ class _SubscriptionPlansBottomSheetState
                           ? null
                           : () {
                               FocusManager.instance.primaryFocus?.unfocus();
-                              SystemChannels.textInput.invokeMethod('TextInput.hide');
+                              SystemChannels.textInput.invokeMethod(
+                                'TextInput.hide',
+                              );
                               Navigator.pop(context);
                               widget.onPlanSelected(_selectedPlan!);
                             },

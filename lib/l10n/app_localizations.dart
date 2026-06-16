@@ -350,6 +350,12 @@ abstract class AppLocalizations {
   /// **'Contact Us'**
   String get contact_us;
 
+  /// No description provided for @contact_us_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Reach out to us via live chat for immediate support.'**
+  String get contact_us_desc;
+
   /// No description provided for @camera.
   ///
   /// In en, this message translates to:
@@ -518,17 +524,11 @@ abstract class AppLocalizations {
   /// **'Failed upload simulation: {error}'**
   String failed_upload_simulation(String error);
 
-  /// No description provided for @track_mosque_donations.
+  /// No description provided for @track_your_donations.
   ///
   /// In en, this message translates to:
-  /// **'Track your mosque donations'**
-  String get track_mosque_donations;
-
-  /// No description provided for @ongoing_charity_rewards.
-  ///
-  /// In en, this message translates to:
-  /// **'Your ongoing charity rewards'**
-  String get ongoing_charity_rewards;
+  /// **'Track your donations'**
+  String get track_your_donations;
 
   /// No description provided for @manage_account_settings.
   ///
@@ -1755,6 +1755,270 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Too many attempts. Please try again later.'**
   String get too_many_attempts;
+
+  /// No description provided for @suggestions.
+  ///
+  /// In en, this message translates to:
+  /// **'Suggestions'**
+  String get suggestions;
+
+  /// No description provided for @complaints.
+  ///
+  /// In en, this message translates to:
+  /// **'Complaints'**
+  String get complaints;
+
+  /// No description provided for @complaints_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Report any issues you faced with your orders.'**
+  String get complaints_desc;
+
+  /// No description provided for @your_suggestions_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Your suggestions are important to us, we are happy to receive them.'**
+  String get your_suggestions_hint;
+
+  /// No description provided for @send.
+  ///
+  /// In en, this message translates to:
+  /// **'Send'**
+  String get send;
+
+  /// No description provided for @select_complaint.
+  ///
+  /// In en, this message translates to:
+  /// **'Select complaint'**
+  String get select_complaint;
+
+  /// No description provided for @complaint_option_1.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment was made but no order was created.'**
+  String get complaint_option_1;
+
+  /// No description provided for @complaint_option_2.
+  ///
+  /// In en, this message translates to:
+  /// **'Order was not delivered in the specified time.'**
+  String get complaint_option_2;
+
+  /// No description provided for @complaint_option_3.
+  ///
+  /// In en, this message translates to:
+  /// **'Order was delivered to a different mosque than the one specified.'**
+  String get complaint_option_3;
+
+  /// No description provided for @complaint_option_4.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get complaint_option_4;
+
+  /// No description provided for @enter_complaint_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your complaint here.'**
+  String get enter_complaint_hint;
+
+  /// No description provided for @select_order.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Order'**
+  String get select_order;
+
+  /// No description provided for @sign_in_with_provider.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in with {provider}'**
+  String sign_in_with_provider(String provider);
+
+  /// No description provided for @choose_account_to_continue.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose an account to continue with Raheeq:'**
+  String get choose_account_to_continue;
+
+  /// No description provided for @authentication_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Authentication failed'**
+  String get authentication_failed;
+
+  /// No description provided for @failed_to_send_otp.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to send OTP'**
+  String get failed_to_send_otp;
+
+  /// No description provided for @otp_sent_successfully.
+  ///
+  /// In en, this message translates to:
+  /// **'OTP sent successfully!'**
+  String get otp_sent_successfully;
+
+  /// No description provided for @failed_to_resend_otp.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to resend OTP'**
+  String get failed_to_resend_otp;
+
+  /// No description provided for @verification_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Verification failed'**
+  String get verification_failed;
+
+  /// No description provided for @invalid_otp.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid OTP'**
+  String get invalid_otp;
+
+  /// No description provided for @complete_profile.
+  ///
+  /// In en, this message translates to:
+  /// **'Complete Profile'**
+  String get complete_profile;
+
+  /// No description provided for @enter_first_name.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your first name'**
+  String get enter_first_name;
+
+  /// No description provided for @enter_last_name.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your last name'**
+  String get enter_last_name;
+
+  /// No description provided for @enter_email_optional_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter your email (optional)'**
+  String get enter_email_optional_hint;
+
+  /// No description provided for @enter_phone_number_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter phone number'**
+  String get enter_phone_number_hint;
+
+  /// No description provided for @registration_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Registration failed'**
+  String get registration_failed;
+
+  /// No description provided for @validation_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Validation error'**
+  String get validation_error;
+
+  /// No description provided for @validation_error_check_inputs.
+  ///
+  /// In en, this message translates to:
+  /// **'Validation error. Please check your inputs.'**
+  String get validation_error_check_inputs;
+
+  /// No description provided for @register.
+  ///
+  /// In en, this message translates to:
+  /// **'Register'**
+  String get register;
+
+  /// No description provided for @field_required.
+  ///
+  /// In en, this message translates to:
+  /// **'This field is required'**
+  String get field_required;
+
+  /// No description provided for @enter_valid_email.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid email address'**
+  String get enter_valid_email;
+
+  /// No description provided for @gender.
+  ///
+  /// In en, this message translates to:
+  /// **'Gender'**
+  String get gender;
+
+  /// No description provided for @select_gender.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Gender'**
+  String get select_gender;
+
+  /// No description provided for @male.
+  ///
+  /// In en, this message translates to:
+  /// **'Male'**
+  String get male;
+
+  /// No description provided for @female.
+  ///
+  /// In en, this message translates to:
+  /// **'Female'**
+  String get female;
+
+  /// No description provided for @other_gender.
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get other_gender;
+
+  /// No description provided for @please_select_gender.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select gender'**
+  String get please_select_gender;
+
+  /// No description provided for @show_more.
+  ///
+  /// In en, this message translates to:
+  /// **'Show More'**
+  String get show_more;
+
+  /// No description provided for @all_transactions.
+  ///
+  /// In en, this message translates to:
+  /// **'All Transactions'**
+  String get all_transactions;
+
+  /// No description provided for @filter_by.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter By'**
+  String get filter_by;
+
+  /// No description provided for @day.
+  ///
+  /// In en, this message translates to:
+  /// **'Day'**
+  String get day;
+
+  /// No description provided for @month.
+  ///
+  /// In en, this message translates to:
+  /// **'Month'**
+  String get month;
+
+  /// No description provided for @year.
+  ///
+  /// In en, this message translates to:
+  /// **'Year'**
+  String get year;
+
+  /// No description provided for @all.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get all;
 }
 
 class _AppLocalizationsDelegate

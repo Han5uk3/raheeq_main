@@ -21,11 +21,6 @@ class BannerData {
   }
 
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'name': name,
-      'image': image,
-      'order': order,
-    };
+    return {'id': id, 'name': name, 'image': image, 'order': order};
   }
 }

@@ -6,6 +6,7 @@ import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:country_picker/country_picker.dart';
+import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 
 class GiftCardBottomSheet extends StatefulWidget {
   final Checkout checkoutData;
@@ -93,13 +94,12 @@ class _GiftCardBottomSheetState extends State<GiftCardBottomSheet> {
         _phoneController.text.trim().isEmpty ||
         _selectedTemplate == null ||
         _selectedItem == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            widget.isAr ? "يرجى تعبئة جميع الحقول" : "Please fill all fields",
-          ),
-          backgroundColor: Colors.red,
-        ),
+      CustomSnackbar.show(
+        context: context,
+        message: widget.isAr
+            ? "يرجى تعبئة جميع الحقول"
+            : "Please fill all fields",
+        isError: true,
       );
       return;
     }
@@ -129,13 +129,12 @@ class _GiftCardBottomSheetState extends State<GiftCardBottomSheet> {
       }
     } catch (e) {
       log('Error applying gift card: $e');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            widget.isAr ? "حدث خطأ أثناء التطبيق" : "Error applying gift card",
-          ),
-          backgroundColor: Colors.red,
-        ),
+      CustomSnackbar.show(
+        context: context,
+        message: widget.isAr
+            ? "حدث خطأ أثناء التطبيق"
+            : "Error applying gift card",
+        isError: true,
       );
     } finally {
       if (mounted) {
@@ -278,6 +277,7 @@ class _GiftCardBottomSheetState extends State<GiftCardBottomSheet> {
       ),
       child: TextField(
         controller: controller,
+        cursorColor: AppColors.buttonBlueDark,
         decoration: InputDecoration(
           border: InputBorder.none,
           contentPadding: const EdgeInsets.symmetric(

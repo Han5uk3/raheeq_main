@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/utils/colors.dart';
-import 'package:raheeq_main/utils/rtl_helpers.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
+import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
+import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
+import 'package:raheeq_main/pages/home/pages/transactions_history_page.dart';
 
 class MyWalletPage extends StatefulWidget {
   const MyWalletPage({super.key});
@@ -39,12 +41,9 @@ class _MyWalletPageState extends State<MyWalletPage> {
           _isLoading = false;
         });
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                AppLocalizations.of(context)!.failed_to_load_wallet,
-              ),
-            ),
+          CustomSnackbar.show(
+            context: context,
+            message: AppLocalizations.of(context)!.failed_to_load_wallet,
           );
         }
       }
@@ -53,12 +52,9 @@ class _MyWalletPageState extends State<MyWalletPage> {
         _isLoading = false;
       });
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(context)!.error_msg(e.toString()),
-            ),
-          ),
+        CustomSnackbar.show(
+          context: context,
+          message: AppLocalizations.of(context)!.error_msg(e.toString()),
         );
       }
     }
@@ -67,52 +63,111 @@ class _MyWalletPageState extends State<MyWalletPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
-      appBar: AppBar(
-        title: Text(
-          AppLocalizations.of(context)!.my_wallet,
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
+      backgroundColor: Colors.white,
+      body: Column(
+        children: [
+          CustomAppBar(
+            hasBackgroundColor: true,
+            isStartAligned: true,
+            title: AppLocalizations.of(context)!.my_wallet,
+            subtitle: '',
+            showBackButton: true,
+            onBackTap: () => Navigator.pop(context),
           ),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-        leading: IconButton(
-          icon: Icon(backArrowIcon(context), color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
-      ),
-      body: _isLoading
-          ? Center(child: WaterLoadingIndicator())
-          : RefreshIndicator(
-              onRefresh: _fetchWalletData,
-              child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildWalletCard(),
-                      const SizedBox(height: 24),
-                      Text(
-                        AppLocalizations.of(context)!.transaction_history,
-                        style: TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                      ),
-                      const SizedBox(height: 16),
-                      _buildTransactionsList(),
-                    ],
+          Expanded(
+            child: Container(
+              color: const Color(0x4D91E3FE),
+              child: Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFF8FAFB),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(30),
+                    topRight: Radius.circular(30),
                   ),
+                ),
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 500),
+                  layoutBuilder: (currentChild, previousChildren) {
+                    return Stack(
+                      alignment: Alignment.topCenter,
+                      children: <Widget>[
+                        ...previousChildren,
+                        if (currentChild != null) currentChild,
+                      ],
+                    );
+                  },
+                  child: _isLoading
+                      ? SizedBox(
+                          key: const ValueKey('loader'),
+                          height: MediaQuery.of(context).size.height - 200,
+                          child: const Center(
+                            child: SizedBox(
+                              height: 30,
+                              width: 30,
+                              child: WaterLoadingIndicator(size: 30),
+                            ),
+                          ),
+                        )
+                      : SingleChildScrollView(
+                          key: const ValueKey('content'),
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _buildWalletCard(),
+                                  const SizedBox(height: 24),
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.transaction_history,
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                      if (_transactions.length > 10)
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) =>
+                                                    TransactionsHistoryPage(
+                                                      transactions:
+                                                          _transactions,
+                                                    ),
+                                              ),
+                                            );
+                                          },
+                                          child: Text(
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.show_more,
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 16),
+                                  _buildTransactionsList(),
+                                ],
+                              ),
+                            ),
+                          ),
                 ),
               ),
             ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -183,13 +238,16 @@ class _MyWalletPageState extends State<MyWalletPage> {
       );
     }
 
+    final displayTransactions = _transactions.take(10).toList();
+
     return ListView.separated(
       shrinkWrap: true,
+      padding: EdgeInsets.all(0),
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: _transactions.length,
+      itemCount: displayTransactions.length,
       separatorBuilder: (context, index) => const Divider(height: 1),
       itemBuilder: (context, index) {
-        final tx = _transactions[index];
+        final tx = displayTransactions[index];
         final type = tx['type'] ?? 'UNKNOWN';
         final isCredit = type == 'CREDIT';
         final amount = tx['amount']?.toString() ?? '0';

@@ -14,6 +14,8 @@ import 'package:raheeq_main/common_widgets/donation_type_bottom_sheet.dart';
 import 'package:raheeq_main/common_widgets/subscription_plans_bottom_sheet.dart';
 import 'package:raheeq_main/common_widgets/subscription_details_bottom_sheet.dart';
 import 'package:raheeq_main/models/subscription_plan.dart';
+import 'package:raheeq_main/utils/colors.dart';
+import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 
 class CampaignDetailPage extends StatefulWidget {
   final Campaign campaign;
@@ -467,9 +469,10 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
                 border: Border.all(color: Colors.grey, width: 1.5),
               ),
               child: TextField(
+                cursorColor: AppColors.buttonBlueDark,
                 controller: _customController,
                 focusNode: _customFocusNode,
-                cursorColor: Colors.grey,
+
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 onTap: () {
@@ -811,12 +814,12 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
       Navigator.pop(context); // Close loading dialog
       log('Error creating checkout: $e', error: e);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              isAr ? 'حدث خطأ. حاول مرة أخرى' : 'Error occurred. Try again',
-            ),
-          ),
+        CustomSnackbar.show(
+          context: context,
+          message: isAr
+              ? 'حدث خطأ. حاول مرة أخرى'
+              : 'Error occurred. Try again',
+          bottomMargin: 130,
         );
       }
     }

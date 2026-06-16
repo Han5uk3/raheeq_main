@@ -33,8 +33,9 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
     });
 
     try {
-      final response =
-          await ApiService().getSubscriptionDetails(widget.subscriptionId);
+      final response = await ApiService().getSubscriptionDetails(
+        widget.subscriptionId,
+      );
       if (response.statusCode == 200 && response.data['success'] == true) {
         final data = response.data['data'];
         setState(() {
@@ -43,8 +44,7 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
         });
       } else {
         setState(() {
-          _errorMessage =
-              response.data['message'] ?? 'Failed to load details';
+          _errorMessage = response.data['message'] ?? 'Failed to load details';
           _isLoading = false;
         });
       }
@@ -97,7 +97,8 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
   Widget _buildContent(bool isAr) {
     if (_isLoading) {
       return const Center(
-          child: CircularProgressIndicator(color: AppColors.buttonBlueDark));
+        child: CircularProgressIndicator(color: AppColors.buttonBlueDark),
+      );
     }
 
     if (_errorMessage != null) {
@@ -108,10 +109,7 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
             const Icon(Icons.error_outline, color: Colors.redAccent, size: 48),
             const SizedBox(height: 16),
             Text(_errorMessage!, style: const TextStyle(color: Colors.grey)),
-            TextButton(
-              onPressed: _fetchDetails,
-              child: const Text("Retry"),
-            )
+            TextButton(onPressed: _fetchDetails, child: const Text("Retry")),
           ],
         ),
       );
@@ -151,7 +149,9 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
                 ),
               )
             else
-              ..._details!.deliveries.map((delivery) => _buildDeliveryCard(delivery, isAr)),
+              ..._details!.deliveries.map(
+                (delivery) => _buildDeliveryCard(delivery, isAr),
+              ),
           ],
         ),
       ),
@@ -204,20 +204,30 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
               ],
             ),
             const Divider(height: 32),
-            _buildDetailRow(isAr ? 'تاريخ الشراء' : 'Purchased',
-                dateFormat.format(_details!.purchasedDate.toLocal())),
-            const SizedBox(height: 8),
-            _buildDetailRow(isAr ? 'تاريخ البدء' : 'Start Date',
-                dateFormat.format(_details!.startDate.toLocal())),
-            const SizedBox(height: 8),
-            _buildDetailRow(isAr ? 'تاريخ الانتهاء' : 'End Date',
-                dateFormat.format(_details!.endDate.toLocal())),
+            _buildDetailRow(
+              isAr ? 'تاريخ الشراء' : 'Purchased',
+              dateFormat.format(_details!.purchasedDate.toLocal()),
+            ),
             const SizedBox(height: 8),
             _buildDetailRow(
-                isAr ? 'إجمالي الطلبات' : 'Total Orders', '${_details!.ordersCount}'),
+              isAr ? 'تاريخ البدء' : 'Start Date',
+              dateFormat.format(_details!.startDate.toLocal()),
+            ),
             const SizedBox(height: 8),
-            _buildDetailRow(isAr ? 'الإجمالي' : 'Total Amount',
-                '${_details!.totalAmount} ${isAr ? 'ر.س' : 'SAR'}'),
+            _buildDetailRow(
+              isAr ? 'تاريخ الانتهاء' : 'End Date',
+              dateFormat.format(_details!.endDate.toLocal()),
+            ),
+            const SizedBox(height: 8),
+            _buildDetailRow(
+              isAr ? 'إجمالي الطلبات' : 'Total Orders',
+              '${_details!.ordersCount}',
+            ),
+            const SizedBox(height: 8),
+            _buildDetailRow(
+              isAr ? 'الإجمالي' : 'Total Amount',
+              '${_details!.totalAmount} ${isAr ? 'ر.س' : 'SAR'}',
+            ),
           ],
         ),
       ),
@@ -228,10 +238,7 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          label,
-          style: const TextStyle(color: Colors.grey, fontSize: 14),
-        ),
+        Text(label, style: const TextStyle(color: Colors.grey, fontSize: 14)),
         Text(
           value,
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
@@ -272,7 +279,8 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
       ),
       child: Row(
         children: [
-          if (subOrder.product != null && subOrder.product!.image.isNotEmpty) ...[
+          if (subOrder.product != null &&
+              subOrder.product!.image.isNotEmpty) ...[
             ClipRRect(
               borderRadius: BorderRadius.circular(4),
               child: Image.network(
@@ -297,12 +305,21 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      const Icon(Icons.location_on, size: 12, color: Colors.grey),
+                      const Icon(
+                        Icons.location_on,
+                        size: 12,
+                        color: Colors.grey,
+                      ),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(
-                          isAr ? subOrder.target!.labelAr : subOrder.target!.label,
-                          style: const TextStyle(color: Colors.grey, fontSize: 12),
+                          isAr
+                              ? subOrder.target!.labelAr
+                              : subOrder.target!.label,
+                          style: const TextStyle(
+                            color: Colors.grey,
+                            fontSize: 12,
+                          ),
                         ),
                       ),
                     ],
@@ -317,13 +334,18 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
             children: [
               Text(
                 '${subOrder.totalAmount} ${isAr ? 'ر.س' : 'SAR'}',
-                style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.buttonBlue),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.buttonBlue,
+                ),
               ),
               const SizedBox(height: 4),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                 decoration: BoxDecoration(
-                  color: _getStatusColor(subOrder.status).withValues(alpha: 0.1),
+                  color: _getStatusColor(
+                    subOrder.status,
+                  ).withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(4),
                 ),
                 child: Text(

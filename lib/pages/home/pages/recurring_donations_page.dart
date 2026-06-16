@@ -1,3 +1,4 @@
+import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
@@ -35,8 +36,9 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
       final response = await ApiService().getMySubscriptions();
       if (response.statusCode == 200 && response.data['success'] == true) {
         final data = response.data['data']['items'] as List;
-        final subscriptions =
-            data.map((json) => SubscriptionModel.fromJson(json)).toList();
+        final subscriptions = data
+            .map((json) => SubscriptionModel.fromJson(json))
+            .toList();
 
         setState(() {
           _subscriptions = subscriptions;
@@ -99,7 +101,12 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
   Widget _buildContent(bool isAr) {
     if (_isLoading) {
       return const Center(
-          child: CircularProgressIndicator(color: AppColors.buttonBlueDark));
+        child: SizedBox(
+          height: 30,
+          width: 30,
+          child: WaterLoadingIndicator(size: 30),
+        ),
+      );
     }
 
     if (_errorMessage != null) {
@@ -113,7 +120,7 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
             TextButton(
               onPressed: _fetchSubscriptions,
               child: const Text("Retry"),
-            )
+            ),
           ],
         ),
       );
@@ -126,7 +133,7 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
           children: [
             Text(
               AppLocalizations.of(context)!.no_active_subscriptions,
-              style: const TextStyle(
+              style: TextStyle(
                 color: AppColors.headersubtitlecolor,
                 fontSize: 16,
               ),
@@ -185,8 +192,8 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => SubscriptionDetailsPage(
-                  subscriptionId: subscription.id),
+              builder: (context) =>
+                  SubscriptionDetailsPage(subscriptionId: subscription.id),
             ),
           );
         },
@@ -209,8 +216,10 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
                         width: 60,
                         height: 60,
                         color: Colors.grey[200],
-                        child: const Icon(Icons.image_not_supported,
-                            color: Colors.grey),
+                        child: const Icon(
+                          Icons.image_not_supported,
+                          color: Colors.grey,
+                        ),
                       );
                     },
                   ),
@@ -243,10 +252,13 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
                     const SizedBox(height: 12),
                     Container(
                       padding: const EdgeInsets.symmetric(
-                          horizontal: 10, vertical: 4),
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
-                        color: _getStatusColor(subscription.status)
-                            .withValues(alpha: 0.1),
+                        color: _getStatusColor(
+                          subscription.status,
+                        ).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Text(

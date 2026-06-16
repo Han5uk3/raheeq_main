@@ -91,8 +91,9 @@ class Product {
   /// Formats the unit price as a localised string (including delivery fee).
   String formattedPrice(bool isAr) {
     final double totalUnitPrice = price + deliveryFee;
-    final formatted =
-        totalUnitPrice.toStringAsFixed(totalUnitPrice.truncateToDouble() == totalUnitPrice ? 0 : 2);
+    final formatted = totalUnitPrice.toStringAsFixed(
+      totalUnitPrice.truncateToDouble() == totalUnitPrice ? 0 : 2,
+    );
     return isAr ? '$formatted ر.س / وحدة' : '$formatted SAR / unit';
   }
 }

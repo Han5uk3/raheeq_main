@@ -14,7 +14,8 @@ class DonationTypeBottomSheet extends StatefulWidget {
   });
 
   @override
-  State<DonationTypeBottomSheet> createState() => _DonationTypeBottomSheetState();
+  State<DonationTypeBottomSheet> createState() =>
+      _DonationTypeBottomSheetState();
 }
 
 class _DonationTypeBottomSheetState extends State<DonationTypeBottomSheet> {
@@ -127,7 +128,9 @@ class _DonationTypeBottomSheetState extends State<DonationTypeBottomSheet> {
                 ],
               ),
               Text(
-                AppLocalizations.of(context)!.support_once_or_make_a_lasting_impact,
+                AppLocalizations.of(
+                  context,
+                )!.support_once_or_make_a_lasting_impact,
                 style: TextStyle(fontSize: 14, color: Colors.grey[500]),
               ),
               const SizedBox(height: 32),

@@ -24,10 +24,7 @@ class _SplashScreenState extends State<SplashScreen>
       duration: const Duration(milliseconds: 1500),
     );
 
-    _fadeAnimation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeIn,
-    );
+    _fadeAnimation = CurvedAnimation(parent: _controller, curve: Curves.easeIn);
 
     _controller.forward();
 
@@ -37,7 +34,8 @@ class _SplashScreenState extends State<SplashScreen>
         final hasSession = AuthStorage.accessToken != null;
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (context) => hasSession ? const HomeScreen() : const Login(),
+            builder: (context) =>
+                hasSession ? const HomeScreen() : const Login(),
           ),
         );
       }

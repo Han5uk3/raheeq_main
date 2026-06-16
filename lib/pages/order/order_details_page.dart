@@ -16,6 +16,7 @@ import 'package:raheeq_main/common_widgets/subscription_plans_bottom_sheet.dart'
 import 'package:raheeq_main/common_widgets/subscription_details_bottom_sheet.dart';
 import 'package:raheeq_main/models/subscription_plan.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
+import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 
 class ReviewOrderPage extends StatefulWidget {
   final List<OrderCategoryState> orderStates;
@@ -62,7 +63,8 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
       backgroundColor: Colors.transparent,
       builder: (ctx) => DonationTypeBottomSheet(
         onOneTimeSelected: () => _processOneTimeCheckout(context, isAr),
-        onMonthlySelected: () => _showSubscriptionPlansBottomSheet(context, isAr),
+        onMonthlySelected: () =>
+            _showSubscriptionPlansBottomSheet(context, isAr),
       ),
     );
   }
@@ -171,12 +173,11 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
       Navigator.pop(context); // Close loading dialog
       log('Error creating checkout: $e', error: e);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              isAr ? 'حدث خطأ. حاول مرة أخرى' : 'Error occurred. Try again',
-            ),
-          ),
+        CustomSnackbar.show(
+          context: context,
+          message: isAr
+              ? 'حدث خطأ. حاول مرة أخرى'
+              : 'Error occurred. Try again',
         );
       }
     }

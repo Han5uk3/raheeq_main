@@ -37,10 +37,7 @@ class BottomActionPill extends StatelessWidget {
             Column(
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                subtitleWidget!,
-                titleWidget,
-              ],
+              children: [subtitleWidget!, titleWidget],
             )
           else
             titleWidget,
@@ -52,10 +49,7 @@ class BottomActionPill extends StatelessWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 24,
-                vertical: 12,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
             child: Text(
               buttonText,

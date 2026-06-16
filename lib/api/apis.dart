@@ -668,10 +668,6 @@ class ApiService {
     }
   }
 
-
-
-
-
   /// Get Wallet Data
   Future<Response> getWallet() async {
     try {
@@ -967,6 +963,32 @@ class ApiService {
       final response = await _dio.patch(
         '/checkout/items/$itemId/gift-card',
         data: {'giftCard': giftCardData},
+      );
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Create Feedback
+  Future<Response> createFeedback({required String message}) async {
+    try {
+      final response = await _dio.post('/feedback', data: {'message': message});
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Create Complaint
+  Future<Response> createComplaint({
+    required String subOrderId,
+    required String description,
+  }) async {
+    try {
+      final response = await _dio.post(
+        '/complaints',
+        data: {'subOrderId': subOrderId, 'description': description},
       );
       return response;
     } catch (e) {

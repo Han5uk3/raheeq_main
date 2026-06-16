@@ -14,6 +14,7 @@ import 'package:raheeq_main/pages/home/home_screen.dart';
 import 'package:raheeq_main/storage/auth_storage.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:dio/dio.dart';
+import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -73,7 +74,7 @@ class _LoginState extends State<Login> {
               ),
               const SizedBox(height: 24),
               Text(
-                "Sign in with $provider",
+                AppLocalizations.of(context)!.sign_in_with_provider(provider),
                 style: const TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -81,7 +82,7 @@ class _LoginState extends State<Login> {
               ),
               const SizedBox(height: 16),
               Text(
-                "Choose an account to continue with Raheeq:",
+                AppLocalizations.of(context)!.choose_account_to_continue,
                 style: TextStyle(color: Colors.grey[600], fontSize: 14),
               ),
               const SizedBox(height: 24),
@@ -146,10 +147,9 @@ class _LoginState extends State<Login> {
       if (response.statusCode == 200 && response.data['success'] == true) {
         final resData = response.data['data'];
         if (resData['userExists'] == true) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(AppLocalizations.of(context)!.login_successful),
-            ),
+          CustomSnackbar.show(
+            context: context,
+            message: AppLocalizations.of(context)!.login_successful,
           );
           Navigator.pushAndRemoveUntil(
             context,
@@ -173,19 +173,19 @@ class _LoginState extends State<Login> {
           );
         }
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(response.data['message'] ?? 'Authentication failed'),
-          ),
+        CustomSnackbar.show(
+          context: context,
+          message:
+              response.data['message'] ??
+              AppLocalizations.of(context)!.authentication_failed,
         );
       }
     } catch (e) {
       if (!mounted) return;
       Navigator.pop(context); // Close loading
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(AppLocalizations.of(context)!.error_msg(e.toString())),
-        ),
+      CustomSnackbar.show(
+        context: context,
+        message: AppLocalizations.of(context)!.error_msg(e.toString()),
       );
     }
   }
@@ -294,72 +294,97 @@ class _LoginState extends State<Login> {
                           padding: const EdgeInsets.symmetric(horizontal: 16),
                           child: Row(
                             children: [
-                              InkWell(
-                                onTap: () {
-                                  showCountryPicker(
-                                    context: context,
-                                    showPhoneCode: true,
-                                    onSelect: (Country country) {
-                                      setState(() {
-                                        _selectedCountry = country;
-                                      });
-                                    },
-                                    countryListTheme: CountryListThemeData(
-                                      bottomSheetHeight:
-                                          MediaQuery.of(context).size.height *
-                                          0.6,
-                                      margin: EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                      ),
-                                      borderRadius: const BorderRadius.only(
-                                        topLeft: Radius.circular(30),
-                                        topRight: Radius.circular(30),
-                                      ),
-                                      inputDecoration: InputDecoration(
-                                        hintText: AppLocalizations.of(
-                                          context,
-                                        )!.search,
-                                        prefixIcon: const Icon(Icons.search),
-                                        border: OutlineInputBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            15,
+                              Theme(
+                                data: Theme.of(context).copyWith(
+                                  textSelectionTheme: TextSelectionThemeData(
+                                    cursorColor: AppColors.buttonBlueDark,
+                                  ),
+                                ),
+                                child: Builder(
+                                  builder: (context) => InkWell(
+                                    onTap: () {
+                                      showCountryPicker(
+                                        favorite: ["SA"],
+                                        context: context,
+                                        showPhoneCode: true,
+                                        onSelect: (Country country) {
+                                          setState(() {
+                                            _selectedCountry = country;
+                                          });
+                                        },
+                                        countryListTheme: CountryListThemeData(
+                                          bottomSheetHeight:
+                                              MediaQuery.of(
+                                                context,
+                                              ).size.height *
+                                              0.7,
+                                          borderRadius: const BorderRadius.only(
+                                            topLeft: Radius.circular(30),
+                                            topRight: Radius.circular(30),
                                           ),
-                                          borderSide: BorderSide(
-                                            color: Colors.grey.withValues(
-                                              alpha: 0.2,
+
+                                          inputDecoration: InputDecoration(
+                                            hintText: AppLocalizations.of(
+                                              context,
+                                            )!.search,
+                                            prefixIcon: const Icon(
+                                              Icons.search,
+                                            ),
+                                            enabledBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(15),
+                                              borderSide: BorderSide(
+                                                color: AppColors.buttonBlueDark,
+                                              ),
+                                            ),
+                                            focusedBorder: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(15),
+                                              borderSide: BorderSide(
+                                                color: AppColors.buttonBlueDark,
+                                              ),
+                                            ),
+                                            border: OutlineInputBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(15),
+                                              borderSide: BorderSide(
+                                                color: Colors.grey.withValues(
+                                                  alpha: 0.2,
+                                                ),
+                                              ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                    ),
-                                  );
-                                },
-                                child: Row(
-                                  children: [
-                                    CircleAvatar(
-                                      radius: 14,
-                                      backgroundColor: Colors.grey[200],
-                                      backgroundImage: NetworkImage(
-                                        "https://flagcdn.com/w80/${_selectedCountry.countryCode.toLowerCase()}.png",
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    Directionality(
-                                      textDirection: TextDirection.ltr,
-                                      child: Text(
-                                        "+${_selectedCountry.phoneCode}",
-                                        style: const TextStyle(
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w600,
+                                      );
+                                    },
+                                    child: Row(
+                                      children: [
+                                        CircleAvatar(
+                                          radius: 14,
+                                          backgroundColor: Colors.grey[200],
+                                          backgroundImage: NetworkImage(
+                                            "https://flagcdn.com/w80/${_selectedCountry.countryCode.toLowerCase()}.png",
+                                          ),
                                         ),
-                                      ),
+                                        const SizedBox(width: 8),
+                                        Directionality(
+                                          textDirection: TextDirection.ltr,
+                                          child: Text(
+                                            "+${_selectedCountry.phoneCode}",
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                          ),
+                                        ),
+                                        const Icon(
+                                          Icons.keyboard_arrow_down,
+                                          size: 18,
+                                          color: Colors.grey,
+                                        ),
+                                      ],
                                     ),
-                                    const Icon(
-                                      Icons.keyboard_arrow_down,
-                                      size: 18,
-                                      color: Colors.grey,
-                                    ),
-                                  ],
+                                  ),
                                 ),
                               ),
                               const SizedBox(width: 12),
@@ -371,6 +396,7 @@ class _LoginState extends State<Login> {
                               const SizedBox(width: 12),
                               Expanded(
                                 child: TextField(
+                                  cursorColor: AppColors.buttonBlueDark,
                                   controller: _phoneController,
                                   keyboardType: TextInputType.phone,
                                   inputFormatters: [
@@ -407,83 +433,82 @@ class _LoginState extends State<Login> {
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: _isLoading ? null : () async {
-                              if (_phoneController.text.trim().isEmpty) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      AppLocalizations.of(context)!.enter_phone,
-                                    ),
-                                    backgroundColor: Colors.redAccent,
-                                    behavior: SnackBarBehavior.floating,
-                                    margin: const EdgeInsets.all(24),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(15),
-                                    ),
-                                  ),
-                                );
-                                return;
-                              }
+                            onPressed: _isLoading
+                                ? null
+                                : () async {
+                                    if (_phoneController.text.trim().isEmpty) {
+                                      CustomSnackbar.show(
+                                        context: context,
+                                        message: AppLocalizations.of(
+                                          context,
+                                        )!.enter_phone,
+                                        isError: true,
+                                      );
+                                      return;
+                                    }
 
-                              setState(() => _isLoading = true);
-                              try {
-                                final response = await ApiService().requestOtp(
-                                  phoneNumber: _phoneController.text,
-                                  countryCode: '+${_selectedCountry.phoneCode}',
-                                );
+                                    setState(() => _isLoading = true);
+                                    try {
+                                      final response = await ApiService()
+                                          .requestOtp(
+                                            phoneNumber: _phoneController.text,
+                                            countryCode:
+                                                '+${_selectedCountry.phoneCode}',
+                                          );
 
-                                if (!context.mounted) return;
-                                setState(() => _isLoading = false);
+                                      if (!context.mounted) return;
+                                      setState(() => _isLoading = false);
 
-                                if (response.statusCode == 200 &&
-                                    response.data['success'] == true) {
-                                  final receivedOtp =
-                                      response.data['data']?['otp']?.toString();
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => OTP(
-                                        phoneNumber: _phoneController.text,
-                                        countryCode:
-                                            '+${_selectedCountry.phoneCode}',
-                                        receivedOtp: receivedOtp,
-                                      ),
-                                    ),
-                                  );
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        response.data['message'] ??
-                                            'Failed to send OTP',
-                                      ),
-                                      backgroundColor: Colors.redAccent,
-                                    ),
-                                  );
-                                }
-                              } catch (e) {
-                                if (mounted) {
-                                  setState(() => _isLoading = false);
-                                }
-                                String errorMessage;
-                                if (e is DioException &&
-                                    e.response?.statusCode == 429) {
-                                  errorMessage = AppLocalizations.of(
-                                    context,
-                                  )!.too_many_attempts;
-                                } else {
-                                  errorMessage = AppLocalizations.of(
-                                    context,
-                                  )!.error_msg(e.toString());
-                                }
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(errorMessage),
-                                    backgroundColor: Colors.redAccent,
-                                  ),
-                                );
-                              }
-                            },
+                                      if (response.statusCode == 200 &&
+                                          response.data['success'] == true) {
+                                        final receivedOtp = response
+                                            .data['data']?['otp']
+                                            ?.toString();
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => OTP(
+                                              phoneNumber:
+                                                  _phoneController.text,
+                                              countryCode:
+                                                  '+${_selectedCountry.phoneCode}',
+                                              receivedOtp: receivedOtp,
+                                            ),
+                                          ),
+                                        );
+                                      } else {
+                                        CustomSnackbar.show(
+                                          context: context,
+                                          message:
+                                              response.data['message'] ??
+                                              AppLocalizations.of(
+                                                context,
+                                              )!.failed_to_send_otp,
+                                          isError: true,
+                                        );
+                                      }
+                                    } catch (e) {
+                                      if (mounted) {
+                                        setState(() => _isLoading = false);
+                                      }
+                                      String errorMessage;
+                                      if (e is DioException &&
+                                          e.response?.statusCode == 429) {
+                                        errorMessage = AppLocalizations.of(
+                                          context,
+                                        )!.too_many_attempts;
+                                      } else {
+                                        errorMessage = AppLocalizations.of(
+                                          context,
+                                        )!.error_msg(e.toString());
+                                      }
+                                      CustomSnackbar.show(
+                                        context: context,
+                                        message: errorMessage,
+                                        isError: true,
+                                      );
+                                    }
+                                  },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.buttonBlueDark,
                               foregroundColor: Colors.white,
@@ -493,13 +518,22 @@ class _LoginState extends State<Login> {
                                 borderRadius: BorderRadius.circular(35),
                               ),
                             ),
-                            child: _isLoading ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : Text(
-                              AppLocalizations.of(context)!.continue_btn,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
+                            child: _isLoading
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: WaterLoadingIndicator(
+                                      dropletBackgroundColor:
+                                          AppColors.buttonBlueDark,
+                                    ),
+                                  )
+                                : Text(
+                                    AppLocalizations.of(context)!.continue_btn,
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
                           ),
                         ),
                         const SizedBox(height: 32),

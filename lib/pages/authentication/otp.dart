@@ -10,6 +10,7 @@ import 'package:raheeq_main/pages/home/home_screen.dart';
 import 'package:raheeq_main/storage/auth_storage.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/utils/rtl_helpers.dart';
+import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 
 class OTP extends StatefulWidget {
   final String phoneNumber;
@@ -375,15 +376,11 @@ class _OTPState extends State<OTP> {
 
                                       if (response.statusCode == 200 &&
                                           response.data['success'] == true) {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          const SnackBar(
-                                            content: Text(
-                                              'OTP sent successfully!',
-                                            ),
-                                            backgroundColor: Colors.green,
-                                          ),
+                                        CustomSnackbar.show(
+                                          context: context,
+                                          message: AppLocalizations.of(
+                                            context,
+                                          )!.otp_sent_successfully,
                                         );
                                         _startTimer();
                                         setState(() {
@@ -393,16 +390,14 @@ class _OTPState extends State<OTP> {
                                               'N/A';
                                         });
                                       } else {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          SnackBar(
-                                            content: Text(
+                                        CustomSnackbar.show(
+                                          context: context,
+                                          message:
                                               response.data['message'] ??
-                                                  'Failed to resend OTP',
-                                            ),
-                                            backgroundColor: Colors.redAccent,
-                                          ),
+                                              AppLocalizations.of(
+                                                context,
+                                              )!.failed_to_resend_otp,
+                                          isError: true,
                                         );
                                       }
                                     } catch (e) {
@@ -417,13 +412,10 @@ class _OTPState extends State<OTP> {
                                           context,
                                         )!.too_many_attempts;
                                       }
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        SnackBar(
-                                          content: Text(errorMessage),
-                                          backgroundColor: Colors.redAccent,
-                                        ),
+                                      CustomSnackbar.show(
+                                        context: context,
+                                        message: errorMessage,
+                                        isError: true,
                                       );
                                     }
                                   },
@@ -459,16 +451,11 @@ class _OTPState extends State<OTP> {
                                         .map((c) => c.text)
                                         .join();
                                     if (otp.length < 6) {
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        SnackBar(
-                                          content: Text(
-                                            AppLocalizations.of(
-                                              context,
-                                            )!.enter_valid_otp,
-                                          ),
-                                        ),
+                                      CustomSnackbar.show(
+                                        context: context,
+                                        message: AppLocalizations.of(
+                                          context,
+                                        )!.enter_valid_otp,
                                       );
                                       return;
                                     }
@@ -491,16 +478,11 @@ class _OTPState extends State<OTP> {
                                         final data = response.data['data'];
                                         if (data['userExists'] == true) {
                                           // User exists, login successful
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                AppLocalizations.of(
-                                                  context,
-                                                )!.login_successful,
-                                              ),
-                                            ),
+                                          CustomSnackbar.show(
+                                            context: context,
+                                            message: AppLocalizations.of(
+                                              context,
+                                            )!.login_successful,
                                           );
                                           Navigator.pushAndRemoveUntil(
                                             context,
@@ -534,15 +516,13 @@ class _OTPState extends State<OTP> {
                                           );
                                         }
                                       } else {
-                                        ScaffoldMessenger.of(
-                                          context,
-                                        ).showSnackBar(
-                                          SnackBar(
-                                            content: Text(
+                                        CustomSnackbar.show(
+                                          context: context,
+                                          message:
                                               response.data['message'] ??
-                                                  'Verification failed',
-                                            ),
-                                          ),
+                                              AppLocalizations.of(
+                                                context,
+                                              )!.verification_failed,
                                         );
                                       }
                                     } catch (e) {
@@ -550,11 +530,14 @@ class _OTPState extends State<OTP> {
                                         setState(() => _isVerifying = false);
                                       }
                                       if (!context.mounted) return;
-                                      String errorMessage =
-                                          'Verification failed';
+                                      String errorMessage = AppLocalizations.of(
+                                        context,
+                                      )!.verification_failed;
                                       if (e is DioException) {
                                         if (e.response?.statusCode == 401) {
-                                          errorMessage = 'Invalid OTP';
+                                          errorMessage = AppLocalizations.of(
+                                            context,
+                                          )!.invalid_otp;
                                         } else if (e.response?.data != null &&
                                             e.response!.data['message'] !=
                                                 null) {
@@ -562,10 +545,9 @@ class _OTPState extends State<OTP> {
                                               e.response!.data['message'];
                                         }
                                       }
-                                      ScaffoldMessenger.of(
-                                        context,
-                                      ).showSnackBar(
-                                        SnackBar(content: Text(errorMessage)),
+                                      CustomSnackbar.show(
+                                        context: context,
+                                        message: errorMessage,
                                       );
                                     }
                                   },
@@ -582,9 +564,9 @@ class _OTPState extends State<OTP> {
                                 ? const SizedBox(
                                     height: 20,
                                     width: 20,
-                                    child: CircularProgressIndicator(
-                                      color: Colors.white,
-                                      strokeWidth: 2,
+                                    child: WaterLoadingIndicator(
+                                      dropletBackgroundColor:
+                                          AppColors.buttonBlueDark,
                                     ),
                                   )
                                 : Text(

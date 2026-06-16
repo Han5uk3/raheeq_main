@@ -11,6 +11,7 @@ import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/pages/home/home_screen.dart';
 import 'package:raheeq_main/pages/home/pages/home_tab.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
+import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 
 class SavedMosquesPage extends StatefulWidget {
   const SavedMosquesPage({super.key});
@@ -78,16 +79,18 @@ class _SavedMosquesPageState extends State<SavedMosquesPage> {
       });
       await _apiService.deleteFavoriteMosque(item.id);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.removed_from_saved(item.name))),
+        CustomSnackbar.show(
+          context: context,
+          message: AppLocalizations.of(context)!.removed_from_saved(item.name),
         );
       }
     } catch (e) {
       // Re-fetch to restore state if deletion fails
       _fetchSavedMosques();
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(AppLocalizations.of(context)!.failed_to_remove_mosque)),
+        CustomSnackbar.show(
+          context: context,
+          message: AppLocalizations.of(context)!.failed_to_remove_mosque,
         );
       }
     }
@@ -131,147 +134,242 @@ class _SavedMosquesPageState extends State<SavedMosquesPage> {
       backgroundColor: Colors.white,
       body: Column(
         children: [
-          CustomAppBar(
-            hasBackgroundColor: true,
-            isStartAligned: true,
-            title: AppLocalizations.of(context)!.saved_mosques,
-            subtitle: AppLocalizations.of(context)!.your_favorite_mosques,
-            showBackButton: true,
-            onBackTap: () => Navigator.pop(context),
-          ),
           Expanded(
-            child: _isLoading
-                ? const Center(child: WaterLoadingIndicator(size: 30))
-                : _errorMessage != null
-                ? Center(child: Text(_errorMessage!))
-                : _savedMosques.isEmpty
-                ? Center(
-                    child: Text(
-                      AppLocalizations.of(context)!.no_saved_mosques_found,
+            child: SingleChildScrollView(
+              physics: ClampingScrollPhysics(),
+              child: Column(
+                children: [
+                  CustomAppBar(
+                    hasBackgroundColor: true,
+                    isStartAligned: true,
+                    title: AppLocalizations.of(context)!.saved_mosques,
+                    subtitle: AppLocalizations.of(
+                      context,
+                    )!.your_favorite_mosques,
+                    showBackButton: true,
+                    onBackTap: () => Navigator.pop(context),
+                  ),
+                  Container(
+                    constraints: BoxConstraints(
+                      minHeight: MediaQuery.of(context).size.height - 100,
                     ),
-                  )
-                : ListView.separated(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: _savedMosques.length,
-                    separatorBuilder: (context, index) =>
-                        const Divider(height: 16, color: Colors.transparent),
-                    itemBuilder: (context, index) {
-                      final item = _savedMosques[index];
-                      final isSelected = _selectedItemsList.any((m) => m.id == item.id);
-
-                      return Card(
-                        clipBehavior: Clip.antiAlias,
-                        color: isSelected ? const Color(0xFFE8F4FA) : Colors.white,
-                        elevation: isSelected ? 5 : 3,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                          side: BorderSide(
-                            color: isSelected ? AppColors.buttonBlue : Colors.transparent,
-                            width: 2,
-                          ),
+                    color: const Color(0x4D91E3FE),
+                    child: Container(
+                      width: double.infinity,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFF8FAFB),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(30),
+                          topRight: Radius.circular(30),
                         ),
-                        child: InkWell(
-                          onTap: () => _toggleSelection(item),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (item.image != null && item.image!.isNotEmpty)
-                                CachedNetworkImage(
-                                  imageUrl: item.image!,
-                                  height: 140,
-                                  fit: BoxFit.cover,
-                                  placeholder: (context, url) => Container(
-                                    height: 140,
-                                    color: Colors.grey[200],
-                                    child: const Center(
-                                      child: WaterLoadingIndicator(size: 30),
-                                    ),
-                                  ),
-                                  errorWidget: (context, url, error) =>
-                                      Container(
-                                        height: 140,
-                                        color: Colors.grey[100],
-                                        child: Icon(
-                                          Icons.mosque,
-                                          size: 40,
-                                          color: Colors.grey[400],
-                                        ),
-                                      ),
-                                )
-                              else
-                                Container(
-                                  height: 140,
-                                  color: Colors.grey[100],
-                                  child: Icon(
-                                    Icons.mosque,
-                                    size: 40,
-                                    color: Colors.grey[400],
+                      ),
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 500),
+                        layoutBuilder: (currentChild, previousChildren) {
+                          return Stack(
+                            alignment: Alignment.topCenter,
+                            children: <Widget>[
+                              ...previousChildren,
+                              if (currentChild != null) currentChild,
+                            ],
+                          );
+                        },
+                        child: _isLoading
+                            ? SizedBox(
+                                key: const ValueKey('loader'),
+                                height:
+                                    MediaQuery.of(context).size.height - 200,
+                                child: const Center(
+                                  child: SizedBox(
+                                    height: 30,
+                                    width: 30,
+                                    child: WaterLoadingIndicator(size: 30),
                                   ),
                                 ),
-                              Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Expanded(
+                              )
+                            : _errorMessage != null
+                            ? SizedBox(
+                                key: const ValueKey('error'),
+                                height:
+                                    MediaQuery.of(context).size.height - 200,
+                                child: Center(child: Text(_errorMessage!)),
+                              )
+                            : _savedMosques.isEmpty
+                            ? SizedBox(
+                                key: const ValueKey('empty'),
+                                height:
+                                    MediaQuery.of(context).size.height - 200,
+                                child: Center(
+                                  child: Text(
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.no_saved_mosques_found,
+                                  ),
+                                ),
+                              )
+                            : ListView.separated(
+                                key: const ValueKey('list'),
+                                shrinkWrap: true,
+                                physics: const NeverScrollableScrollPhysics(),
+                                padding: const EdgeInsets.all(16),
+                                itemCount: _savedMosques.length,
+                                separatorBuilder: (context, index) =>
+                                    const Divider(
+                                      height: 16,
+                                      color: Colors.transparent,
+                                    ),
+                                itemBuilder: (context, index) {
+                                  final item = _savedMosques[index];
+                                  final isSelected = _selectedItemsList.any(
+                                    (m) => m.id == item.id,
+                                  );
+
+                                  return Card(
+                                    clipBehavior: Clip.antiAlias,
+                                    color: isSelected
+                                        ? const Color(0xFFE8F4FA)
+                                        : Colors.white,
+                                    elevation: isSelected ? 5 : 3,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                      side: BorderSide(
+                                        color: isSelected
+                                            ? AppColors.buttonBlue
+                                            : Colors.transparent,
+                                        width: 2,
+                                      ),
+                                    ),
+                                    child: InkWell(
+                                      onTap: () => _toggleSelection(item),
                                       child: Column(
                                         crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                            CrossAxisAlignment.stretch,
+                                        mainAxisSize: MainAxisSize.min,
                                         children: [
-                                          Text(
-                                            item.localizedName(isAr),
-                                            style: const TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              fontSize: 18,
+                                          if (item.image != null &&
+                                              item.image!.isNotEmpty)
+                                            CachedNetworkImage(
+                                              imageUrl: item.image!,
+                                              height: 140,
+                                              fit: BoxFit.cover,
+                                              placeholder: (context, url) =>
+                                                  Container(
+                                                    height: 140,
+                                                    color: Colors.grey[200],
+                                                    child: const Center(
+                                                      child:
+                                                          WaterLoadingIndicator(
+                                                            size: 30,
+                                                          ),
+                                                    ),
+                                                  ),
+                                              errorWidget:
+                                                  (context, url, error) =>
+                                                      Container(
+                                                        height: 140,
+                                                        color: Colors.grey[100],
+                                                        child: Icon(
+                                                          Icons.mosque,
+                                                          size: 40,
+                                                          color:
+                                                              Colors.grey[400],
+                                                        ),
+                                                      ),
+                                            )
+                                          else
+                                            Container(
+                                              height: 140,
+                                              color: Colors.grey[100],
+                                              child: Icon(
+                                                Icons.mosque,
+                                                size: 40,
+                                                color: Colors.grey[400],
+                                              ),
                                             ),
-                                          ),
-                                          const SizedBox(height: 4),
-                                          if (item.address.isNotEmpty)
-                                            Row(
+                                          Padding(
+                                            padding: const EdgeInsets.all(16.0),
+                                            child: Row(
                                               crossAxisAlignment:
                                                   CrossAxisAlignment.start,
                                               children: [
-                                                const Icon(
-                                                  Icons.location_on_outlined,
-                                                  color: Colors.black,
-                                                  size: 16,
-                                                ),
-                                                const SizedBox(width: 4),
                                                 Expanded(
-                                                  child: Text(
-                                                    item.address,
-                                                    maxLines: 2,
-                                                    overflow:
-                                                        TextOverflow.ellipsis,
-                                                    style: TextStyle(
-                                                      color: Colors.grey[600],
-                                                      fontSize: 12,
-                                                    ),
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        item.localizedName(
+                                                          isAr,
+                                                        ),
+                                                        style: const TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 18,
+                                                        ),
+                                                      ),
+                                                      const SizedBox(height: 4),
+                                                      if (item
+                                                          .address
+                                                          .isNotEmpty)
+                                                        Row(
+                                                          crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                          children: [
+                                                            const Icon(
+                                                              Icons
+                                                                  .location_on_outlined,
+                                                              color:
+                                                                  Colors.black,
+                                                              size: 16,
+                                                            ),
+                                                            const SizedBox(
+                                                              width: 4,
+                                                            ),
+                                                            Expanded(
+                                                              child: Text(
+                                                                item.address,
+                                                                maxLines: 2,
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
+                                                                style: TextStyle(
+                                                                  color: Colors
+                                                                      .grey[600],
+                                                                  fontSize: 12,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                    ],
                                                   ),
+                                                ),
+                                                // Heart icon: removes from favorites
+                                                IconButton(
+                                                  icon: const Icon(
+                                                    Icons.favorite,
+                                                    color: Colors.redAccent,
+                                                  ),
+                                                  onPressed: () =>
+                                                      _removeFavorite(item),
                                                 ),
                                               ],
                                             ),
+                                          ),
                                         ],
                                       ),
                                     ),
-                                    // Heart icon: removes from favorites
-                                    IconButton(
-                                      icon: const Icon(
-                                        Icons.favorite,
-                                        color: Colors.redAccent,
-                                      ),
-                                      onPressed: () => _removeFavorite(item),
-                                    ),
-                                  ],
-                                ),
+                                  );
+                                },
                               ),
-                            ],
-                          ),
-                        ),
-                      );
-                    },
+                      ),
+                    ),
                   ),
+                ],
+              ),
+            ),
           ),
           if (_selectedItemsList.isNotEmpty) _buildBottomBar(isAr),
         ],
@@ -305,7 +403,10 @@ class _SavedMosquesPageState extends State<SavedMosquesPage> {
                 final item = _selectedItemsList[index];
                 return Container(
                   margin: const EdgeInsetsDirectional.only(end: 8),
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.buttonBlue.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
@@ -325,7 +426,11 @@ class _SavedMosquesPageState extends State<SavedMosquesPage> {
                       const SizedBox(width: 4),
                       GestureDetector(
                         onTap: () => _toggleSelection(item),
-                        child: const Icon(Icons.close, size: 16, color: AppColors.buttonBlueDark),
+                        child: const Icon(
+                          Icons.close,
+                          size: 16,
+                          color: AppColors.buttonBlueDark,
+                        ),
                       ),
                     ],
                   ),

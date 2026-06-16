@@ -3,11 +3,7 @@ class City {
   final String name;
   final String nameAr;
 
-  City({
-    required this.id,
-    required this.name,
-    required this.nameAr,
-  });
+  City({required this.id, required this.name, required this.nameAr});
 
   factory City.fromJson(Map<String, dynamic> json) {
     return City(

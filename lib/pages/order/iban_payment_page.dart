@@ -6,6 +6,7 @@ import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/pages/order/payment_status_page.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
+import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 
 class IbanPaymentPage extends StatefulWidget {
   final bool isAr;
@@ -47,19 +48,18 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
             return orderA.compareTo(orderB);
           });
           if (_bankAccounts.isNotEmpty) {
-            _selectedBankAccountId = _bankAccounts.first['id']?.toString() ?? _bankAccounts.first['_id']?.toString();
+            _selectedBankAccountId =
+                _bankAccounts.first['id']?.toString() ??
+                _bankAccounts.first['_id']?.toString();
           }
           _isLoading = false;
         });
       }
     } catch (e) {
       setState(() => _isLoading = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            AppLocalizations.of(context)!.failed_to_load_bank_accounts,
-          ),
-        ),
+      CustomSnackbar.show(
+        context: context,
+        message: AppLocalizations.of(context)!.failed_to_load_bank_accounts,
       );
     }
   }
@@ -76,46 +76,36 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
 
   Future<void> _submitOrder() async {
     if (_selectedBankAccountId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            widget.isAr
-                ? 'الرجاء اختيار حساب بنكي'
-                : 'Please select a bank account',
-          ),
-        ),
+      CustomSnackbar.show(
+        context: context,
+        message: widget.isAr
+            ? 'الرجاء اختيار حساب بنكي'
+            : 'Please select a bank account',
       );
       return;
     }
     if (_receiptImage == null && transactionController.text == '') {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            AppLocalizations.of(
-              context,
-            )!.please_attach_the_transfer_receipt_and_enter_the_transaction_number,
-          ),
-        ),
+      CustomSnackbar.show(
+        context: context,
+        message: AppLocalizations.of(
+          context,
+        )!.please_attach_the_transfer_receipt_and_enter_the_transaction_number,
       );
       return;
     }
     if (_receiptImage == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            AppLocalizations.of(context)!.please_attach_the_transfer_receipt,
-          ),
-        ),
+      CustomSnackbar.show(
+        context: context,
+        message: AppLocalizations.of(
+          context,
+        )!.please_attach_the_transfer_receipt,
       );
       return;
     }
     if (transactionController.text.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            AppLocalizations.of(context)!.please_enter_transaction_number,
-          ),
-        ),
+      CustomSnackbar.show(
+        context: context,
+        message: AppLocalizations.of(context)!.please_enter_transaction_number,
       );
       return;
     }
@@ -291,6 +281,8 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: TextField(
+                      cursorColor: AppColors.buttonBlueDark,
+
                       controller: transactionController,
                       decoration: InputDecoration(
                         border: InputBorder.none,

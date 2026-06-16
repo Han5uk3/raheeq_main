@@ -22,6 +22,7 @@ import 'package:raheeq_main/common_widgets/gift_card_bottom_sheet.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_paytabs_bridge/BaseBillingShippingInfo.dart';
 import 'package:flutter_paytabs_bridge/PaymentSdkConfigurationDetails.dart';
+import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 
 class ContributionDetailsPage extends StatefulWidget {
   final List<OrderCategoryState> orderStates;
@@ -76,13 +77,9 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
           _checkoutData = Checkout.fromJson(response.data['data']);
         });
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                AppLocalizations.of(context)!.coupon_applied_successfully,
-              ),
-              backgroundColor: Colors.green,
-            ),
+          CustomSnackbar.show(
+            context: context,
+            message: AppLocalizations.of(context)!.coupon_applied_successfully,
           );
         }
       } else {
@@ -91,11 +88,10 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
     } catch (e) {
       log('Error applying coupon: $e', error: e);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.of(context)!.invalid_coupon_code),
-            backgroundColor: Colors.red,
-          ),
+        CustomSnackbar.show(
+          context: context,
+          message: AppLocalizations.of(context)!.invalid_coupon_code,
+          isError: true,
         );
       }
     } finally {
@@ -121,13 +117,9 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
           _couponController.clear();
         });
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                AppLocalizations.of(context)!.coupon_removed_successfully,
-              ),
-              backgroundColor: Colors.green,
-            ),
+          CustomSnackbar.show(
+            context: context,
+            message: AppLocalizations.of(context)!.coupon_removed_successfully,
           );
         }
       } else {
@@ -136,13 +128,10 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
     } catch (e) {
       log('Error removing coupon: $e', error: e);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(context)!.failed_to_remove_coupon,
-            ),
-            backgroundColor: Colors.red,
-          ),
+        CustomSnackbar.show(
+          context: context,
+          message: AppLocalizations.of(context)!.failed_to_remove_coupon,
+          isError: true,
         );
       }
     } finally {
@@ -191,18 +180,19 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
           )!.insufficient_balance_to_apply_wallet;
         }
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(errorMessage), backgroundColor: Colors.red),
+        CustomSnackbar.show(
+          context: context,
+          message: errorMessage,
+          isError: true,
         );
       }
     } catch (e) {
       log('Error toggling wallet: $e', error: e);
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(AppLocalizations.of(context)!.failed_to_apply_wallet),
-            backgroundColor: Colors.red,
-          ),
+        CustomSnackbar.show(
+          context: context,
+          message: AppLocalizations.of(context)!.failed_to_apply_wallet,
+          isError: true,
         );
       }
     } finally {
@@ -927,15 +917,16 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                             ),
                             GestureDetector(
                               onTap: () async {
-                                final updatedCheckout = await showModalBottomSheet<Checkout>(
-                                  context: context,
-                                  isScrollControlled: true,
-                                  backgroundColor: Colors.transparent,
-                                  builder: (context) => GiftCardBottomSheet(
-                                    checkoutData: _checkoutData,
-                                    isAr: isAr,
-                                  ),
-                                );
+                                final updatedCheckout =
+                                    await showModalBottomSheet<Checkout>(
+                                      context: context,
+                                      isScrollControlled: true,
+                                      backgroundColor: Colors.transparent,
+                                      builder: (context) => GiftCardBottomSheet(
+                                        checkoutData: _checkoutData,
+                                        isAr: isAr,
+                                      ),
+                                    );
 
                                 if (updatedCheckout != null) {
                                   setState(() {
@@ -1123,7 +1114,9 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                                     BorderRadius.circular(12),
                                               ),
                                               child: TextField(
-                                                cursorColor: Colors.grey,
+                                                cursorColor:
+                                                    AppColors.buttonBlueDark,
+
                                                 controller: _couponController,
                                                 decoration: InputDecoration(
                                                   border: InputBorder.none,
@@ -1351,7 +1344,9 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                     ),
                                     if (_checkoutData.totalGiftCardFee > 0)
                                       _buildPriceRow(
-                                        isAr ? "رسوم بطاقة الإهداء" : "Gift Card Fee",
+                                        isAr
+                                            ? "رسوم بطاقة الإهداء"
+                                            : "Gift Card Fee",
                                         _checkoutData.totalGiftCardFee,
                                         isAr,
                                       ),

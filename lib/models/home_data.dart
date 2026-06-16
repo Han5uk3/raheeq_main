@@ -23,19 +23,23 @@ class HomeData {
     final rawProducts = json['products'] as List<dynamic>?;
 
     return HomeData(
-      banners: rawBanners
+      banners:
+          rawBanners
               ?.map((b) => BannerData.fromJson(b as Map<String, dynamic>))
               .toList() ??
           [],
-      campaigns: rawCampaigns
+      campaigns:
+          rawCampaigns
               ?.map((c) => Campaign.fromJson(c as Map<String, dynamic>))
               .toList() ??
           [],
-      categories: rawCategories
+      categories:
+          rawCategories
               ?.map((c) => Category.fromJson(c as Map<String, dynamic>))
               .toList() ??
           [],
-      products: rawProducts
+      products:
+          rawProducts
               ?.map((p) => Product.fromJson(p as Map<String, dynamic>))
               .toList() ??
           [],

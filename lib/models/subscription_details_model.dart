@@ -47,7 +47,8 @@ class SubscriptionDetailsModel extends SubscriptionModel {
       ordersCount: json['ordersCount'] ?? 0,
       paymentMethod: json['paymentMethod'] ?? '',
       totalAmount: (json['totalAmount'] ?? 0).toDouble(),
-      deliveries: (json['deliveries'] as List<dynamic>?)
+      deliveries:
+          (json['deliveries'] as List<dynamic>?)
               ?.map((e) => SubscriptionDeliveryModel.fromJson(e))
               .toList() ??
           [],
@@ -80,7 +81,8 @@ class SubscriptionDeliveryModel {
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'])
           : DateTime.now(),
-      subOrders: (json['subOrders'] as List<dynamic>?)
+      subOrders:
+          (json['subOrders'] as List<dynamic>?)
               ?.map((e) => SubscriptionSubOrderModel.fromJson(e))
               .toList() ??
           [],

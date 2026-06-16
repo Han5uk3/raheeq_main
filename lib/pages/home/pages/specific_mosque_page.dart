@@ -12,6 +12,7 @@ import '../../../models/orphanage.dart';
 import '../../../models/place.dart';
 import '../../../utils/colors.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
+import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 
 class SpecificMosquePage extends StatefulWidget {
   final String slug;
@@ -119,12 +120,9 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
             _favoriteMosqueIds.remove(id);
           }
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(context)!.failed_to_update_favorite,
-            ),
-          ),
+        CustomSnackbar.show(
+          context: context,
+          message: AppLocalizations.of(context)!.failed_to_update_favorite,
         );
       }
     }
@@ -205,19 +203,25 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
       title =
           widget.title ??
           (AppLocalizations.of(context)!.choose_specific_orphanage);
-      subtitle = AppLocalizations.of(context)!.select_an_orphanage_to_deliver_water_to;
+      subtitle = AppLocalizations.of(
+        context,
+      )!.select_an_orphanage_to_deliver_water_to;
       listTabText = AppLocalizations.of(context)!.list_of_orphanages;
     } else if (widget.slug == 'meqat_mosques') {
       title =
           widget.title ??
           (AppLocalizations.of(context)!.choose_specific_meqat_mosque);
-      subtitle = AppLocalizations.of(context)!.select_a_mosque_to_deliver_water_to;
+      subtitle = AppLocalizations.of(
+        context,
+      )!.select_a_mosque_to_deliver_water_to;
       listTabText = AppLocalizations.of(context)!.list_of_meqat_mosques;
     } else {
       title =
           widget.title ??
           (AppLocalizations.of(context)!.choose_specific_mosque);
-      subtitle = AppLocalizations.of(context)!.select_a_mosque_to_deliver_water_to;
+      subtitle = AppLocalizations.of(
+        context,
+      )!.select_a_mosque_to_deliver_water_to;
       listTabText = AppLocalizations.of(context)!.list_of_mosques;
     }
 
@@ -291,6 +295,8 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
           border: Border.all(color: AppColors.indicatorGrey),
         ),
         child: TextField(
+          cursorColor: AppColors.buttonBlueDark,
+
           controller: _searchController,
           decoration: InputDecoration(
             hintText: widget.slug == 'orphanages'

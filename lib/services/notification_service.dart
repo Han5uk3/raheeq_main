@@ -49,15 +49,16 @@ class NotificationService {
 
     const DarwinInitializationSettings initializationSettingsIOS =
         DarwinInitializationSettings(
-      requestAlertPermission: true,
-      requestBadgePermission: true,
-      requestSoundPermission: true,
-    );
+          requestAlertPermission: true,
+          requestBadgePermission: true,
+          requestSoundPermission: true,
+        );
 
-    const InitializationSettings initializationSettings = InitializationSettings(
-      android: initializationSettingsAndroid,
-      iOS: initializationSettingsIOS,
-    );
+    const InitializationSettings initializationSettings =
+        InitializationSettings(
+          android: initializationSettingsAndroid,
+          iOS: initializationSettingsIOS,
+        );
 
     await _localNotificationsPlugin.initialize(
       settings: initializationSettings,
@@ -74,7 +75,8 @@ class NotificationService {
 
     await _localNotificationsPlugin
         .resolvePlatformSpecificImplementation<
-            AndroidFlutterLocalNotificationsPlugin>()
+          AndroidFlutterLocalNotificationsPlugin
+        >()
         ?.createNotificationChannel(channel);
 
     // Update foreground notification presentation options for iOS
@@ -91,7 +93,8 @@ class NotificationService {
 
       if (message.notification != null) {
         debugPrint(
-            'Message also contained a notification: ${message.notification}');
+          'Message also contained a notification: ${message.notification}',
+        );
         _showLocalNotification(message, channel);
       }
     });
@@ -103,14 +106,14 @@ class NotificationService {
     });
 
     // Check if app was opened from a terminated state
-    RemoteMessage? initialMessage =
-        await _firebaseMessaging.getInitialMessage();
+    RemoteMessage? initialMessage = await _firebaseMessaging
+        .getInitialMessage();
     if (initialMessage != null) {
       _handleNotificationClick(initialMessage.data);
     }
 
     _isInitialized = true;
-    
+
     // Print FCM Token for testing
     try {
       String? token = await getToken();
@@ -125,7 +128,9 @@ class NotificationService {
   }
 
   void _showLocalNotification(
-      RemoteMessage message, AndroidNotificationChannel channel) {
+    RemoteMessage message,
+    AndroidNotificationChannel channel,
+  ) {
     RemoteNotification? notification = message.notification;
     AndroidNotification? android = message.notification?.android;
 

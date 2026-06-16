@@ -55,9 +55,7 @@ class User {
       'email': email,
       'avatarUrl': avatarUrl,
       'gender': gender,
-      'wallet': {
-        'balance': walletBalance,
-      },
+      'wallet': {'balance': walletBalance},
       'freshchatRestoreId': freshchatRestoreId,
     };
   }

@@ -1,12 +1,16 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/common_widgets/language_switch.dart';
+import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/pages/home/home_screen.dart';
 import 'package:raheeq_main/pages/authentication/login.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/utils/rtl_helpers.dart';
+import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 
 class Registration extends StatefulWidget {
   final String phoneNumber;
@@ -68,9 +72,9 @@ class _RegistrationState extends State<Registration> {
         backgroundColor: AppColors.buttonBlueDark,
         centerTitle: true,
         toolbarHeight: 80,
-        title: const Text(
-          "Complete Profile",
-          style: TextStyle(
+        title: Text(
+          AppLocalizations.of(context)!.complete_profile,
+          style: const TextStyle(
             fontSize: 22,
             fontWeight: FontWeight.w700,
             color: Colors.white,
@@ -202,14 +206,18 @@ class _RegistrationState extends State<Registration> {
                             _buildTextField(
                               controller: _firstNameController,
                               label: AppLocalizations.of(context)!.first_name,
-                              hint: "Enter your first name",
+                              hint: AppLocalizations.of(
+                                context,
+                              )!.enter_first_name,
                               icon: Icons.person_outline,
                             ),
                             const SizedBox(height: 16),
                             _buildTextField(
                               controller: _lastNameController,
                               label: AppLocalizations.of(context)!.last_name,
-                              hint: "Enter your last name",
+                              hint: AppLocalizations.of(
+                                context,
+                              )!.enter_last_name,
                               icon: Icons.person_outline,
                             ),
                             const SizedBox(height: 16),
@@ -217,13 +225,9 @@ class _RegistrationState extends State<Registration> {
                               controller: _emailController,
                               label:
                                   "${AppLocalizations.of(context)!.email_address} (${Localizations.localeOf(context).languageCode == 'ar' ? 'اختياري' : 'Optional'})",
-                              hint:
-                                  Localizations.localeOf(
-                                        context,
-                                      ).languageCode ==
-                                      'ar'
-                                  ? "أدخل البريد الإلكتروني (اختياري)"
-                                  : "Enter your email (optional)",
+                              hint: AppLocalizations.of(
+                                context,
+                              )!.enter_email_optional_hint,
                               icon: Icons.email_outlined,
                               keyboardType: TextInputType.emailAddress,
                               isEmail: true,
@@ -233,7 +237,9 @@ class _RegistrationState extends State<Registration> {
                             _buildTextField(
                               controller: _phoneController,
                               label: AppLocalizations.of(context)!.phone_number,
-                              hint: "Enter phone number",
+                              hint: AppLocalizations.of(
+                                context,
+                              )!.enter_phone_number_hint,
                               icon: Icons.phone_outlined,
                               enabled: false, // Pre-filled and locked
                               isRtl:
@@ -278,7 +284,9 @@ class _RegistrationState extends State<Registration> {
                                                       _selectedGender
                                                           ?.toUpperCase() ??
                                                       'MALE',
-                                                  deviceType: 'ANDROID',
+                                                  deviceType: Platform.isIOS
+                                                      ? 'IOS'
+                                                      : 'ANDROID',
                                                   registrationToken:
                                                       widget.registrationToken,
                                                 );
@@ -311,15 +319,13 @@ class _RegistrationState extends State<Registration> {
                                                 (route) => false,
                                               );
                                             } else {
-                                              ScaffoldMessenger.of(
-                                                context,
-                                              ).showSnackBar(
-                                                SnackBar(
-                                                  content: Text(
+                                              CustomSnackbar.show(
+                                                context: context,
+                                                message:
                                                     response.data['message'] ??
-                                                        'Registration failed',
-                                                  ),
-                                                ),
+                                                    AppLocalizations.of(
+                                                      context,
+                                                    )!.registration_failed,
                                               );
                                             }
                                           } catch (e) {
@@ -329,7 +335,9 @@ class _RegistrationState extends State<Registration> {
                                               );
                                             }
                                             String errorMessage =
-                                                'Registration failed';
+                                                AppLocalizations.of(
+                                                  context,
+                                                )!.registration_failed;
                                             try {
                                               if (e is DioException &&
                                                   e.response?.data != null) {
@@ -344,7 +352,9 @@ class _RegistrationState extends State<Registration> {
                                                             ?.toString() ??
                                                         data['message']
                                                             ?.toString() ??
-                                                        'Validation error';
+                                                        AppLocalizations.of(
+                                                          context,
+                                                        )!.validation_error;
                                                   } else if (data['message'] !=
                                                       null) {
                                                     errorMessage =
@@ -356,8 +366,9 @@ class _RegistrationState extends State<Registration> {
                                                 'DioException',
                                               )) {
                                                 // Fallback if type check somehow fails
-                                                errorMessage =
-                                                    'Validation error. Please check your inputs.';
+                                                errorMessage = AppLocalizations.of(
+                                                  context,
+                                                )!.validation_error_check_inputs;
                                               } else {
                                                 errorMessage =
                                                     AppLocalizations.of(
@@ -371,14 +382,10 @@ class _RegistrationState extends State<Registration> {
                                                   )!.error_msg(e.toString());
                                             }
 
-                                            ScaffoldMessenger.of(
-                                              context,
-                                            ).showSnackBar(
-                                              SnackBar(
-                                                content: Text(errorMessage),
-                                                backgroundColor:
-                                                    Colors.redAccent,
-                                              ),
+                                            CustomSnackbar.show(
+                                              context: context,
+                                              message: errorMessage,
+                                              isError: true,
                                             );
                                           }
                                         }
@@ -395,17 +402,17 @@ class _RegistrationState extends State<Registration> {
                                   ),
                                 ),
                                 child: _isRegistering
-                                    ? const SizedBox(
+                                    ? SizedBox(
                                         height: 20,
                                         width: 20,
-                                        child: CircularProgressIndicator(
-                                          color: Colors.white,
-                                          strokeWidth: 2,
+                                        child: WaterLoadingIndicator(
+                                          dropletBackgroundColor:
+                                              AppColors.buttonBlueDark,
                                         ),
                                       )
-                                    : const Text(
-                                        "Register",
-                                        style: TextStyle(
+                                    : Text(
+                                        AppLocalizations.of(context)!.register,
+                                        style: const TextStyle(
                                           fontSize: 16,
                                           fontWeight: FontWeight.w600,
                                         ),
@@ -461,6 +468,7 @@ class _RegistrationState extends State<Registration> {
           ),
           child: TextFormField(
             key: fieldKey,
+            cursorColor: AppColors.buttonBlueDark,
             textAlign: isRtl ? TextAlign.end : TextAlign.start,
             controller: controller,
             enabled: enabled,
@@ -491,14 +499,14 @@ class _RegistrationState extends State<Registration> {
               final trimmedValue = value?.trim() ?? '';
               if (trimmedValue.isEmpty) {
                 if (isOptional) return null;
-                return 'This field is required';
+                return AppLocalizations.of(context)!.field_required;
               }
               if (isEmail) {
                 final emailRegex = RegExp(
                   r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
                 );
                 if (!emailRegex.hasMatch(trimmedValue)) {
-                  return 'Please enter a valid email address';
+                  return AppLocalizations.of(context)!.enter_valid_email;
                 }
               }
               return null;
@@ -514,9 +522,9 @@ class _RegistrationState extends State<Registration> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          "Gender",
-          style: TextStyle(
+        Text(
+          AppLocalizations.of(context)!.gender,
+          style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,
             color: Colors.black87,
@@ -538,17 +546,34 @@ class _RegistrationState extends State<Registration> {
               initialValue: _selectedGender,
               icon: const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
               hint: Text(
-                "Select Gender",
+                AppLocalizations.of(context)!.select_gender,
                 style: TextStyle(color: Colors.grey[400], fontSize: 13),
               ),
-              items: ["Male", "Female", "Other"]
-                  .map(
-                    (label) => DropdownMenuItem(
-                      value: label,
-                      child: Text(label, style: const TextStyle(fontSize: 14)),
-                    ),
-                  )
-                  .toList(),
+              items:
+                  [
+                        {
+                          'label': AppLocalizations.of(context)!.male,
+                          'value': 'Male',
+                        },
+                        {
+                          'label': AppLocalizations.of(context)!.female,
+                          'value': 'Female',
+                        },
+                        {
+                          'label': AppLocalizations.of(context)!.other_gender,
+                          'value': 'Other',
+                        },
+                      ]
+                      .map(
+                        (item) => DropdownMenuItem<String>(
+                          value: item['value'],
+                          child: Text(
+                            item['label']!,
+                            style: const TextStyle(fontSize: 14),
+                          ),
+                        ),
+                      )
+                      .toList(),
               onChanged: (value) {
                 setState(() {
                   _selectedGender = value;
@@ -571,8 +596,9 @@ class _RegistrationState extends State<Registration> {
                 isDense: false,
                 errorMaxLines: 2,
               ),
-              validator: (value) =>
-                  value == null ? 'Please select gender' : null,
+              validator: (value) => value == null
+                  ? AppLocalizations.of(context)!.please_select_gender
+                  : null,
               key: _genderFieldKey,
             ),
           ),

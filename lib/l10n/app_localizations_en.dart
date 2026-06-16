@@ -140,6 +140,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get contact_us => 'Contact Us';
 
   @override
+  String get contact_us_desc =>
+      'Reach out to us via live chat for immediate support.';
+
+  @override
   String get camera => 'Camera';
 
   @override
@@ -234,10 +238,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get track_mosque_donations => 'Track your mosque donations';
-
-  @override
-  String get ongoing_charity_rewards => 'Your ongoing charity rewards';
+  String get track_your_donations => 'Track your donations';
 
   @override
   String get manage_account_settings => 'Manage your account settings';
@@ -873,4 +874,143 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get too_many_attempts => 'Too many attempts. Please try again later.';
+
+  @override
+  String get suggestions => 'Suggestions';
+
+  @override
+  String get complaints => 'Complaints';
+
+  @override
+  String get complaints_desc => 'Report any issues you faced with your orders.';
+
+  @override
+  String get your_suggestions_hint =>
+      'Your suggestions are important to us, we are happy to receive them.';
+
+  @override
+  String get send => 'Send';
+
+  @override
+  String get select_complaint => 'Select complaint';
+
+  @override
+  String get complaint_option_1 => 'Payment was made but no order was created.';
+
+  @override
+  String get complaint_option_2 =>
+      'Order was not delivered in the specified time.';
+
+  @override
+  String get complaint_option_3 =>
+      'Order was delivered to a different mosque than the one specified.';
+
+  @override
+  String get complaint_option_4 => 'Other';
+
+  @override
+  String get enter_complaint_hint => 'Enter your complaint here.';
+
+  @override
+  String get select_order => 'Select Order';
+
+  @override
+  String sign_in_with_provider(String provider) {
+    return 'Sign in with $provider';
+  }
+
+  @override
+  String get choose_account_to_continue =>
+      'Choose an account to continue with Raheeq:';
+
+  @override
+  String get authentication_failed => 'Authentication failed';
+
+  @override
+  String get failed_to_send_otp => 'Failed to send OTP';
+
+  @override
+  String get otp_sent_successfully => 'OTP sent successfully!';
+
+  @override
+  String get failed_to_resend_otp => 'Failed to resend OTP';
+
+  @override
+  String get verification_failed => 'Verification failed';
+
+  @override
+  String get invalid_otp => 'Invalid OTP';
+
+  @override
+  String get complete_profile => 'Complete Profile';
+
+  @override
+  String get enter_first_name => 'Enter your first name';
+
+  @override
+  String get enter_last_name => 'Enter your last name';
+
+  @override
+  String get enter_email_optional_hint => 'Enter your email (optional)';
+
+  @override
+  String get enter_phone_number_hint => 'Enter phone number';
+
+  @override
+  String get registration_failed => 'Registration failed';
+
+  @override
+  String get validation_error => 'Validation error';
+
+  @override
+  String get validation_error_check_inputs =>
+      'Validation error. Please check your inputs.';
+
+  @override
+  String get register => 'Register';
+
+  @override
+  String get field_required => 'This field is required';
+
+  @override
+  String get enter_valid_email => 'Please enter a valid email address';
+
+  @override
+  String get gender => 'Gender';
+
+  @override
+  String get select_gender => 'Select Gender';
+
+  @override
+  String get male => 'Male';
+
+  @override
+  String get female => 'Female';
+
+  @override
+  String get other_gender => 'Other';
+
+  @override
+  String get please_select_gender => 'Please select gender';
+
+  @override
+  String get show_more => 'Show More';
+
+  @override
+  String get all_transactions => 'All Transactions';
+
+  @override
+  String get filter_by => 'Filter By';
+
+  @override
+  String get day => 'Day';
+
+  @override
+  String get month => 'Month';
+
+  @override
+  String get year => 'Year';
+
+  @override
+  String get all => 'All';
 }

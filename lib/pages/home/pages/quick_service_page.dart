@@ -7,6 +7,7 @@ import 'package:raheeq_main/models/product.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/utils/rtl_helpers.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
+import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 
 class QuickServicePage extends StatefulWidget {
   final Category category;
@@ -118,17 +119,13 @@ class _QuickServicePageState extends State<QuickServicePage>
     final val = int.tryParse(_customController.text.trim());
     final min = _minQuantity(product);
     if (val == null || val < min) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            AppLocalizations.of(context)!.minimum_quantity_is(min.toString()),
-          ),
-          backgroundColor: Colors.redAccent,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-        ),
+      CustomSnackbar.show(
+        context: context,
+        message: AppLocalizations.of(
+          context,
+        )!.minimum_quantity_is(min.toString()),
+        isError: true,
+        bottomMargin: 130,
       );
       return;
     }
@@ -498,7 +495,9 @@ class _QuickServicePageState extends State<QuickServicePage>
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      isAr ? "${price.toStringAsFixed(price.truncateToDouble() == price ? 0 : 2)} ر.س / وحدة" : "${price.toStringAsFixed(price.truncateToDouble() == price ? 0 : 2)} SAR / unit",
+                      isAr
+                          ? "${price.toStringAsFixed(price.truncateToDouble() == price ? 0 : 2)} ر.س / وحدة"
+                          : "${price.toStringAsFixed(price.truncateToDouble() == price ? 0 : 2)} SAR / unit",
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
@@ -719,6 +718,8 @@ class _QuickServicePageState extends State<QuickServicePage>
                         children: [
                           Expanded(
                             child: TextField(
+                              cursorColor: AppColors.buttonBlueDark,
+
                               controller: _customController,
                               focusNode: _customFocusNode,
                               keyboardType: TextInputType.number,
@@ -727,7 +728,9 @@ class _QuickServicePageState extends State<QuickServicePage>
                               ],
                               onSubmitted: (_) => _confirmCustom(),
                               decoration: InputDecoration(
-                                hintText: AppLocalizations.of(context)!.enter_quantity_min_min,
+                                hintText: AppLocalizations.of(
+                                  context,
+                                )!.enter_quantity_min_min,
                                 hintStyle: const TextStyle(
                                   fontSize: 13,
                                   color: Colors.black38,
@@ -869,7 +872,9 @@ class _QuickServicePageState extends State<QuickServicePage>
                   ),
                   child: Text(
                     key: ValueKey(total),
-                    isAr ? "${total.toStringAsFixed(total.truncateToDouble() == total ? 0 : 2)} ر.س" : "${total.toStringAsFixed(total.truncateToDouble() == total ? 0 : 2)} SAR",
+                    isAr
+                        ? "${total.toStringAsFixed(total.truncateToDouble() == total ? 0 : 2)} ر.س"
+                        : "${total.toStringAsFixed(total.truncateToDouble() == total ? 0 : 2)} SAR",
                     style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w800,
@@ -880,7 +885,9 @@ class _QuickServicePageState extends State<QuickServicePage>
                 ),
                 if (qty > 0)
                   Text(
-                    isAr ? "$qty وحدة × ${price.toStringAsFixed(price.truncateToDouble() == price ? 0 : 2)} ر.س" : "$qty units × ${price.toStringAsFixed(price.truncateToDouble() == price ? 0 : 2)} SAR",
+                    isAr
+                        ? "$qty وحدة × ${price.toStringAsFixed(price.truncateToDouble() == price ? 0 : 2)} ر.س"
+                        : "$qty units × ${price.toStringAsFixed(price.truncateToDouble() == price ? 0 : 2)} SAR",
                     style: const TextStyle(fontSize: 11, color: Colors.black38),
                   ),
               ],

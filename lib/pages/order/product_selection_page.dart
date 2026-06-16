@@ -251,6 +251,8 @@ class _ProductSelectionPageState extends State<ProductSelectionPage> {
             if (currentQty > 0) ...[
               const SizedBox(height: 16),
               TextField(
+                cursorColor: AppColors.buttonBlueDark,
+
                 controller: TextEditingController(text: notes)
                   ..selection = TextSelection.collapsed(offset: notes.length),
                 decoration: InputDecoration(
@@ -282,6 +284,8 @@ class _ProductSelectionPageState extends State<ProductSelectionPage> {
         return AlertDialog(
           title: Text(AppLocalizations.of(context)!.enter_quantity_204),
           content: TextField(
+            cursorColor: AppColors.buttonBlueDark,
+
             controller: controller,
             keyboardType: TextInputType.number,
             decoration: InputDecoration(

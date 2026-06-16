@@ -36,12 +36,15 @@ class _NotificationsPageState extends State<NotificationsPage> {
       if (response.statusCode == 200 && response.data['success'] == true) {
         final data = response.data['data'] as List;
         setState(() {
-          _notifications = data.map((json) => NotificationModel.fromJson(json)).toList();
+          _notifications = data
+              .map((json) => NotificationModel.fromJson(json))
+              .toList();
           _isLoading = false;
         });
       } else {
         setState(() {
-          _errorMessage = response.data['message'] ?? 'Failed to load notifications';
+          _errorMessage =
+              response.data['message'] ?? 'Failed to load notifications';
           _isLoading = false;
         });
       }
@@ -60,7 +63,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
         if (response.statusCode == 200) {
           if (mounted) {
             setState(() {
-              final index = _notifications.indexWhere((n) => n.id == notification.id);
+              final index = _notifications.indexWhere(
+                (n) => n.id == notification.id,
+              );
               if (index != -1) {
                 _notifications[index] = NotificationModel(
                   id: notification.id,
@@ -84,7 +89,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
     }
 
     // Handle navigation based on data payload
-    if (notification.data.containsKey('orderId') && notification.data['orderId'] != null) {
+    if (notification.data.containsKey('orderId') &&
+        notification.data['orderId'] != null) {
       if (mounted) {
         Navigator.popUntil(context, (route) => route.isFirst);
         HomeScreen.switchTabNotifier.value = 1;
@@ -184,7 +190,11 @@ class _NotificationsPageState extends State<NotificationsPage> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.error_outline, color: Colors.redAccent, size: 60),
+              const Icon(
+                Icons.error_outline,
+                color: Colors.redAccent,
+                size: 60,
+              ),
               const SizedBox(height: 16),
               Text(
                 _errorMessage!,
@@ -211,13 +221,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
     }
 
     if (_notifications.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
           "No new notifications",
-          style: TextStyle(
-            color: AppColors.headersubtitlecolor,
-            fontSize: 16,
-          ),
+          style: TextStyle(color: AppColors.headersubtitlecolor, fontSize: 16),
         ),
       );
     }
@@ -253,10 +260,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
             child: ListView.separated(
               padding: const EdgeInsets.only(top: 0, bottom: 40),
               itemCount: _notifications.length,
-              separatorBuilder: (context, index) => const Divider(
-                color: Color(0xFFEAEFF2),
-                height: 1,
-              ),
+              separatorBuilder: (context, index) =>
+                  const Divider(color: Color(0xFFEAEFF2), height: 1),
               itemBuilder: (context, index) {
                 final notification = _notifications[index];
                 return _buildNotificationItem(notification);
@@ -286,7 +291,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
               Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: notification.isRead ? const Color(0xFFF2F4F5) : const Color(0xFFD9F0F9),
+                  color: notification.isRead
+                      ? const Color(0xFFF2F4F5)
+                      : const Color(0xFFD9F0F9),
                   shape: BoxShape.circle,
                 ),
                 child: const Icon(
@@ -308,7 +315,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
                             notification.title,
                             style: TextStyle(
                               fontSize: 16,
-                              fontWeight: notification.isRead ? FontWeight.w500 : FontWeight.bold,
+                              fontWeight: notification.isRead
+                                  ? FontWeight.w500
+                                  : FontWeight.bold,
                               color: Colors.black87,
                             ),
                           ),
@@ -321,7 +330,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                               color: Colors.redAccent,
                               shape: BoxShape.circle,
                             ),
-                          )
+                          ),
                       ],
                     ),
                     const SizedBox(height: 6),
@@ -329,16 +338,15 @@ class _NotificationsPageState extends State<NotificationsPage> {
                       notification.body,
                       style: TextStyle(
                         fontSize: 14,
-                        color: notification.isRead ? Colors.black54 : Colors.black87,
+                        color: notification.isRead
+                            ? Colors.black54
+                            : Colors.black87,
                       ),
                     ),
                     const SizedBox(height: 8),
                     Text(
                       formattedDate,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.grey,
-                      ),
+                      style: const TextStyle(fontSize: 12, color: Colors.grey),
                     ),
                   ],
                 ),

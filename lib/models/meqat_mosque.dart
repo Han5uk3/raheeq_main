@@ -41,7 +41,9 @@ class MeqatMosque implements Place {
       longitude: (json['longitude'] as num?)?.toDouble() ?? 0.0,
       address: json['address'] as String? ?? '',
       image: json['image'] as String?,
-      zone: json['zone'] != null ? Zone.fromJson(json['zone'] as Map<String, dynamic>) : null,
+      zone: json['zone'] != null
+          ? Zone.fromJson(json['zone'] as Map<String, dynamic>)
+          : null,
     );
   }
 

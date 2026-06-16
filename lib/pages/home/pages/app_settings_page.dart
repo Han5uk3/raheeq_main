@@ -4,6 +4,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:raheeq_main/main.dart';
 import 'package:raheeq_main/utils/colors.dart';
+import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 
 class AppSettingsPage extends StatefulWidget {
   const AppSettingsPage({super.key});
@@ -165,14 +166,8 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                       //           setState(() {
                       //             _isDarkMode = value;
                       //           });
-                      //           ScaffoldMessenger.of(context).showSnackBar(
-                      //             SnackBar(
-                      //               content: Text(
-                      //                 AppLocalizations.of(context)!.theme_switching_coming_soon,
-                      //               ),
-                      //               duration: const Duration(seconds: 1),
-                      //             ),
-                      //           );
+                      //           CustomSnackbar.show(context: context, message: //                 AppLocalizations.of(context)!.theme_switching_coming_soon,
+                      //, duration: const Duration(seconds: 1));
                       //         },
                       //         activeThumbColor: AppColors.buttonBlueDark,
                       //       ),
@@ -352,10 +347,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       children: [
         Text(
           label,
-          style: const TextStyle(
-            fontSize: 15,
-            color: AppColors.headersubtitlecolor,
-          ),
+          style: TextStyle(fontSize: 15, color: AppColors.headersubtitlecolor),
         ),
         Text(
           value,

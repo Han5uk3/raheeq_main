@@ -140,6 +140,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get contact_us => 'اتصل بنا';
 
   @override
+  String get contact_us_desc =>
+      'تواصل معنا عبر الدردشة المباشرة للحصول على دعم فوري.';
+
+  @override
   String get camera => 'الكاميرا';
 
   @override
@@ -234,10 +238,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get track_mosque_donations => 'تتبع تبرعاتك للمساجد';
-
-  @override
-  String get ongoing_charity_rewards => 'أجور صدقتك الجارية';
+  String get track_your_donations => 'تتبع تبرعاتك';
 
   @override
   String get manage_account_settings => 'إدارة إعدادات حسابك';
@@ -869,4 +870,139 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get too_many_attempts =>
       'محاولات كثيرة جدًا. يرجى المحاولة مرة أخرى لاحقًا.';
+
+  @override
+  String get suggestions => 'الاقتراحات';
+
+  @override
+  String get complaints => 'الشكاوى';
+
+  @override
+  String get complaints_desc => 'أبلغ عن أي مشاكل واجهتها في طلباتك.';
+
+  @override
+  String get your_suggestions_hint => 'اقتراحاتكم تهمنا، نسعد باستقبالها.';
+
+  @override
+  String get send => 'إرسال';
+
+  @override
+  String get select_complaint => 'اختر الشكوى';
+
+  @override
+  String get complaint_option_1 => 'تم الدفع ولم يتم إنشاء طلب.';
+
+  @override
+  String get complaint_option_2 => 'لم يتم توصيل الطلب في الوقت المحدد.';
+
+  @override
+  String get complaint_option_3 => 'تم توصيل الطلب لمسجد مختلف عن المحدد.';
+
+  @override
+  String get complaint_option_4 => 'أخرى';
+
+  @override
+  String get enter_complaint_hint => 'أدخل شكواك هنا.';
+
+  @override
+  String get select_order => 'اختر الطلب';
+
+  @override
+  String sign_in_with_provider(String provider) {
+    return 'تسجيل الدخول باستخدام $provider';
+  }
+
+  @override
+  String get choose_account_to_continue => 'اختر حسابًا للمتابعة مع رحيق:';
+
+  @override
+  String get authentication_failed => 'فشلت المصادقة';
+
+  @override
+  String get failed_to_send_otp => 'فشل في إرسال رمز التحقق';
+
+  @override
+  String get otp_sent_successfully => 'تم إرسال رمز التحقق بنجاح!';
+
+  @override
+  String get failed_to_resend_otp => 'فشل في إعادة إرسال رمز التحقق';
+
+  @override
+  String get verification_failed => 'فشل التحقق';
+
+  @override
+  String get invalid_otp => 'رمز التحقق غير صالح';
+
+  @override
+  String get complete_profile => 'إكمال الملف الشخصي';
+
+  @override
+  String get enter_first_name => 'أدخل الاسم الأول';
+
+  @override
+  String get enter_last_name => 'أدخل اسم العائلة';
+
+  @override
+  String get enter_email_optional_hint => 'أدخل البريد الإلكتروني (اختياري)';
+
+  @override
+  String get enter_phone_number_hint => 'أدخل رقم الهاتف';
+
+  @override
+  String get registration_failed => 'فشل التسجيل';
+
+  @override
+  String get validation_error => 'خطأ في التحقق';
+
+  @override
+  String get validation_error_check_inputs =>
+      'خطأ في التحقق. يرجى مراجعة مدخلاتك.';
+
+  @override
+  String get register => 'تسجيل';
+
+  @override
+  String get field_required => 'هذا الحقل مطلوب';
+
+  @override
+  String get enter_valid_email => 'يرجى إدخال بريد إلكتروني صحيح';
+
+  @override
+  String get gender => 'الجنس';
+
+  @override
+  String get select_gender => 'اختر الجنس';
+
+  @override
+  String get male => 'ذكر';
+
+  @override
+  String get female => 'أنثى';
+
+  @override
+  String get other_gender => 'آخر';
+
+  @override
+  String get please_select_gender => 'يرجى اختيار الجنس';
+
+  @override
+  String get show_more => 'عرض المزيد';
+
+  @override
+  String get all_transactions => 'جميع المعاملات';
+
+  @override
+  String get filter_by => 'تصفية حسب';
+
+  @override
+  String get day => 'يوم';
+
+  @override
+  String get month => 'شهر';
+
+  @override
+  String get year => 'سنة';
+
+  @override
+  String get all => 'الكل';
 }

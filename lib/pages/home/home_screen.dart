@@ -73,7 +73,7 @@ class _HomeScreenState extends State<HomeScreen> {
   String _getAppBarSubtitle(BuildContext context) {
     switch (_currentIndex) {
       case 1:
-        return AppLocalizations.of(context)!.track_mosque_donations;
+        return AppLocalizations.of(context)!.track_your_donations;
       case 2:
         return "";
       case 3:

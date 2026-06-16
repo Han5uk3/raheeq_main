@@ -94,15 +94,6 @@ class _WaterLoadingIndicatorState extends State<WaterLoadingIndicator>
                 begin: Alignment.bottomCenter,
                 end: Alignment.topCenter,
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: (widget.waveColor1 ?? AppColors.buttonBlue).withValues(
-                    alpha: 0.3,
-                  ),
-                  blurRadius: 4,
-                  offset: const Offset(0, 2),
-                ),
-              ],
             ),
           );
         });
@@ -110,20 +101,17 @@ class _WaterLoadingIndicatorState extends State<WaterLoadingIndicator>
         final Widget soundwave = SizedBox(
           width: innerSize,
           height: innerSize,
-          child: FittedBox(
-            fit: BoxFit.contain,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: List.generate(bars.length * 2 - 1, (index) {
-                // Alternate between bar widgets and spacing gaps
-                if (index.isEven) {
-                  return bars[index ~/ 2];
-                } else {
-                  return SizedBox(width: spacing);
-                }
-              }),
-            ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: List.generate(bars.length * 2 - 1, (index) {
+              // Alternate between bar widgets and spacing gaps
+              if (index.isEven) {
+                return bars[index ~/ 2];
+              } else {
+                return SizedBox(width: spacing);
+              }
+            }),
           ),
         );
 
@@ -138,11 +126,7 @@ class _WaterLoadingIndicatorState extends State<WaterLoadingIndicator>
           content = soundwave;
         }
 
-        // Subtle premium breathing scale animation on the whole loader
-        return Transform.scale(
-          scale: 1.0 + 0.03 * math.sin(_controller.value * 2 * math.pi),
-          child: content,
-        );
+        return content;
       },
     );
 

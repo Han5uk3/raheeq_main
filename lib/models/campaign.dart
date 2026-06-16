@@ -34,7 +34,8 @@ class Campaign {
       image: json['image'] as String? ?? '',
       canSubscribe: json['canSubscribe'] == true,
       order: (json['order'] as num?)?.toInt() ?? 0,
-      products: rawProducts
+      products:
+          rawProducts
               ?.map((p) => Product.fromJson(p as Map<String, dynamic>))
               .toList() ??
           [],
@@ -59,6 +60,5 @@ class Campaign {
   String localizedTitle(bool isAr) => isAr ? titleAr : title;
 
   /// Returns the localised description.
-  String localizedDescription(bool isAr) =>
-      isAr ? descriptionAr : description;
+  String localizedDescription(bool isAr) => isAr ? descriptionAr : description;
 }

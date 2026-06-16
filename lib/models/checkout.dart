@@ -59,24 +59,59 @@ class Checkout {
       useWallet: json['wallet']?['isUsed'] ?? json['useWallet'] ?? false,
       couponCode: json['couponCode'],
       couponDetails: json['couponDetails'],
-      walletBalance: (json['wallet']?['balance'] as num?)?.toDouble() ?? (json['walletBalance'] as num?)?.toDouble() ?? 0.0,
+      walletBalance:
+          (json['wallet']?['balance'] as num?)?.toDouble() ??
+          (json['walletBalance'] as num?)?.toDouble() ??
+          0.0,
       subscription: json['subscription'],
       occurrences: (json['occurrences'] as num?)?.toInt() ?? 1,
-      isFreeDelivery: json['pricing']?['isFreeDelivery'] ?? json['isFreeDelivery'] ?? false,
-      items: (json['items'] as List<dynamic>?)
-              ?.map((item) => CheckoutItem.fromJson(item as Map<String, dynamic>))
+      isFreeDelivery:
+          json['pricing']?['isFreeDelivery'] ?? json['isFreeDelivery'] ?? false,
+      items:
+          (json['items'] as List<dynamic>?)
+              ?.map(
+                (item) => CheckoutItem.fromJson(item as Map<String, dynamic>),
+              )
               .toList() ??
           [],
-      subTotal: (json['pricing']?['subTotal'] as num?)?.toDouble() ?? (json['subTotal'] as num?)?.toDouble() ?? 0.0,
-      totalDeliveryFee: (json['pricing']?['deliveryFee'] as num?)?.toDouble() ?? (json['totalDeliveryFee'] as num?)?.toDouble() ?? 0.0,
-      totalGiftCardFee: (json['pricing']?['giftCardFee'] as num?)?.toDouble() ?? (json['totalGiftCardFee'] as num?)?.toDouble() ?? 0.0,
-      discountAmount: (json['pricing']?['discountAmount'] as num?)?.toDouble() ?? (json['discountAmount'] as num?)?.toDouble() ?? 0.0,
-      vatAmount: (json['pricing']?['vatAmount'] as num?)?.toDouble() ?? (json['vatAmount'] as num?)?.toDouble() ?? 0.0,
-      totalBeforeWallet: (json['pricing']?['totalBeforeWallet'] as num?)?.toDouble() ?? (json['totalBeforeWallet'] as num?)?.toDouble() ?? 0.0,
-      walletAmountUsed: (json['wallet']?['amountUsed'] as num?)?.toDouble() ?? (json['walletAmountUsed'] as num?)?.toDouble() ?? 0.0,
-      finalTotal: (json['pricing']?['finalTotal'] as num?)?.toDouble() ?? (json['finalTotal'] as num?)?.toDouble() ?? 0.0,
-      createdAt: json['createdAt'] != null ? DateTime.tryParse(json['createdAt']) : null,
-      updatedAt: json['updatedAt'] != null ? DateTime.tryParse(json['updatedAt']) : null,
+      subTotal:
+          (json['pricing']?['subTotal'] as num?)?.toDouble() ??
+          (json['subTotal'] as num?)?.toDouble() ??
+          0.0,
+      totalDeliveryFee:
+          (json['pricing']?['deliveryFee'] as num?)?.toDouble() ??
+          (json['totalDeliveryFee'] as num?)?.toDouble() ??
+          0.0,
+      totalGiftCardFee:
+          (json['pricing']?['giftCardFee'] as num?)?.toDouble() ??
+          (json['totalGiftCardFee'] as num?)?.toDouble() ??
+          0.0,
+      discountAmount:
+          (json['pricing']?['discountAmount'] as num?)?.toDouble() ??
+          (json['discountAmount'] as num?)?.toDouble() ??
+          0.0,
+      vatAmount:
+          (json['pricing']?['vatAmount'] as num?)?.toDouble() ??
+          (json['vatAmount'] as num?)?.toDouble() ??
+          0.0,
+      totalBeforeWallet:
+          (json['pricing']?['totalBeforeWallet'] as num?)?.toDouble() ??
+          (json['totalBeforeWallet'] as num?)?.toDouble() ??
+          0.0,
+      walletAmountUsed:
+          (json['wallet']?['amountUsed'] as num?)?.toDouble() ??
+          (json['walletAmountUsed'] as num?)?.toDouble() ??
+          0.0,
+      finalTotal:
+          (json['pricing']?['finalTotal'] as num?)?.toDouble() ??
+          (json['finalTotal'] as num?)?.toDouble() ??
+          0.0,
+      createdAt: json['createdAt'] != null
+          ? DateTime.tryParse(json['createdAt'])
+          : null,
+      updatedAt: json['updatedAt'] != null
+          ? DateTime.tryParse(json['updatedAt'])
+          : null,
     );
   }
 }
@@ -121,8 +156,12 @@ class CheckoutItem {
       city: json['city'],
       note: json['note'],
       cityId: json['cityId'],
-      product: json['product'] != null ? Product.fromJson(json['product']) : null,
-      category: json['category'] != null ? Category.fromJson(json['category']) : null,
+      product: json['product'] != null
+          ? Product.fromJson(json['product'])
+          : null,
+      category: json['category'] != null
+          ? Category.fromJson(json['category'])
+          : null,
       giftCard: json['giftCard'],
       location: json['location'],
       quantity: (json['quantity'] as num?)?.toInt() ?? 1,

@@ -42,14 +42,18 @@ class PaymentStatusPage extends StatelessWidget {
         title = AppLocalizations.of(context)!.payment_failed;
         description =
             message ??
-            (AppLocalizations.of(context)!.an_error_occurred_while_processing_the_payment);
+            (AppLocalizations.of(
+              context,
+            )!.an_error_occurred_while_processing_the_payment);
         color = Colors.red;
         break;
       case PaymentStatus.pendingApproval:
         lottieUrl =
             'https://lottie.host/b02cb06a-a827-4a7b-a2eb-45de4e0bf31c/zZ7Z7Z7Z7Z.json'; // Reusing success for pending
         title = AppLocalizations.of(context)!.pending_approval;
-        description = isAr ? 'تم استلام طلبك، وسيتم التأكيد بعد التحقق من الدفع.' : 'Your order is placed, confirmation will be done after verification of payment.';
+        description = isAr
+            ? 'تم استلام طلبك، وسيتم التأكيد بعد التحقق من الدفع.'
+            : 'Your order is placed, confirmation will be done after verification of payment.';
         color = Colors.orange;
         break;
     }
@@ -134,7 +138,9 @@ class PaymentStatusPage extends StatelessWidget {
                         onPressed: () {
                           HomeTab.clearBasket();
                           HomeScreen.switchTabNotifier.value = 1;
-                          Navigator.of(context).popUntil((route) => route.isFirst);
+                          Navigator.of(
+                            context,
+                          ).popUntil((route) => route.isFirst);
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,
@@ -162,7 +168,9 @@ class PaymentStatusPage extends StatelessWidget {
                       child: ElevatedButton(
                         onPressed: () {
                           HomeTab.clearBasket();
-                          Navigator.of(context).popUntil((route) => route.isFirst);
+                          Navigator.of(
+                            context,
+                          ).popUntil((route) => route.isFirst);
                         },
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.buttonBlueDark,

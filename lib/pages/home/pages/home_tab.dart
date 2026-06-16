@@ -16,7 +16,7 @@ import 'package:raheeq_main/utils/rtl_helpers.dart';
 import 'package:raheeq_main/api/apis.dart';
 import '../../../storage/auth_storage.dart';
 import 'campaign_detail_page.dart';
-import 'city_selector_page.dart';
+import '../widgets/city_selector_dialog.dart';
 import 'specific_mosque_page.dart';
 import '../widgets/option_selector_dialog.dart';
 import 'package:raheeq_main/models/selected_category_item.dart';
@@ -55,6 +55,7 @@ class _HomeTabState extends State<HomeTab> {
   static List<Category> _cachedCategories = [];
   static List<Product> _cachedProducts = [];
   static List<Product> _cachedEssentialProducts = [];
+  static List<City> _cachedCities = [];
 
   // Queue for items added from external pages (e.g., Saved Mosques)
   static final List<SelectedCategoryItem> _pendingItems = [];
@@ -76,6 +77,7 @@ class _HomeTabState extends State<HomeTab> {
   List<Category> _categories = [];
   List<Product> _products = [];
   List<Product> _essentialProducts = [];
+  List<City> _citiesList = [];
   static List<SelectedCategoryItem> _selectedItems = [];
 
   /// Clears the basket. Called after a successful payment.
@@ -95,6 +97,7 @@ class _HomeTabState extends State<HomeTab> {
       _categories = _cachedCategories;
       _products = _cachedProducts;
       _essentialProducts = _cachedEssentialProducts;
+      _citiesList = _cachedCities;
       _isLoading = false;
       if (_bannerData.isNotEmpty) {
         _currentIndex = 1000 % _bannerData.length;
@@ -183,6 +186,17 @@ class _HomeTabState extends State<HomeTab> {
         log('Error fetching unread notifications count: $e', name: 'HomeTab');
       }
 
+      // Fetch cities
+      try {
+        final citiesResponse = await ApiService().getCities();
+        if (citiesResponse.statusCode == 200 && citiesResponse.data['success'] == true) {
+          final List<dynamic> data = citiesResponse.data['data'] ?? [];
+          _cachedCities = data.map((e) => City.fromJson(e as Map<String, dynamic>)).toList();
+        }
+      } catch (e) {
+        log('Error fetching cities: $e', name: 'HomeTab');
+      }
+
       final response = await ApiService().getHome();
       if (response.statusCode == 200 && response.data['success'] == true) {
         final data = response.data['data'] as Map<String, dynamic>;
@@ -221,6 +235,7 @@ class _HomeTabState extends State<HomeTab> {
             _categories = categories;
             _products = products;
             _essentialProducts = essentialProducts;
+            _citiesList = _cachedCities;
             _isLoading = false;
             _errorMessage = null;
 
@@ -516,12 +531,12 @@ class _HomeTabState extends State<HomeTab> {
                           ),
                           const SizedBox(height: 24),
                           buildEssentialMosqueSuppliesSection(context),
-                          const SizedBox(height: 32),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: buildYourImpactSection(context),
-                          ),
-                          const SizedBox(height: 32),
+                          const SizedBox(height: 24),
+                          // Padding(
+                          //   padding: const EdgeInsets.symmetric(horizontal: 16),
+                          //   child: buildYourImpactSection(context),
+                          // ),
+                          // const SizedBox(height: 24),
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             child: buildBottomText(context),
@@ -1273,11 +1288,11 @@ class _HomeTabState extends State<HomeTab> {
                       .map((item) => item.specificData as City)
                       .toList();
 
-                  final cities = await Navigator.of(context).push<List<City>>(
-                    MaterialPageRoute(
-                      builder: (_) => CitySelectorPage(
-                        initialSelections: currentlySelected,
-                      ),
+                  final cities = await showDialog<List<City>>(
+                    context: context,
+                    builder: (_) => CitySelectorDialog(
+                      initialSelections: currentlySelected,
+                      allCities: _citiesList,
                     ),
                   );
 

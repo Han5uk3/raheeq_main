@@ -11,6 +11,7 @@ import 'package:raheeq_main/models/subscription_plan.dart';
 import 'package:raheeq_main/pages/order/contribution_details_page.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/utils/rtl_helpers.dart';
+import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 
 class SubscriptionDetailsBottomSheet extends StatefulWidget {
   final SubscriptionPlan plan;
@@ -131,9 +132,7 @@ class _SubscriptionDetailsBottomSheetState
   }
 
   void _showError(String message) {
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(SnackBar(content: Text(message)));
+    CustomSnackbar.show(context: context, message: message);
   }
 
   Future<void> _selectDate(BuildContext context, bool isStart) async {
@@ -463,7 +462,9 @@ class _SubscriptionDetailsBottomSheetState
                       ? null
                       : () {
                           FocusManager.instance.primaryFocus?.unfocus();
-                          SystemChannels.textInput.invokeMethod('TextInput.hide');
+                          SystemChannels.textInput.invokeMethod(
+                            'TextInput.hide',
+                          );
                           _onContinue(context);
                         },
                   style: ElevatedButton.styleFrom(

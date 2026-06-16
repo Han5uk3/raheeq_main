@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
 import 'dart:developer';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:image_picker/image_picker.dart';
@@ -10,6 +11,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
+import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 
 class MyProfileScreen extends StatefulWidget {
   const MyProfileScreen({super.key});
@@ -29,6 +31,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   bool _isLoading = false;
   bool _isSaving = false;
   bool _isEditing = false;
+  String? _selectedAvatarPath;
   User? _currentUser;
 
   @override
@@ -96,6 +99,25 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   Future<void> _saveProfileChanges() async {
     if (!_formKey.currentState!.validate()) return;
 
+    final hasExistingEmail = _currentUser?.email != null && _currentUser!.email!.trim().isNotEmpty;
+    final newEmail = _emailController.text.trim();
+    final bool emailChanged = !hasExistingEmail && newEmail.isNotEmpty;
+
+    final hasChanges =
+        _firstNameController.text.trim() != (_currentUser?.firstName ?? '') ||
+        _lastNameController.text.trim() != (_currentUser?.lastName ?? '') ||
+        (_selectedGender?.toUpperCase() ?? 'MALE') !=
+            (_currentUser?.gender?.toUpperCase() ?? 'MALE') ||
+        _selectedAvatarPath != null ||
+        emailChanged;
+
+    if (!hasChanges) {
+      setState(() {
+        _isEditing = false;
+      });
+      return;
+    }
+
     setState(() {
       _isSaving = true;
     });
@@ -104,45 +126,38 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
       final response = await ApiService().updateProfile(
         firstName: _firstNameController.text.trim(),
         lastName: _lastNameController.text.trim(),
-        email: _emailController.text.trim(),
+        email: emailChanged ? newEmail : null,
         gender: _selectedGender?.toUpperCase() ?? 'MALE',
+        profileImage: _selectedAvatarPath,
       );
 
       if (response.statusCode == 200 && response.data['success'] == true) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(AppLocalizations.of(context)!.profile_updated),
-              backgroundColor: Colors.green,
-              behavior: SnackBarBehavior.floating,
-            ),
+          CustomSnackbar.show(
+            context: context,
+            message: AppLocalizations.of(context)!.profile_updated,
           );
           setState(() {
             _currentUser = AuthStorage.user;
             _isEditing = false;
+            _selectedAvatarPath = null;
           });
         }
       } else {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(
-                response.data['message'] ?? "Failed to update profile",
-              ),
-              backgroundColor: Colors.redAccent,
-            ),
+          CustomSnackbar.show(
+            context: context,
+            message: response.data['message'] ?? "Failed to update profile",
+            isError: true,
           );
         }
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(context)!.error_msg(e.toString()),
-            ),
-            backgroundColor: Colors.redAccent,
-          ),
+        CustomSnackbar.show(
+          context: context,
+          message: AppLocalizations.of(context)!.error_msg(e.toString()),
+          isError: true,
         );
       }
     } finally {
@@ -162,7 +177,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
         imageQuality: 80,
       );
       if (pickedFile != null) {
-        await _updateAvatar(pickedFile.path);
+        setState(() {
+          _selectedAvatarPath = pickedFile.path;
+        });
       }
     } catch (e, stackTrace) {
       log(
@@ -172,13 +189,12 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
         stackTrace: stackTrace,
       );
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(context)!.failed_to_pick_image(e.toString()),
-            ),
-            backgroundColor: Colors.redAccent,
-          ),
+        CustomSnackbar.show(
+          context: context,
+          message: AppLocalizations.of(
+            context,
+          )!.failed_to_pick_image(e.toString()),
+          isError: true,
         );
       }
     }
@@ -283,12 +299,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
       if (response.statusCode == 200 && response.data['success'] == true) {
         if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(AppLocalizations.of(context)!.profile_pic_updated),
-              backgroundColor: Colors.green,
-              behavior: SnackBarBehavior.floating,
-            ),
+          CustomSnackbar.show(
+            context: context,
+            message: AppLocalizations.of(context)!.profile_pic_updated,
           );
           setState(() {
             _currentUser = AuthStorage.user;
@@ -297,15 +310,12 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(
-                context,
-              )!.failed_upload_simulation(e.toString()),
-            ),
-            backgroundColor: Colors.redAccent,
-          ),
+        CustomSnackbar.show(
+          context: context,
+          message: AppLocalizations.of(
+            context,
+          )!.failed_upload_simulation(e.toString()),
+          isError: true,
         );
       }
     } finally {
@@ -329,243 +339,288 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: CustomAppBar(
-        title: AppLocalizations.of(context)!.personal_information,
-        isStartAligned: true,
-        showBackButton: true,
-        height: 120,
-        actions: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Container(
-              width: 40,
-              height: 40,
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 4,
-                    offset: Offset(0, 2),
-                  ),
-                ],
-              ),
-              child: Center(
-                child: _isSaving
-                    ? SizedBox(
-                        width: 16,
-                        height: 16,
-                        child: WaterLoadingIndicator(size: 30),
-                      )
-                    : IconButton(
-                        icon: Icon(
-                          _isEditing
-                              ? Symbols.save_sharp
-                              : Symbols.edit_square_sharp,
-                          color: Colors.black,
-                          size: 20,
-                        ),
-                        onPressed: () {
-                          if (_isEditing) {
-                            _saveProfileChanges();
-                          } else {
-                            setState(() {
-                              _isEditing = true;
-                            });
-                          }
-                        },
-                        padding: EdgeInsets.zero,
-                        constraints: const BoxConstraints(),
-                      ),
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-        ],
-      ),
-      body: Stack(
+      body: Column(
         children: [
-          Stack(
-            children: [
-              Container(
-                height: 130,
-                decoration: const BoxDecoration(color: Color(0x4D91E3FE)),
-              ),
-              Container(
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFF8FAFB),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(30),
-                  ),
-                ),
-                child: SingleChildScrollView(
-                  child: Column(
-                    children: [
-                      // Upper blue header block with avatar and details
-                      Card(
-                        margin: EdgeInsets.all(24),
-                        color: Colors.white,
-                        child: Center(
-                          child: Column(
-                            children: [
-                              SizedBox(height: 50),
-                              GestureDetector(
-                                onTap: _showAvatarBottomSheet,
-                                child: Stack(
-                                  children: [
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        border: Border.all(
-                                          color: Colors.white,
-                                          width: 4,
-                                        ),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.black.withValues(
-                                              alpha: 0.1,
-                                            ),
-                                            blurRadius: 15,
-                                          ),
-                                        ],
-                                      ),
-                                      child: CircleAvatar(
-                                        radius: 50,
-                                        backgroundColor: const Color(
-                                          0xFFF0F4F8,
-                                        ),
-                                        backgroundImage:
-                                            avatarUrl != null &&
-                                                avatarUrl.isNotEmpty
-                                            ? CachedNetworkImageProvider(
-                                                avatarUrl,
-                                              )
-                                            : null,
-                                        child:
-                                            avatarUrl == null ||
-                                                avatarUrl.isEmpty
-                                            ? const Icon(
-                                                Icons.person_rounded,
-                                                size: 55,
-                                                color: Colors.grey,
-                                              )
-                                            : null,
-                                      ),
-                                    ),
-                                    PositionedDirectional(
-                                      bottom: 0,
-                                      end: 0,
-                                      child: Container(
-                                        padding: const EdgeInsets.all(6),
-                                        decoration: BoxDecoration(
-                                          color: Colors.amber[600],
-                                          shape: BoxShape.circle,
-                                          border: Border.all(
-                                            color: Colors.white,
-                                            width: 2,
-                                          ),
-                                        ),
-                                        child: const Icon(
-                                          Icons.camera_alt,
-                                          color: Colors.white,
-                                          size: 14,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
+          Expanded(
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  CustomAppBar(
+                    hasBackgroundColor: true,
+                    isStartAligned: true,
+                    title: AppLocalizations.of(context)!.personal_information,
+                    showBackButton: true,
+                    onBackTap: () => Navigator.pop(context),
+                    actions: [
+                      Padding(
+                        padding: const EdgeInsets.all(8.0),
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black12,
+                                blurRadius: 4,
+                                offset: Offset(0, 2),
                               ),
-                              SizedBox(height: 8),
-                              Text(
-                                "Profile Picture",
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  color: AppColors.grey,
-                                ),
-                              ),
-                              SizedBox(height: 50),
                             ],
+                          ),
+                          child: Center(
+                            child: IconButton(
+                              icon: Icon(
+                                _isEditing
+                                    ? Symbols.save_sharp
+                                    : Symbols.edit_square_sharp,
+                                color: Colors.black,
+                                size: 20,
+                              ),
+                              onPressed: _isSaving
+                                  ? null
+                                  : () {
+                                      if (_isEditing) {
+                                        _saveProfileChanges();
+                                      } else {
+                                        setState(() {
+                                          _isEditing = true;
+                                        });
+                                      }
+                                    },
+                              padding: EdgeInsets.zero,
+                              constraints: const BoxConstraints(),
+                            ),
                           ),
                         ),
                       ),
-                      const SizedBox(height: 12),
-
-                      // Username display
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 24),
-                        child: Column(
-                          children: [
-                            // USER FORM SECTION
-                            Form(
-                              key: _formKey,
-                              child: Column(
-                                children: [
-                                  _buildTextField(
-                                    controller: _firstNameController,
-                                    label: AppLocalizations.of(
-                                      context,
-                                    )!.first_name,
-                                    hint: "Enter your first name",
-                                    enabled: _isEditing,
-                                  ),
-                                  const SizedBox(height: 16),
-                                  _buildTextField(
-                                    controller: _lastNameController,
-                                    label: AppLocalizations.of(
-                                      context,
-                                    )!.last_name,
-                                    hint: "Enter your last name",
-                                    enabled: _isEditing,
-                                  ),
-                                  const SizedBox(height: 16),
-                                  _buildTextField(
-                                    controller: _emailController,
-                                    label: AppLocalizations.of(
-                                      context,
-                                    )!.email_address,
-                                    hint: "Enter your email",
-                                    enabled: _isEditing,
-                                    isOptional: true,
-                                    isEmail: true,
-                                  ),
-                                  const SizedBox(height: 16),
-                                  _buildTextField(
-                                    controller: _phoneController,
-                                    label: AppLocalizations.of(
-                                      context,
-                                    )!.phone_number,
-                                    hint: "Enter your phone number",
-                                    enabled: false,
-                                  ),
-                                  const SizedBox(height: 16),
-                                  _buildGenderDropdown(),
-                                  const SizedBox(height: 48),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+                      const SizedBox(width: 8),
                     ],
                   ),
-                ),
-              ),
-            ],
-          ),
-          AnimatedSwitcher(
-            duration: const Duration(milliseconds: 500),
-            child: (_isLoading || _isSaving)
-                ? Container(
-                    key: const ValueKey('loaderOverlay'),
-                    color: Colors.white,
-                    child: const Center(
-                      child: WaterLoadingIndicator(message: ""),
+                  Container(
+                    constraints: BoxConstraints(
+                      minHeight: MediaQuery.of(context).size.height - 100,
                     ),
-                  )
-                : const SizedBox.shrink(key: ValueKey('emptyOverlay')),
+                    color: const Color(0x4D91E3FE),
+                    child: Container(
+                      width: double.infinity,
+                      decoration: const BoxDecoration(
+                        color: Color(0xFFF8FAFB),
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(30),
+                          topRight: Radius.circular(30),
+                        ),
+                      ),
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 500),
+                        layoutBuilder: (currentChild, previousChildren) {
+                          return Stack(
+                            alignment: Alignment.topCenter,
+                            children: <Widget>[
+                              ...previousChildren,
+                              ?currentChild,
+                            ],
+                          );
+                        },
+                        child: (_isLoading || _isSaving)
+                            ? SizedBox(
+                                key: const ValueKey('loader'),
+                                height:
+                                    MediaQuery.of(context).size.height - 200,
+                                child: const Center(
+                                  child: SizedBox(
+                                    height: 30,
+                                    width: 30,
+                                    child: WaterLoadingIndicator(size: 30),
+                                  ),
+                                ),
+                              )
+                            : Column(
+                                key: const ValueKey('content'),
+                                children: [
+                                  // Upper blue header block with avatar and details
+                                  Card(
+                                    margin: EdgeInsets.all(24),
+                                    color: Colors.white,
+                                    child: Center(
+                                      child: Column(
+                                        children: [
+                                          SizedBox(height: 50),
+                                          GestureDetector(
+                                            onTap: _isEditing
+                                                ? _showAvatarBottomSheet
+                                                : null,
+                                            child: Stack(
+                                              children: [
+                                                Container(
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.circle,
+                                                    border: Border.all(
+                                                      color: Colors.white,
+                                                      width: 4,
+                                                    ),
+                                                    boxShadow: [
+                                                      BoxShadow(
+                                                        color: Colors.black
+                                                            .withValues(
+                                                              alpha: 0.1,
+                                                            ),
+                                                        blurRadius: 15,
+                                                      ),
+                                                    ],
+                                                  ),
+                                                  child: CircleAvatar(
+                                                    radius: 50,
+                                                    backgroundColor:
+                                                        const Color(0xFFF0F4F8),
+                                                    backgroundImage:
+                                                        _selectedAvatarPath !=
+                                                            null
+                                                        ? FileImage(
+                                                                File(
+                                                                  _selectedAvatarPath!,
+                                                                ),
+                                                              )
+                                                              as ImageProvider
+                                                        : (avatarUrl != null &&
+                                                                  avatarUrl
+                                                                      .isNotEmpty
+                                                              ? CachedNetworkImageProvider(
+                                                                  avatarUrl,
+                                                                )
+                                                              : null),
+                                                    child:
+                                                        _selectedAvatarPath ==
+                                                                null &&
+                                                            (avatarUrl ==
+                                                                    null ||
+                                                                avatarUrl
+                                                                    .isEmpty)
+                                                        ? const Icon(
+                                                            Icons
+                                                                .person_rounded,
+                                                            size: 55,
+                                                            color: Colors.grey,
+                                                          )
+                                                        : null,
+                                                  ),
+                                                ),
+                                                if (_isEditing)
+                                                  PositionedDirectional(
+                                                    bottom: 0,
+                                                    end: 0,
+                                                    child: Container(
+                                                      padding:
+                                                          const EdgeInsets.all(
+                                                            6,
+                                                          ),
+                                                      decoration: BoxDecoration(
+                                                        color:
+                                                            Colors.amber[600],
+                                                        shape: BoxShape.circle,
+                                                        border: Border.all(
+                                                          color: Colors.white,
+                                                          width: 2,
+                                                        ),
+                                                      ),
+                                                      child: const Icon(
+                                                        Icons.camera_alt,
+                                                        color: Colors.white,
+                                                        size: 14,
+                                                      ),
+                                                    ),
+                                                  ),
+                                              ],
+                                            ),
+                                          ),
+                                          SizedBox(height: 8),
+                                          Text(
+                                            "Profile Picture",
+                                            style: TextStyle(
+                                              fontSize: 14,
+                                              color: AppColors.grey,
+                                            ),
+                                          ),
+                                          SizedBox(height: 50),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+
+                                  // Username display
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 24,
+                                    ),
+                                    child: Column(
+                                      children: [
+                                        // USER FORM SECTION
+                                        Form(
+                                          key: _formKey,
+                                          child: Builder(
+                                            builder: (context) {
+                                              final hasExistingEmail = _currentUser?.email != null &&
+                                                  _currentUser!.email!.trim().isNotEmpty;
+                                              return Column(
+                                                children: [
+                                              _buildTextField(
+                                                controller:
+                                                    _firstNameController,
+                                                label: AppLocalizations.of(
+                                                  context,
+                                                )!.first_name,
+                                                hint: "Enter your first name",
+                                                enabled: _isEditing,
+                                              ),
+                                              const SizedBox(height: 16),
+                                              _buildTextField(
+                                                controller: _lastNameController,
+                                                label: AppLocalizations.of(
+                                                  context,
+                                                )!.last_name,
+                                                hint: "Enter your last name",
+                                                enabled: _isEditing,
+                                              ),
+                                              const SizedBox(height: 16),
+                                              _buildTextField(
+                                                controller: _emailController,
+                                                label: AppLocalizations.of(
+                                                  context,
+                                                )!.email_address,
+                                                hint: "Enter your email",
+                                                enabled: _isEditing && !hasExistingEmail,
+                                                isOptional: true,
+                                                isEmail: true,
+                                              ),
+                                              const SizedBox(height: 16),
+                                              _buildTextField(
+                                                controller: _phoneController,
+                                                label: AppLocalizations.of(
+                                                  context,
+                                                )!.phone_number,
+                                                hint: "Enter your phone number",
+                                                enabled: false,
+                                              ),
+                                              const SizedBox(height: 16),
+                                              _buildGenderDropdown(),
+                                              const SizedBox(height: 48),
+                                              ],
+                                              );
+                                            }
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ),
         ],
       ),
@@ -599,6 +654,8 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
             border: Border.all(color: AppColors.indicatorGrey),
           ),
           child: TextFormField(
+            cursorColor: AppColors.buttonBlueDark,
+
             controller: controller,
             enabled: enabled,
             style: TextStyle(
@@ -643,8 +700,8 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
         const Text(
           "Gender",
           style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.w600,
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
             color: Colors.black87,
           ),
         ),

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 
 /// Centralized RTL-aware helpers for directional icons and layout utilities.
 ///
-/// Flutter's directional Material Icons (like arrow_back, chevron_right) 
+/// Flutter's directional Material Icons (like arrow_back, chevron_right)
 /// inherently support auto-mirroring when the text direction is RTL.
 /// Therefore, we just return the base LTR icon and let the Framework handle the flip.
 
