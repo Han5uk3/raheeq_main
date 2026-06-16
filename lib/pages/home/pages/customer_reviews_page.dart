@@ -1,0 +1,235 @@
+import 'package:flutter/material.dart';
+import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
+import 'package:raheeq_main/l10n/app_localizations.dart';
+import 'package:raheeq_main/api/apis.dart';
+import 'package:raheeq_main/models/review_model.dart';
+import 'package:raheeq_main/common_widgets/water_loading.dart';
+import 'package:raheeq_main/utils/colors.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:intl/intl.dart' show DateFormat;
+
+class CustomerReviewsPage extends StatefulWidget {
+  const CustomerReviewsPage({super.key});
+
+  @override
+  State<CustomerReviewsPage> createState() => _CustomerReviewsPageState();
+}
+
+class _CustomerReviewsPageState extends State<CustomerReviewsPage> {
+  bool _isLoading = true;
+  List<ReviewModel> _reviews = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchReviews();
+  }
+
+  Future<void> _fetchReviews() async {
+    try {
+      final response = await ApiService().getCustomerReviews();
+      if (response.statusCode == 200 && response.data['success'] == true) {
+        final reviewsResponse = ReviewsResponse.fromJson(response.data);
+        if (mounted) {
+          setState(() {
+            _reviews = reviewsResponse.data.items;
+            _isLoading = false;
+          });
+        }
+      } else {
+        throw Exception("Failed to load reviews");
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              AppLocalizations.of(context)?.error_msg(e.toString()) ??
+                  e.toString(),
+            ),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Widget _buildReviewCard(ReviewModel review, bool isAr) {
+    final userName = review.user?.fullName ?? (isAr ? 'مستخدم' : 'User');
+    final avatarUrl = review.user?.avatarUrl;
+    final productName = review.product?.localizedName(isAr) ?? '';
+    final productImage = review.product?.image;
+    final dateStr = review.createdAt != null
+        ? DateFormat('dd MMM yyyy').format(review.createdAt!)
+        : '';
+
+    return Card(
+      color: Colors.white,
+      elevation: 2,
+      margin: const EdgeInsets.only(bottom: 16),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                CircleAvatar(
+                  radius: 20,
+                  backgroundColor: AppColors.headerlightblue,
+                  backgroundImage: avatarUrl != null && avatarUrl.isNotEmpty
+                      ? CachedNetworkImageProvider(avatarUrl)
+                      : null,
+                  child: avatarUrl == null || avatarUrl.isEmpty
+                      ? const Icon(Icons.person, color: Colors.white)
+                      : null,
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        userName,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.buttonBlueDark,
+                        ),
+                      ),
+                      if (dateStr.isNotEmpty)
+                        Text(
+                          dateStr,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+                Row(
+                  children: List.generate(5, (index) {
+                    return Icon(
+                      index < review.rating ? Icons.star : Icons.star_border,
+                      color: Colors.amber,
+                      size: 18,
+                    );
+                  }),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              review.reviewText,
+              style: const TextStyle(fontSize: 14, color: Colors.black87),
+            ),
+            if (productName.isNotEmpty || productImage != null) ...[
+              const SizedBox(height: 12),
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF5F7F9),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    if (productImage != null && productImage.isNotEmpty)
+                      Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: CachedNetworkImage(
+                          imageUrl: productImage,
+                          fit: BoxFit.contain,
+                          errorWidget: (context, url, error) => const Icon(
+                            Icons.water_drop,
+                            color: AppColors.buttonBlue,
+                          ),
+                        ),
+                      ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Text(
+                        productName,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                          color: AppColors.buttonBlueDark,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final isAr = Localizations.localeOf(context).languageCode == 'ar';
+    final title = isAr ? 'تقييمات العملاء' : 'Customer Reviews';
+
+    return Scaffold(
+      backgroundColor: Colors.white,
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: CustomAppBar(
+              hasBackgroundColor: true,
+              isStartAligned: true,
+              title: title,
+              showBackButton: true,
+              onBackTap: () => Navigator.pop(context),
+            ),
+          ),
+          SliverFillRemaining(
+            hasScrollBody: true,
+            child: Container(
+              color: const Color(0x4D91E3FE),
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: Color(0xFFF8FAFB),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(30),
+                    topRight: Radius.circular(30),
+                  ),
+                ),
+                child: _isLoading
+                    ? const Center(child: WaterLoadingIndicator(size: 30))
+                    : _reviews.isEmpty
+                    ? Center(
+                        child: Text(
+                          isAr ? 'لا توجد تقييمات' : 'No reviews found',
+                          style: const TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.all(24),
+                        itemCount: _reviews.length,
+                        itemBuilder: (context, index) {
+                          return _buildReviewCard(_reviews[index], isAr);
+                        },
+                      ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

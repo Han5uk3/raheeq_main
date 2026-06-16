@@ -71,20 +71,22 @@ class _OptionSelectorDialogState extends State<OptionSelectorDialog> {
                 Expanded(
                   child: _buildGridCard(
                     id: 'most_in_need',
-                    title: '$mostNeedyLabel\n${widget.title}',
+                    title: mostNeedyLabel,
+                    subtitle: widget.title,
                     icon: Icons.volunteer_activism_outlined,
                     isSelected: _selectedOption == 'most_in_need',
-                    textDirection: textDirection,
+                    isAr: isAr,
                   ),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
                   child: _buildGridCard(
                     id: 'specific',
-                    title: '$specificLabel\n${widget.title}',
+                    title: specificLabel,
+                    subtitle: widget.title,
                     icon: Icons.mosque_outlined,
                     isSelected: _selectedOption == 'specific',
-                    textDirection: textDirection,
+                    isAr: isAr,
                   ),
                 ),
               ],
@@ -178,9 +180,10 @@ class _OptionSelectorDialogState extends State<OptionSelectorDialog> {
   Widget _buildGridCard({
     required String id,
     required String title,
+    required String subtitle,
     required IconData icon,
     required bool isSelected,
-    required TextDirection textDirection,
+    required bool isAr,
   }) {
     return GestureDetector(
       onTap: () {
@@ -188,63 +191,63 @@ class _OptionSelectorDialogState extends State<OptionSelectorDialog> {
           _selectedOption = id;
         });
       },
-      child: Container(
-        height: 120,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey.shade300, width: 1),
-        ),
-        child: Stack(
-          children: [
-            Center(
-              child: Padding(
-                padding: const EdgeInsets.all(12.0),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      icon,
-                      size: 32,
-                      color: isSelected
-                          ? AppColors.buttonBlueDark
-                          : Colors.grey.shade600,
-                    ),
-                    const SizedBox(height: 8),
-                    Text(
-                      title,
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: isSelected
-                            ? AppColors.buttonBlueDark
-                            : Colors.black87,
-                      ),
-                    ),
-                  ],
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 8),
+            decoration: BoxDecoration(
+              color: isSelected
+                  ? const Color(0xFF389BB8)
+                  : const Color(0xFFF5F7FA),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Column(
+              children: [
+                Icon(
+                  icon,
+                  color: isSelected ? Colors.white : const Color(0xFF389BB8),
+                  size: 36,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  title,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: isSelected ? Colors.white : AppColors.buttonBlueDark,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  subtitle,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    color: isSelected ? Colors.white70 : Colors.grey[500],
+                    fontSize: 13,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (isSelected)
+            Positioned(
+              top: -8,
+              right: isAr ? null : -8,
+              left: isAr ? -8 : null,
+              child: Container(
+                width: 24,
+                height: 24,
+                decoration: BoxDecoration(
+                  color: const Color(0xFF389BB8),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 4),
                 ),
               ),
             ),
-            if (isSelected)
-              Positioned.directional(
-                textDirection: textDirection,
-                top: 8,
-                end: 8,
-                child: Container(
-                  width: 20,
-                  height: 20,
-                  decoration: BoxDecoration(
-                    color: AppColors.buttonBlueDark,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: Colors.white, width: 2),
-                  ),
-                ),
-              ),
-          ],
-        ),
+        ],
       ),
     );
   }

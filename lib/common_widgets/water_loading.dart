@@ -101,17 +101,20 @@ class _WaterLoadingIndicatorState extends State<WaterLoadingIndicator>
         final Widget soundwave = SizedBox(
           width: innerSize,
           height: innerSize,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: List.generate(bars.length * 2 - 1, (index) {
-              // Alternate between bar widgets and spacing gaps
-              if (index.isEven) {
-                return bars[index ~/ 2];
-              } else {
-                return SizedBox(width: spacing);
-              }
-            }),
+          child: FittedBox(
+            fit: BoxFit.contain,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: List.generate(bars.length * 2 - 1, (index) {
+                // Alternate between bar widgets and spacing gaps
+                if (index.isEven) {
+                  return bars[index ~/ 2];
+                } else {
+                  return SizedBox(width: spacing);
+                }
+              }),
+            ),
           ),
         );
 
@@ -131,28 +134,26 @@ class _WaterLoadingIndicatorState extends State<WaterLoadingIndicator>
     );
 
     if (!hasMessage) {
-      return Center(child: animationWidget);
+      return animationWidget;
     }
 
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          animationWidget,
-          const SizedBox(height: 16),
-          Text(
-            widget.message!,
-            textAlign: TextAlign.center,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: AppColors.buttonBlueDark,
-              letterSpacing: 0.5,
-            ),
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        animationWidget,
+        const SizedBox(height: 16),
+        Text(
+          widget.message!,
+          textAlign: TextAlign.center,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: AppColors.buttonBlueDark,
+            letterSpacing: 0.5,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }

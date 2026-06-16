@@ -69,16 +69,18 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Column(
-        children: [
-          CustomAppBar(
-            hasBackgroundColor: true,
-            isStartAligned: true,
-            title: title,
-            showBackButton: true,
-            onBackTap: () => Navigator.pop(context),
+      body: CustomScrollView(
+        slivers: [
+          SliverToBoxAdapter(
+            child: CustomAppBar(
+              hasBackgroundColor: true,
+              isStartAligned: true,
+              title: title,
+              showBackButton: true,
+              onBackTap: () => Navigator.pop(context),
+            ),
           ),
-          Expanded(
+          SliverToBoxAdapter(
             child: Container(
               color: const Color(0x4D91E3FE),
               child: Container(
@@ -131,7 +133,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
     final formattedDate = dateFormat.format(order.createdAt.toLocal());
     final orderPrefix = isAr ? 'الطلب' : 'Order';
 
-    return SingleChildScrollView(
+    return Padding(
       padding: const EdgeInsets.all(24.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,

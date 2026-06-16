@@ -7,6 +7,7 @@ import 'package:raheeq_main/pages/order/payment_status_page.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
+import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 
 class IbanPaymentPage extends StatefulWidget {
   final bool isAr;
@@ -158,19 +159,45 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
-      appBar: AppBar(
-        title: Text(AppLocalizations.of(context)!.iban_bank_transfer),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        foregroundColor: Colors.black,
-      ),
-      body: _isLoading
-          ? const Center(child: WaterLoadingIndicator())
-          : SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: _isLoading ? null : _buildSubmitButton(),
+      body: Column(
+        children: [
+          CustomAppBar(
+            hasBackgroundColor: true,
+            isStartAligned: true,
+            title: AppLocalizations.of(context)!.iban_bank_transfer,
+            subtitle: '',
+            showBackButton: true,
+            onBackTap: () => Navigator.pop(context),
+          ),
+          Expanded(
+            child: Container(
+              color: const Color(0x4D91E3FE),
+              child: Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFF8FAFB),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(30),
+                    topRight: Radius.circular(30),
+                  ),
+                ),
+                child: _isLoading
+                    ? const Center(child: WaterLoadingIndicator())
+                    : Column(
+                        children: [
+                          Expanded(
+                            child: SingleChildScrollView(
+                              padding: const EdgeInsets.fromLTRB(
+                                24.0,
+                                24.0,
+                                24.0,
+                                100.0,
+                              ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
                   Text(
                     AppLocalizations.of(context)!.our_bank_accounts,
                     style: const TextStyle(
@@ -341,31 +368,41 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
                             ),
                     ),
                   ),
-                  const SizedBox(height: 48),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: _submitOrder,
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.buttonBlueDark,
-                        padding: const EdgeInsets.symmetric(vertical: 16),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      child: Text(
-                        AppLocalizations.of(context)!.confirm_submit,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
-                    ),
-                  ),
                 ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
               ),
             ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSubmitButton() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: ElevatedButton(
+        onPressed: _submitOrder,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.buttonBlueDark,
+          foregroundColor: Colors.white,
+          minimumSize: const Size(double.infinity, 50),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(25),
+          ),
+        ),
+        child: Text(
+          AppLocalizations.of(context)!.confirm_submit,
+          style: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
     );
   }
 

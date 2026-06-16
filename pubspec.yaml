@@ -32,6 +32,8 @@ dependencies:
   freshchat_sdk: ^0.10.32
   flutter_dotenv: ^6.0.1
   dotlottie_flutter: ^0.1.3
+  shimmer: ^3.0.0
+  phone_numbers_parser: ^9.0.23
 
 dev_dependencies:
   flutter_test:

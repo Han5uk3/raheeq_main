@@ -689,7 +689,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get tap_to_select_image => 'Tap to select image';
 
   @override
-  String get two_attach_transfer_receipt => '2. Attach Transfer Receipt';
+  String get two_attach_transfer_receipt => 'Upload Transfer Receipt';
 
   @override
   String get enter_transaction_number => 'Enter transaction number';
@@ -713,7 +713,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get resend => 'Resend';
 
   @override
-  String get one_transaction_number => '1. Transaction Number :';
+  String get one_transaction_number => 'Transaction Number';
 
   @override
   String get account_number => 'Account Number:';
@@ -1013,4 +1013,34 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get all => 'All';
+
+  @override
+  String get see_the_difference => 'See the difference you\'ve made';
+
+  @override
+  String get total_donations => 'Total Donations';
+
+  @override
+  String get products_donated => 'Products Donated';
+
+  @override
+  String get total_given => 'Total Given';
+
+  @override
+  String get mosques_helped => 'Mosques Helped';
+
+  @override
+  String get view_all => 'View All';
+
+  @override
+  String get items_donated => 'items donated';
+
+  @override
+  String get current_donation_streak => 'Current donation streak 🔥';
+
+  @override
+  String get no_impact_data_found => 'No impact data found';
+
+  @override
+  String get error_loading_impact => 'Error loading impact statistics';
 }

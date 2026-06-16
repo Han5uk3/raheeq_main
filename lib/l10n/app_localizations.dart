@@ -1404,7 +1404,7 @@ abstract class AppLocalizations {
   /// No description provided for @two_attach_transfer_receipt.
   ///
   /// In en, this message translates to:
-  /// **'2. Attach Transfer Receipt'**
+  /// **'Upload Transfer Receipt'**
   String get two_attach_transfer_receipt;
 
   /// No description provided for @enter_transaction_number.
@@ -1452,7 +1452,7 @@ abstract class AppLocalizations {
   /// No description provided for @one_transaction_number.
   ///
   /// In en, this message translates to:
-  /// **'1. Transaction Number :'**
+  /// **'Transaction Number'**
   String get one_transaction_number;
 
   /// No description provided for @account_number.
@@ -2019,6 +2019,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'All'**
   String get all;
+
+  /// No description provided for @see_the_difference.
+  ///
+  /// In en, this message translates to:
+  /// **'See the difference you\'ve made'**
+  String get see_the_difference;
+
+  /// No description provided for @total_donations.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Donations'**
+  String get total_donations;
+
+  /// No description provided for @products_donated.
+  ///
+  /// In en, this message translates to:
+  /// **'Products Donated'**
+  String get products_donated;
+
+  /// No description provided for @total_given.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Given'**
+  String get total_given;
+
+  /// No description provided for @mosques_helped.
+  ///
+  /// In en, this message translates to:
+  /// **'Mosques Helped'**
+  String get mosques_helped;
+
+  /// No description provided for @view_all.
+  ///
+  /// In en, this message translates to:
+  /// **'View All'**
+  String get view_all;
+
+  /// No description provided for @items_donated.
+  ///
+  /// In en, this message translates to:
+  /// **'items donated'**
+  String get items_donated;
+
+  /// No description provided for @current_donation_streak.
+  ///
+  /// In en, this message translates to:
+  /// **'Current donation streak 🔥'**
+  String get current_donation_streak;
+
+  /// No description provided for @no_impact_data_found.
+  ///
+  /// In en, this message translates to:
+  /// **'No impact data found'**
+  String get no_impact_data_found;
+
+  /// No description provided for @error_loading_impact.
+  ///
+  /// In en, this message translates to:
+  /// **'Error loading impact statistics'**
+  String get error_loading_impact;
 }
 
 class _AppLocalizationsDelegate

@@ -25,6 +25,7 @@ import 'package:raheeq_main/common_widgets/bottom_action_pill.dart';
 import 'package:raheeq_main/pages/order/order_details_page.dart';
 import 'package:raheeq_main/models/order_item.dart';
 import 'package:raheeq_main/pages/home/pages/notifications_page.dart';
+import 'package:raheeq_main/pages/home/pages/impact_page.dart';
 
 class HomeTab extends StatefulWidget {
   const HomeTab({super.key});
@@ -189,9 +190,12 @@ class _HomeTabState extends State<HomeTab> {
       // Fetch cities
       try {
         final citiesResponse = await ApiService().getCities();
-        if (citiesResponse.statusCode == 200 && citiesResponse.data['success'] == true) {
+        if (citiesResponse.statusCode == 200 &&
+            citiesResponse.data['success'] == true) {
           final List<dynamic> data = citiesResponse.data['data'] ?? [];
-          _cachedCities = data.map((e) => City.fromJson(e as Map<String, dynamic>)).toList();
+          _cachedCities = data
+              .map((e) => City.fromJson(e as Map<String, dynamic>))
+              .toList();
         }
       } catch (e) {
         log('Error fetching cities: $e', name: 'HomeTab');
@@ -1629,69 +1633,80 @@ class _HomeTabState extends State<HomeTab> {
   }
 
   Widget buildRecentDonationCard(BuildContext context) {
-    return Container(
-      width: double.infinity,
-
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [Color(0xFF1A6A8F), Color(0xFF91E3FE)],
-          begin: AlignmentDirectional.centerStart,
-          end: AlignmentDirectional.centerEnd,
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const ImpactPage()),
+        );
+      },
+      child: Container(
+        width: double.infinity,
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF1A6A8F), Color(0xFF91E3FE)],
+            begin: AlignmentDirectional.centerStart,
+            end: AlignmentDirectional.centerEnd,
+          ),
+          borderRadius: BorderRadius.circular(20),
         ),
-        borderRadius: BorderRadius.circular(20),
-      ),
-      child: Row(
-        children: [
-          Container(
-            height: 48,
-            width: 48,
-            decoration: BoxDecoration(
-              color: Colors.white.withValues(alpha: 0.2),
-              borderRadius: BorderRadius.circular(12),
+        child: Row(
+          children: [
+            Container(
+              height: 48,
+              width: 48,
+              decoration: BoxDecoration(
+                color: Colors.white.withValues(alpha: 0.2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.water_drop,
+                color: Colors.white,
+                size: 24,
+              ),
             ),
-            child: const Icon(Icons.water_drop, color: Colors.white, size: 24),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  AppLocalizations.of(context)!.recent_donations,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    AppLocalizations.of(context)!.recent_donations,
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  AppLocalizations.of(
-                    context,
-                  )!.view_status_and_delivery_details,
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.white.withValues(alpha: 0.8),
+                  const SizedBox(height: 2),
+                  Text(
+                    AppLocalizations.of(
+                      context,
+                    )!.view_status_and_delivery_details,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: Colors.white.withValues(alpha: 0.8),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(8),
-            decoration: const BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                forwardArrowIcon(context),
+                size: 14,
+                color: AppColors.buttonBlueDark,
+              ),
             ),
-            child: Icon(
-              forwardArrowIcon(context),
-              size: 14,
-              color: AppColors.buttonBlueDark,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

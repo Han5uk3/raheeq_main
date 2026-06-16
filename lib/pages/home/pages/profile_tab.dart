@@ -14,6 +14,7 @@ import 'package:raheeq_main/pages/home/pages/recurring_donations_page.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/utils/rtl_helpers.dart';
 import 'package:raheeq_main/pages/home/pages/contact_us_page.dart';
+import 'package:raheeq_main/pages/home/pages/customer_reviews_page.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 
 class ProfileTab extends StatefulWidget {
@@ -435,6 +436,18 @@ class _ProfileTabState extends State<ProfileTab> {
                             context,
                             MaterialPageRoute(
                               builder: (context) => const ContactUsPage(),
+                            ),
+                          );
+                        },
+                      ),
+                      _buildMenuTile(
+                        icon: Icons.star_outline_rounded,
+                        title: isRtl(context) ? 'تقييمات العملاء' : 'Customer Reviews',
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const CustomerReviewsPage(),
                             ),
                           );
                         },

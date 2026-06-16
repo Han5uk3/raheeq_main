@@ -1,4 +1,7 @@
 import 'dart:developer';
+import 'package:phone_numbers_parser/phone_numbers_parser.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/models/checkout.dart';
 import 'package:raheeq_main/models/gift_card_template.dart';
@@ -7,23 +10,25 @@ import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
+import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 
-class GiftCardBottomSheet extends StatefulWidget {
+class GiftCardPage extends StatefulWidget {
   final Checkout checkoutData;
   final bool isAr;
 
-  const GiftCardBottomSheet({
+  const GiftCardPage({
     super.key,
     required this.checkoutData,
     required this.isAr,
   });
 
   @override
-  State<GiftCardBottomSheet> createState() => _GiftCardBottomSheetState();
+  State<GiftCardPage> createState() => _GiftCardPageState();
 }
 
-class _GiftCardBottomSheetState extends State<GiftCardBottomSheet> {
+class _GiftCardPageState extends State<GiftCardPage> {
   final ApiService _apiService = ApiService();
+  final _formKey = GlobalKey<FormState>();
   final TextEditingController _senderController = TextEditingController();
   final TextEditingController _receiverController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
@@ -53,9 +58,12 @@ class _GiftCardBottomSheetState extends State<GiftCardBottomSheet> {
     super.initState();
     _fetchTemplates();
 
-    // Auto-select item if only one
-    if (widget.checkoutData.items.length == 1) {
-      _selectedItem = widget.checkoutData.items.first;
+    // Auto-select first item
+    final availableItems = widget.checkoutData.items
+        .where((item) => item.giftCard == null)
+        .toList();
+    if (availableItems.isNotEmpty) {
+      _selectedItem = availableItems.first;
     }
   }
 
@@ -89,16 +97,17 @@ class _GiftCardBottomSheetState extends State<GiftCardBottomSheet> {
   }
 
   Future<void> _applyGiftCard() async {
-    if (_senderController.text.trim().isEmpty ||
-        _receiverController.text.trim().isEmpty ||
-        _phoneController.text.trim().isEmpty ||
-        _selectedTemplate == null ||
-        _selectedItem == null) {
+    final isFormValid = _formKey.currentState?.validate() ?? false;
+    if (!isFormValid) {
+      return;
+    }
+
+    if (_selectedTemplate == null || _selectedItem == null) {
       CustomSnackbar.show(
         context: context,
         message: widget.isAr
-            ? "يرجى تعبئة جميع الحقول"
-            : "Please fill all fields",
+            ? "يرجى اختيار القالب والعنصر"
+            : "Please select template and sub-order",
         isError: true,
       );
       return;
@@ -116,8 +125,7 @@ class _GiftCardBottomSheetState extends State<GiftCardBottomSheet> {
 
     try {
       final response = await _apiService.applyGiftCard(
-        itemId: _selectedItem!
-            .productId, // wait, is itemId productId or orderItemId? The checkout item has productId. Let's assume it's productId or we might need `id` from checkoutItem if it exists. Actually, the endpoint is /checkout/items/{itemId}/gift-card. Let's use productId or checkout item id.
+        itemId: _selectedItem!.id!,
         giftCardData: payload,
       );
 
@@ -149,113 +157,163 @@ class _GiftCardBottomSheetState extends State<GiftCardBottomSheet> {
     // Let's use productId for now, but usually it's checkout item ID.
     // We will check checkout.dart to see if it has id.
 
-    return Container(
-      height: MediaQuery.of(context).size.height * 0.9,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(30),
-          topRight: Radius.circular(30),
-        ),
-      ),
-      child: Column(
+    return Scaffold(
+      backgroundColor: Colors.white,
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      floatingActionButton: _buildApplyButton(),
+      body: Column(
         children: [
-          _buildHeader(),
+          CustomAppBar(
+            hasBackgroundColor: true,
+            isStartAligned: true,
+            title: widget.isAr ? "إضافة بطاقة إهداء" : "Add Gift Card",
+            subtitle: '',
+            showBackButton: true,
+            onBackTap: () => Navigator.pop(context),
+          ),
           Expanded(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  if (widget.checkoutData.items.length > 1) ...[
-                    _buildLabel(widget.isAr ? "اختر العنصر" : "Select Item"),
-                    const SizedBox(height: 8),
-                    _buildItemDropdown(),
-                    const SizedBox(height: 16),
-                  ],
-                  _buildLabel(widget.isAr ? "اسم المرسل" : "Sender Name"),
-                  const SizedBox(height: 8),
-                  _buildTextField(
-                    _senderController,
-                    widget.isAr ? "ادخل اسمك" : "Enter your name",
+            child: Container(
+              color: const Color(0x4D91E3FE),
+              child: Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFF8FAFB),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(30),
+                    topRight: Radius.circular(30),
                   ),
-                  const SizedBox(height: 16),
+                ),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: SingleChildScrollView(
+                        padding: const EdgeInsets.fromLTRB(
+                          24.0,
+                          24.0,
+                          24.0,
+                          100.0,
+                        ),
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildLabel(
+                                widget.isAr
+                                    ? "اختر قالب البطاقة"
+                                    : "Select Card Template",
+                              ),
+                              const SizedBox(height: 12),
+                              _buildTemplatesList(),
+                              const SizedBox(height: 24),
+                              if (_isLoadingTemplates) ...[
+                                Shimmer.fromColors(
+                                  baseColor: Colors.grey[300]!,
+                                  highlightColor: Colors.grey[100]!,
+                                  child: Container(
+                                    height: 291,
+                                    width: double.infinity,
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 24),
+                              ] else if (_selectedTemplate != null) ...[
+                                ClipRRect(
+                                  borderRadius: BorderRadiusGeometry.circular(
+                                    12,
+                                  ),
+                                  child: SizedBox(
+                                    height: 291,
+                                    child: CachedNetworkImage(
+                                      imageUrl: _selectedTemplate!.image,
+                                      width: double.infinity,
+                                      placeholder: (context, url) =>
+                                          Shimmer.fromColors(
+                                            baseColor: Colors.grey[300]!,
+                                            highlightColor: Colors.grey[100]!,
+                                            child: Container(
+                                              height: 300,
+                                              width: double.infinity,
+                                              color: Colors.white,
+                                            ),
+                                          ),
 
-                  _buildLabel(widget.isAr ? "اسم المستلم" : "Receiver Name"),
-                  const SizedBox(height: 8),
-                  _buildTextField(
-                    _receiverController,
-                    widget.isAr ? "ادخل اسم المستلم" : "Enter receiver name",
-                  ),
-                  const SizedBox(height: 16),
+                                      fit: BoxFit.contain,
+                                      errorWidget:
+                                          (context, error, stackTrace) =>
+                                              Container(
+                                                height: 300,
+                                                width: double.infinity,
+                                                color: Colors.grey[200],
+                                                alignment: Alignment.center,
+                                                child: const Icon(
+                                                  Icons.broken_image,
+                                                  size: 50,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(height: 24),
+                              ],
 
-                  _buildLabel(
-                    widget.isAr ? "رقم الواتساب للمستلم" : "Receiver WhatsApp",
-                  ),
-                  const SizedBox(height: 8),
-                  _buildPhoneField(),
-                  const SizedBox(height: 24),
+                              if (widget.checkoutData.items
+                                      .where((item) => item.giftCard == null)
+                                      .length >
+                                  1) ...[
+                                _buildLabel(
+                                  widget.isAr
+                                      ? "اختر العنصر"
+                                      : "Select Sub-Order",
+                                ),
+                                const SizedBox(height: 8),
+                                _buildItemDropdown(),
+                                const SizedBox(height: 16),
+                              ],
+                              _buildLabel(
+                                widget.isAr ? "اسم المرسل" : "Sender",
+                              ),
+                              const SizedBox(height: 8),
+                              _buildTextField(
+                                _senderController,
+                                widget.isAr
+                                    ? "ادخل اسم المرسل"
+                                    : "Enter sender name",
+                              ),
+                              const SizedBox(height: 16),
 
-                  _buildLabel(
-                    widget.isAr ? "اختر قالب البطاقة" : "Select Card Template",
-                  ),
-                  const SizedBox(height: 12),
-                  _buildTemplatesList(),
-                  const SizedBox(height: 24),
+                              _buildLabel(
+                                widget.isAr ? "اسم المستلم" : "Receiver",
+                              ),
+                              const SizedBox(height: 8),
+                              _buildTextField(
+                                _receiverController,
+                                widget.isAr
+                                    ? "ادخل اسم المستلم"
+                                    : "Enter recipient name",
+                              ),
+                              const SizedBox(height: 16),
 
-                  if (_selectedTemplate != null) ...[
-                    _buildLabel(widget.isAr ? "معاينة" : "Preview"),
-                    const SizedBox(height: 12),
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(16),
-                      child: Image.network(
-                        _selectedTemplate!.image,
-                        width: double.infinity,
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) => Container(
-                          height: 200,
-                          color: Colors.grey[200],
-                          alignment: Alignment.center,
-                          child: const Icon(
-                            Icons.broken_image,
-                            size: 50,
-                            color: Colors.grey,
+                              _buildLabel(
+                                widget.isAr
+                                    ? "رقم الواتساب للمستلم"
+                                    : "Recipient's WhatsApp Number",
+                              ),
+                              const SizedBox(height: 8),
+                              _buildPhoneField(),
+                            ],
                           ),
                         ),
                       ),
                     ),
                   ],
-                  const SizedBox(height: 40),
-                ],
+                ),
               ),
             ),
-          ),
-          _buildApplyButton(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      decoration: BoxDecoration(
-        border: Border(bottom: BorderSide(color: Colors.grey.shade200)),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            widget.isAr ? "إضافة بطاقة إهداء" : "Add Gift Card",
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: AppColors.buttonBlueDark,
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.close),
-            onPressed: () => Navigator.pop(context),
           ),
         ],
       ),
@@ -270,23 +328,44 @@ class _GiftCardBottomSheetState extends State<GiftCardBottomSheet> {
   }
 
   Widget _buildTextField(TextEditingController controller, String hint) {
-    return Container(
-      decoration: BoxDecoration(
-        color: const Color(0xFFF5F5F5),
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: TextField(
-        controller: controller,
-        cursorColor: AppColors.buttonBlueDark,
-        decoration: InputDecoration(
-          border: InputBorder.none,
-          contentPadding: const EdgeInsets.symmetric(
-            horizontal: 16,
-            vertical: 12,
-          ),
-          hintText: hint,
-          hintStyle: TextStyle(color: Colors.grey.shade500),
+    return TextFormField(
+      controller: controller,
+      cursorColor: AppColors.buttonBlueDark,
+      validator: (value) {
+        if (value == null || value.trim().isEmpty) {
+          return widget.isAr ? "هذا الحقل مطلوب" : "This field is required";
+        }
+        return null;
+      },
+      decoration: InputDecoration(
+        filled: true,
+        fillColor: const Color(0xFFF5F5F5),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
         ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide.none,
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: AppColors.buttonBlueDark),
+        ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.red),
+        ),
+        focusedErrorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: const BorderSide(color: Colors.red),
+        ),
+        contentPadding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 12,
+        ),
+        hintText: hint,
+        hintStyle: TextStyle(color: Colors.grey.shade500),
       ),
     );
   }
@@ -297,20 +376,48 @@ class _GiftCardBottomSheetState extends State<GiftCardBottomSheet> {
       decoration: BoxDecoration(
         color: const Color(0xFFF5F5F5),
         borderRadius: BorderRadius.circular(12),
+        border: _selectedItem != null
+            ? Border.all(color: AppColors.buttonBlueDark)
+            : null,
       ),
       child: DropdownButtonHideUnderline(
         child: DropdownButton<CheckoutItem>(
+          dropdownColor: Colors.white,
+          borderRadius: BorderRadius.circular(12),
           value: _selectedItem,
           isExpanded: true,
-          hint: Text(widget.isAr ? "اختر العنصر" : "Select an item"),
-          items: widget.checkoutData.items.map((item) {
-            final name =
-                item.product?.localizedName(widget.isAr) ?? item.productId;
-            return DropdownMenuItem<CheckoutItem>(
-              value: item,
-              child: Text(name),
-            );
-          }).toList(),
+          hint: Text(widget.isAr ? "اختر العنصر" : "Select a sub-order"),
+          items: widget.checkoutData.items
+              .where((item) => item.giftCard == null)
+              .map((item) {
+                final productName =
+                    item.product?.localizedName(widget.isAr) ?? item.productId;
+
+                String? locationName;
+                if (item.location != null && item.location is Map) {
+                  locationName = widget.isAr
+                      ? item.location['nameAr']
+                      : item.location['name'];
+                } else if (item.city != null && item.city is Map) {
+                  locationName = widget.isAr
+                      ? item.city['nameAr']
+                      : item.city['name'];
+                }
+
+                String extraInfo =
+                    locationName ??
+                    item.category?.localizedLabel(widget.isAr) ??
+                    '';
+                String displayName = extraInfo.isNotEmpty
+                    ? "$productName - $extraInfo"
+                    : productName;
+
+                return DropdownMenuItem<CheckoutItem>(
+                  value: item,
+                  child: Text(displayName),
+                );
+              })
+              .toList(),
           onChanged: (val) {
             setState(() {
               _selectedItem = val;
@@ -323,80 +430,154 @@ class _GiftCardBottomSheetState extends State<GiftCardBottomSheet> {
 
   Widget _buildPhoneField() {
     return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        InkWell(
-          onTap: () {
-            showCountryPicker(
-              context: context,
-              showPhoneCode: true,
-              onSelect: (Country country) {
-                setState(() {
-                  _selectedCountry = country;
-                });
-              },
-              countryListTheme: CountryListThemeData(
-                bottomSheetHeight: MediaQuery.of(context).size.height * 0.6,
-                borderRadius: const BorderRadius.only(
-                  topLeft: Radius.circular(14),
-                  topRight: Radius.circular(14),
-                ),
-              ),
-            );
-          },
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-            decoration: BoxDecoration(
-              color: const Color(0xFFF5F5F5),
-              borderRadius: BorderRadius.circular(12),
+        Theme(
+          data: Theme.of(context).copyWith(
+            textSelectionTheme: const TextSelectionThemeData(
+              cursorColor: AppColors.buttonBlueDark,
             ),
-            child: Row(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
-                  child: Image.network(
-                    "https://flagcdn.com/w80/${_selectedCountry.countryCode.toLowerCase()}.png",
-                    width: 24,
-                    height: 16,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) =>
-                        const Icon(Icons.flag, size: 20),
-                  ),
-                ),
-                const SizedBox(width: 8),
-                Directionality(
-                  textDirection: TextDirection.ltr,
-                  child: Text(
-                    "+${_selectedCountry.phoneCode}",
-                    style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
+          ),
+          child: Builder(
+            builder: (context) => InkWell(
+              onTap: () {
+                showCountryPicker(
+                  context: context,
+                  showPhoneCode: true,
+                  onSelect: (Country country) {
+                    setState(() {
+                      _selectedCountry = country;
+                    });
+                  },
+                  countryListTheme: CountryListThemeData(
+                    bottomSheetHeight: MediaQuery.of(context).size.height * 0.6,
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(14),
+                      topRight: Radius.circular(14),
+                    ),
+                    inputDecoration: InputDecoration(
+                      hintText: widget.isAr ? 'بحث' : 'Search',
+                      prefixIcon: const Icon(Icons.search),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
+                        borderSide: BorderSide(color: AppColors.buttonBlueDark),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
+                        borderSide: BorderSide(color: AppColors.buttonBlueDark),
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(15),
+                        borderSide: BorderSide(color: AppColors.buttonBlueDark),
+                      ),
                     ),
                   ),
+                );
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 12,
                 ),
-                const Icon(Icons.arrow_drop_down, color: Colors.grey),
-              ],
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF5F5F5),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Row(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(4),
+                      child: Image.network(
+                        "https://flagcdn.com/w80/${_selectedCountry.countryCode.toLowerCase()}.png",
+                        width: 24,
+                        height: 16,
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) =>
+                            const Icon(Icons.flag, size: 20),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    Directionality(
+                      textDirection: TextDirection.ltr,
+                      child: Text(
+                        "+${_selectedCountry.phoneCode}",
+                        style: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                    const Icon(Icons.arrow_drop_down, color: Colors.grey),
+                  ],
+                ),
+              ),
             ),
           ),
         ),
         const SizedBox(width: 12),
         Expanded(
-          child: Container(
-            decoration: BoxDecoration(
-              color: const Color(0xFFF5F5F5),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: TextField(
-              controller: _phoneController,
-              keyboardType: TextInputType.phone,
-              decoration: InputDecoration(
-                border: InputBorder.none,
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                hintText: widget.isAr ? "رقم الهاتف" : "Phone Number",
-                hintStyle: TextStyle(color: Colors.grey.shade500),
+          child: TextFormField(
+            cursorColor: AppColors.buttonBlueDark,
+            controller: _phoneController,
+            keyboardType: TextInputType.phone,
+            autovalidateMode: AutovalidateMode.onUserInteraction,
+            validator: (value) {
+              if (value == null || value.trim().isEmpty) {
+                return widget.isAr
+                    ? "رقم الهاتف مطلوب"
+                    : "Phone number is required";
+              }
+              if (!RegExp(r'^\d+$').hasMatch(value.trim())) {
+                return widget.isAr
+                    ? "رقم هاتف غير صالح"
+                    : "Invalid phone number";
+              }
+              try {
+                final phone = PhoneNumber.parse(
+                  '+${_selectedCountry.phoneCode}${value.trim()}',
+                );
+                if (!phone.isValid(type: PhoneNumberType.mobile) &&
+                    !phone.isValid()) {
+                  return widget.isAr
+                      ? "يرجى إدخال رقم صحيح"
+                      : "Please enter a valid number";
+                }
+              } catch (e) {
+                return widget.isAr
+                    ? "رقم هاتف غير صالح"
+                    : "Invalid phone number format";
+              }
+              return null;
+            },
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: const Color(0xFFF5F5F5),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
               ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: BorderSide.none,
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppColors.buttonBlueDark),
+              ),
+              errorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: Colors.red),
+              ),
+              focusedErrorBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: Colors.red),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: 12,
+              ),
+              hintText: widget.isAr ? "رقم الهاتف" : "Phone Number",
+              hintStyle: TextStyle(color: Colors.grey.shade500),
             ),
           ),
         ),
@@ -406,9 +587,24 @@ class _GiftCardBottomSheetState extends State<GiftCardBottomSheet> {
 
   Widget _buildTemplatesList() {
     if (_isLoadingTemplates) {
-      return const SizedBox(
-        height: 100,
-        child: Center(child: WaterLoadingIndicator(size: 30)),
+      return Wrap(
+        spacing: 8,
+        runSpacing: 8,
+        children: List.generate(
+          3,
+          (index) => Shimmer.fromColors(
+            baseColor: Colors.grey[300]!,
+            highlightColor: Colors.grey[100]!,
+            child: Container(
+              width: 80,
+              height: 35,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
+          ),
+        ),
       );
     }
 
@@ -418,89 +614,69 @@ class _GiftCardBottomSheetState extends State<GiftCardBottomSheet> {
       );
     }
 
-    return SizedBox(
-      height: 120,
-      child: ListView.separated(
-        scrollDirection: Axis.horizontal,
-        itemCount: _templates.length,
-        separatorBuilder: (context, index) => const SizedBox(width: 12),
-        itemBuilder: (context, index) {
-          final template = _templates[index];
-          final isSelected = _selectedTemplate?.id == template.id;
+    return Wrap(
+      spacing: 8,
+      runSpacing: 8,
+      children: _templates.map((template) {
+        final isSelected = _selectedTemplate?.id == template.id;
+        final name = widget.isAr ? template.nameAr : template.name;
 
-          return GestureDetector(
-            onTap: () {
-              setState(() => _selectedTemplate = template);
-            },
-            child: Container(
-              width: 160,
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: isSelected
-                      ? AppColors.buttonBlueDark
-                      : Colors.transparent,
-                  width: 3,
-                ),
-              ),
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(9),
-                child: Image.network(
-                  template.image,
-                  fit: BoxFit.cover,
-                  errorBuilder: (context, error, stackTrace) => Container(
-                    color: Colors.grey[200],
-                    alignment: Alignment.center,
-                    child: const Icon(Icons.broken_image, color: Colors.grey),
-                  ),
-                ),
-              ),
+        return ChoiceChip(
+          label: Text(name),
+          selected: isSelected,
+          selectedColor: AppColors.buttonBlueDark,
+          backgroundColor: isSelected
+              ? AppColors.buttonBlueDark
+              : Colors.grey.shade100,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+            side: BorderSide(
+              color: isSelected
+                  ? AppColors.buttonBlueDark
+                  : Colors.grey.shade300,
             ),
-          );
-        },
-      ),
+          ),
+          showCheckmark: false,
+          labelStyle: TextStyle(
+            color: isSelected ? AppColors.white : Colors.black87,
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+          ),
+          onSelected: (selected) {
+            if (selected) {
+              setState(() => _selectedTemplate = template);
+            }
+          },
+        );
+      }).toList(),
     );
   }
 
   Widget _buildApplyButton() {
-    return Container(
-      padding: const EdgeInsets.all(24),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -5),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 24),
+      child: ElevatedButton(
+        onPressed: _isApplying ? null : _applyGiftCard,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.buttonBlueDark,
+          foregroundColor: Colors.white,
+          minimumSize: const Size(double.infinity, 50),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(25),
           ),
-        ],
-      ),
-      child: SafeArea(
-        top: false,
-        child: ElevatedButton(
-          onPressed: _isApplying ? null : _applyGiftCard,
-          style: ElevatedButton.styleFrom(
-            backgroundColor: AppColors.buttonBlueDark,
-            foregroundColor: Colors.white,
-            minimumSize: const Size(double.infinity, 50),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(25),
-            ),
-          ),
-          child: _isApplying
-              ? const WaterLoadingIndicator(
-                  size: 20,
-                  waveColor1: Colors.white,
-                  waveColor2: Colors.white,
-                )
-              : Text(
-                  widget.isAr ? "تطبيق الإهداء" : "Apply Gift Card",
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
         ),
+        child: _isApplying
+            ? const WaterLoadingIndicator(
+                size: 20,
+                waveColor1: Colors.white,
+                waveColor2: Colors.white,
+              )
+            : Text(
+                widget.isAr ? "حفظ بيانات الإهداء" : "Save Gift Card Info",
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
       ),
     );
   }

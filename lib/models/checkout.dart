@@ -117,6 +117,7 @@ class Checkout {
 }
 
 class CheckoutItem {
+  final String? id;
   final dynamic city;
   final String? note;
   final String? cityId;
@@ -134,6 +135,7 @@ class CheckoutItem {
   final String? categorySlug;
 
   CheckoutItem({
+    this.id,
     this.city,
     this.note,
     this.cityId,
@@ -153,6 +155,7 @@ class CheckoutItem {
 
   factory CheckoutItem.fromJson(Map<String, dynamic> json) {
     return CheckoutItem(
+      id: json['id'],
       city: json['city'],
       note: json['note'],
       cityId: json['cityId'],

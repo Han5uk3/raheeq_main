@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/utils/colors.dart';
+import 'package:raheeq_main/common_widgets/water_loading.dart';
 
 class BottomActionPill extends StatelessWidget {
   final Widget titleWidget;
   final Widget? subtitleWidget;
   final String buttonText;
   final VoidCallback onButtonTap;
+  final bool isLoading;
 
   const BottomActionPill({
     super.key,
@@ -13,6 +15,7 @@ class BottomActionPill extends StatelessWidget {
     this.subtitleWidget,
     required this.buttonText,
     required this.onButtonTap,
+    this.isLoading = false,
   });
 
   @override
@@ -42,19 +45,22 @@ class BottomActionPill extends StatelessWidget {
           else
             titleWidget,
           ElevatedButton(
-            onPressed: onButtonTap,
+            onPressed: isLoading ? null : onButtonTap,
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
+              disabledBackgroundColor: Colors.white,
               foregroundColor: AppColors.buttonBlueDark,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(20),
               ),
               padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
-            child: Text(
-              buttonText,
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
+            child: isLoading
+                ? const WaterLoadingIndicator(size: 20)
+                : Text(
+                    buttonText,
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
           ),
         ],
       ),

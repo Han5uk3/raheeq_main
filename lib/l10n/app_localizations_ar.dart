@@ -687,7 +687,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get tap_to_select_image => 'اضغط لاختيار صورة';
 
   @override
-  String get two_attach_transfer_receipt => '2. أرفق إيصال التحويل';
+  String get two_attach_transfer_receipt => 'أرفق إيصال التحويل';
 
   @override
   String get enter_transaction_number => 'أدخل رقم العملية';
@@ -711,7 +711,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get resend => 'إعادة إرسال';
 
   @override
-  String get one_transaction_number => '1. رقم العملية:';
+  String get one_transaction_number => 'رقم العملية';
 
   @override
   String get account_number => 'رقم الحساب:';
@@ -1005,4 +1005,34 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get all => 'الكل';
+
+  @override
+  String get see_the_difference => 'شاهد الفرق الذي صنعته';
+
+  @override
+  String get total_donations => 'إجمالي التبرعات';
+
+  @override
+  String get products_donated => 'المنتجات المتبرع بها';
+
+  @override
+  String get total_given => 'إجمالي المبالغ';
+
+  @override
+  String get mosques_helped => 'المساجد المدعومة';
+
+  @override
+  String get view_all => 'عرض الكل';
+
+  @override
+  String get items_donated => 'منتج تم التبرع به';
+
+  @override
+  String get current_donation_streak => 'سلسلة التبرعات الحالية 🔥';
+
+  @override
+  String get no_impact_data_found => 'لا توجد بيانات للأثر';
+
+  @override
+  String get error_loading_impact => 'خطأ في تحميل إحصائيات الأثر';
 }

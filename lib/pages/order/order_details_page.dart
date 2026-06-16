@@ -438,17 +438,20 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
     if (_uniqueProducts.isEmpty) {
       return Scaffold(
         backgroundColor: Colors.white,
-        body: Column(
-          children: [
-            CustomAppBar(
-              hasBackgroundColor: true,
-              isStartAligned: true,
-              title: title,
-              subtitle: subtitle,
-              showBackButton: true,
-              onBackTap: () => Navigator.pop(context),
+        body: CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(
+              child: CustomAppBar(
+                hasBackgroundColor: true,
+                isStartAligned: true,
+                title: title,
+                subtitle: subtitle,
+                showBackButton: true,
+                onBackTap: () => Navigator.pop(context),
+              ),
             ),
-            Expanded(
+            SliverFillRemaining(
+              hasScrollBody: false,
               child: Center(
                 child: Text(AppLocalizations.of(context)!.no_products_selected),
               ),
@@ -506,89 +509,93 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
             },
           ),
         ),
-        body: Column(
-          children: [
-            CustomAppBar(
-              hasBackgroundColor: true,
-              isStartAligned: true,
-              title: title,
-              subtitle: subtitle,
-              showBackButton: true,
-              onBackTap: () => Navigator.pop(context),
-            ),
-            Container(
-              color: const Color(0x4D91E3FE),
-              child: Container(
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(30),
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    const SizedBox(height: 16),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(25),
-                        child: Container(
-                          height: 50,
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFF0F4F8),
-                            borderRadius: BorderRadius.circular(25),
-                          ),
-                          child: TabBar(
-                            splashFactory: NoSplash.splashFactory,
-                            isScrollable: _uniqueProducts.length > 3,
-                            dividerColor: Colors.transparent,
-                            labelColor: Colors.white,
-                            unselectedLabelColor: AppColors.buttonBlueDark,
-                            indicatorSize: TabBarIndicatorSize.tab,
-                            indicator: BoxDecoration(
-                              borderRadius: BorderRadius.circular(25),
-                              color: AppColors.buttonBlueDark,
-                            ),
-                            labelPadding: EdgeInsets.zero,
-                            labelStyle: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
-                            tabs: _uniqueProducts
-                                .map(
-                                  (p) => Tab(
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 10,
-                                      ),
-                                      child: Text(
-                                        p.localizedName(isAr),
-                                        style: TextStyle(fontSize: 12),
-                                      ),
-                                    ),
-                                  ),
-                                )
-                                .toList(),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+        body: NestedScrollView(
+          headerSliverBuilder: (context, innerBoxIsScrolled) {
+            return [
+              SliverToBoxAdapter(
+                child: CustomAppBar(
+                  hasBackgroundColor: true,
+                  isStartAligned: true,
+                  title: title,
+                  subtitle: subtitle,
+                  showBackButton: true,
+                  onBackTap: () => Navigator.pop(context),
                 ),
               ),
-            ),
-            Expanded(
-              child: Container(
+              SliverToBoxAdapter(
+                child: Container(
+                  color: const Color(0x4D91E3FE),
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(30),
+                        topRight: Radius.circular(30),
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 16),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(25),
+                            child: Container(
+                              height: 50,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFF0F4F8),
+                                borderRadius: BorderRadius.circular(25),
+                              ),
+                              child: TabBar(
+                                splashFactory: NoSplash.splashFactory,
+                                isScrollable: _uniqueProducts.length > 3,
+                                dividerColor: Colors.transparent,
+                                labelColor: Colors.white,
+                                unselectedLabelColor: AppColors.buttonBlueDark,
+                                indicatorSize: TabBarIndicatorSize.tab,
+                                indicator: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(25),
+                                  color: AppColors.buttonBlueDark,
+                                ),
+                                labelPadding: EdgeInsets.zero,
+                                labelStyle: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                                tabs: _uniqueProducts
+                                    .map(
+                                      (p) => Tab(
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 10,
+                                          ),
+                                          child: Text(
+                                            p.localizedName(isAr),
+                                            style: TextStyle(fontSize: 12),
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                    .toList(),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ];
+          },
+          body: Container(
                 color: Colors.white,
                 child: TabBarView(
                   children: _uniqueProducts.map((product) {
                     return _buildProductTab(product, isAr);
                   }).toList(),
-                ),
-              ),
             ),
-          ],
+          ),
         ),
       ),
     );

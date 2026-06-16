@@ -794,6 +794,19 @@ class ApiService {
     }
   }
 
+  /// Get Customer Reviews
+  Future<Response> getCustomerReviews({int page = 1, int limit = 10}) async {
+    try {
+      final response = await _dio.get(
+        '/orders/reviews',
+        queryParameters: {'page': page, 'limit': limit},
+      );
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   /// Get All Notifications
   Future<Response> getNotifications({int page = 1, int limit = 20}) async {
     try {
@@ -970,6 +983,19 @@ class ApiService {
     }
   }
 
+  /// Remove Gift Card
+  Future<Response> removeGiftCard({required String itemId}) async {
+    try {
+      final response = await _dio.patch(
+        '/checkout/items/$itemId/gift-card',
+        data: {'giftCard': null},
+      );
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   /// Create Feedback
   Future<Response> createFeedback({required String message}) async {
     try {
@@ -990,6 +1016,15 @@ class ApiService {
         '/complaints',
         data: {'subOrderId': subOrderId, 'description': description},
       );
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+  /// Get Impact Statistics
+  Future<Response> getImpact() async {
+    try {
+      final response = await _dio.get('/me/impact');
       return response;
     } catch (e) {
       rethrow;
