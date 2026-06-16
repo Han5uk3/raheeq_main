@@ -23,6 +23,7 @@ class Login extends StatefulWidget {
 }
 
 class _LoginState extends State<Login> {
+  bool _isLoading = false;
   Country _selectedCountry = Country(
     phoneCode: '966',
     countryCode: 'SA',
@@ -406,7 +407,7 @@ class _LoginState extends State<Login> {
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: () async {
+                            onPressed: _isLoading ? null : () async {
                               if (_phoneController.text.trim().isEmpty) {
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
@@ -424,6 +425,7 @@ class _LoginState extends State<Login> {
                                 return;
                               }
 
+                              setState(() => _isLoading = true);
                               try {
                                 final response = await ApiService().requestOtp(
                                   phoneNumber: _phoneController.text,
@@ -431,6 +433,7 @@ class _LoginState extends State<Login> {
                                 );
 
                                 if (!context.mounted) return;
+                                setState(() => _isLoading = false);
 
                                 if (response.statusCode == 200 &&
                                     response.data['success'] == true) {
@@ -459,6 +462,9 @@ class _LoginState extends State<Login> {
                                   );
                                 }
                               } catch (e) {
+                                if (mounted) {
+                                  setState(() => _isLoading = false);
+                                }
                                 String errorMessage;
                                 if (e is DioException &&
                                     e.response?.statusCode == 429) {
@@ -487,7 +493,7 @@ class _LoginState extends State<Login> {
                                 borderRadius: BorderRadius.circular(35),
                               ),
                             ),
-                            child: Text(
+                            child: _isLoading ? const SizedBox(height: 20, width: 20, child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2)) : Text(
                               AppLocalizations.of(context)!.continue_btn,
                               style: const TextStyle(
                                 fontSize: 16,

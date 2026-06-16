@@ -739,7 +739,6 @@ class _HomeTabState extends State<HomeTab> {
   }
 
   Widget buildErrorWidget(BuildContext context) {
-    final isAr = Localizations.localeOf(context).languageCode == 'ar';
     return Container(
       color: Colors.white,
       child: Center(
@@ -1615,7 +1614,6 @@ class _HomeTabState extends State<HomeTab> {
   }
 
   Widget buildRecentDonationCard(BuildContext context) {
-    final isAr = Localizations.localeOf(context).languageCode == 'ar';
     return Container(
       width: double.infinity,
 
@@ -2035,7 +2033,6 @@ class _HomeTabState extends State<HomeTab> {
   }
 
   Widget buildBottomText(BuildContext context) {
-    final isAr = Localizations.localeOf(context).languageCode == 'ar';
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

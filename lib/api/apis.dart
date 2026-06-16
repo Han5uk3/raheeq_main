@@ -358,15 +358,25 @@ class ApiService {
   /// Generate Freshchat JWT Token
   Future<Response> generateFreshchatToken(String freshchatUuid) async {
     try {
-      log('API REQUEST: POST /me/freshchat-token with freshchatUuid: $freshchatUuid', name: 'FreshchatAPI');
+      log(
+        'API REQUEST: POST /me/freshchat-token with freshchatUuid: $freshchatUuid',
+        name: 'FreshchatAPI',
+      );
       final response = await _dio.post(
         '/me/freshchat-token',
         data: {'freshchatUuid': freshchatUuid},
       );
-      log('API RESPONSE [${response.statusCode}]: ${response.data}', name: 'FreshchatAPI');
+      log(
+        'API RESPONSE [${response.statusCode}]: ${response.data}',
+        name: 'FreshchatAPI',
+      );
       return response;
     } catch (e) {
-      log('Error generating freshchat token: $e', name: 'FreshchatAPI', error: e);
+      log(
+        'Error generating freshchat token: $e',
+        name: 'FreshchatAPI',
+        error: e,
+      );
       rethrow;
     }
   }
@@ -374,15 +384,25 @@ class ApiService {
   /// Save Freshchat Restore ID
   Future<Response> saveFreshchatRestoreId(String restoreId) async {
     try {
-      log('API REQUEST: POST /me/freshchat-restore-id with restoreId: $restoreId', name: 'FreshchatAPI');
+      log(
+        'API REQUEST: POST /me/freshchat-restore-id with restoreId: $restoreId',
+        name: 'FreshchatAPI',
+      );
       final response = await _dio.post(
         '/me/freshchat-restore-id',
         data: {'restoreId': restoreId},
       );
-      log('API RESPONSE [${response.statusCode}]: ${response.data}', name: 'FreshchatAPI');
+      log(
+        'API RESPONSE [${response.statusCode}]: ${response.data}',
+        name: 'FreshchatAPI',
+      );
       return response;
     } catch (e) {
-      log('Error saving freshchat restore ID: $e', name: 'FreshchatAPI', error: e);
+      log(
+        'Error saving freshchat restore ID: $e',
+        name: 'FreshchatAPI',
+        error: e,
+      );
       rethrow;
     }
   }
@@ -648,6 +668,10 @@ class ApiService {
     }
   }
 
+
+
+
+
   /// Get Wallet Data
   Future<Response> getWallet() async {
     try {
@@ -673,8 +697,8 @@ class ApiService {
       if (paymentMethod == 'IBAN') {
         final Map<String, dynamic> map = {
           'paymentMethod': paymentMethod,
-          if (note != null) 'note': note,
-          if (ibanBankAccountId != null) 'ibanBankAccountId': ibanBankAccountId,
+          'note': ?note,
+          'ibanBankAccountId': ?ibanBankAccountId,
         };
 
         if (ibanReceipt != null) {
@@ -917,6 +941,32 @@ class ApiService {
       final response = await _dio.get(
         '/orders/reviews',
         queryParameters: {'page': page, 'limit': limit},
+      );
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Get Gift Card Templates
+  Future<Response> getGiftCardTemplates() async {
+    try {
+      final response = await _dio.get('/gift-card-templates');
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Apply Gift Card
+  Future<Response> applyGiftCard({
+    required String itemId,
+    required Map<String, dynamic> giftCardData,
+  }) async {
+    try {
+      final response = await _dio.patch(
+        '/checkout/items/$itemId/gift-card',
+        data: {'giftCard': giftCardData},
       );
       return response;
     } catch (e) {

@@ -38,6 +38,7 @@ class _OTPState extends State<OTP> {
   bool _canResend = false;
   String? _receivedOtp;
   bool _isLoadingOtp = true;
+  bool _isVerifying = false;
 
   @override
   void initState() {
@@ -46,8 +47,6 @@ class _OTPState extends State<OTP> {
     _receivedOtp = widget.receivedOtp;
     _isLoadingOtp = false;
   }
-
-
 
   @override
   void dispose() {
@@ -241,7 +240,9 @@ class _OTPState extends State<OTP> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               Text(
-                                AppLocalizations.of(context)!.your_verification_code,
+                                AppLocalizations.of(
+                                  context,
+                                )!.your_verification_code,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
                                   fontSize: 11,
@@ -338,8 +339,12 @@ class _OTPState extends State<OTP> {
                             children: [
                               Text(
                                 _canResend
-                                    ? AppLocalizations.of(context)!.did_not_receive_code
-                                    : AppLocalizations.of(context)!.resend_code_in,
+                                    ? AppLocalizations.of(
+                                        context,
+                                      )!.did_not_receive_code
+                                    : AppLocalizations.of(
+                                        context,
+                                      )!.resend_code_in,
                                 style: TextStyle(
                                   fontSize: 12,
                                   color: Colors.grey[600],
@@ -382,7 +387,10 @@ class _OTPState extends State<OTP> {
                                         );
                                         _startTimer();
                                         setState(() {
-                                          _receivedOtp = response.data['data']?['otp']?.toString() ?? 'N/A';
+                                          _receivedOtp =
+                                              response.data['data']?['otp']
+                                                  ?.toString() ??
+                                              'N/A';
                                         });
                                       } else {
                                         ScaffoldMessenger.of(
@@ -401,9 +409,13 @@ class _OTPState extends State<OTP> {
                                       if (context.mounted) {
                                         Navigator.pop(context); // Close loader
                                       }
-                                      String errorMessage = 'Error: ${e.toString()}';
-                                      if (e is DioException && e.response?.statusCode == 429) {
-                                        errorMessage = AppLocalizations.of(context)!.too_many_attempts;
+                                      String errorMessage =
+                                          'Error: ${e.toString()}';
+                                      if (e is DioException &&
+                                          e.response?.statusCode == 429) {
+                                        errorMessage = AppLocalizations.of(
+                                          context,
+                                        )!.too_many_attempts;
                                       }
                                       ScaffoldMessenger.of(
                                         context,
@@ -440,102 +452,123 @@ class _OTPState extends State<OTP> {
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: () async {
-                              final otp = _controllers
-                                  .map((c) => c.text)
-                                  .join();
-                              if (otp.length < 6) {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                      AppLocalizations.of(
+                            onPressed: _isVerifying
+                                ? null
+                                : () async {
+                                    final otp = _controllers
+                                        .map((c) => c.text)
+                                        .join();
+                                    if (otp.length < 6) {
+                                      ScaffoldMessenger.of(
                                         context,
-                                      )!.enter_valid_otp,
-                                    ),
-                                  ),
-                                );
-                                return;
-                              }
+                                      ).showSnackBar(
+                                        SnackBar(
+                                          content: Text(
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.enter_valid_otp,
+                                          ),
+                                        ),
+                                      );
+                                      return;
+                                    }
 
-                              try {
-                                final response = await ApiService().verifyOtp(
-                                  countryCode: widget.countryCode,
-                                  phoneNumber: widget.phoneNumber,
-                                  otp: otp,
-                                  deviceType:
-                                      'ANDROID', // Ideally, get this from device_info_plus
-                                );
+                                    setState(() => _isVerifying = true);
+                                    try {
+                                      final response = await ApiService().verifyOtp(
+                                        countryCode: widget.countryCode,
+                                        phoneNumber: widget.phoneNumber,
+                                        otp: otp,
+                                        deviceType:
+                                            'ANDROID', // Ideally, get this from device_info_plus
+                                      );
 
-                                if (!context.mounted) return;
+                                      if (!context.mounted) return;
+                                      setState(() => _isVerifying = false);
 
-                                if (response.statusCode == 200 &&
-                                    response.data['success'] == true) {
-                                  final data = response.data['data'];
-                                  if (data['userExists'] == true) {
-                                    // User exists, login successful
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          AppLocalizations.of(
+                                      if (response.statusCode == 200 &&
+                                          response.data['success'] == true) {
+                                        final data = response.data['data'];
+                                        if (data['userExists'] == true) {
+                                          // User exists, login successful
+                                          ScaffoldMessenger.of(
                                             context,
-                                          )!.login_successful,
-                                        ),
-                                      ),
-                                    );
-                                    Navigator.pushAndRemoveUntil(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            const HomeScreen(),
-                                      ),
-                                      (route) => false,
-                                    );
-                                  } else {
-                                    final regToken =
-                                        data['registrationToken'] ?? '';
-                                    await AuthStorage.saveRegistrationToken(
-                                      regToken,
-                                    );
+                                          ).showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                AppLocalizations.of(
+                                                  context,
+                                                )!.login_successful,
+                                              ),
+                                            ),
+                                          );
+                                          Navigator.pushAndRemoveUntil(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  const HomeScreen(),
+                                            ),
+                                            (route) => false,
+                                          );
+                                        } else {
+                                          final regToken =
+                                              data['registrationToken'] ?? '';
+                                          await AuthStorage.saveRegistrationToken(
+                                            regToken,
+                                          );
 
-                                    if (!context.mounted) return;
-                                    // User doesn't exist, go to registration
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => Registration(
-                                          phoneNumber: widget.phoneNumber,
-                                          countryCode: widget.countryCode,
-                                          registrationToken: regToken,
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                } else {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        response.data['message'] ??
-                                            'Verification failed',
-                                      ),
-                                    ),
-                                  );
-                                }
-                              } catch (e) {
-                                if (!context.mounted) return;
-                                String errorMessage = 'Verification failed';
-                                if (e is DioException) {
-                                  if (e.response?.statusCode == 401) {
-                                    errorMessage = 'Invalid OTP';
-                                  } else if (e.response?.data != null &&
-                                      e.response!.data['message'] != null) {
-                                    errorMessage = e.response!.data['message'];
-                                  }
-                                }
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text(errorMessage)),
-                                );
-                              }
-                            },
+                                          if (!context.mounted) return;
+                                          // User doesn't exist, go to registration
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  Registration(
+                                                    phoneNumber:
+                                                        widget.phoneNumber,
+                                                    countryCode:
+                                                        widget.countryCode,
+                                                    registrationToken: regToken,
+                                                  ),
+                                            ),
+                                          );
+                                        }
+                                      } else {
+                                        ScaffoldMessenger.of(
+                                          context,
+                                        ).showSnackBar(
+                                          SnackBar(
+                                            content: Text(
+                                              response.data['message'] ??
+                                                  'Verification failed',
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                    } catch (e) {
+                                      if (mounted) {
+                                        setState(() => _isVerifying = false);
+                                      }
+                                      if (!context.mounted) return;
+                                      String errorMessage =
+                                          'Verification failed';
+                                      if (e is DioException) {
+                                        if (e.response?.statusCode == 401) {
+                                          errorMessage = 'Invalid OTP';
+                                        } else if (e.response?.data != null &&
+                                            e.response!.data['message'] !=
+                                                null) {
+                                          errorMessage =
+                                              e.response!.data['message'];
+                                        }
+                                      }
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(content: Text(errorMessage)),
+                                      );
+                                    }
+                                  },
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.buttonBlueDark,
                               foregroundColor: Colors.white,
@@ -545,13 +578,22 @@ class _OTPState extends State<OTP> {
                                 borderRadius: BorderRadius.circular(35),
                               ),
                             ),
-                            child: Text(
-                              AppLocalizations.of(context)!.continue_btn,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
+                            child: _isVerifying
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(
+                                      color: Colors.white,
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                : Text(
+                                    AppLocalizations.of(context)!.continue_btn,
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
                           ),
                         ),
                         const SizedBox(height: 16),

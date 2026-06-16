@@ -18,6 +18,7 @@ import 'package:raheeq_main/utils/rtl_helpers.dart';
 import 'package:raheeq_main/common_widgets/bottom_action_pill.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
+import 'package:raheeq_main/common_widgets/gift_card_bottom_sheet.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_paytabs_bridge/BaseBillingShippingInfo.dart';
 import 'package:flutter_paytabs_bridge/PaymentSdkConfigurationDetails.dart';
@@ -925,8 +926,22 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                               ),
                             ),
                             GestureDetector(
-                              onTap: () {
-                                //todo gift card workflow
+                              onTap: () async {
+                                final updatedCheckout = await showModalBottomSheet<Checkout>(
+                                  context: context,
+                                  isScrollControlled: true,
+                                  backgroundColor: Colors.transparent,
+                                  builder: (context) => GiftCardBottomSheet(
+                                    checkoutData: _checkoutData,
+                                    isAr: isAr,
+                                  ),
+                                );
+
+                                if (updatedCheckout != null) {
+                                  setState(() {
+                                    _checkoutData = updatedCheckout;
+                                  });
+                                }
                               },
                               child: Card(
                                 color: Colors.white,
@@ -1334,6 +1349,12 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                       _checkoutData.subTotal,
                                       isAr,
                                     ),
+                                    if (_checkoutData.totalGiftCardFee > 0)
+                                      _buildPriceRow(
+                                        isAr ? "رسوم بطاقة الإهداء" : "Gift Card Fee",
+                                        _checkoutData.totalGiftCardFee,
+                                        isAr,
+                                      ),
                                     if ((_checkoutData.totalDeliveryFee > 0
                                             ? _checkoutData.totalDeliveryFee
                                             : widget

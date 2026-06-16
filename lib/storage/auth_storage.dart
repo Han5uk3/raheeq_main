@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:freshchat_sdk/freshchat_user.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/user.dart';
 import '../pages/authentication/login.dart';
