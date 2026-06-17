@@ -138,7 +138,7 @@ class _OptionSelectorDialogState extends State<OptionSelectorDialog> {
                       child: Text(
                         continueText,
                         style: const TextStyle(
-                          fontSize: 16,
+                          fontSize: 14,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -194,42 +194,46 @@ class _OptionSelectorDialogState extends State<OptionSelectorDialog> {
       child: Stack(
         clipBehavior: Clip.none,
         children: [
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 8),
-            decoration: BoxDecoration(
-              color: isSelected
-                  ? const Color(0xFF389BB8)
-                  : const Color(0xFFF5F7FA),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Column(
-              children: [
-                Icon(
-                  icon,
-                  color: isSelected ? Colors.white : const Color(0xFF389BB8),
-                  size: 36,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  title,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
+          Material(
+            elevation: 1,
+            borderRadius: BorderRadius.circular(12),
+            child: Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 8),
+              decoration: BoxDecoration(
+                color: isSelected ? AppColors.buttonBlueDark : Colors.white,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                children: [
+                  Icon(
+                    icon,
                     color: isSelected ? Colors.white : AppColors.buttonBlueDark,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
+                    size: 36,
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: isSelected ? Colors.white70 : Colors.grey[500],
-                    fontSize: 13,
+                  const SizedBox(height: 16),
+                  Text(
+                    title,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: isSelected
+                          ? Colors.white
+                          : AppColors.buttonBlueDark,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
+                    ),
                   ),
-                ),
-              ],
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: isSelected ? Colors.white70 : Colors.grey[500],
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
           if (isSelected)
@@ -241,7 +245,7 @@ class _OptionSelectorDialogState extends State<OptionSelectorDialog> {
                 width: 24,
                 height: 24,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF389BB8),
+                  color: AppColors.buttonBlueDark,
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.white, width: 4),
                 ),

@@ -99,7 +99,8 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   Future<void> _saveProfileChanges() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final hasExistingEmail = _currentUser?.email != null && _currentUser!.email!.trim().isNotEmpty;
+    final hasExistingEmail =
+        _currentUser?.email != null && _currentUser!.email.trim().isNotEmpty;
     final newEmail = _emailController.text.trim();
     final bool emailChanged = !hasExistingEmail && newEmail.isNotEmpty;
 
@@ -560,54 +561,65 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                                           key: _formKey,
                                           child: Builder(
                                             builder: (context) {
-                                              final hasExistingEmail = _currentUser?.email != null &&
-                                                  _currentUser!.email!.trim().isNotEmpty;
+                                              final hasExistingEmail =
+                                                  _currentUser?.email != null &&
+                                                  _currentUser!.email!
+                                                      .trim()
+                                                      .isNotEmpty;
                                               return Column(
                                                 children: [
-                                              _buildTextField(
-                                                controller:
-                                                    _firstNameController,
-                                                label: AppLocalizations.of(
-                                                  context,
-                                                )!.first_name,
-                                                hint: "Enter your first name",
-                                                enabled: _isEditing,
-                                              ),
-                                              const SizedBox(height: 16),
-                                              _buildTextField(
-                                                controller: _lastNameController,
-                                                label: AppLocalizations.of(
-                                                  context,
-                                                )!.last_name,
-                                                hint: "Enter your last name",
-                                                enabled: _isEditing,
-                                              ),
-                                              const SizedBox(height: 16),
-                                              _buildTextField(
-                                                controller: _emailController,
-                                                label: AppLocalizations.of(
-                                                  context,
-                                                )!.email_address,
-                                                hint: "Enter your email",
-                                                enabled: _isEditing && !hasExistingEmail,
-                                                isOptional: true,
-                                                isEmail: true,
-                                              ),
-                                              const SizedBox(height: 16),
-                                              _buildTextField(
-                                                controller: _phoneController,
-                                                label: AppLocalizations.of(
-                                                  context,
-                                                )!.phone_number,
-                                                hint: "Enter your phone number",
-                                                enabled: false,
-                                              ),
-                                              const SizedBox(height: 16),
-                                              _buildGenderDropdown(),
-                                              const SizedBox(height: 48),
-                                              ],
+                                                  _buildTextField(
+                                                    controller:
+                                                        _firstNameController,
+                                                    label: AppLocalizations.of(
+                                                      context,
+                                                    )!.first_name,
+                                                    hint:
+                                                        "Enter your first name",
+                                                    enabled: _isEditing,
+                                                  ),
+                                                  const SizedBox(height: 16),
+                                                  _buildTextField(
+                                                    controller:
+                                                        _lastNameController,
+                                                    label: AppLocalizations.of(
+                                                      context,
+                                                    )!.last_name,
+                                                    hint:
+                                                        "Enter your last name",
+                                                    enabled: _isEditing,
+                                                  ),
+                                                  const SizedBox(height: 16),
+                                                  _buildTextField(
+                                                    controller:
+                                                        _emailController,
+                                                    label: AppLocalizations.of(
+                                                      context,
+                                                    )!.email_address,
+                                                    hint: "Enter your email",
+                                                    enabled:
+                                                        _isEditing &&
+                                                        !hasExistingEmail,
+                                                    isOptional: true,
+                                                    isEmail: true,
+                                                  ),
+                                                  const SizedBox(height: 16),
+                                                  _buildTextField(
+                                                    controller:
+                                                        _phoneController,
+                                                    label: AppLocalizations.of(
+                                                      context,
+                                                    )!.phone_number,
+                                                    hint:
+                                                        "Enter your phone number",
+                                                    enabled: false,
+                                                  ),
+                                                  const SizedBox(height: 16),
+                                                  _buildGenderDropdown(),
+                                                  const SizedBox(height: 48),
+                                                ],
                                               );
-                                            }
+                                            },
                                           ),
                                         ),
                                       ],

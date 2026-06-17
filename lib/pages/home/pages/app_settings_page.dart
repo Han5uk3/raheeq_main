@@ -4,7 +4,6 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:raheeq_main/main.dart';
 import 'package:raheeq_main/utils/colors.dart';
-import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 
 class AppSettingsPage extends StatefulWidget {
   const AppSettingsPage({super.key});

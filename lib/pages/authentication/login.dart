@@ -1,5 +1,6 @@
 import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'dart:io';
+import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -15,7 +16,8 @@ import 'package:raheeq_main/storage/auth_storage.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:dio/dio.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
-
+import 'package:google_sign_in/google_sign_in.dart' as google_sign_in;
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 class Login extends StatefulWidget {
   const Login({super.key});
 
@@ -46,80 +48,98 @@ class _LoginState extends State<Login> {
     super.dispose();
   }
 
-  Future<void> _handleSocialLogin(String provider) async {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
-      builder: (context) {
-        return Container(
-          decoration: const BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.only(
-              topLeft: Radius.circular(30),
-              topRight: Radius.circular(30),
-            ),
-          ),
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                width: 40,
-                height: 4,
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              const SizedBox(height: 24),
-              Text(
-                AppLocalizations.of(context)!.sign_in_with_provider(provider),
-                style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16),
-              Text(
-                AppLocalizations.of(context)!.choose_account_to_continue,
-                style: TextStyle(color: Colors.grey[600], fontSize: 14),
-              ),
-              const SizedBox(height: 24),
-              ListTile(
-                leading: CircleAvatar(
-                  backgroundColor: AppColors.buttonBlueDark.withValues(
-                    alpha: 0.1,
-                  ),
-                  child: FaIcon(
-                    provider == 'Google'
-                        ? FontAwesomeIcons.google
-                        : FontAwesomeIcons.apple,
-                    color: provider == 'Google'
-                        ? Colors.redAccent
-                        : Colors.black,
-                    size: 20,
-                  ),
-                ),
-                title: Text(AppLocalizations.of(context)!.guest_user_email),
-                subtitle: Text(AppLocalizations.of(context)!.guest_user),
-                onTap: () async {
-                  Navigator.pop(context); // Close sheet
-                  await _authenticateSocial(
-                    provider,
-                    "eyJhbGciOiJSUzI1NiIsImtpZCI6...",
-                  );
-                },
-              ),
-              const SizedBox(height: 12),
-            ],
-          ),
+  Future<void> _handleGoogleSignIn() async {
+    log('Tapped Google Sign-In button');
+    try {
+      final google_sign_in.GoogleSignIn instance = google_sign_in.GoogleSignIn.instance;
+      await instance.initialize(
+        serverClientId: '579658096080-e8oiqp649otjnrbs4h9rijcp2hnhlme4.apps.googleusercontent.com',
+      );
+      
+      log('Starting Google Sign-In authentication...');
+      final google_sign_in.GoogleSignInAccount account = await instance.authenticate();
+      log('Google Sign-In Account retrieved: ${account.email}');
+      
+      final google_sign_in.GoogleSignInAuthentication auth = account.authentication;
+      if (auth.idToken != null) {
+        log('Google Sign-In ID Token retrieved successfully');
+        await _authenticateSocial('Google', auth.idToken!);
+      } else {
+        log('Google Sign-In failed: idToken is null');
+        if (mounted) {
+          CustomSnackbar.show(
+            context: context,
+            message: 'Failed to retrieve Google ID token',
+            isError: true,
+          );
+        }
+      }
+    } catch (error) {
+      log('Google Sign-In Error: $error');
+      if (mounted) {
+        String errorMessage = 'Failed to sign in with Google';
+        if (error.toString().toLowerCase().contains('cancel')) {
+          errorMessage = 'Google sign in was cancelled';
+        }
+        CustomSnackbar.show(
+          context: context,
+          message: errorMessage,
+          isError: true,
         );
-      },
-    );
+      }
+    }
   }
 
-  Future<void> _authenticateSocial(String provider, String mockIdToken) async {
+  Future<void> _handleAppleSignIn() async {
+    log('Tapped Apple Sign-In button');
+    try {
+      log('Starting Apple Sign-In authentication...');
+      final credential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+      );
+      log('Apple Sign-In Credential retrieved for user: ${credential.email ?? "Unknown Email"}');
+      
+      if (credential.identityToken != null) {
+        log('Apple Sign-In Identity Token retrieved successfully');
+        await _authenticateSocial('Apple', credential.identityToken!);
+      } else {
+        log('Apple Sign-In failed: identityToken is null');
+        if (mounted) {
+          CustomSnackbar.show(
+            context: context,
+            message: 'Failed to retrieve Apple Identity token',
+            isError: true,
+          );
+        }
+      }
+    } catch (error) {
+      log('Apple Sign-In Error: $error');
+      if (mounted) {
+        String errorMessage = 'Failed to sign in with Apple';
+        if (error.toString().toLowerCase().contains('cancel')) {
+          errorMessage = 'Apple sign in was cancelled';
+        }
+        CustomSnackbar.show(
+          context: context,
+          message: errorMessage,
+          isError: true,
+        );
+      }
+    }
+  }
+
+  Future<void> _handleSocialLogin(String provider) async {
+    if (provider == 'Google') {
+      await _handleGoogleSignIn();
+    } else if (provider == 'Apple') {
+      await _handleAppleSignIn();
+    }
+  }
+
+  Future<void> _authenticateSocial(String provider, String idToken) async {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -131,14 +151,14 @@ class _LoginState extends State<Login> {
       final apiService = ApiService();
       final response = provider == 'Google'
           ? await apiService.googleLogin(
-              idToken: mockIdToken,
+              idToken: idToken,
               deviceType: Platform.isIOS ? 'IOS' : 'ANDROID',
-              deviceId: 'simulated_device_id',
+              deviceId: 'simulated_device_id', // Note: You might want to use actual device ID here in the future
             )
           : await apiService.appleLogin(
-              idToken: mockIdToken,
+              idToken: idToken,
               deviceType: Platform.isIOS ? 'IOS' : 'ANDROID',
-              deviceId: 'simulated_device_id',
+              deviceId: 'simulated_device_id', // Note: You might want to use actual device ID here in the future
             );
 
       if (!mounted) return;
@@ -183,9 +203,14 @@ class _LoginState extends State<Login> {
     } catch (e) {
       if (!mounted) return;
       Navigator.pop(context); // Close loading
+      String errorMessage = AppLocalizations.of(context)!.authentication_failed;
+      if (e is DioException && e.response?.data is Map && e.response?.data['message'] != null) {
+        errorMessage = e.response?.data['message'];
+      }
       CustomSnackbar.show(
         context: context,
-        message: AppLocalizations.of(context)!.error_msg(e.toString()),
+        message: errorMessage,
+        isError: true,
       );
     }
   }
@@ -491,16 +516,17 @@ class _LoginState extends State<Login> {
                                       if (mounted) {
                                         setState(() => _isLoading = false);
                                       }
-                                      String errorMessage;
-                                      if (e is DioException &&
-                                          e.response?.statusCode == 429) {
-                                        errorMessage = AppLocalizations.of(
-                                          context,
-                                        )!.too_many_attempts;
-                                      } else {
-                                        errorMessage = AppLocalizations.of(
-                                          context,
-                                        )!.error_msg(e.toString());
+                                      String errorMessage = AppLocalizations.of(
+                                        context,
+                                      )!.failed_to_send_otp;
+                                      if (e is DioException) {
+                                        if (e.response?.statusCode == 429) {
+                                          errorMessage = AppLocalizations.of(
+                                            context,
+                                          )!.too_many_attempts;
+                                        } else if (e.response?.data is Map && e.response?.data['message'] != null) {
+                                          errorMessage = e.response?.data['message'];
+                                        }
                                       }
                                       CustomSnackbar.show(
                                         context: context,

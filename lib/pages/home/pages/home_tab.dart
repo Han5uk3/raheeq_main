@@ -1,3 +1,4 @@
+import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'dart:developer';
 
@@ -11,9 +12,9 @@ import 'package:raheeq_main/models/category.dart';
 import 'package:raheeq_main/models/city.dart';
 import 'package:raheeq_main/models/place.dart';
 import 'package:raheeq_main/models/product.dart';
+import 'package:raheeq_main/models/impact.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/utils/rtl_helpers.dart';
-import 'package:raheeq_main/api/apis.dart';
 import '../../../storage/auth_storage.dart';
 import 'campaign_detail_page.dart';
 import '../widgets/city_selector_dialog.dart';
@@ -57,6 +58,7 @@ class _HomeTabState extends State<HomeTab> {
   static List<Product> _cachedProducts = [];
   static List<Product> _cachedEssentialProducts = [];
   static List<City> _cachedCities = [];
+  static ImpactModel? _cachedImpactData;
 
   // Queue for items added from external pages (e.g., Saved Mosques)
   static final List<SelectedCategoryItem> _pendingItems = [];
@@ -79,6 +81,7 @@ class _HomeTabState extends State<HomeTab> {
   List<Product> _products = [];
   List<Product> _essentialProducts = [];
   List<City> _citiesList = [];
+  ImpactModel? _impactData;
   static List<SelectedCategoryItem> _selectedItems = [];
 
   /// Clears the basket. Called after a successful payment.
@@ -99,6 +102,7 @@ class _HomeTabState extends State<HomeTab> {
       _products = _cachedProducts;
       _essentialProducts = _cachedEssentialProducts;
       _citiesList = _cachedCities;
+      _impactData = _cachedImpactData;
       _isLoading = false;
       if (_bannerData.isNotEmpty) {
         _currentIndex = 1000 % _bannerData.length;
@@ -201,6 +205,15 @@ class _HomeTabState extends State<HomeTab> {
         log('Error fetching cities: $e', name: 'HomeTab');
       }
 
+      try {
+        final impactRes = await ApiService().getImpact();
+        if (impactRes.statusCode == 200 && impactRes.data['success'] == true) {
+          _cachedImpactData = ImpactModel.fromJson(impactRes.data['data']);
+        }
+      } catch (e) {
+        log('Error fetching impact: $e', name: 'HomeTab');
+      }
+
       final response = await ApiService().getHome();
       if (response.statusCode == 200 && response.data['success'] == true) {
         final data = response.data['data'] as Map<String, dynamic>;
@@ -240,6 +253,7 @@ class _HomeTabState extends State<HomeTab> {
             _products = products;
             _essentialProducts = essentialProducts;
             _citiesList = _cachedCities;
+            _impactData = _cachedImpactData;
             _isLoading = false;
             _errorMessage = null;
 
@@ -533,14 +547,14 @@ class _HomeTabState extends State<HomeTab> {
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             child: buildRecentDonationCard(context),
                           ),
-                          const SizedBox(height: 24),
+
                           buildEssentialMosqueSuppliesSection(context),
                           const SizedBox(height: 24),
-                          // Padding(
-                          //   padding: const EdgeInsets.symmetric(horizontal: 16),
-                          //   child: buildYourImpactSection(context),
-                          // ),
-                          // const SizedBox(height: 24),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: buildYourImpactSection(context),
+                          ),
+                          const SizedBox(height: 24),
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             child: buildBottomText(context),
@@ -1411,6 +1425,7 @@ class _HomeTabState extends State<HomeTab> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        const SizedBox(height: 24),
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
@@ -1822,172 +1837,172 @@ class _HomeTabState extends State<HomeTab> {
     );
   }
 
-  Widget buildNearbyMosqueSection(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Padding(
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          child: Text(
-            "Nearby Mosque",
-            style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        SizedBox(
-          height: 336,
-          child: ListView.builder(
-            padding: EdgeInsets.zero,
-            scrollDirection: Axis.horizontal,
-            itemCount: 5,
-            itemBuilder: (context, index) {
-              return buildNearbyMosqueCard(
-                context,
-                "Sheikh Zayed Mosque",
-                "Abu Dhabi, UAE",
-                "https://upload.wikimedia.org/wikipedia/en/thumb/7/7d/Sheikh_Zayed_Mosque_view.jpg/500px-Sheikh_Zayed_Mosque_view.jpg",
-                index,
-                5,
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
+  // Widget buildNearbyMosqueSection(BuildContext context) {
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       const Padding(
+  //         padding: EdgeInsets.symmetric(horizontal: 16),
+  //         child: Text(
+  //           "Nearby Mosque",
+  //           style: TextStyle(
+  //             fontSize: 18,
+  //             fontWeight: FontWeight.bold,
+  //             color: Colors.black87,
+  //           ),
+  //         ),
+  //       ),
+  //       const SizedBox(height: 16),
+  //       SizedBox(
+  //         height: 336,
+  //         child: ListView.builder(
+  //           padding: EdgeInsets.zero,
+  //           scrollDirection: Axis.horizontal,
+  //           itemCount: 5,
+  //           itemBuilder: (context, index) {
+  //             return buildNearbyMosqueCard(
+  //               context,
+  //               "Sheikh Zayed Mosque",
+  //               "Abu Dhabi, UAE",
+  //               "https://upload.wikimedia.org/wikipedia/en/thumb/7/7d/Sheikh_Zayed_Mosque_view.jpg/500px-Sheikh_Zayed_Mosque_view.jpg",
+  //               index,
+  //               5,
+  //             );
+  //           },
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
 
-  Widget buildNearbyMosqueCard(
-    BuildContext context,
-    String title,
-    String location,
-    String imgPath,
-    int index,
-    int totalLength,
-  ) {
-    return Container(
-      width: 260,
-      margin: EdgeInsetsDirectional.only(
-        start: index == 0 ? 16 : 8,
-        end: index == totalLength - 1 ? 16 : 8,
-      ),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        border: Border.all(color: const Color(0xffE2E2E2), width: 1),
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Padding(
-            padding: const EdgeInsetsDirectional.only(
-              start: 16,
-              top: 16,
-              end: 16,
-              bottom: 8,
-            ),
-            child: buildHighNeedBadge(context),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: [
-                const Icon(
-                  Icons.location_on_outlined,
-                  size: 14,
-                  color: Colors.black,
-                ),
-                const SizedBox(width: 4),
-                Text(
-                  location,
-                  style: const TextStyle(fontSize: 13, color: Colors.black54),
-                ),
-                const Text(
-                  ", 2.5 km",
-                  style: TextStyle(fontSize: 13, color: Colors.black54),
-                ),
-              ],
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsetsDirectional.only(
-              start: 16,
-              end: 16,
-              top: 16,
-            ),
-            child: ClipRRect(
-              borderRadius: const BorderRadius.all(Radius.circular(12)),
-              child: SizedBox(
-                height: 150,
-                width: double.infinity,
-                child: CachedNetworkImage(
-                  imageUrl: imgPath,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) => Container(
-                    color: Colors.black.withValues(alpha: 0.05),
-                    child: const Center(child: WaterLoadingIndicator(size: 30)),
-                  ),
-                ),
-              ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.buttonBlue,
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        "Donate Now",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      SizedBox(width: 8),
-                      Icon(
-                        forwardArrowIcon(context),
-                        size: 16,
-                        color: Colors.white,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  // Widget buildNearbyMosqueCard(
+  //   BuildContext context,
+  //   String title,
+  //   String location,
+  //   String imgPath,
+  //   int index,
+  //   int totalLength,
+  // ) {
+  //   return Container(
+  //     width: 260,
+  //     margin: EdgeInsetsDirectional.only(
+  //       start: index == 0 ? 16 : 8,
+  //       end: index == totalLength - 1 ? 16 : 8,
+  //     ),
+  //     decoration: BoxDecoration(
+  //       color: Colors.white,
+  //       border: Border.all(color: const Color(0xffE2E2E2), width: 1),
+  //       borderRadius: BorderRadius.circular(24),
+  //     ),
+  //     child: Column(
+  //       crossAxisAlignment: CrossAxisAlignment.start,
+  //       children: [
+  //         Padding(
+  //           padding: const EdgeInsetsDirectional.only(
+  //             start: 16,
+  //             top: 16,
+  //             end: 16,
+  //             bottom: 8,
+  //           ),
+  //           child: buildHighNeedBadge(context),
+  //         ),
+  //         Padding(
+  //           padding: const EdgeInsets.symmetric(horizontal: 16),
+  //           child: Text(
+  //             title,
+  //             maxLines: 1,
+  //             overflow: TextOverflow.ellipsis,
+  //             style: const TextStyle(
+  //               fontSize: 16,
+  //               fontWeight: FontWeight.bold,
+  //               color: Colors.black,
+  //             ),
+  //           ),
+  //         ),
+  //         Padding(
+  //           padding: const EdgeInsets.symmetric(horizontal: 16),
+  //           child: Row(
+  //             children: [
+  //               const Icon(
+  //                 Icons.location_on_outlined,
+  //                 size: 14,
+  //                 color: Colors.black,
+  //               ),
+  //               const SizedBox(width: 4),
+  //               Text(
+  //                 location,
+  //                 style: const TextStyle(fontSize: 13, color: Colors.black54),
+  //               ),
+  //               const Text(
+  //                 ", 2.5 km",
+  //                 style: TextStyle(fontSize: 13, color: Colors.black54),
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //         Padding(
+  //           padding: const EdgeInsetsDirectional.only(
+  //             start: 16,
+  //             end: 16,
+  //             top: 16,
+  //           ),
+  //           child: ClipRRect(
+  //             borderRadius: const BorderRadius.all(Radius.circular(12)),
+  //             child: SizedBox(
+  //               height: 150,
+  //               width: double.infinity,
+  //               child: CachedNetworkImage(
+  //                 imageUrl: imgPath,
+  //                 fit: BoxFit.cover,
+  //                 placeholder: (context, url) => Container(
+  //                   color: Colors.black.withValues(alpha: 0.05),
+  //                   child: const Center(child: WaterLoadingIndicator(size: 30)),
+  //                 ),
+  //               ),
+  //             ),
+  //           ),
+  //         ),
+  //         Padding(
+  //           padding: const EdgeInsets.all(16),
+  //           child: Column(
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               Container(
+  //                 padding: const EdgeInsets.symmetric(
+  //                   horizontal: 12,
+  //                   vertical: 8,
+  //                 ),
+  //                 decoration: BoxDecoration(
+  //                   color: AppColors.buttonBlue,
+  //                   borderRadius: BorderRadius.circular(18),
+  //                 ),
+  //                 child: Row(
+  //                   mainAxisSize: MainAxisSize.min,
+  //                   children: [
+  //                     Text(
+  //                       "Donate Now",
+  //                       style: TextStyle(
+  //                         color: Colors.white,
+  //                         fontSize: 14,
+  //                         fontWeight: FontWeight.w600,
+  //                       ),
+  //                     ),
+  //                     SizedBox(width: 8),
+  //                     Icon(
+  //                       forwardArrowIcon(context),
+  //                       size: 16,
+  //                       color: Colors.white,
+  //                     ),
+  //                   ],
+  //                 ),
+  //               ),
+  //             ],
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 
   Widget buildHighNeedBadge(BuildContext context) {
     return Container(
@@ -2011,6 +2026,58 @@ class _HomeTabState extends State<HomeTab> {
 
   Widget buildYourImpactSection(BuildContext context) {
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
+    if (_impactData == null) {
+      return const SizedBox.shrink();
+    }
+
+    int totalCartons = 0;
+    int totalChillers = 0;
+
+    for (final breakup in _impactData!.productsBreakup) {
+      final product = _products
+          .where((p) => p.id == breakup.productId)
+          .firstOrNull;
+      if (product != null) {
+        if (product.serialNumber == 1 || product.serialNumber == 4) {
+          totalCartons += breakup.totalQuantity;
+        } else if (product.serialNumber == 2) {
+          totalChillers += breakup.totalQuantity;
+        }
+      } else {
+        final nameLower = breakup.name.toLowerCase();
+        final nameAr = breakup.nameAr;
+        if (nameLower.contains('carton') || nameAr.contains('كرتون')) {
+          totalCartons += breakup.totalQuantity;
+        } else if (nameLower.contains('chiller') || nameAr.contains('برادة')) {
+          totalChillers += breakup.totalQuantity;
+        }
+      }
+    }
+
+    final impactItems = [
+      {
+        'title': isAr ? 'إجمالي الطلبات' : 'Total Orders',
+        'count': '${_impactData!.totalOrders}',
+        'icon': Icons.shopping_bag_outlined,
+      },
+      {
+        'title': isAr ? 'إجمالي المدفوعات' : 'Amount Paid',
+        'count':
+            '${_impactData!.totalAmountPaid.toStringAsFixed(0)} ${isAr ? 'ر.س' : 'SAR'}',
+        'icon': Icons.payments_outlined,
+      },
+      {
+        'title': isAr ? 'كراتين المياه' : 'Water Cartons',
+        'count': '$totalCartons',
+        'icon': Icons.water_drop_outlined,
+      },
+      {
+        'title': isAr ? 'البرادات' : 'Chillers',
+        'count': '$totalChillers',
+        'icon': Icons.kitchen_outlined,
+      },
+    ];
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -2023,40 +2090,70 @@ class _HomeTabState extends State<HomeTab> {
           ),
         ),
         const SizedBox(height: 16),
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
-          decoration: BoxDecoration(
-            color: Colors.grey.shade50,
-            borderRadius: BorderRadius.circular(16),
-            border: Border.all(color: Colors.grey.shade200),
+        GridView.builder(
+          padding: EdgeInsets.zero,
+          physics: const NeverScrollableScrollPhysics(),
+          shrinkWrap: true,
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            mainAxisExtent: 76,
           ),
-          child: Column(
-            children: [
-              Icon(
-                Icons.auto_graph_outlined,
-                size: 48,
-                color: Colors.grey.shade400,
+          itemCount: impactItems.length,
+          itemBuilder: (context, index) {
+            final item = impactItems[index];
+            return Container(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              decoration: BoxDecoration(
+                color: const Color(0xFF0D1D39),
+                borderRadius: BorderRadius.circular(16),
               ),
-              const SizedBox(height: 12),
-              Text(
-                AppLocalizations.of(context)!.coming_soon,
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.grey.shade600,
-                ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      item['icon'] as IconData,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          '${item['count']}',
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          item['title'] as String,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.white,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
               ),
-              const SizedBox(height: 8),
-              Text(
-                isAr
-                    ? "نحن نجهز إحصائيات الأثر الخاصة بك."
-                    : "We're preparing your impact statistics.",
-                textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
-              ),
-            ],
-          ),
+            );
+          },
         ),
       ],
     );

@@ -442,7 +442,9 @@ class _ProfileTabState extends State<ProfileTab> {
                       ),
                       _buildMenuTile(
                         icon: Icons.star_outline_rounded,
-                        title: isRtl(context) ? 'تقييمات العملاء' : 'Customer Reviews',
+                        title: isRtl(context)
+                            ? 'تقييمات العملاء'
+                            : 'Customer Reviews',
                         onTap: () {
                           Navigator.push(
                             context,
@@ -686,7 +688,7 @@ class _ProfileTabState extends State<ProfileTab> {
                 scaleX: isRtl(context) ? -1 : 1,
                 child: Icon(
                   Icons.arrow_forward_ios_rounded,
-                  color: Colors.grey[300],
+                  color: Colors.grey[600],
                   size: 14,
                   textDirection: TextDirection.ltr,
                 ),

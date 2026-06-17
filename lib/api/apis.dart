@@ -1021,6 +1021,7 @@ class ApiService {
       rethrow;
     }
   }
+
   /// Get Impact Statistics
   Future<Response> getImpact() async {
     try {
