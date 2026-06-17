@@ -1,7 +1,7 @@
 name: raheeq_main
 description: "A new Flutter project."
 publish_to: 'none'
-version: 0.1.0+1
+version: 0.1.0+5
 
 environment:
   sdk: ^3.11.0
@@ -16,7 +16,7 @@ dependencies:
   font_awesome_flutter: ^11.0.0
   cached_network_image: ^3.4.1
   firebase_core: ^4.9.0
-  dio: ^5.9.2
+  dio: ^5.9.2s
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   material_symbols_icons: ^4.2928.1
