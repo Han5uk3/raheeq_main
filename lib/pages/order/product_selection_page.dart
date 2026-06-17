@@ -200,7 +200,7 @@ class _ProductSelectionPageState extends State<ProductSelectionPage> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        product.formattedPrice(isAr),
+                        product.formattedPrice(AppLocalizations.of(context)!.sar_per_unit),
                         style: const TextStyle(
                           fontSize: 14,
                           color: AppColors.buttonBlueDark,

@@ -579,9 +579,7 @@ class _HomeTabState extends State<HomeTab> {
             bottom: 130,
             child: BottomActionPill(
               titleWidget: Text(
-                isAr
-                    ? "محدد: ${_selectedItems.length} عناصر"
-                    : "Selected: ${_selectedItems.length} items",
+                AppLocalizations.of(context)!.selected_items_count(_selectedItems.length),
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -2056,23 +2054,23 @@ class _HomeTabState extends State<HomeTab> {
 
     final impactItems = [
       {
-        'title': isAr ? 'إجمالي الطلبات' : 'Total Orders',
+        'title': AppLocalizations.of(context)!.total_orders,
         'count': '${_impactData!.totalOrders}',
         'icon': Icons.shopping_bag_outlined,
       },
       {
-        'title': isAr ? 'إجمالي المدفوعات' : 'Amount Paid',
+        'title': AppLocalizations.of(context)!.amount_paid,
         'count':
-            '${_impactData!.totalAmountPaid.toStringAsFixed(0)} ${isAr ? 'ر.س' : 'SAR'}',
+            '${_impactData!.totalAmountPaid.toStringAsFixed(0)} ${AppLocalizations.of(context)!.sar_currency}',
         'icon': Icons.payments_outlined,
       },
       {
-        'title': isAr ? 'كراتين المياه' : 'Water Cartons',
+        'title': AppLocalizations.of(context)!.water_cartons,
         'count': '$totalCartons',
         'icon': Icons.water_drop_outlined,
       },
       {
-        'title': isAr ? 'البرادات' : 'Chillers',
+        'title': AppLocalizations.of(context)!.chillers,
         'count': '$totalChillers',
         'icon': Icons.kitchen_outlined,
       },

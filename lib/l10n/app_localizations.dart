@@ -725,7 +725,7 @@ abstract class AppLocalizations {
   /// No description provided for @choose_donation_type.
   ///
   /// In en, this message translates to:
-  /// **'Choose Donation Type'**
+  /// **'Choose donation type'**
   String get choose_donation_type;
 
   /// No description provided for @payable_amount.
@@ -2079,6 +2079,426 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Error loading impact statistics'**
   String get error_loading_impact;
+
+  /// No description provided for @optional.
+  ///
+  /// In en, this message translates to:
+  /// **'Optional'**
+  String get optional;
+
+  /// No description provided for @specific_donation.
+  ///
+  /// In en, this message translates to:
+  /// **'Specific'**
+  String get specific_donation;
+
+  /// No description provided for @please_select_template.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select template and sub-order'**
+  String get please_select_template;
+
+  /// No description provided for @error_applying_gift_card.
+  ///
+  /// In en, this message translates to:
+  /// **'Error applying gift card'**
+  String get error_applying_gift_card;
+
+  /// No description provided for @add_gift_card.
+  ///
+  /// In en, this message translates to:
+  /// **'Add gift card'**
+  String get add_gift_card;
+
+  /// No description provided for @select_card_template.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Card Template'**
+  String get select_card_template;
+
+  /// No description provided for @select_sub_order.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Sub-Order'**
+  String get select_sub_order;
+
+  /// No description provided for @sender_name_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Sender'**
+  String get sender_name_title;
+
+  /// No description provided for @enter_sender_name.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter sender name'**
+  String get enter_sender_name;
+
+  /// No description provided for @receiver_name_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Receiver'**
+  String get receiver_name_title;
+
+  /// No description provided for @enter_receiver_name.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter recipient name'**
+  String get enter_receiver_name;
+
+  /// No description provided for @receiver_whatsapp.
+  ///
+  /// In en, this message translates to:
+  /// **'Recipient\'s WhatsApp Number'**
+  String get receiver_whatsapp;
+
+  /// No description provided for @phone_number_required.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone number is required'**
+  String get phone_number_required;
+
+  /// No description provided for @invalid_phone_number.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid phone number'**
+  String get invalid_phone_number;
+
+  /// No description provided for @phone_number_hint.
+  ///
+  /// In en, this message translates to:
+  /// **'Phone Number'**
+  String get phone_number_hint;
+
+  /// No description provided for @no_templates_available.
+  ///
+  /// In en, this message translates to:
+  /// **'No templates available'**
+  String get no_templates_available;
+
+  /// No description provided for @save_gift_card_info.
+  ///
+  /// In en, this message translates to:
+  /// **'Save Gift Card Info'**
+  String get save_gift_card_info;
+
+  /// No description provided for @enter_valid_number_gc.
+  ///
+  /// In en, this message translates to:
+  /// **'Please enter a valid number'**
+  String get enter_valid_number_gc;
+
+  /// No description provided for @invalid_phone_format.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid phone number format'**
+  String get invalid_phone_format;
+
+  /// No description provided for @field_is_required.
+  ///
+  /// In en, this message translates to:
+  /// **'This field is required'**
+  String get field_is_required;
+
+  /// No description provided for @total_orders.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Orders'**
+  String get total_orders;
+
+  /// No description provided for @amount_paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount Paid'**
+  String get amount_paid;
+
+  /// No description provided for @sar_currency.
+  ///
+  /// In en, this message translates to:
+  /// **'SAR'**
+  String get sar_currency;
+
+  /// No description provided for @water_cartons.
+  ///
+  /// In en, this message translates to:
+  /// **'Water Cartons'**
+  String get water_cartons;
+
+  /// No description provided for @chillers.
+  ///
+  /// In en, this message translates to:
+  /// **'Chillers'**
+  String get chillers;
+
+  /// No description provided for @selected_items_count.
+  ///
+  /// In en, this message translates to:
+  /// **'Selected: {count} items'**
+  String selected_items_count(int count);
+
+  /// No description provided for @customer_reviews.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer Reviews'**
+  String get customer_reviews;
+
+  /// No description provided for @track_order.
+  ///
+  /// In en, this message translates to:
+  /// **'Track Order'**
+  String get track_order;
+
+  /// No description provided for @view_receipt.
+  ///
+  /// In en, this message translates to:
+  /// **'View Receipt'**
+  String get view_receipt;
+
+  /// No description provided for @one_time_donation.
+  ///
+  /// In en, this message translates to:
+  /// **'One-time Donation'**
+  String get one_time_donation;
+
+  /// No description provided for @error_occurred_try_again.
+  ///
+  /// In en, this message translates to:
+  /// **'Error occurred. Try again'**
+  String get error_occurred_try_again;
+
+  /// No description provided for @items.
+  ///
+  /// In en, this message translates to:
+  /// **'items'**
+  String get items;
+
+  /// No description provided for @unit.
+  ///
+  /// In en, this message translates to:
+  /// **'unit'**
+  String get unit;
+
+  /// No description provided for @units.
+  ///
+  /// In en, this message translates to:
+  /// **'units'**
+  String get units;
+
+  /// No description provided for @user.
+  ///
+  /// In en, this message translates to:
+  /// **'User'**
+  String get user;
+
+  /// No description provided for @no_reviews_found.
+  ///
+  /// In en, this message translates to:
+  /// **'No reviews found'**
+  String get no_reviews_found;
+
+  /// No description provided for @deliveries.
+  ///
+  /// In en, this message translates to:
+  /// **'Deliveries'**
+  String get deliveries;
+
+  /// No description provided for @no_deliveries_found.
+  ///
+  /// In en, this message translates to:
+  /// **'No deliveries found'**
+  String get no_deliveries_found;
+
+  /// No description provided for @purchased_date.
+  ///
+  /// In en, this message translates to:
+  /// **'Purchased'**
+  String get purchased_date;
+
+  /// No description provided for @scheduled.
+  ///
+  /// In en, this message translates to:
+  /// **'Scheduled'**
+  String get scheduled;
+
+  /// No description provided for @created.
+  ///
+  /// In en, this message translates to:
+  /// **'Created'**
+  String get created;
+
+  /// No description provided for @meal.
+  ///
+  /// In en, this message translates to:
+  /// **'Meal'**
+  String get meal;
+
+  /// No description provided for @meals.
+  ///
+  /// In en, this message translates to:
+  /// **'Meals'**
+  String get meals;
+
+  /// No description provided for @umbrella.
+  ///
+  /// In en, this message translates to:
+  /// **'Umbrella'**
+  String get umbrella;
+
+  /// No description provided for @umbrellas.
+  ///
+  /// In en, this message translates to:
+  /// **'Umbrellas'**
+  String get umbrellas;
+
+  /// No description provided for @bottle.
+  ///
+  /// In en, this message translates to:
+  /// **'Bottle'**
+  String get bottle;
+
+  /// No description provided for @bottles.
+  ///
+  /// In en, this message translates to:
+  /// **'Bottles'**
+  String get bottles;
+
+  /// No description provided for @note_prefix.
+  ///
+  /// In en, this message translates to:
+  /// **'Note -'**
+  String get note_prefix;
+
+  /// No description provided for @incl_sar.
+  ///
+  /// In en, this message translates to:
+  /// **'* Incl. SAR'**
+  String get incl_sar;
+
+  /// No description provided for @delivery_suffix.
+  ///
+  /// In en, this message translates to:
+  /// **'delivery'**
+  String get delivery_suffix;
+
+  /// No description provided for @inclusive_of_sar.
+  ///
+  /// In en, this message translates to:
+  /// **'Inclusive of SAR'**
+  String get inclusive_of_sar;
+
+  /// No description provided for @delivery_charge.
+  ///
+  /// In en, this message translates to:
+  /// **'delivery charge'**
+  String get delivery_charge;
+
+  /// No description provided for @product_details.
+  ///
+  /// In en, this message translates to:
+  /// **'Product Details'**
+  String get product_details;
+
+  /// No description provided for @location_details.
+  ///
+  /// In en, this message translates to:
+  /// **'Location Details'**
+  String get location_details;
+
+  /// No description provided for @financial_details.
+  ///
+  /// In en, this message translates to:
+  /// **'Financial Details'**
+  String get financial_details;
+
+  /// No description provided for @amount_value.
+  ///
+  /// In en, this message translates to:
+  /// **'Amount'**
+  String get amount_value;
+
+  /// No description provided for @please_select_bank_account.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select a bank account'**
+  String get please_select_bank_account;
+
+  /// No description provided for @please_select_designated_bank_account.
+  ///
+  /// In en, this message translates to:
+  /// **'Please select your designated bank account for the transfer.'**
+  String get please_select_designated_bank_account;
+
+  /// No description provided for @order_received_iban_message.
+  ///
+  /// In en, this message translates to:
+  /// **'Your order is received and will be confirmed after payment verification.'**
+  String get order_received_iban_message;
+
+  /// No description provided for @products_selected.
+  ///
+  /// In en, this message translates to:
+  /// **'Products Selected'**
+  String get products_selected;
+
+  /// No description provided for @available_balance_colon.
+  ///
+  /// In en, this message translates to:
+  /// **'Available balance: '**
+  String get available_balance_colon;
+
+  /// No description provided for @gift_card_fees.
+  ///
+  /// In en, this message translates to:
+  /// **'Gift card fees'**
+  String get gift_card_fees;
+
+  /// No description provided for @gift_card_added.
+  ///
+  /// In en, this message translates to:
+  /// **'Gift card added'**
+  String get gift_card_added;
+
+  /// No description provided for @show_gift_cards.
+  ///
+  /// In en, this message translates to:
+  /// **'Show gift cards'**
+  String get show_gift_cards;
+
+  /// No description provided for @added_gift_cards.
+  ///
+  /// In en, this message translates to:
+  /// **'Added gift cards'**
+  String get added_gift_cards;
+
+  /// No description provided for @view_and_delete_gift_cards.
+  ///
+  /// In en, this message translates to:
+  /// **'View and delete gift cards'**
+  String get view_and_delete_gift_cards;
+
+  /// No description provided for @error_removing_gift_card.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred while removing the gift card'**
+  String get error_removing_gift_card;
+
+  /// No description provided for @delete_all_cards.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete all cards'**
+  String get delete_all_cards;
+
+  /// No description provided for @choose_water_package_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose the water package that suits you'**
+  String get choose_water_package_desc;
+
+  /// No description provided for @sar_per_unit.
+  ///
+  /// In en, this message translates to:
+  /// **'SAR / unit'**
+  String get sar_per_unit;
 }
 
 class _AppLocalizationsDelegate

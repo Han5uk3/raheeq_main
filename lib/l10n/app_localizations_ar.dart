@@ -177,7 +177,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get no_products_selected => 'لم يتم اختيار أي منتجات';
 
   @override
-  String get order => 'الطلب';
+  String get order => 'طلب';
 
   @override
   String get date => 'التاريخ';
@@ -1035,4 +1035,218 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get error_loading_impact => 'خطأ في تحميل إحصائيات الأثر';
+
+  @override
+  String get optional => 'اختياري';
+
+  @override
+  String get specific_donation => 'تحديد';
+
+  @override
+  String get please_select_template => 'يرجى اختيار القالب والعنصر';
+
+  @override
+  String get error_applying_gift_card => 'حدث خطأ أثناء التطبيق';
+
+  @override
+  String get add_gift_card => 'إضافة بطاقة';
+
+  @override
+  String get select_card_template => 'اختر قالب البطاقة';
+
+  @override
+  String get select_sub_order => 'اختر العنصر';
+
+  @override
+  String get sender_name_title => 'اسم المرسل';
+
+  @override
+  String get enter_sender_name => 'ادخل اسم المرسل';
+
+  @override
+  String get receiver_name_title => 'اسم المستلم';
+
+  @override
+  String get enter_receiver_name => 'ادخل اسم المستلم';
+
+  @override
+  String get receiver_whatsapp => 'رقم الواتساب للمستلم';
+
+  @override
+  String get phone_number_required => 'رقم الهاتف مطلوب';
+
+  @override
+  String get invalid_phone_number => 'رقم هاتف غير صالح';
+
+  @override
+  String get phone_number_hint => 'رقم الهاتف';
+
+  @override
+  String get no_templates_available => 'لا توجد قوالب متاحة';
+
+  @override
+  String get save_gift_card_info => 'حفظ بيانات الإهداء';
+
+  @override
+  String get enter_valid_number_gc => 'يرجى إدخال رقم صحيح';
+
+  @override
+  String get invalid_phone_format => 'رقم هاتف غير صالح';
+
+  @override
+  String get field_is_required => 'هذا الحقل مطلوب';
+
+  @override
+  String get total_orders => 'إجمالي الطلبات';
+
+  @override
+  String get amount_paid => 'إجمالي المدفوعات';
+
+  @override
+  String get sar_currency => 'ر.س';
+
+  @override
+  String get water_cartons => 'كراتين المياه';
+
+  @override
+  String get chillers => 'البرادات';
+
+  @override
+  String selected_items_count(int count) {
+    return 'محدد: $count عناصر';
+  }
+
+  @override
+  String get customer_reviews => 'تقييمات العملاء';
+
+  @override
+  String get track_order => 'تتبع الطلب';
+
+  @override
+  String get view_receipt => 'عرض الإيصال';
+
+  @override
+  String get one_time_donation => 'تبرع لمرة واحدة';
+
+  @override
+  String get error_occurred_try_again => 'حدث خطأ. حاول مرة أخرى';
+
+  @override
+  String get items => 'عنصر';
+
+  @override
+  String get unit => 'وحدة';
+
+  @override
+  String get units => 'وحدة';
+
+  @override
+  String get user => 'مستخدم';
+
+  @override
+  String get no_reviews_found => 'لا توجد تقييمات';
+
+  @override
+  String get deliveries => 'الطلبات';
+
+  @override
+  String get no_deliveries_found => 'لا توجد طلبات';
+
+  @override
+  String get purchased_date => 'تاريخ الشراء';
+
+  @override
+  String get scheduled => 'مجدول';
+
+  @override
+  String get created => 'تاريخ الإنشاء';
+
+  @override
+  String get meal => 'وجبة';
+
+  @override
+  String get meals => 'وجبات';
+
+  @override
+  String get umbrella => 'مظلة';
+
+  @override
+  String get umbrellas => 'مظلات';
+
+  @override
+  String get bottle => 'زجاجة';
+
+  @override
+  String get bottles => 'زجاجات';
+
+  @override
+  String get note_prefix => 'ملاحظة -';
+
+  @override
+  String get incl_sar => '* شامل ر.س';
+
+  @override
+  String get delivery_suffix => 'توصيل';
+
+  @override
+  String get inclusive_of_sar => 'شامل ر.س';
+
+  @override
+  String get delivery_charge => 'رسوم التوصيل';
+
+  @override
+  String get product_details => 'تفاصيل المنتج';
+
+  @override
+  String get location_details => 'تفاصيل الموقع';
+
+  @override
+  String get financial_details => 'التفاصيل المالية';
+
+  @override
+  String get amount_value => 'قيمة المنتجات';
+
+  @override
+  String get please_select_bank_account => 'الرجاء اختيار حساب بنكي';
+
+  @override
+  String get please_select_designated_bank_account =>
+      'يرجى تحديد الحساب البنكي المخصص للتحويل الخاص بك.';
+
+  @override
+  String get order_received_iban_message =>
+      'تم استلام طلبك، وسيتم التأكيد بعد التحقق من الدفع.';
+
+  @override
+  String get products_selected => 'منتجات تم اختيارها';
+
+  @override
+  String get available_balance_colon => 'الرصيد المتاح: ';
+
+  @override
+  String get gift_card_fees => 'رسوم بطاقة الإهداء';
+
+  @override
+  String get gift_card_added => 'تمت إضافة بطاقة إهداء';
+
+  @override
+  String get show_gift_cards => 'عرض البطاقات';
+
+  @override
+  String get added_gift_cards => 'البطاقات المضافة';
+
+  @override
+  String get view_and_delete_gift_cards => 'عرض وحذف بطاقات الإهداء';
+
+  @override
+  String get error_removing_gift_card => 'حدث خطأ أثناء إزالة بطاقة الإهداء';
+
+  @override
+  String get delete_all_cards => 'حذف كل البطاقات';
+
+  @override
+  String get choose_water_package_desc => 'اختر باقة المياه التي تناسبك';
+
+  @override
+  String get sar_per_unit => 'ر.س / وحدة';
 }

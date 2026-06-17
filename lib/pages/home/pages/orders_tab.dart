@@ -266,9 +266,8 @@ class _OrderCardState extends State<_OrderCard> {
         ? widget.order.locationDetails!['address'].toString()
         : '';
 
-    final String totalCost = isAr
-        ? '${widget.order.totalAmount} ر.س'
-        : 'SAR ${widget.order.totalAmount}';
+    final String totalCost =
+        '${widget.order.totalAmount} ${AppLocalizations.of(context)!.sar_currency}';
 
     return Card(
       color: Colors.white,
@@ -430,7 +429,7 @@ class _OrderCardState extends State<_OrderCard> {
                                     // Placeholder for track order
                                   },
                                   child: Text(
-                                    isAr ? 'تتبع الطلب' : 'Track Order',
+                                    AppLocalizations.of(context)!.track_order,
                                     style: const TextStyle(color: Colors.white),
                                   ),
                                 ),
@@ -458,7 +457,7 @@ class _OrderCardState extends State<_OrderCard> {
                                     );
                                   },
                                   child: Text(
-                                    isAr ? 'عرض الإيصال' : 'View Receipt',
+                                    AppLocalizations.of(context)!.view_receipt,
                                     style: const TextStyle(
                                       color: AppColors.buttonBlueDark,
                                     ),

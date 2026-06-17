@@ -495,9 +495,7 @@ class _QuickServicePageState extends State<QuickServicePage>
                       borderRadius: BorderRadius.circular(20),
                     ),
                     child: Text(
-                      isAr
-                          ? "${price.toStringAsFixed(price.truncateToDouble() == price ? 0 : 2)} ر.س / وحدة"
-                          : "${price.toStringAsFixed(price.truncateToDouble() == price ? 0 : 2)} SAR / unit",
+                      "${price.toStringAsFixed(price.truncateToDouble() == price ? 0 : 2)} ${AppLocalizations.of(context)!.sar_currency} / ${AppLocalizations.of(context)!.unit}",
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w700,
@@ -872,9 +870,7 @@ class _QuickServicePageState extends State<QuickServicePage>
                   ),
                   child: Text(
                     key: ValueKey(total),
-                    isAr
-                        ? "${total.toStringAsFixed(total.truncateToDouble() == total ? 0 : 2)} ر.س"
-                        : "${total.toStringAsFixed(total.truncateToDouble() == total ? 0 : 2)} SAR",
+                    "${total.toStringAsFixed(total.truncateToDouble() == total ? 0 : 2)} ${AppLocalizations.of(context)!.sar_currency}",
                     style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.w800,
@@ -885,9 +881,7 @@ class _QuickServicePageState extends State<QuickServicePage>
                 ),
                 if (qty > 0)
                   Text(
-                    isAr
-                        ? "$qty وحدة × ${price.toStringAsFixed(price.truncateToDouble() == price ? 0 : 2)} ر.س"
-                        : "$qty units × ${price.toStringAsFixed(price.truncateToDouble() == price ? 0 : 2)} SAR",
+                    "$qty ${AppLocalizations.of(context)!.units} × ${price.toStringAsFixed(price.truncateToDouble() == price ? 0 : 2)} ${AppLocalizations.of(context)!.sar_currency}",
                     style: const TextStyle(fontSize: 11, color: Colors.black38),
                   ),
               ],

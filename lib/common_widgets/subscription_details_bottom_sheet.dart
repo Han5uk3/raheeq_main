@@ -117,7 +117,7 @@ class _SubscriptionDetailsBottomSheetState
           MaterialPageRoute(
             builder: (_) => ContributionDetailsPage(
               orderStates: widget.orderStates,
-              donationType: isAr ? 'تبرع شهري متكرر' : 'Recurring Donation',
+              donationType: AppLocalizations.of(context)!.recurring_donation,
               checkoutData: checkoutData,
             ),
           ),

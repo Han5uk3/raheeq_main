@@ -345,23 +345,14 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
     final presets = product.validQuantities;
     final min = product.minQuantity;
 
-    String itemNameEn(int qty) {
+    String itemName(int qty) {
       final isPlural = qty > 1;
       if (product.serialNumber == 3) {
-        return isPlural ? 'Meals' : 'Meal';
+        return isPlural ? AppLocalizations.of(context)!.meals : AppLocalizations.of(context)!.meal;
       } else if (product.serialNumber == 5) {
-        return isPlural ? 'Umbrellas' : 'Umbrella';
+        return isPlural ? AppLocalizations.of(context)!.umbrellas : AppLocalizations.of(context)!.umbrella;
       }
-      return isPlural ? 'Bottles' : 'Bottle';
-    }
-
-    String itemNameAr(int qty) {
-      if (product.serialNumber == 3) {
-        return 'وجبة';
-      } else if (product.serialNumber == 5) {
-        return 'مظلة';
-      }
-      return 'زجاجة';
+      return isPlural ? AppLocalizations.of(context)!.bottles : AppLocalizations.of(context)!.bottle;
     }
 
     return Card(
@@ -427,9 +418,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          isAr
-                              ? "$qty ${itemNameAr(qty)}"
-                              : "$qty ${itemNameEn(qty)}",
+                          "$qty ${itemName(qty)}",
                           style: const TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 12,
@@ -438,9 +427,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
                         ),
 
                         Text(
-                          isAr
-                              ? "ر.س ${price.toInt()}"
-                              : "SAR ${price.toInt()}",
+                          "${price.toInt()} ${AppLocalizations.of(context)!.sar_currency}",
                           style: const TextStyle(
                             fontSize: 14,
                             color: Colors.grey,
@@ -497,7 +484,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
                   }
                 },
                 decoration: InputDecoration(
-                  suffixText: isAr ? itemNameAr(2) : itemNameEn(2),
+                  suffixText: itemName(2),
                   suffixStyle: const TextStyle(
                     color: Colors.black,
                     fontWeight: FontWeight.w500,
@@ -549,9 +536,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          isAr
-                              ? "ملاحظة - ${product.localizedName(isAr)}"
-                              : "Note - ${product.localizedName(isAr)}",
+                          "${AppLocalizations.of(context)!.note_prefix} ${product.localizedName(isAr)}",
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
                             fontSize: 15,
@@ -603,9 +588,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
                 _selectedQuantities[product.id] != null) ...[
               const SizedBox(height: 12),
               Text(
-                isAr
-                    ? "* شامل ر.س ${(_selectedQuantities[product.id]! * product.deliveryFee).toInt()} توصيل"
-                    : "* Incl. SAR ${(_selectedQuantities[product.id]! * product.deliveryFee).toInt()} delivery",
+                "${AppLocalizations.of(context)!.incl_sar} ${(_selectedQuantities[product.id]! * product.deliveryFee).toInt()} ${AppLocalizations.of(context)!.delivery_suffix}",
                 style: TextStyle(fontSize: 12, color: Colors.grey[600]),
               ),
             ],
@@ -659,9 +642,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
               ),
               const SizedBox(height: 4),
               Text(
-                isAr
-                    ? "${total.toStringAsFixed(total.truncateToDouble() == total ? 0 : 2)} ر.س"
-                    : "${total.toStringAsFixed(total.truncateToDouble() == total ? 0 : 2)} SAR",
+                "${total.toStringAsFixed(total.truncateToDouble() == total ? 0 : 2)} ${AppLocalizations.of(context)!.sar_currency}",
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w900,
@@ -672,9 +653,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
                 Padding(
                   padding: const EdgeInsetsDirectional.only(top: 2),
                   child: Text(
-                    isAr
-                        ? "شامل ر.س ${deliveryTotal.toInt()} رسوم التوصيل"
-                        : "Inclusive of SAR ${deliveryTotal.toInt()} delivery charge",
+                    "${AppLocalizations.of(context)!.inclusive_of_sar} ${deliveryTotal.toInt()} ${AppLocalizations.of(context)!.delivery_charge}",
                     style: const TextStyle(
                       fontSize: 11,
                       color: Colors.grey,
@@ -804,7 +783,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
           MaterialPageRoute(
             builder: (_) => ContributionDetailsPage(
               orderStates: const [], // Empty for campaigns
-              donationType: isAr ? 'تبرع لمرة واحدة' : 'One-time Donation',
+              donationType: AppLocalizations.of(context)!.one_time_donation,
               checkoutData: checkoutData,
             ),
           ),
@@ -816,9 +795,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
       if (mounted) {
         CustomSnackbar.show(
           context: context,
-          message: isAr
-              ? 'حدث خطأ. حاول مرة أخرى'
-              : 'Error occurred. Try again',
+          message: AppLocalizations.of(context)!.error_occurred_try_again,
           bottomMargin: 130,
         );
       }

@@ -66,6 +66,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
     }
 
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
+    final orderPrefix = AppLocalizations.of(context)!.order;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -101,6 +102,10 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
     );
   }
 
+  Widget _buildSectionHeader(String title, {required TextStyle style}) {
+    return Text(title, style: style);
+  }
+
   Widget _buildContent(bool isAr) {
     if (_isLoading) {
       return const Center(
@@ -131,7 +136,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
     final order = _order!;
     final dateFormat = DateFormat('MMM dd, yyyy - hh:mm a');
     final formattedDate = dateFormat.format(order.createdAt.toLocal());
-    final orderPrefix = isAr ? 'الطلب' : 'Order';
+    final orderPrefix = AppLocalizations.of(context)!.order;
 
     return Padding(
       padding: const EdgeInsets.all(24.0),
@@ -183,8 +188,8 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
 
           // Product details
           if (order.product != null) ...[
-            Text(
-              isAr ? 'تفاصيل المنتج' : 'Product Details',
+            _buildSectionHeader(
+              AppLocalizations.of(context)!.product_details,
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
@@ -221,7 +226,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        '${isAr ? 'الكمية' : 'Quantity'}: ${order.product!.quantity}',
+                        '${AppLocalizations.of(context)!.quantity}: ${order.product!.quantity}',
                         style: const TextStyle(
                           fontSize: 14,
                           color: Colors.grey,
@@ -239,8 +244,8 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
           if (order.target != null) ...[
             const Divider(color: Color(0xFFEAEFF2), height: 1),
             const SizedBox(height: 24),
-            Text(
-              isAr ? 'تفاصيل الموقع' : 'Location Details',
+            _buildSectionHeader(
+              AppLocalizations.of(context)!.location_details,
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
@@ -295,31 +300,31 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
           if (order.financials != null) ...[
             const Divider(color: Color(0xFFEAEFF2), height: 1),
             const SizedBox(height: 24),
-            Text(
-              isAr ? 'التفاصيل المالية' : 'Financial Details',
+            _buildSectionHeader(
+              AppLocalizations.of(context)!.financial_details,
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 16),
             _buildFinancialRow(
-              isAr ? 'قيمة المنتجات' : 'Amount',
+              AppLocalizations.of(context)!.amount_value,
               order.financials!.amount,
               isAr,
             ),
             const SizedBox(height: 12),
             _buildFinancialRow(
-              isAr ? 'رسوم التوصيل' : 'Delivery Fee',
+              AppLocalizations.of(context)!.delivery_fee,
               order.financials!.deliveryFee,
               isAr,
             ),
             const SizedBox(height: 12),
             _buildFinancialRow(
-              isAr ? 'ضريبة القيمة المضافة' : 'VAT',
+              AppLocalizations.of(context)!.vat,
               order.financials!.vatAmount,
               isAr,
             ),
             const SizedBox(height: 16),
             _buildFinancialRow(
-              isAr ? 'الإجمالي' : 'Total Amount',
+              AppLocalizations.of(context)!.total_amount,
               order.financials!.totalAmount,
               isAr,
               isTotal: true,
@@ -348,7 +353,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
           ),
         ),
         Text(
-          isAr ? '$amount ر.س' : 'SAR $amount',
+          '$amount ${AppLocalizations.of(context)!.sar_currency}',
           style: TextStyle(
             fontSize: isTotal ? 16 : 14,
             fontWeight: FontWeight.bold,

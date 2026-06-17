@@ -442,9 +442,7 @@ class _ProfileTabState extends State<ProfileTab> {
                       ),
                       _buildMenuTile(
                         icon: Icons.star_outline_rounded,
-                        title: isRtl(context)
-                            ? 'تقييمات العملاء'
-                            : 'Customer Reviews',
+                        title: AppLocalizations.of(context)!.customer_reviews,
                         onTap: () {
                           Navigator.push(
                             context,

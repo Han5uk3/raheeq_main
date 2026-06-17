@@ -213,9 +213,7 @@ class _SelectProductsScreenState extends State<SelectProductsScreen> {
                                                     top: 8.0,
                                                   ),
                                               child: Text(
-                                                isAr
-                                                    ? "تم اختيار ${state.selectedProducts.length} منتجات"
-                                                    : "${state.selectedProducts.length} products selected",
+                                                "${state.selectedProducts.length} ${AppLocalizations.of(context)!.products_selected}",
                                                 style: const TextStyle(
                                                   color: Colors.green,
                                                   fontWeight: FontWeight.bold,

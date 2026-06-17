@@ -51,9 +51,7 @@ class PaymentStatusPage extends StatelessWidget {
         lottieUrl =
             'https://lottie.host/b02cb06a-a827-4a7b-a2eb-45de4e0bf31c/zZ7Z7Z7Z7Z.json'; // Reusing success for pending
         title = AppLocalizations.of(context)!.pending_approval;
-        description = isAr
-            ? 'تم استلام طلبك، وسيتم التأكيد بعد التحقق من الدفع.'
-            : 'Your order is placed, confirmation will be done after verification of payment.';
+        description = AppLocalizations.of(context)!.order_received_iban_message;
         color = Colors.orange;
         break;
     }
@@ -155,7 +153,7 @@ class PaymentStatusPage extends StatelessWidget {
                           ),
                         ),
                         child: Text(
-                          isAr ? 'الطلبات' : 'Orders',
+                          AppLocalizations.of(context)!.orders,
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,

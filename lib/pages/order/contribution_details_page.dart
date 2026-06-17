@@ -864,9 +864,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
               style: const TextStyle(fontSize: 14, color: Colors.white70),
             ),
             titleWidget: Text(
-              isAr
-                  ? "${_checkoutData.finalTotal.toStringAsFixed(2)} ر.س"
-                  : "SAR ${_checkoutData.finalTotal.toStringAsFixed(2)}",
+              "${_checkoutData.finalTotal.toStringAsFixed(2)} ${AppLocalizations.of(context)!.sar_currency}",
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -1191,9 +1189,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                                     CrossAxisAlignment.start,
                                                 children: [
                                                   Text(
-                                                    isAr
-                                                        ? "الرصيد المتاح: ${_checkoutData.walletBalance.toStringAsFixed(2)} ر.س"
-                                                        : "Available: ${_checkoutData.walletBalance.toStringAsFixed(2)} SAR",
+                                                    "${AppLocalizations.of(context)!.available_balance_colon}${_checkoutData.walletBalance.toStringAsFixed(2)} ${AppLocalizations.of(context)!.sar_currency}",
                                                     style: const TextStyle(
                                                       fontSize: 14,
                                                       color: Colors.black,
@@ -1300,9 +1296,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                           ),
                                         ),
                                         Text(
-                                          isAr
-                                              ? "${(sp.product.price * sp.quantity).toStringAsFixed(2)} ر.س"
-                                              : "${(sp.product.price * sp.quantity).toStringAsFixed(2)} SAR",
+                                          "${(sp.product.price * sp.quantity).toStringAsFixed(2)} ${AppLocalizations.of(context)!.sar_currency}",
                                           style: const TextStyle(
                                             fontSize: 15,
                                             fontWeight: FontWeight.w700,
@@ -1321,9 +1315,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                 ),
                                 if (_checkoutData.totalGiftCardFee > 0)
                                   _buildPriceRow(
-                                    isAr
-                                        ? "رسوم بطاقة الإهداء"
-                                        : "Gift Card Fee",
+                                    AppLocalizations.of(context)!.gift_card_fees,
                                     _checkoutData.totalGiftCardFee,
                                     isAr,
                                   ),
@@ -1376,9 +1368,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                       ),
                                     ),
                                     Text(
-                                      isAr
-                                          ? "${_checkoutData.finalTotal.toStringAsFixed(2)} ر.س"
-                                          : "SAR ${_checkoutData.finalTotal.toStringAsFixed(2)}",
+                                      "${_checkoutData.finalTotal.toStringAsFixed(2)} ${AppLocalizations.of(context)!.sar_currency}",
                                       style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
@@ -1444,7 +1434,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                 const Icon(Icons.check_circle, color: Colors.green),
                 const SizedBox(width: 8),
                 Text(
-                  isAr ? "تمت إضافة بطاقة إهداء" : "Gift card added",
+                  AppLocalizations.of(context)!.gift_card_added,
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
@@ -1474,7 +1464,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                       ),
                     ),
                     child: Text(
-                      isAr ? "عرض البطاقات" : "Show gift cards",
+                      AppLocalizations.of(context)!.show_gift_cards,
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 12,
@@ -1517,7 +1507,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                         ),
                       ),
                       child: Text(
-                        isAr ? "إضافة بطاقة" : "Add gift card",
+                        AppLocalizations.of(context)!.add_gift_card,
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 12,
@@ -1597,7 +1587,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              isAr ? "البطاقات المضافة" : "Added gift cards",
+                              AppLocalizations.of(context)!.added_gift_cards,
                               style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
@@ -1605,9 +1595,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                               ),
                             ),
                             Text(
-                              isAr
-                                  ? "عرض وحذف بطاقات الإهداء"
-                                  : "View and remove gift cards",
+                              AppLocalizations.of(context)!.view_and_delete_gift_cards,
                               style: const TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey,
@@ -1690,7 +1678,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                     ),
                                     const SizedBox(height: 4),
                                     Text(
-                                      isAr ? "الكمية: $qty" : "Quantity: $qty",
+                                      "${AppLocalizations.of(context)!.quantity}: $qty",
                                       style: const TextStyle(
                                         fontSize: 12,
                                         color: Colors.grey,
@@ -1817,9 +1805,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                           Navigator.pop(context); // close loader
                           CustomSnackbar.show(
                             context: context,
-                            message: isAr
-                                ? "حدث خطأ أثناء إزالة بطاقة الإهداء"
-                                : "Error removing gift cards",
+                            message: AppLocalizations.of(context)!.error_removing_gift_card,
                             isError: true,
                           );
                         }
@@ -1835,7 +1821,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                         ),
                       ),
                       child: Text(
-                        isAr ? "حذف كل البطاقات" : "Delete all cards",
+                        AppLocalizations.of(context)!.delete_all_cards,
                         style: const TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
@@ -1870,9 +1856,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
       if (mounted) {
         CustomSnackbar.show(
           context: context,
-          message: isAr
-              ? "حدث خطأ أثناء إزالة بطاقة الإهداء"
-              : "Error removing gift card",
+          message: AppLocalizations.of(context)!.error_removing_gift_card,
           isError: true,
         );
       }
@@ -2045,9 +2029,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
           Row(
             children: [
               Text(
-                isAr
-                    ? "${value.toStringAsFixed(2)} ر.س"
-                    : "${value.toStringAsFixed(2)} SAR",
+                "${value.toStringAsFixed(2)} ${AppLocalizations.of(context)!.sar_currency}",
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: isFree ? FontWeight.normal : FontWeight.w600,

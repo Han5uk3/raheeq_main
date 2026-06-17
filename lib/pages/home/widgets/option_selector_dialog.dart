@@ -32,10 +32,10 @@ class _OptionSelectorDialogState extends State<OptionSelectorDialog> {
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
     final textDirection = Directionality.of(context);
 
-    final mostNeedyLabel = isAr ? 'الأكثر احتياجاً' : 'Most needy';
-    final specificLabel = isAr ? 'تحديد' : 'Specific';
-    final titleText = isAr ? 'اختر نوع التبرع' : 'Choose donation type';
-    final continueText = isAr ? 'متابعة' : 'Continue';
+    final mostNeedyLabel = AppLocalizations.of(context)!.most_needy;
+    final specificLabel = AppLocalizations.of(context)!.specific_donation;
+    final titleText = AppLocalizations.of(context)!.choose_donation_type;
+    final continueText = AppLocalizations.of(context)!.continue_btn;
 
     return Dialog(
       backgroundColor: Colors.white,

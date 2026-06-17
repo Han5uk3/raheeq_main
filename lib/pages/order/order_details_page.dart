@@ -165,7 +165,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
       if (mounted) {
         _navigateToDetails(
           context,
-          isAr ? 'تبرع لمرة واحدة' : 'One-time Donation',
+          AppLocalizations.of(context)!.one_time_donation,
           checkoutData: checkoutData,
         );
       }
@@ -175,9 +175,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
       if (mounted) {
         CustomSnackbar.show(
           context: context,
-          message: isAr
-              ? 'حدث خطأ. حاول مرة أخرى'
-              : 'Error occurred. Try again',
+          message: AppLocalizations.of(context)!.error_occurred_try_again,
         );
       }
     }
@@ -473,9 +471,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  isAr
-                      ? '$_totalQuantity عنصر' // or choose pluralization if needed
-                      : '$_totalQuantity items',
+                  '$_totalQuantity ${AppLocalizations.of(context)!.items}',
                   style: const TextStyle(fontSize: 12, color: Colors.white),
                 ),
                 const SizedBox(height: 2),
@@ -486,9 +482,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
               ],
             ),
             titleWidget: Text(
-              isAr
-                  ? "${_totalPrice.toStringAsFixed(2)} ر.س"
-                  : "SAR ${_totalPrice.toStringAsFixed(2)}",
+              "${_totalPrice.toStringAsFixed(2)} ${AppLocalizations.of(context)!.sar_currency}",
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,

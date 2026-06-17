@@ -11,6 +11,7 @@ import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
+import 'package:raheeq_main/l10n/app_localizations.dart';
 
 class GiftCardPage extends StatefulWidget {
   final Checkout checkoutData;
@@ -105,9 +106,7 @@ class _GiftCardPageState extends State<GiftCardPage> {
     if (_selectedTemplate == null || _selectedItem == null) {
       CustomSnackbar.show(
         context: context,
-        message: widget.isAr
-            ? "يرجى اختيار القالب والعنصر"
-            : "Please select template and sub-order",
+        message: AppLocalizations.of(context)!.please_select_template,
         isError: true,
       );
       return;
@@ -139,9 +138,7 @@ class _GiftCardPageState extends State<GiftCardPage> {
       log('Error applying gift card: $e');
       CustomSnackbar.show(
         context: context,
-        message: widget.isAr
-            ? "حدث خطأ أثناء التطبيق"
-            : "Error applying gift card",
+        message: AppLocalizations.of(context)!.error_applying_gift_card,
         isError: true,
       );
     } finally {
@@ -166,7 +163,7 @@ class _GiftCardPageState extends State<GiftCardPage> {
           CustomAppBar(
             hasBackgroundColor: true,
             isStartAligned: true,
-            title: widget.isAr ? "إضافة بطاقة إهداء" : "Add Gift Card",
+            title: AppLocalizations.of(context)!.add_gift_card,
             subtitle: '',
             showBackButton: true,
             onBackTap: () => Navigator.pop(context),
@@ -199,9 +196,7 @@ class _GiftCardPageState extends State<GiftCardPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               _buildLabel(
-                                widget.isAr
-                                    ? "اختر قالب البطاقة"
-                                    : "Select Card Template",
+                                AppLocalizations.of(context)!.select_card_template,
                               ),
                               const SizedBox(height: 12),
                               _buildTemplatesList(),
@@ -266,42 +261,34 @@ class _GiftCardPageState extends State<GiftCardPage> {
                                       .length >
                                   1) ...[
                                 _buildLabel(
-                                  widget.isAr
-                                      ? "اختر العنصر"
-                                      : "Select Sub-Order",
+                                  AppLocalizations.of(context)!.select_sub_order,
                                 ),
                                 const SizedBox(height: 8),
                                 _buildItemDropdown(),
                                 const SizedBox(height: 16),
                               ],
                               _buildLabel(
-                                widget.isAr ? "اسم المرسل" : "Sender",
+                                AppLocalizations.of(context)!.sender_name_title,
                               ),
                               const SizedBox(height: 8),
                               _buildTextField(
                                 _senderController,
-                                widget.isAr
-                                    ? "ادخل اسم المرسل"
-                                    : "Enter sender name",
+                                AppLocalizations.of(context)!.enter_sender_name,
                               ),
                               const SizedBox(height: 16),
 
                               _buildLabel(
-                                widget.isAr ? "اسم المستلم" : "Receiver",
+                                AppLocalizations.of(context)!.receiver_name_title,
                               ),
                               const SizedBox(height: 8),
                               _buildTextField(
                                 _receiverController,
-                                widget.isAr
-                                    ? "ادخل اسم المستلم"
-                                    : "Enter recipient name",
+                                AppLocalizations.of(context)!.enter_receiver_name,
                               ),
                               const SizedBox(height: 16),
 
                               _buildLabel(
-                                widget.isAr
-                                    ? "رقم الواتساب للمستلم"
-                                    : "Recipient's WhatsApp Number",
+                                AppLocalizations.of(context)!.receiver_whatsapp,
                               ),
                               const SizedBox(height: 8),
                               _buildPhoneField(),
@@ -333,7 +320,7 @@ class _GiftCardPageState extends State<GiftCardPage> {
       cursorColor: AppColors.buttonBlueDark,
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
-          return widget.isAr ? "هذا الحقل مطلوب" : "This field is required";
+          return AppLocalizations.of(context)!.field_is_required;
         }
         return null;
       },
@@ -386,7 +373,7 @@ class _GiftCardPageState extends State<GiftCardPage> {
           borderRadius: BorderRadius.circular(12),
           value: _selectedItem,
           isExpanded: true,
-          hint: Text(widget.isAr ? "اختر العنصر" : "Select a sub-order"),
+          hint: Text(AppLocalizations.of(context)!.select_sub_order),
           items: widget.checkoutData.items
               .where((item) => item.giftCard == null)
               .map((item) {
@@ -456,7 +443,7 @@ class _GiftCardPageState extends State<GiftCardPage> {
                       topRight: Radius.circular(14),
                     ),
                     inputDecoration: InputDecoration(
-                      hintText: widget.isAr ? 'بحث' : 'Search',
+                      hintText: AppLocalizations.of(context)!.search,
                       prefixIcon: const Icon(Icons.search),
                       enabledBorder: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(15),
@@ -523,14 +510,10 @@ class _GiftCardPageState extends State<GiftCardPage> {
             autovalidateMode: AutovalidateMode.onUserInteraction,
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return widget.isAr
-                    ? "رقم الهاتف مطلوب"
-                    : "Phone number is required";
+                return AppLocalizations.of(context)!.phone_number_required;
               }
               if (!RegExp(r'^\d+$').hasMatch(value.trim())) {
-                return widget.isAr
-                    ? "رقم هاتف غير صالح"
-                    : "Invalid phone number";
+                return AppLocalizations.of(context)!.invalid_phone_number;
               }
               try {
                 final phone = PhoneNumber.parse(
@@ -538,14 +521,10 @@ class _GiftCardPageState extends State<GiftCardPage> {
                 );
                 if (!phone.isValid(type: PhoneNumberType.mobile) &&
                     !phone.isValid()) {
-                  return widget.isAr
-                      ? "يرجى إدخال رقم صحيح"
-                      : "Please enter a valid number";
+                  return AppLocalizations.of(context)!.enter_valid_number_gc;
                 }
               } catch (e) {
-                return widget.isAr
-                    ? "رقم هاتف غير صالح"
-                    : "Invalid phone number format";
+                return AppLocalizations.of(context)!.invalid_phone_format;
               }
               return null;
             },
@@ -576,7 +555,7 @@ class _GiftCardPageState extends State<GiftCardPage> {
                 horizontal: 16,
                 vertical: 12,
               ),
-              hintText: widget.isAr ? "رقم الهاتف" : "Phone Number",
+              hintText: AppLocalizations.of(context)!.phone_number_hint,
               hintStyle: TextStyle(color: Colors.grey.shade500),
             ),
           ),
@@ -610,7 +589,7 @@ class _GiftCardPageState extends State<GiftCardPage> {
 
     if (_templates.isEmpty) {
       return Text(
-        widget.isAr ? "لا توجد قوالب متاحة" : "No templates available",
+        AppLocalizations.of(context)!.no_templates_available,
       );
     }
 
@@ -671,7 +650,7 @@ class _GiftCardPageState extends State<GiftCardPage> {
                 waveColor2: Colors.white,
               )
             : Text(
-                widget.isAr ? "حفظ بيانات الإهداء" : "Save Gift Card Info",
+                AppLocalizations.of(context)!.save_gift_card_info,
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,

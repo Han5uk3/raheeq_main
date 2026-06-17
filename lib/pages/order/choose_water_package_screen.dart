@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
+import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/models/order_item.dart';
 import 'package:raheeq_main/models/product.dart';
 import 'package:raheeq_main/models/selected_category_item.dart';
@@ -179,10 +180,8 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
   @override
   Widget build(BuildContext context) {
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
-    final title = isAr ? 'اختر باقة المياه' : 'Choose Water Package';
-    final subtitle = isAr
-        ? 'اختر باقة المياه التي تناسبك'
-        : 'Select the water package that suits you';
+    final title = AppLocalizations.of(context)!.choose_water_package;
+    final subtitle = AppLocalizations.of(context)!.choose_water_package_desc;
 
     final slots = _slots;
 
@@ -301,7 +300,7 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
                   disabledBackgroundColor: Colors.grey[300],
                 ),
                 child: Text(
-                  isAr ? 'متابعة' : 'Continue',
+                  AppLocalizations.of(context)!.continue_btn,
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -397,7 +396,7 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
                       // Subtitle row
                       Text(
                         slot.isChiller
-                            ? (isAr ? '2 سنة ضمان' : '2 Year Guarantee')
+                            ? AppLocalizations.of(context)!.two_year_guarantee
                             : (isAr ? product.subtitleAr : product.subtitle),
                         style: const TextStyle(
                           fontSize: 10,
@@ -423,9 +422,7 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
 
                       // Price
                       Text(
-                        isAr
-                            ? '${totalPrice.toStringAsFixed(0)} ر.س'
-                            : '${totalPrice.toStringAsFixed(0)} SAR',
+                        '${totalPrice.toStringAsFixed(0)} ${AppLocalizations.of(context)!.sar_currency}',
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,

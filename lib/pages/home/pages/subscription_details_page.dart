@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
+import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/models/subscription_details_model.dart';
@@ -59,7 +60,7 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
   @override
   Widget build(BuildContext context) {
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
-    final title = isAr ? 'تفاصيل الاشتراك' : 'Subscription Details';
+    final title = AppLocalizations.of(context)!.subscription_details;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -130,7 +131,7 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
             _buildInfoCard(isAr),
             const SizedBox(height: 24),
             Text(
-              isAr ? 'الطلبات' : 'Deliveries',
+              AppLocalizations.of(context)!.deliveries,
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -143,8 +144,8 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
                 padding: const EdgeInsets.symmetric(vertical: 24),
                 child: Center(
                   child: Text(
-                    isAr ? 'لا توجد طلبات' : 'No deliveries found',
-                    style: const TextStyle(color: Colors.grey),
+                    AppLocalizations.of(context)!.no_deliveries_found,
+                    style: const TextStyle(fontSize: 16, color: Colors.grey),
                   ),
                 ),
               )
@@ -204,29 +205,30 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
               ],
             ),
             const Divider(height: 32),
-            _buildDetailRow(
-              isAr ? 'تاريخ الشراء' : 'Purchased',
-              dateFormat.format(_details!.purchasedDate.toLocal()),
-            ),
+            // _buildDetailRow(
+            //   AppLocalizations.of(context)!.purchased_date,
+            //   dateFormat.format(_details!..toLocal()),
+            // ),
             const SizedBox(height: 8),
             _buildDetailRow(
-              isAr ? 'تاريخ البدء' : 'Start Date',
+              AppLocalizations.of(context)!.start_date,
               dateFormat.format(_details!.startDate.toLocal()),
             ),
             const SizedBox(height: 8),
             _buildDetailRow(
-              isAr ? 'تاريخ الانتهاء' : 'End Date',
+              AppLocalizations.of(context)!.end_date,
               dateFormat.format(_details!.endDate.toLocal()),
             ),
             const SizedBox(height: 8),
             _buildDetailRow(
-              isAr ? 'إجمالي الطلبات' : 'Total Orders',
-              '${_details!.ordersCount}',
+              AppLocalizations.of(context)!.total_orders,
+              _details!.deliveries.length.toString(),
             ),
             const SizedBox(height: 8),
             _buildDetailRow(
-              isAr ? 'الإجمالي' : 'Total Amount',
-              '${_details!.totalAmount} ${isAr ? 'ر.س' : 'SAR'}',
+              AppLocalizations.of(context)!.total_amount,
+              '${_details!.totalAmount} ${AppLocalizations.of(context)!.sar_currency}',
+              isBold: true,
             ),
           ],
         ),
@@ -234,7 +236,7 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
     );
   }
 
-  Widget _buildDetailRow(String label, String value) {
+  Widget _buildDetailRow(String label, String value, {bool isBold = false}) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -255,13 +257,13 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
       child: ExpansionTile(
         title: Text(
-          '${isAr ? 'طلب' : 'Order'} #${delivery.orderNumber}',
+          '${AppLocalizations.of(context)!.order} #${delivery.orderNumber}',
           style: const TextStyle(fontWeight: FontWeight.bold),
         ),
         subtitle: Text(
           delivery.scheduledDate != null
-              ? '${isAr ? 'مجدول' : 'Scheduled'}: ${dateFormat.format(delivery.scheduledDate!.toLocal())}'
-              : '${isAr ? 'تاريخ الإنشاء' : 'Created'}: ${dateFormat.format(delivery.createdAt.toLocal())}',
+              ? '${AppLocalizations.of(context)!.scheduled}: ${dateFormat.format(delivery.scheduledDate!.toLocal())}'
+              : '${AppLocalizations.of(context)!.created}: ${dateFormat.format(delivery.createdAt.toLocal())}',
           style: const TextStyle(fontSize: 12, color: Colors.grey),
         ),
         children: delivery.subOrders
@@ -333,7 +335,7 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                '${subOrder.totalAmount} ${isAr ? 'ر.س' : 'SAR'}',
+                '${subOrder.totalAmount} ${AppLocalizations.of(context)!.sar_currency}',
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   color: AppColors.buttonBlue,

@@ -340,7 +340,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Support once or make a lasting impact';
 
   @override
-  String get choose_donation_type => 'Choose Donation Type';
+  String get choose_donation_type => 'Choose donation type';
 
   @override
   String get payable_amount => 'Payable Amount';
@@ -1043,4 +1043,220 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get error_loading_impact => 'Error loading impact statistics';
+
+  @override
+  String get optional => 'Optional';
+
+  @override
+  String get specific_donation => 'Specific';
+
+  @override
+  String get please_select_template => 'Please select template and sub-order';
+
+  @override
+  String get error_applying_gift_card => 'Error applying gift card';
+
+  @override
+  String get add_gift_card => 'Add gift card';
+
+  @override
+  String get select_card_template => 'Select Card Template';
+
+  @override
+  String get select_sub_order => 'Select Sub-Order';
+
+  @override
+  String get sender_name_title => 'Sender';
+
+  @override
+  String get enter_sender_name => 'Enter sender name';
+
+  @override
+  String get receiver_name_title => 'Receiver';
+
+  @override
+  String get enter_receiver_name => 'Enter recipient name';
+
+  @override
+  String get receiver_whatsapp => 'Recipient\'s WhatsApp Number';
+
+  @override
+  String get phone_number_required => 'Phone number is required';
+
+  @override
+  String get invalid_phone_number => 'Invalid phone number';
+
+  @override
+  String get phone_number_hint => 'Phone Number';
+
+  @override
+  String get no_templates_available => 'No templates available';
+
+  @override
+  String get save_gift_card_info => 'Save Gift Card Info';
+
+  @override
+  String get enter_valid_number_gc => 'Please enter a valid number';
+
+  @override
+  String get invalid_phone_format => 'Invalid phone number format';
+
+  @override
+  String get field_is_required => 'This field is required';
+
+  @override
+  String get total_orders => 'Total Orders';
+
+  @override
+  String get amount_paid => 'Amount Paid';
+
+  @override
+  String get sar_currency => 'SAR';
+
+  @override
+  String get water_cartons => 'Water Cartons';
+
+  @override
+  String get chillers => 'Chillers';
+
+  @override
+  String selected_items_count(int count) {
+    return 'Selected: $count items';
+  }
+
+  @override
+  String get customer_reviews => 'Customer Reviews';
+
+  @override
+  String get track_order => 'Track Order';
+
+  @override
+  String get view_receipt => 'View Receipt';
+
+  @override
+  String get one_time_donation => 'One-time Donation';
+
+  @override
+  String get error_occurred_try_again => 'Error occurred. Try again';
+
+  @override
+  String get items => 'items';
+
+  @override
+  String get unit => 'unit';
+
+  @override
+  String get units => 'units';
+
+  @override
+  String get user => 'User';
+
+  @override
+  String get no_reviews_found => 'No reviews found';
+
+  @override
+  String get deliveries => 'Deliveries';
+
+  @override
+  String get no_deliveries_found => 'No deliveries found';
+
+  @override
+  String get purchased_date => 'Purchased';
+
+  @override
+  String get scheduled => 'Scheduled';
+
+  @override
+  String get created => 'Created';
+
+  @override
+  String get meal => 'Meal';
+
+  @override
+  String get meals => 'Meals';
+
+  @override
+  String get umbrella => 'Umbrella';
+
+  @override
+  String get umbrellas => 'Umbrellas';
+
+  @override
+  String get bottle => 'Bottle';
+
+  @override
+  String get bottles => 'Bottles';
+
+  @override
+  String get note_prefix => 'Note -';
+
+  @override
+  String get incl_sar => '* Incl. SAR';
+
+  @override
+  String get delivery_suffix => 'delivery';
+
+  @override
+  String get inclusive_of_sar => 'Inclusive of SAR';
+
+  @override
+  String get delivery_charge => 'delivery charge';
+
+  @override
+  String get product_details => 'Product Details';
+
+  @override
+  String get location_details => 'Location Details';
+
+  @override
+  String get financial_details => 'Financial Details';
+
+  @override
+  String get amount_value => 'Amount';
+
+  @override
+  String get please_select_bank_account => 'Please select a bank account';
+
+  @override
+  String get please_select_designated_bank_account =>
+      'Please select your designated bank account for the transfer.';
+
+  @override
+  String get order_received_iban_message =>
+      'Your order is received and will be confirmed after payment verification.';
+
+  @override
+  String get products_selected => 'Products Selected';
+
+  @override
+  String get available_balance_colon => 'Available balance: ';
+
+  @override
+  String get gift_card_fees => 'Gift card fees';
+
+  @override
+  String get gift_card_added => 'Gift card added';
+
+  @override
+  String get show_gift_cards => 'Show gift cards';
+
+  @override
+  String get added_gift_cards => 'Added gift cards';
+
+  @override
+  String get view_and_delete_gift_cards => 'View and delete gift cards';
+
+  @override
+  String get error_removing_gift_card =>
+      'An error occurred while removing the gift card';
+
+  @override
+  String get delete_all_cards => 'Delete all cards';
+
+  @override
+  String get choose_water_package_desc =>
+      'Choose the water package that suits you';
+
+  @override
+  String get sar_per_unit => 'SAR / unit';
 }

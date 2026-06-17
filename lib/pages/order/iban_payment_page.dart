@@ -79,9 +79,7 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
     if (_selectedBankAccountId == null) {
       CustomSnackbar.show(
         context: context,
-        message: widget.isAr
-            ? 'الرجاء اختيار حساب بنكي'
-            : 'Please select a bank account',
+        message: AppLocalizations.of(context)!.please_select_bank_account,
       );
       return;
     }
@@ -198,177 +196,221 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                  Text(
-                    AppLocalizations.of(context)!.our_bank_accounts,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    widget.isAr
-                        ? 'يرجى تحديد الحساب البنكي المخصص للتحويل الخاص بك.'
-                        : 'Please select the designated bank account for your transfer.',
-                    style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
-                  ),
-                  const SizedBox(height: 16),
-                  if (_bankAccounts.isEmpty)
-                    Text(
-                      AppLocalizations.of(context)!.no_bank_accounts_available,
-                    )
-                  else
-                    ..._bankAccounts.map((account) {
-                      final accountId =
-                          account['id']?.toString() ??
-                          account['_id']?.toString();
-                      final isSelected = _selectedBankAccountId == accountId;
-
-                      return GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            _selectedBankAccountId = accountId;
-                          });
-                        },
-                        child: Container(
-                          margin: const EdgeInsetsDirectional.only(bottom: 12),
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: isSelected
-                                  ? AppColors.buttonBlueDark
-                                  : Colors.grey.shade300,
-                              width: isSelected ? 2 : 1,
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                            color: isSelected
-                                ? AppColors.buttonBlueDark.withOpacity(0.05)
-                                : const Color(0xFFF9F9F9),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
-                                  if (account['logo'] != null) ...[
-                                    Image.network(
-                                      account['logo'],
-                                      height: 40,
-                                      width: 40,
-                                      errorBuilder: (_, __, ___) => const Icon(
-                                        Icons.account_balance,
-                                        size: 40,
-                                      ),
+                                  Text(
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.our_bank_accounts,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
                                     ),
-                                    const SizedBox(width: 12),
-                                  ],
-                                  Expanded(
-                                    child: Text(
-                                      (widget.isAr
-                                              ? account['nameAr']?.toString()
-                                              : account['name']?.toString()) ??
-                                          '',
-                                      style: const TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                        color: AppColors.buttonBlueDark,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.please_select_designated_bank_account,
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      color: Colors.grey.shade600,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  if (_bankAccounts.isEmpty)
+                                    Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.no_bank_accounts_available,
+                                    )
+                                  else
+                                    ..._bankAccounts.map((account) {
+                                      final accountId =
+                                          account['id']?.toString() ??
+                                          account['_id']?.toString();
+                                      final isSelected =
+                                          _selectedBankAccountId == accountId;
+
+                                      return GestureDetector(
+                                        onTap: () {
+                                          setState(() {
+                                            _selectedBankAccountId = accountId;
+                                          });
+                                        },
+                                        child: Container(
+                                          margin:
+                                              const EdgeInsetsDirectional.only(
+                                                bottom: 12,
+                                              ),
+                                          padding: const EdgeInsets.all(16),
+                                          decoration: BoxDecoration(
+                                            border: Border.all(
+                                              color: isSelected
+                                                  ? AppColors.buttonBlueDark
+                                                  : Colors.grey.shade300,
+                                              width: isSelected ? 2 : 1,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                            color: isSelected
+                                                ? AppColors.buttonBlueDark
+                                                      .withOpacity(0.05)
+                                                : const Color(0xFFF9F9F9),
+                                          ),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  if (account['logo'] !=
+                                                      null) ...[
+                                                    Image.network(
+                                                      account['logo'],
+                                                      height: 40,
+                                                      width: 40,
+                                                      errorBuilder:
+                                                          (
+                                                            _,
+                                                            __,
+                                                            ___,
+                                                          ) => const Icon(
+                                                            Icons
+                                                                .account_balance,
+                                                            size: 40,
+                                                          ),
+                                                    ),
+                                                    const SizedBox(width: 12),
+                                                  ],
+                                                  Expanded(
+                                                    child: Text(
+                                                      (widget.isAr
+                                                              ? account['nameAr']
+                                                                    ?.toString()
+                                                              : account['name']
+                                                                    ?.toString()) ??
+                                                          '',
+                                                      style: const TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 16,
+                                                        color: AppColors
+                                                            .buttonBlueDark,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              const SizedBox(height: 12),
+                                              _buildDetailRow(
+                                                AppLocalizations.of(
+                                                  context,
+                                                )!.account_number,
+                                                account['accountNumber']
+                                                        ?.toString() ??
+                                                    '',
+                                              ),
+                                              const SizedBox(height: 8),
+                                              _buildDetailRow(
+                                                'IBAN:',
+                                                account['ibanNumber']
+                                                        ?.toString() ??
+                                                    '',
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    }),
+                                  const SizedBox(height: 32),
+                                  Text(
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.one_transaction_number,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  SizedBox(height: 8),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      border: Border.all(
+                                        color: Colors.grey.shade300,
+                                      ),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: TextField(
+                                      cursorColor: AppColors.buttonBlueDark,
+
+                                      controller: transactionController,
+                                      decoration: InputDecoration(
+                                        border: InputBorder.none,
+                                        hintText: AppLocalizations.of(
+                                          context,
+                                        )!.enter_transaction_number,
                                       ),
                                     ),
                                   ),
+                                  const SizedBox(height: 24),
+                                  Text(
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.two_attach_transfer_receipt,
+                                    style: const TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 16),
+                                  GestureDetector(
+                                    onTap: _pickImage,
+                                    child: Container(
+                                      height: 150,
+                                      width: double.infinity,
+                                      decoration: BoxDecoration(
+                                        border: Border.all(
+                                          color: Colors.grey.shade300,
+                                          style: BorderStyle.solid,
+                                        ),
+                                        borderRadius: BorderRadius.circular(12),
+                                        color: Colors.grey.shade50,
+                                      ),
+                                      child: _receiptImage != null
+                                          ? ClipRRect(
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                              child: Image.file(
+                                                _receiptImage!,
+                                                fit: BoxFit.cover,
+                                              ),
+                                            )
+                                          : Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: [
+                                                const Icon(
+                                                  Icons.cloud_upload_outlined,
+                                                  size: 48,
+                                                  color: Colors.grey,
+                                                ),
+                                                const SizedBox(height: 8),
+                                                Text(
+                                                  AppLocalizations.of(
+                                                    context,
+                                                  )!.tap_to_select_image,
+                                                  style: const TextStyle(
+                                                    color: Colors.grey,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                    ),
+                                  ),
                                 ],
-                              ),
-                              const SizedBox(height: 12),
-                              _buildDetailRow(
-                                AppLocalizations.of(context)!.account_number,
-                                account['accountNumber']?.toString() ?? '',
-                              ),
-                              const SizedBox(height: 8),
-                              _buildDetailRow(
-                                'IBAN:',
-                                account['ibanNumber']?.toString() ?? '',
-                              ),
-                            ],
-                          ),
-                        ),
-                      );
-                    }),
-                  const SizedBox(height: 32),
-                  Text(
-                    AppLocalizations.of(context)!.one_transaction_number,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 8),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade300),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: TextField(
-                      cursorColor: AppColors.buttonBlueDark,
-
-                      controller: transactionController,
-                      decoration: InputDecoration(
-                        border: InputBorder.none,
-                        hintText: AppLocalizations.of(
-                          context,
-                        )!.enter_transaction_number,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  Text(
-                    AppLocalizations.of(context)!.two_attach_transfer_receipt,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  GestureDetector(
-                    onTap: _pickImage,
-                    child: Container(
-                      height: 150,
-                      width: double.infinity,
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                          color: Colors.grey.shade300,
-                          style: BorderStyle.solid,
-                        ),
-                        borderRadius: BorderRadius.circular(12),
-                        color: Colors.grey.shade50,
-                      ),
-                      child: _receiptImage != null
-                          ? ClipRRect(
-                              borderRadius: BorderRadius.circular(12),
-                              child: Image.file(
-                                _receiptImage!,
-                                fit: BoxFit.cover,
-                              ),
-                            )
-                          : Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                const Icon(
-                                  Icons.cloud_upload_outlined,
-                                  size: 48,
-                                  color: Colors.grey,
-                                ),
-                                const SizedBox(height: 8),
-                                Text(
-                                  AppLocalizations.of(
-                                    context,
-                                  )!.tap_to_select_image,
-                                  style: const TextStyle(color: Colors.grey),
-                                ),
-                              ],
-                            ),
-                    ),
-                  ),
-                ],
                               ),
                             ),
                           ),
@@ -397,10 +439,7 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
         ),
         child: Text(
           AppLocalizations.of(context)!.confirm_submit,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-          ),
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
         ),
       ),
     );

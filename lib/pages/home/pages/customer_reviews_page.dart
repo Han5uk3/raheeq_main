@@ -57,8 +57,8 @@ class _CustomerReviewsPageState extends State<CustomerReviewsPage> {
     }
   }
 
-  Widget _buildReviewCard(ReviewModel review, bool isAr) {
-    final userName = review.user?.fullName ?? (isAr ? 'مستخدم' : 'User');
+  Widget _buildReviewCard(BuildContext context, ReviewModel review, bool isAr) {
+    final userName = review.user?.fullName ?? AppLocalizations.of(context)!.user;
     final avatarUrl = review.user?.avatarUrl;
     final productName = review.product?.localizedName(isAr) ?? '';
     final productImage = review.product?.image;
@@ -179,7 +179,7 @@ class _CustomerReviewsPageState extends State<CustomerReviewsPage> {
   @override
   Widget build(BuildContext context) {
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
-    final title = isAr ? 'تقييمات العملاء' : 'Customer Reviews';
+    final title = AppLocalizations.of(context)!.customer_reviews;
 
     return Scaffold(
       backgroundColor: Colors.white,
@@ -211,7 +211,7 @@ class _CustomerReviewsPageState extends State<CustomerReviewsPage> {
                     : _reviews.isEmpty
                     ? Center(
                         child: Text(
-                          isAr ? 'لا توجد تقييمات' : 'No reviews found',
+                          AppLocalizations.of(context)!.no_reviews_found,
                           style: const TextStyle(
                             fontSize: 16,
                             color: Colors.grey,
@@ -222,7 +222,7 @@ class _CustomerReviewsPageState extends State<CustomerReviewsPage> {
                         padding: const EdgeInsets.all(24),
                         itemCount: _reviews.length,
                         itemBuilder: (context, index) {
-                          return _buildReviewCard(_reviews[index], isAr);
+                          return _buildReviewCard(context, _reviews[index], isAr);
                         },
                       ),
               ),

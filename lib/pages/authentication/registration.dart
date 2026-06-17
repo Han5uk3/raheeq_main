@@ -224,7 +224,7 @@ class _RegistrationState extends State<Registration> {
                             _buildTextField(
                               controller: _emailController,
                               label:
-                                  "${AppLocalizations.of(context)!.email_address} (${Localizations.localeOf(context).languageCode == 'ar' ? 'اختياري' : 'Optional'})",
+                                  "${AppLocalizations.of(context)!.email_address} (${AppLocalizations.of(context)!.optional})",
                               hint: AppLocalizations.of(
                                 context,
                               )!.enter_email_optional_hint,
