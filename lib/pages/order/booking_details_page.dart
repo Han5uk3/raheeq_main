@@ -66,7 +66,6 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
     }
 
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
-    final orderPrefix = AppLocalizations.of(context)!.order;
 
     return Scaffold(
       backgroundColor: Colors.white,

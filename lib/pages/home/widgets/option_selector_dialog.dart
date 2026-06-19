@@ -30,7 +30,6 @@ class _OptionSelectorDialogState extends State<OptionSelectorDialog> {
   @override
   Widget build(BuildContext context) {
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
-    final textDirection = Directionality.of(context);
 
     final mostNeedyLabel = AppLocalizations.of(context)!.most_needy;
     final specificLabel = AppLocalizations.of(context)!.specific_donation;
