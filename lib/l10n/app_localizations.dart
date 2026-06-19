@@ -851,7 +851,7 @@ abstract class AppLocalizations {
   /// No description provided for @sar.
   ///
   /// In en, this message translates to:
-  /// **'SAR'**
+  /// **'⃁'**
   String get sar;
 
   /// No description provided for @starting_from.
@@ -2221,7 +2221,7 @@ abstract class AppLocalizations {
   /// No description provided for @sar_currency.
   ///
   /// In en, this message translates to:
-  /// **'SAR'**
+  /// **'⃁'**
   String get sar_currency;
 
   /// No description provided for @water_cartons.
@@ -2377,7 +2377,7 @@ abstract class AppLocalizations {
   /// No description provided for @incl_sar.
   ///
   /// In en, this message translates to:
-  /// **'* Incl. SAR'**
+  /// **'* Incl. ⃁'**
   String get incl_sar;
 
   /// No description provided for @delivery_suffix.
@@ -2389,7 +2389,7 @@ abstract class AppLocalizations {
   /// No description provided for @inclusive_of_sar.
   ///
   /// In en, this message translates to:
-  /// **'Inclusive of SAR'**
+  /// **'Inclusive of ⃁'**
   String get inclusive_of_sar;
 
   /// No description provided for @delivery_charge.
@@ -2503,7 +2503,7 @@ abstract class AppLocalizations {
   /// No description provided for @sar_per_unit.
   ///
   /// In en, this message translates to:
-  /// **'SAR / unit'**
+  /// **'⃁ / unit'**
   String get sar_per_unit;
 
   /// No description provided for @my_chillers.

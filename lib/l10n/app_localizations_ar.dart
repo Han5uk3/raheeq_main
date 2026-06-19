@@ -404,7 +404,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get recent_donations => 'التبرعات الأخيرة';
 
   @override
-  String get sar => 'ر.س';
+  String get sar => '⃁';
 
   @override
   String get starting_from => 'السعر';
@@ -1106,7 +1106,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get amount_paid => 'إجمالي المدفوعات';
 
   @override
-  String get sar_currency => 'ر.س';
+  String get sar_currency => '⃁';
 
   @override
   String get water_cartons => 'كراتين المياه';
@@ -1186,13 +1186,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get note_prefix => 'ملاحظة -';
 
   @override
-  String get incl_sar => '* شامل ر.س';
+  String get incl_sar => '* شامل ⃁';
 
   @override
   String get delivery_suffix => 'توصيل';
 
   @override
-  String get inclusive_of_sar => 'شامل ر.س';
+  String get inclusive_of_sar => 'شامل ⃁';
 
   @override
   String get delivery_charge => 'رسوم التوصيل';
@@ -1251,7 +1251,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get choose_water_package_desc => 'اختر باقة المياه التي تناسبك';
 
   @override
-  String get sar_per_unit => 'ر.س / وحدة';
+  String get sar_per_unit => '⃁ / وحدة';
 
   @override
   String get my_chillers => 'ثلاجاتي';

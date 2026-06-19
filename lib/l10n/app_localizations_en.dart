@@ -405,7 +405,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recent_donations => 'Recent Donations';
 
   @override
-  String get sar => 'SAR';
+  String get sar => '⃁';
 
   @override
   String get starting_from => 'Starting from';
@@ -1114,7 +1114,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get amount_paid => 'Amount Paid';
 
   @override
-  String get sar_currency => 'SAR';
+  String get sar_currency => '⃁';
 
   @override
   String get water_cartons => 'Water Cartons';
@@ -1194,13 +1194,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get note_prefix => 'Note -';
 
   @override
-  String get incl_sar => '* Incl. SAR';
+  String get incl_sar => '* Incl. ⃁';
 
   @override
   String get delivery_suffix => 'delivery';
 
   @override
-  String get inclusive_of_sar => 'Inclusive of SAR';
+  String get inclusive_of_sar => 'Inclusive of ⃁';
 
   @override
   String get delivery_charge => 'delivery charge';
@@ -1261,7 +1261,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Choose the water package that suits you';
 
   @override
-  String get sar_per_unit => 'SAR / unit';
+  String get sar_per_unit => '⃁ / unit';
 
   @override
   String get my_chillers => 'My Chillers';
