@@ -456,5 +456,7 @@
   "error_removing_gift_card": "An error occurred while removing the gift card",
   "delete_all_cards": "Delete all cards",
   "choose_water_package_desc": "Choose the water package that suits you",
-  "sar_per_unit": "SAR / unit"
+  "sar_per_unit": "SAR / unit",
+  "my_chillers": "My Chillers",
+  "my_chillers_subtitle": "View the status of donated chillers"
 }

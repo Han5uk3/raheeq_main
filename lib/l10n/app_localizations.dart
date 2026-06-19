@@ -2505,6 +2505,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'SAR / unit'**
   String get sar_per_unit;
+
+  /// No description provided for @my_chillers.
+  ///
+  /// In en, this message translates to:
+  /// **'My Chillers'**
+  String get my_chillers;
+
+  /// No description provided for @my_chillers_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'View the status of donated chillers'**
+  String get my_chillers_subtitle;
 }
 
 class _AppLocalizationsDelegate

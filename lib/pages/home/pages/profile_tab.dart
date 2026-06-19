@@ -15,6 +15,7 @@ import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/utils/rtl_helpers.dart';
 import 'package:raheeq_main/pages/home/pages/contact_us_page.dart';
 import 'package:raheeq_main/pages/home/pages/customer_reviews_page.dart';
+import 'package:raheeq_main/pages/home/pages/my_chillers_page.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 
 class ProfileTab extends StatefulWidget {
@@ -358,6 +359,18 @@ class _ProfileTabState extends State<ProfileTab> {
                         //     );
                         //   },
                         // ),
+                        _buildMenuTile(
+                          icon: Icons.kitchen_outlined,
+                          title: AppLocalizations.of(context)!.my_chillers,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const MyChillersPage(),
+                              ),
+                            );
+                          },
+                        ),
                         _buildMenuTile(
                           icon: Symbols.package_2,
                           title: AppLocalizations.of(context)!.order_history,

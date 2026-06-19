@@ -1252,4 +1252,10 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get sar_per_unit => 'ر.س / وحدة';
+
+  @override
+  String get my_chillers => 'ثلاجاتي';
+
+  @override
+  String get my_chillers_subtitle => 'عرض حالة الثلاجات المتبرع بها';
 }

@@ -407,5 +407,7 @@
   "error_removing_gift_card": "حدث خطأ أثناء إزالة بطاقة الإهداء",
   "delete_all_cards": "حذف كل البطاقات",
   "choose_water_package_desc": "اختر باقة المياه التي تناسبك",
-  "sar_per_unit": "ر.س / وحدة"
+  "sar_per_unit": "ر.س / وحدة",
+  "my_chillers": "ثلاجاتي",
+  "my_chillers_subtitle": "عرض حالة الثلاجات المتبرع بها"
 }

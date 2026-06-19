@@ -1262,4 +1262,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sar_per_unit => 'SAR / unit';
+
+  @override
+  String get my_chillers => 'My Chillers';
+
+  @override
+  String get my_chillers_subtitle => 'View the status of donated chillers';
 }
