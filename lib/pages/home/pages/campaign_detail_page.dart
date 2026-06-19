@@ -225,11 +225,14 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
                       child: Builder(
                         builder: (context) {
                           final screenWidth = MediaQuery.of(context).size.width;
-                          // Container margin: 16*2 = 32
-                          // ListView padding: 12*2 = 24
-                          // Spacing for 3 items: 12*2 = 24
-                          // Total taken space without items: 80
-                          final itemWidth = (screenWidth - 80) / 3;
+                          
+                          int visibleCount = products.length;
+                          if (visibleCount == 0) visibleCount = 1;
+                          if (visibleCount > 3) visibleCount = 3;
+                          
+                          final spacing = 12.0 * (visibleCount - 1);
+                          final totalTakenSpace = 32.0 + 24.0 + spacing; // Container margin (16*2) + ListView padding (12*2) + Spacing
+                          final itemWidth = (screenWidth - totalTakenSpace) / visibleCount;
 
                           return Container(
                             margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -310,7 +313,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
           color: isSelected ? const Color(0xFF2381A6) : const Color(0xFFF5F5F5),
           borderRadius: BorderRadius.circular(20),
         ),
-        padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
+        padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -323,15 +326,15 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
               color: isSelected ? Colors.white : Colors.grey[400],
               size: 32,
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 8),
             Text(
               name,
               textAlign: TextAlign.center,
               style: TextStyle(
                 color: isSelected ? Colors.white : Colors.grey[600],
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                fontSize: 15,
-                height: 1.3,
+                fontSize: 13,
+                height: 1.2,
               ),
             ),
           ],
@@ -348,11 +351,17 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
     String itemName(int qty) {
       final isPlural = qty > 1;
       if (product.serialNumber == 3) {
-        return isPlural ? AppLocalizations.of(context)!.meals : AppLocalizations.of(context)!.meal;
+        return isPlural
+            ? AppLocalizations.of(context)!.meals
+            : AppLocalizations.of(context)!.meal;
       } else if (product.serialNumber == 5) {
-        return isPlural ? AppLocalizations.of(context)!.umbrellas : AppLocalizations.of(context)!.umbrella;
+        return isPlural
+            ? AppLocalizations.of(context)!.umbrellas
+            : AppLocalizations.of(context)!.umbrella;
       }
-      return isPlural ? AppLocalizations.of(context)!.bottles : AppLocalizations.of(context)!.bottle;
+      return isPlural
+          ? AppLocalizations.of(context)!.bottles
+          : AppLocalizations.of(context)!.bottle;
     }
 
     return Card(
@@ -385,7 +394,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
               physics: const NeverScrollableScrollPhysics(),
               gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 3,
-                childAspectRatio: 2.0,
+                childAspectRatio: 1.85,
                 crossAxisSpacing: 12,
                 mainAxisSpacing: 12,
               ),
@@ -413,27 +422,30 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
                       ),
                     ),
                     padding: EdgeInsetsDirectional.only(start: 8, end: 8),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          "$qty ${itemName(qty)}",
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                            color: Colors.black87,
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: AlignmentDirectional.centerStart,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            "$qty ${itemName(qty)}",
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 10,
+                              color: Colors.black87,
+                            ),
                           ),
-                        ),
-
-                        Text(
-                          "${price.toInt()} ${AppLocalizations.of(context)!.sar_currency}",
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey,
+                          Text(
+                            "${price.toInt()} ${AppLocalizations.of(context)!.sar_currency}",
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey,
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 );

@@ -110,6 +110,12 @@ abstract class AppLocalizations {
   /// **'Welcome to Rahiq!'**
   String get welcomeMessage;
 
+  /// No description provided for @welcome.
+  ///
+  /// In en, this message translates to:
+  /// **'Ahlan'**
+  String get welcome;
+
   /// No description provided for @onboard1_title.
   ///
   /// In en, this message translates to:

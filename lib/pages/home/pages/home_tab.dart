@@ -287,8 +287,6 @@ class _HomeTabState extends State<HomeTab> {
       return buildErrorWidget(context);
     }
 
-    final isAr = Localizations.localeOf(context).languageCode == 'ar';
-
     return Stack(
       children: [
         Container(
@@ -304,9 +302,9 @@ class _HomeTabState extends State<HomeTab> {
             ),
             child: RefreshIndicator(
               onRefresh: _fetchHomeData,
-              color: AppColors.buttonBlue,
+              color: AppColors.buttonBlueDark,
               child: SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
+                physics: const ClampingScrollPhysics(),
                 child: Column(
                   children: [
                     // Header Section
@@ -324,62 +322,11 @@ class _HomeTabState extends State<HomeTab> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                AuthStorage.user?.fullName ?? "Abdullah Hassan",
+                                "${AppLocalizations.of(context)!.welcome}, ${AuthStorage.user?.fullName ?? "User"}",
                                 style: TextStyle(
-                                  color: Colors.black.withValues(alpha: 0.8),
-                                  fontSize: 19,
-                                  fontWeight: FontWeight.w700,
-                                ),
-                              ),
-                              Text(
-                                AppLocalizations.of(context)!.assalamu_alaikum,
-                                style: const TextStyle(
                                   color: Colors.black,
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              Container(
-                                width: 40,
-                                height: 40,
-                                decoration: const BoxDecoration(
-                                  color: Colors.white,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Material(
-                                  color: Colors.transparent,
-                                  child: InkWell(
-                                    onTap: () {
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) =>
-                                              const NotificationsPage(),
-                                        ),
-                                      ).then((_) {
-                                        _fetchHomeData(); // Refresh badge on return
-                                      });
-                                    },
-                                    customBorder: const CircleBorder(),
-                                    child: Center(
-                                      child: Badge(
-                                        isLabelVisible:
-                                            _unreadNotificationsCount > 0,
-                                        label: Text(
-                                          '$_unreadNotificationsCount',
-                                        ),
-                                        child: const Icon(
-                                          Icons.notifications_none_rounded,
-                                          color: AppColors.buttonBlueDark,
-                                          size: 20,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w400,
                                 ),
                               ),
                             ],
@@ -579,7 +526,9 @@ class _HomeTabState extends State<HomeTab> {
             bottom: 130,
             child: BottomActionPill(
               titleWidget: Text(
-                AppLocalizations.of(context)!.selected_items_count(_selectedItems.length),
+                AppLocalizations.of(
+                  context,
+                )!.selected_items_count(_selectedItems.length),
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -1735,83 +1684,88 @@ class _HomeTabState extends State<HomeTab> {
     return Stack(
       clipBehavior: Clip.none,
       children: [
-        Container(
-          decoration: BoxDecoration(
-            color: const Color(0xffF6F6F6),
-            borderRadius: BorderRadius.circular(10),
-            border: isSelected
-                ? Border.all(color: AppColors.buttonBlueDark, width: 1.5)
-                : null,
-          ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Padding(
-                padding: const EdgeInsets.all(6.0),
-                child: AspectRatio(
-                  aspectRatio: 1.0,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: Container(
-                      width: double.infinity,
-                      color: const Color(0xFFDDEEF7),
-                      child: imgPath.isEmpty
-                          ? const Center(
-                              child: Icon(
-                                Icons.water_drop_outlined,
-                                color: AppColors.buttonBlueDark,
-                                size: 32,
-                              ),
-                            )
-                          : imgPath.startsWith('assets/')
-                          ? Image.asset(imgPath, fit: BoxFit.contain)
-                          : CachedNetworkImage(
-                              imageUrl: imgPath,
-                              fit: BoxFit.contain,
-                              placeholder: (context, url) => const Center(
-                                child: SizedBox(
-                                  width: 20,
-                                  height: 20,
-                                  child: WaterLoadingIndicator(size: 30),
+        Material(
+          color: Colors.white,
+          elevation: 1,
+          borderRadius: BorderRadius.circular(10),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(10),
+              border: isSelected
+                  ? Border.all(color: AppColors.buttonBlueDark, width: 1.5)
+                  : null,
+            ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.all(6.0),
+                  child: AspectRatio(
+                    aspectRatio: 1.0,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: Container(
+                        width: double.infinity,
+                        color: const Color(0xFFDDEEF7),
+                        child: imgPath.isEmpty
+                            ? const Center(
+                                child: Icon(
+                                  Icons.water_drop_outlined,
+                                  color: AppColors.buttonBlueDark,
+                                  size: 32,
                                 ),
-                              ),
-                              errorWidget: (context, url, error) =>
-                                  const Center(
-                                    child: Icon(
-                                      Icons.water_drop_outlined,
-                                      color: AppColors.buttonBlueDark,
-                                      size: 32,
-                                    ),
+                              )
+                            : imgPath.startsWith('assets/')
+                            ? Image.asset(imgPath, fit: BoxFit.contain)
+                            : CachedNetworkImage(
+                                imageUrl: imgPath,
+                                fit: BoxFit.contain,
+                                placeholder: (context, url) => const Center(
+                                  child: SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: WaterLoadingIndicator(size: 30),
                                   ),
-                            ),
+                                ),
+                                errorWidget: (context, url, error) =>
+                                    const Center(
+                                      child: Icon(
+                                        Icons.water_drop_outlined,
+                                        color: AppColors.buttonBlueDark,
+                                        size: 32,
+                                      ),
+                                    ),
+                              ),
+                      ),
                     ),
                   ),
                 ),
-              ),
-              Expanded(
-                child: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 4,
-                  ),
-                  alignment: Alignment.center,
-                  child: Text(
-                    title,
-                    textAlign: TextAlign.center,
-                    maxLines: 2,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.black87,
-                      height: 1.2,
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      title,
+                      textAlign: TextAlign.center,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black87,
+                        height: 1.2,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              const SizedBox(height: 4),
-            ],
+                const SizedBox(height: 4),
+              ],
+            ),
           ),
         ),
         if (onClear != null)

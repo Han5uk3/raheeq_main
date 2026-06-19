@@ -6,6 +6,7 @@ import 'package:raheeq_main/models/order_response_model.dart';
 import 'package:raheeq_main/pages/order/booking_details_page.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 
 class OrdersTab extends StatefulWidget {
   const OrdersTab({super.key});
@@ -72,109 +73,126 @@ class _OrdersTabState extends State<OrdersTab> {
   Widget build(BuildContext context) {
     return DefaultTabController(
       length: 3,
-      child: Column(
-        children: [
-          const SizedBox(height: 16),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: Container(
-              height: 50,
-              decoration: BoxDecoration(
-                color: const Color(0xFFF0F4F8),
-                borderRadius: BorderRadius.circular(25),
-              ),
-              child: TabBar(
-                splashFactory: NoSplash.splashFactory,
-                splashBorderRadius: BorderRadius.circular(25),
-                isScrollable: false,
-                dividerColor: Colors.transparent,
-                labelColor: Colors.white,
-                unselectedLabelColor: AppColors.buttonBlueDark,
-                indicatorSize: TabBarIndicatorSize.tab,
-                indicator: BoxDecoration(
-                  borderRadius: BorderRadius.circular(25),
-                  color: AppColors.buttonBlueDark,
-                ),
-                labelPadding: EdgeInsets.zero,
-                labelStyle: const TextStyle(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 13,
-                ),
-                tabs: [
-                  Tab(
-                    child: Center(
-                      child: Text(
-                        AppLocalizations.of(context)!.new_orders,
-                        textAlign: TextAlign.center,
+      child: RefreshIndicator(
+        onRefresh: _fetchOrders,
+        color: AppColors.buttonBlue,
+        child: Builder(
+          builder: (context) {
+            final tabController = DefaultTabController.of(context);
+            return SingleChildScrollView(
+              physics: const ClampingScrollPhysics(),
+              child: Column(
+                children: [
+                  CustomAppBar(
+                    title: AppLocalizations.of(context)!.my_orders,
+                    subtitle: AppLocalizations.of(
+                      context,
+                    )!.track_your_donations,
+                    centerTitle: true,
+                  ),
+                  Container(
+                    decoration: const BoxDecoration(
+                      color: Color(0xFFF8FAFB),
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(30),
+                        topRight: Radius.circular(30),
                       ),
                     ),
-                  ),
-                  Tab(
-                    child: Center(
-                      child: Text(
-                        AppLocalizations.of(context)!.out_for_delivery,
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ),
-                  Tab(
-                    child: Center(
-                      child: Text(
-                        AppLocalizations.of(context)!.delivered,
-                        textAlign: TextAlign.center,
-                      ),
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 16),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                          child: Container(
+                            height: 50,
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFE5E9EC),
+                              borderRadius: BorderRadius.circular(25),
+                            ),
+                            child: TabBar(
+                              splashFactory: NoSplash.splashFactory,
+                              splashBorderRadius: BorderRadius.circular(25),
+                              isScrollable: false,
+                              dividerColor: Colors.transparent,
+                              labelColor: Colors.white,
+                              unselectedLabelColor: AppColors.buttonBlueDark,
+                              indicatorSize: TabBarIndicatorSize.tab,
+                              indicator: BoxDecoration(
+                                borderRadius: BorderRadius.circular(25),
+                                color: AppColors.buttonBlueDark,
+                              ),
+                              labelPadding: EdgeInsets.zero,
+                              labelStyle: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 13,
+                              ),
+                              tabs: [
+                                Tab(
+                                  child: Center(
+                                    child: Text(
+                                      AppLocalizations.of(context)!.new_orders,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ),
+                                Tab(
+                                  child: Center(
+                                    child: Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.out_for_delivery,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ),
+                                Tab(
+                                  child: Center(
+                                    child: Text(
+                                      AppLocalizations.of(context)!.delivered,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        AnimatedBuilder(
+                          animation: tabController,
+                          builder: (context, _) {
+                            if (tabController.index == 0) {
+                              return _buildOrdersList(
+                                _newOrders,
+                                AppLocalizations.of(context)!.no_new_orders,
+                              );
+                            } else if (tabController.index == 1) {
+                              return _buildOrdersList(
+                                _outForDelivery,
+                                AppLocalizations.of(
+                                  context,
+                                )!.no_orders_out_for_delivery,
+                              );
+                            } else {
+                              return _buildOrdersList(
+                                _delivered,
+                                AppLocalizations.of(
+                                  context,
+                                )!.no_delivered_orders,
+                              );
+                            }
+                          },
+                        ),
+                        const SizedBox(height: 145), // Padding at the bottom
+                      ],
                     ),
                   ),
                 ],
               ),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Expanded(child: _buildContent()),
-        ],
+            );
+          },
+        ),
       ),
-    );
-  }
-
-  Widget _buildContent() {
-    if (_isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(color: AppColors.buttonBlueDark),
-      );
-    }
-
-    if (_errorMessage != null) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, color: Colors.redAccent, size: 48),
-            const SizedBox(height: 16),
-            Text(_errorMessage!, style: const TextStyle(color: Colors.grey)),
-            TextButton(
-              onPressed: _fetchOrders,
-              child: Text(AppLocalizations.of(context)!.retry),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return TabBarView(
-      children: [
-        _buildOrdersList(
-          _newOrders,
-          AppLocalizations.of(context)!.no_new_orders,
-        ),
-        _buildOrdersList(
-          _outForDelivery,
-          AppLocalizations.of(context)!.no_orders_out_for_delivery,
-        ),
-        _buildOrdersList(
-          _delivered,
-          AppLocalizations.of(context)!.no_delivered_orders,
-        ),
-      ],
     );
   }
 
@@ -182,24 +200,58 @@ class _OrdersTabState extends State<OrdersTab> {
     List<OrderResponseModel> orders,
     String emptyMessage,
   ) {
-    if (orders.isEmpty) {
-      return Center(
-        child: Text(emptyMessage, style: const TextStyle(color: Colors.grey)),
+    if (_isLoading) {
+      return const Padding(
+        padding: EdgeInsets.only(top: 32.0),
+        child: Center(
+          child: CircularProgressIndicator(color: AppColors.buttonBlueDark),
+        ),
       );
     }
 
-    return RefreshIndicator(
-      onRefresh: _fetchOrders,
-      color: AppColors.buttonBlue,
-      child: ListView.separated(
-        padding: const EdgeInsets.fromLTRB(16, 16, 16, 150),
-        itemCount: orders.length,
-        separatorBuilder: (context, index) => const SizedBox(height: 12),
-        itemBuilder: (context, index) {
-          final order = orders[index];
-          return _buildOrderCard(order);
-        },
-      ),
+    if (_errorMessage != null) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 32.0),
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.error_outline,
+                color: Colors.redAccent,
+                size: 48,
+              ),
+              const SizedBox(height: 16),
+              Text(_errorMessage!, style: const TextStyle(color: Colors.grey)),
+              TextButton(
+                onPressed: _fetchOrders,
+                child: Text(AppLocalizations.of(context)!.retry),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (orders.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.only(top: 32.0),
+        child: Center(
+          child: Text(emptyMessage, style: const TextStyle(color: Colors.grey)),
+        ),
+      );
+    }
+
+    return ListView.separated(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      itemCount: orders.length,
+      separatorBuilder: (context, index) => const SizedBox(height: 12),
+      itemBuilder: (context, index) {
+        final order = orders[index];
+        return _buildOrderCard(order);
+      },
     );
   }
 

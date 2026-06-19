@@ -15,6 +15,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get welcomeMessage => 'Welcome to Rahiq!';
 
   @override
+  String get welcome => 'Ahlan';
+
+  @override
   String get onboard1_title => 'Give with Purpose';
 
   @override

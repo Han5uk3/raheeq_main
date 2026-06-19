@@ -344,20 +344,20 @@ class _ProfileTabState extends State<ProfileTab> {
                             );
                           },
                         ),
-                        _buildMenuTile(
-                          icon: Icons.payment_outlined,
-                          title: AppLocalizations.of(context)!.payment_methods,
-                          onTap: () {
-                            CustomSnackbar.show(
-                              context: context,
-                              message: AppLocalizations.of(
-                                context,
-                              )!.redirecting_payment_methods,
-                              duration: Duration(seconds: 1),
-                              bottomMargin: 130,
-                            );
-                          },
-                        ),
+                        // _buildMenuTile(
+                        //   icon: Icons.payment_outlined,
+                        //   title: AppLocalizations.of(context)!.payment_methods,
+                        //   onTap: () {
+                        //     CustomSnackbar.show(
+                        //       context: context,
+                        //       message: AppLocalizations.of(
+                        //         context,
+                        //       )!.redirecting_payment_methods,
+                        //       duration: Duration(seconds: 1),
+                        //       bottomMargin: 130,
+                        //     );
+                        //   },
+                        // ),
                         _buildMenuTile(
                           icon: Symbols.package_2,
                           title: AppLocalizations.of(context)!.order_history,

@@ -88,7 +88,7 @@ class _HomeScreenState extends State<HomeScreen> {
     Widget scaffold = Scaffold(
       extendBody: true, // Important to allow bottom nav area to be transparent
       backgroundColor: Colors.transparent,
-      appBar: (_currentIndex == 0 || _currentIndex == 3)
+      appBar: (_currentIndex == 0 || _currentIndex == 1 || _currentIndex == 3)
           ? null
           : CustomAppBar(
               title: _getAppBarTitle(context),
@@ -97,7 +97,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
       body: Container(
         key: ValueKey<int>(_currentIndex),
-        decoration: (_currentIndex == 0 || _currentIndex == 3)
+        decoration: (_currentIndex == 0 || _currentIndex == 1 || _currentIndex == 3)
             ? null
             : const BoxDecoration(
                 color: Color(0xFFF8FAFB),
@@ -106,7 +106,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   topRight: Radius.circular(30),
                 ),
               ),
-        child: (_currentIndex == 0 || _currentIndex == 3)
+        child: (_currentIndex == 0 || _currentIndex == 1 || _currentIndex == 3)
             ? _buildPages(context)[_currentIndex]
             : ClipRRect(
                 borderRadius: const BorderRadius.only(
