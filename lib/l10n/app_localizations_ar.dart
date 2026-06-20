@@ -15,6 +15,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get welcomeMessage => 'مرحبًا بك في رحيق!';
 
   @override
+  String get available_colon => 'متاح :';
+
+  @override
   String get welcome => 'مرحباً';
 
   @override

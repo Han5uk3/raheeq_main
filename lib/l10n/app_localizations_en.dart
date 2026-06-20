@@ -15,6 +15,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get welcomeMessage => 'Welcome to Rahiq!';
 
   @override
+  String get available_colon => 'Available :';
+
+  @override
   String get welcome => 'Ahlan';
 
   @override

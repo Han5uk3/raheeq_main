@@ -110,6 +110,12 @@ abstract class AppLocalizations {
   /// **'Welcome to Rahiq!'**
   String get welcomeMessage;
 
+  /// No description provided for @available_colon.
+  ///
+  /// In en, this message translates to:
+  /// **'Available :'**
+  String get available_colon;
+
   /// No description provided for @welcome.
   ///
   /// In en, this message translates to:

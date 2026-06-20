@@ -588,7 +588,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                 ),
               ),
             );
-          } else if (event["status"] == "cancel") {
+          } else if (event["status"] == "cancel" || (event["status"] == "event" && event["message"] == "Cancelled")) {
             if (mounted) {
               setState(() {
                 _isProcessingPayment = false;
@@ -876,6 +876,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
           ),
         ),
         body: CustomScrollView(
+          physics: ClampingScrollPhysics(),
           slivers: [
             SliverToBoxAdapter(
               child: CustomAppBar(
@@ -1189,7 +1190,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                                     CrossAxisAlignment.start,
                                                 children: [
                                                   Text(
-                                                    "${AppLocalizations.of(context)!.available_balance_colon}${_checkoutData.walletBalance.toStringAsFixed(2)} ${AppLocalizations.of(context)!.sar_currency}",
+                                                    "${AppLocalizations.of(context)!.available_colon} ${_checkoutData.walletBalance.toStringAsFixed(2)} ${AppLocalizations.of(context)!.sar_currency}",
                                                     style: const TextStyle(
                                                       fontSize: 14,
                                                       color: Colors.black,
@@ -1315,7 +1316,9 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                 ),
                                 if (_checkoutData.totalGiftCardFee > 0)
                                   _buildPriceRow(
-                                    AppLocalizations.of(context)!.gift_card_fees,
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.gift_card_fees,
                                     _checkoutData.totalGiftCardFee,
                                     isAr,
                                   ),
@@ -1595,7 +1598,9 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                               ),
                             ),
                             Text(
-                              AppLocalizations.of(context)!.view_and_delete_gift_cards,
+                              AppLocalizations.of(
+                                context,
+                              )!.view_and_delete_gift_cards,
                               style: const TextStyle(
                                 fontSize: 12,
                                 color: Colors.grey,
@@ -1711,27 +1716,48 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                             child: ClipRRect(
                                               borderRadius:
                                                   BorderRadius.circular(12),
-                                              child: CachedNetworkImage(
-                                                imageUrl: templateImage,
-                                                fit: BoxFit.cover,
-                                                width: double.infinity,
-                                                placeholder: (context, url) =>
-                                                    Shimmer.fromColors(
-                                                      baseColor:
-                                                          Colors.grey[300]!,
-                                                      highlightColor:
-                                                          Colors.grey[100]!,
-                                                      child: Container(
+                                              child: Stack(
+                                                fit: StackFit.expand,
+                                                children: [
+                                                  CachedNetworkImage(
+                                                    imageUrl: templateImage,
+                                                    fit: BoxFit.cover,
+                                                    width: double.infinity,
+                                                    placeholder:
+                                                        (
+                                                          context,
+                                                          url,
+                                                        ) => Shimmer.fromColors(
+                                                          baseColor:
+                                                              Colors.grey[300]!,
+                                                          highlightColor:
+                                                              Colors.grey[100]!,
+                                                          child: Container(
+                                                            color: Colors.white,
+                                                            width:
+                                                                double.infinity,
+                                                            height:
+                                                                double.infinity,
+                                                          ),
+                                                        ),
+                                                    errorWidget: (_, __, ___) =>
+                                                        const Icon(
+                                                          Icons.broken_image,
+                                                          size: 40,
+                                                        ),
+                                                  ),
+                                                  Container(
+                                                    color: Colors.black
+                                                        .withOpacity(0.3),
+                                                    child: const Center(
+                                                      child: Icon(
+                                                        Icons.zoom_in,
                                                         color: Colors.white,
-                                                        width: double.infinity,
-                                                        height: double.infinity,
+                                                        size: 28,
                                                       ),
                                                     ),
-                                                errorWidget: (_, __, ___) =>
-                                                    const Icon(
-                                                      Icons.broken_image,
-                                                      size: 40,
-                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
                                           ),
@@ -1805,7 +1831,9 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                           Navigator.pop(context); // close loader
                           CustomSnackbar.show(
                             context: context,
-                            message: AppLocalizations.of(context)!.error_removing_gift_card,
+                            message: AppLocalizations.of(
+                              context,
+                            )!.error_removing_gift_card,
                             isError: true,
                           );
                         }
@@ -1866,6 +1894,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
   void _showFullscreenImage(BuildContext context, String imageUrl, bool isAr) {
     showDialog(
       context: context,
+      barrierColor: Colors.black.withOpacity(0.9),
       builder: (ctx) => Dialog(
         backgroundColor: Colors.transparent,
         insetPadding: EdgeInsets.zero,
@@ -1893,6 +1922,9 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                 ),
                 Expanded(
                   child: InteractiveViewer(
+                    minScale: 1.0,
+                    maxScale: 5.0,
+
                     child: CachedNetworkImage(
                       imageUrl: imageUrl,
                       fit: BoxFit.contain,
@@ -1978,7 +2010,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                       context,
                     )!.do_you_want_to_give_a_gift_to_someone_close_to_you,
                     style: const TextStyle(
-                      fontSize: 14,
+                      fontSize: 12,
                       fontWeight: FontWeight.w700,
                     ),
                   ),

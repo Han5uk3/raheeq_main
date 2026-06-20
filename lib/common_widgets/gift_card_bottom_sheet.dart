@@ -150,159 +150,149 @@ class _GiftCardPageState extends State<GiftCardPage> {
 
   @override
   Widget build(BuildContext context) {
-    // The endpoint takes {itemId}. In CheckoutItem we have productId but no id.
-    // Let's use productId for now, but usually it's checkout item ID.
-    // We will check checkout.dart to see if it has id.
-
-    return Scaffold(
-      backgroundColor: Colors.white,
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: _buildApplyButton(),
-      body: Column(
-        children: [
-          CustomAppBar(
-            hasBackgroundColor: true,
-            isStartAligned: true,
-            title: AppLocalizations.of(context)!.add_gift_card,
-            subtitle: '',
-            showBackButton: true,
-            onBackTap: () => Navigator.pop(context),
-          ),
-          Expanded(
-            child: Container(
-              color: const Color(0x4D91E3FE),
+    return AbsorbPointer(
+      absorbing: _isApplying,
+      child: Scaffold(
+        body: CustomScrollView(
+          physics: ClampingScrollPhysics(),
+          slivers: [
+            SliverToBoxAdapter(
+              child: CustomAppBar(
+                hasBackgroundColor: true,
+                isStartAligned: true,
+                title: AppLocalizations.of(context)!.add_gift_card,
+                subtitle: '',
+                showBackButton: true,
+                onBackTap: () => Navigator.pop(context),
+              ),
+            ),
+            SliverToBoxAdapter(
               child: Container(
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFF8FAFB),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(30),
+                color: Color(0x4D91E3FE),
+                child: Container(
+                  width: double.infinity,
+                  constraints: BoxConstraints(
+                    minHeight: MediaQuery.of(context).size.height - 120,
                   ),
-                ),
-                child: Column(
-                  children: [
-                    Expanded(
-                      child: SingleChildScrollView(
-                        padding: const EdgeInsets.fromLTRB(
-                          24.0,
-                          24.0,
-                          24.0,
-                          100.0,
-                        ),
-                        child: Form(
-                          key: _formKey,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              _buildLabel(
-                                AppLocalizations.of(context)!.select_card_template,
-                              ),
-                              const SizedBox(height: 12),
-                              _buildTemplatesList(),
-                              const SizedBox(height: 24),
-                              if (_isLoadingTemplates) ...[
-                                Shimmer.fromColors(
-                                  baseColor: Colors.grey[300]!,
-                                  highlightColor: Colors.grey[100]!,
-                                  child: Container(
-                                    height: 291,
-                                    width: double.infinity,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 24),
-                              ] else if (_selectedTemplate != null) ...[
-                                ClipRRect(
-                                  borderRadius: BorderRadiusGeometry.circular(
-                                    12,
-                                  ),
-                                  child: SizedBox(
-                                    height: 291,
-                                    child: CachedNetworkImage(
-                                      imageUrl: _selectedTemplate!.image,
-                                      width: double.infinity,
-                                      placeholder: (context, url) =>
-                                          Shimmer.fromColors(
-                                            baseColor: Colors.grey[300]!,
-                                            highlightColor: Colors.grey[100]!,
-                                            child: Container(
-                                              height: 300,
-                                              width: double.infinity,
-                                              color: Colors.white,
-                                            ),
-                                          ),
-
-                                      fit: BoxFit.contain,
-                                      errorWidget:
-                                          (context, error, stackTrace) =>
-                                              Container(
-                                                height: 300,
-                                                width: double.infinity,
-                                                color: Colors.grey[200],
-                                                alignment: Alignment.center,
-                                                child: const Icon(
-                                                  Icons.broken_image,
-                                                  size: 50,
-                                                  color: Colors.grey,
-                                                ),
-                                              ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(height: 24),
-                              ],
-
-                              if (widget.checkoutData.items
-                                      .where((item) => item.giftCard == null)
-                                      .length >
-                                  1) ...[
-                                _buildLabel(
-                                  AppLocalizations.of(context)!.select_sub_order,
-                                ),
-                                const SizedBox(height: 8),
-                                _buildItemDropdown(),
-                                const SizedBox(height: 16),
-                              ],
-                              _buildLabel(
-                                AppLocalizations.of(context)!.sender_name_title,
-                              ),
-                              const SizedBox(height: 8),
-                              _buildTextField(
-                                _senderController,
-                                AppLocalizations.of(context)!.enter_sender_name,
-                              ),
-                              const SizedBox(height: 16),
-
-                              _buildLabel(
-                                AppLocalizations.of(context)!.receiver_name_title,
-                              ),
-                              const SizedBox(height: 8),
-                              _buildTextField(
-                                _receiverController,
-                                AppLocalizations.of(context)!.enter_receiver_name,
-                              ),
-                              const SizedBox(height: 16),
-
-                              _buildLabel(
-                                AppLocalizations.of(context)!.receiver_whatsapp,
-                              ),
-                              const SizedBox(height: 8),
-                              _buildPhoneField(),
-                            ],
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30),
+                    ),
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(24.0, 24.0, 24.0, 40.0),
+                    child: Form(
+                      key: _formKey,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildLabel(
+                            AppLocalizations.of(context)!.select_card_template,
                           ),
-                        ),
+                          const SizedBox(height: 12),
+                          _buildTemplatesList(),
+                          const SizedBox(height: 24),
+                          if (_isLoadingTemplates) ...[
+                            Shimmer.fromColors(
+                              baseColor: Colors.grey[300]!,
+                              highlightColor: Colors.grey[100]!,
+                              child: Container(
+                                height: 291,
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                          ] else if (_selectedTemplate != null) ...[
+                            ClipRRect(
+                              borderRadius: BorderRadiusGeometry.circular(12),
+                              child: SizedBox(
+                                height: 291,
+                                child: CachedNetworkImage(
+                                  imageUrl: _selectedTemplate!.image,
+                                  width: double.infinity,
+                                  placeholder: (context, url) =>
+                                      Shimmer.fromColors(
+                                        baseColor: Colors.grey[300]!,
+                                        highlightColor: Colors.grey[100]!,
+                                        child: Container(
+                                          height: 300,
+                                          width: double.infinity,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+
+                                  fit: BoxFit.contain,
+                                  errorWidget: (context, error, stackTrace) =>
+                                      Container(
+                                        height: 300,
+                                        width: double.infinity,
+                                        color: Colors.grey[200],
+                                        alignment: Alignment.center,
+                                        child: const Icon(
+                                          Icons.broken_image,
+                                          size: 50,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 24),
+                          ],
+
+                          if (widget.checkoutData.items
+                                  .where((item) => item.giftCard == null)
+                                  .length >
+                              1) ...[
+                            _buildLabel(
+                              AppLocalizations.of(context)!.select_sub_order,
+                            ),
+                            const SizedBox(height: 8),
+                            _buildItemDropdown(),
+                            const SizedBox(height: 16),
+                          ],
+                          _buildLabel(
+                            AppLocalizations.of(context)!.sender_name_title,
+                          ),
+                          const SizedBox(height: 8),
+                          _buildTextField(
+                            _senderController,
+                            AppLocalizations.of(context)!.enter_sender_name,
+                          ),
+                          const SizedBox(height: 16),
+
+                          _buildLabel(
+                            AppLocalizations.of(context)!.receiver_name_title,
+                          ),
+                          const SizedBox(height: 8),
+                          _buildTextField(
+                            _receiverController,
+                            AppLocalizations.of(context)!.enter_receiver_name,
+                          ),
+                          const SizedBox(height: 16),
+
+                          _buildLabel(
+                            AppLocalizations.of(context)!.receiver_whatsapp,
+                          ),
+                          const SizedBox(height: 8),
+                          _buildPhoneField(),
+                          const SizedBox(height: 32),
+                          _buildApplyButton(),
+                        ],
                       ),
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -588,9 +578,7 @@ class _GiftCardPageState extends State<GiftCardPage> {
     }
 
     if (_templates.isEmpty) {
-      return Text(
-        AppLocalizations.of(context)!.no_templates_available,
-      );
+      return Text(AppLocalizations.of(context)!.no_templates_available);
     }
 
     return Wrap(
@@ -631,32 +619,24 @@ class _GiftCardPageState extends State<GiftCardPage> {
   }
 
   Widget _buildApplyButton() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 24),
-      child: ElevatedButton(
-        onPressed: _isApplying ? null : _applyGiftCard,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.buttonBlueDark,
-          foregroundColor: Colors.white,
-          minimumSize: const Size(double.infinity, 50),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(25),
-          ),
-        ),
-        child: _isApplying
-            ? const WaterLoadingIndicator(
-                size: 20,
-                waveColor1: Colors.white,
-                waveColor2: Colors.white,
-              )
-            : Text(
-                AppLocalizations.of(context)!.save_gift_card_info,
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+    return ElevatedButton(
+      onPressed: _isApplying ? null : _applyGiftCard,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: AppColors.buttonBlueDark,
+        foregroundColor: Colors.white,
+        minimumSize: const Size(double.infinity, 50),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
       ),
+      child: _isApplying
+          ? const WaterLoadingIndicator(
+              size: 20,
+              waveColor1: Colors.white,
+              waveColor2: Colors.white,
+            )
+          : Text(
+              AppLocalizations.of(context)!.save_gift_card_info,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
     );
   }
 }

@@ -9,6 +9,7 @@
   "@welcomeMessage": {
     "description": "A welcome message shown on the home screen"
   },
+  "available_colon":"Available :",
   "welcome":"Ahlan",
   "onboard1_title": "Give with Purpose",
   "onboard1_subtitle": "Make a meaningful difference by providing water to those who need it most.",

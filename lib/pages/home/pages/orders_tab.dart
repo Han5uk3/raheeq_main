@@ -7,6 +7,7 @@ import 'package:raheeq_main/pages/order/booking_details_page.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
+import 'package:shimmer/shimmer.dart';
 
 class OrdersTab extends StatefulWidget {
   const OrdersTab({super.key});
@@ -91,6 +92,10 @@ class _OrdersTabState extends State<OrdersTab> {
                     centerTitle: true,
                   ),
                   Container(
+                    width: double.infinity,
+                    constraints: BoxConstraints(
+                      minHeight: MediaQuery.of(context).size.height - 150,
+                    ),
                     decoration: const BoxDecoration(
                       color: Color(0xFFF8FAFB),
                       borderRadius: BorderRadius.only(
@@ -201,11 +206,65 @@ class _OrdersTabState extends State<OrdersTab> {
     String emptyMessage,
   ) {
     if (_isLoading) {
-      return const Padding(
-        padding: EdgeInsets.only(top: 32.0),
-        child: Center(
-          child: CircularProgressIndicator(color: AppColors.buttonBlueDark),
-        ),
+      return ListView.separated(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        itemCount: 4,
+        separatorBuilder: (context, index) => const SizedBox(height: 12),
+        itemBuilder: (context, index) {
+          return Shimmer.fromColors(
+            baseColor: Colors.grey[300]!,
+            highlightColor: Colors.grey[100]!,
+            child: Card(
+              color: Colors.white,
+              elevation: 2,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 35,
+                ),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 60,
+                      height: 60,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            height: 16,
+                            width: double.infinity,
+                            color: Colors.white,
+                          ),
+                          const SizedBox(height: 8),
+                          Container(
+                            height: 14,
+                            width: 150,
+                            color: Colors.white,
+                          ),
+                          const SizedBox(height: 8),
+                          Container(height: 16, width: 80, color: Colors.white),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
       );
     }
 
