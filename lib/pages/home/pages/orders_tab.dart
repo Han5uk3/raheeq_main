@@ -293,11 +293,11 @@ class _OrdersTabState extends State<OrdersTab> {
     }
 
     if (orders.isEmpty) {
-      return Padding(
-        padding: const EdgeInsets.only(top: 32.0),
-        child: Center(
-          child: Text(emptyMessage, style: const TextStyle(color: Colors.grey)),
-        ),
+      final availableHeight = MediaQuery.of(context).size.height - 377;
+      return Container(
+        height: availableHeight > 200 ? availableHeight : 200,
+        alignment: Alignment.center,
+        child: Text(emptyMessage, style: const TextStyle(color: Colors.grey)),
       );
     }
 
@@ -386,9 +386,14 @@ class _OrderCardState extends State<_OrderCard> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: InkWell(
         onTap: () {
-          setState(() {
-            _isExpanded = !_isExpanded;
-          });
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => BookingDetailsPage(
+                orderId: widget.order.id,
+              ),
+            ),
+          );
         },
         borderRadius: BorderRadius.circular(16),
         child: Padding(
@@ -578,19 +583,44 @@ class _OrderCardState extends State<_OrderCard> {
                             ],
                           ),
                           const SizedBox(height: 12),
-                          const Icon(
-                            Icons.keyboard_arrow_up,
-                            color: Colors.grey,
+                          GestureDetector(
+                            behavior: HitTestBehavior.opaque,
+                            onTap: () {
+                              setState(() {
+                                _isExpanded = false;
+                              });
+                            },
+                            child: const SizedBox(
+                              width: double.infinity,
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8.0),
+                                child: Icon(
+                                  Icons.keyboard_arrow_up,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ),
                           ),
                         ],
                       )
-                    : const SizedBox(
-                        width: double.infinity,
-                        child: Column(
-                          children: [
-                            SizedBox(height: 12),
-                            Icon(Icons.keyboard_arrow_down, color: Colors.grey),
-                          ],
+                    : GestureDetector(
+                        behavior: HitTestBehavior.opaque,
+                        onTap: () {
+                          setState(() {
+                            _isExpanded = true;
+                          });
+                        },
+                        child: const SizedBox(
+                          width: double.infinity,
+                          child: Column(
+                            children: [
+                              SizedBox(height: 4),
+                              Padding(
+                                padding: EdgeInsets.symmetric(vertical: 8.0),
+                                child: Icon(Icons.keyboard_arrow_down, color: Colors.grey),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
               ),

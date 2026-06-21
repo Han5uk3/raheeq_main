@@ -29,10 +29,24 @@ class OTP extends StatefulWidget {
 
 class _OTPState extends State<OTP> {
   final List<TextEditingController> _controllers = List.generate(
-    6,
+    4,
     (index) => TextEditingController(),
   );
-  final List<FocusNode> _focusNodes = List.generate(6, (index) => FocusNode());
+  late final List<FocusNode> _focusNodes = List.generate(4, (index) {
+    final node = FocusNode();
+    node.onKeyEvent = (node, event) {
+      if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.backspace) {
+        if (_controllers[index].text.isEmpty && index > 0) {
+          _focusNodes[index - 1].requestFocus();
+          _controllers[index - 1].clear();
+          setState(() {});
+          return KeyEventResult.handled;
+        }
+      }
+      return KeyEventResult.ignored;
+    };
+    return node;
+  });
 
   Timer? _timer;
   int _secondsRemaining = 60;
@@ -221,70 +235,17 @@ class _OTPState extends State<OTP> {
                           ),
                         ),
                         const SizedBox(height: 20),
+
                         // OTP Display Section
-                        Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: AppColors.buttonBlueDark.withValues(
-                              alpha: 0.1,
-                            ),
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: AppColors.buttonBlueDark.withValues(
-                                alpha: 0.3,
-                              ),
-                              width: 1.5,
-                            ),
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Text(
-                                AppLocalizations.of(
-                                  context,
-                                )!.your_verification_code,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 11,
-                                  color: Colors.grey[600],
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                              const SizedBox(height: 8),
-                              if (_isLoadingOtp)
-                                SizedBox(
-                                  height: 30,
-                                  width: 30,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      AppColors.buttonBlueDark,
-                                    ),
-                                  ),
-                                )
-                              else
-                                Text(
-                                  _receivedOtp ?? 'N/A',
-                                  textDirection: TextDirection.ltr,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 28,
-                                    color: AppColors.buttonBlueDark,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 2,
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 24),
                         Row(
                           textDirection: TextDirection.ltr,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          mainAxisAlignment: MainAxisAlignment.center,
                           children: List.generate(
-                            6,
+                            4,
                             (index) => Container(
+                              margin: EdgeInsetsDirectional.only(
+                                start: index == 0 ? 0 : 8,
+                              ),
                               width: 45,
                               height: 55,
                               decoration: BoxDecoration(
@@ -298,6 +259,11 @@ class _OTPState extends State<OTP> {
                                 ),
                               ),
                               child: TextField(
+                                onTap: () {
+                                  if (_controllers.every((c) => c.text.isEmpty) && index != 0) {
+                                    _focusNodes[0].requestFocus();
+                                  }
+                                },
                                 cursorColor: AppColors.buttonBlueDark,
                                 controller: _controllers[index],
                                 focusNode: _focusNodes[index],
@@ -321,7 +287,7 @@ class _OTPState extends State<OTP> {
                                     return;
                                   }
 
-                                  if (value.isNotEmpty && index < 5) {
+                                  if (value.isNotEmpty && index < 3) {
                                     _focusNodes[index + 1].requestFocus();
                                   } else if (value.isEmpty && index > 0) {
                                     _focusNodes[index - 1].requestFocus();
@@ -450,7 +416,7 @@ class _OTPState extends State<OTP> {
                                     final otp = _controllers
                                         .map((c) => c.text)
                                         .join();
-                                    if (otp.length < 6) {
+                                    if (otp.length < 4) {
                                       CustomSnackbar.show(
                                         context: context,
                                         message: AppLocalizations.of(

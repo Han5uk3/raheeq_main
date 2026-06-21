@@ -112,7 +112,6 @@ class _SubscriptionDetailsBottomSheetState
 
       if (mounted) {
         Navigator.pop(context); // Close the bottom sheet
-        final isAr = Localizations.localeOf(context).languageCode == 'ar';
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (_) => ContributionDetailsPage(
