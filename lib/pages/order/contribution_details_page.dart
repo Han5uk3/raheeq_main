@@ -5,6 +5,7 @@ import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_paytabs_bridge/flutter_paytabs_bridge.dart';
 import 'package:flutter_paytabs_bridge/IOSThemeConfiguration.dart';
 import 'package:flutter_paytabs_bridge/PaymentSdkTokeniseType.dart';
@@ -98,7 +99,9 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
       log('Error applying coupon: $e', error: e);
       if (mounted) {
         String errorMessage = AppLocalizations.of(context)!.invalid_coupon_code;
-        if (e is DioException && e.response?.data is Map && e.response?.data['message'] != null) {
+        if (e is DioException &&
+            e.response?.data is Map &&
+            e.response?.data['message'] != null) {
           errorMessage = e.response!.data['message'];
         }
         CustomSnackbar.show(
@@ -141,8 +144,12 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
     } catch (e) {
       log('Error removing coupon: $e', error: e);
       if (mounted) {
-        String errorMessage = AppLocalizations.of(context)!.failed_to_remove_coupon;
-        if (e is DioException && e.response?.data is Map && e.response?.data['message'] != null) {
+        String errorMessage = AppLocalizations.of(
+          context,
+        )!.failed_to_remove_coupon;
+        if (e is DioException &&
+            e.response?.data is Map &&
+            e.response?.data['message'] != null) {
           errorMessage = e.response!.data['message'];
         }
         CustomSnackbar.show(
@@ -195,7 +202,8 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
           errorMessage = AppLocalizations.of(
             context,
           )!.insufficient_balance_to_apply_wallet;
-        } else if (e.response?.data is Map && e.response?.data['message'] != null) {
+        } else if (e.response?.data is Map &&
+            e.response?.data['message'] != null) {
           errorMessage = e.response!.data['message'];
         }
 
@@ -598,7 +606,8 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                 ),
               ),
             );
-          } else if (event["status"] == "cancel" || (event["status"] == "event" && event["message"] == "Cancelled")) {
+          } else if (event["status"] == "cancel" ||
+              (event["status"] == "event" && event["message"] == "Cancelled")) {
             if (mounted) {
               setState(() {
                 _isProcessingPayment = false;
@@ -1079,6 +1088,14 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                             ),
                                           ),
                                           child: TextField(
+                                            inputFormatters: [
+                                              TextInputFormatter.withFunction(
+                                                (oldValue, newValue) => TextEditingValue(
+                                                  text: newValue.text.toUpperCase(),
+                                                  selection: newValue.selection,
+                                                ),
+                                              ),
+                                            ],
                                             cursorColor:
                                                 AppColors.buttonBlueDark,
 

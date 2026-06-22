@@ -1,5 +1,8 @@
 import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'dart:async';
+import 'dart:io';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:dio/dio.dart';
@@ -431,12 +434,29 @@ class _OTPState extends State<OTP> {
 
                                     setState(() => _isVerifying = true);
                                     try {
+                                      final fcmToken = await FirebaseMessaging.instance.getToken();
+                                      
+                                      String? deviceId;
+                                      try {
+                                        final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+                                        if (Platform.isIOS) {
+                                          final IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+                                          deviceId = iosInfo.identifierForVendor;
+                                        } else if (Platform.isAndroid) {
+                                          final AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+                                          deviceId = androidInfo.id;
+                                        }
+                                      } catch (e) {
+                                        debugPrint('Failed to get device info: $e');
+                                      }
+
                                       final response = await ApiService().verifyOtp(
                                         countryCode: widget.countryCode,
                                         phoneNumber: widget.phoneNumber,
                                         otp: otp,
-                                        deviceType:
-                                            'ANDROID', // Ideally, get this from device_info_plus
+                                        fcmToken: fcmToken,
+                                        deviceType: Platform.isIOS ? 'IOS' : 'ANDROID',
+                                        deviceId: deviceId ?? 'unknown_device_id',
                                       );
 
                                       if (!context.mounted) return;

@@ -36,6 +36,8 @@ dependencies:
   phone_numbers_parser: ^9.0.23
   google_sign_in: ^7.2.0
   sign_in_with_apple: ^8.1.0
+  device_info_plus: ^12.4.0
+  google_fonts: ^8.1.0
 
 dev_dependencies:
   flutter_test:
@@ -61,3 +63,6 @@ flutter:
           weight: 500
         - asset: assets/fonts/SF-Pro-Text-Bold.otf
           weight: 700
+    - family: SaudiRiyal
+      fonts:
+        - asset: assets/fonts/saudi_riyal.ttf

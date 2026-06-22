@@ -97,7 +97,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
     for (var product in widget.campaign.products) {
       final qty = _selectedQuantities[product.id];
       if (qty != null && qty > 0) {
-        total += (product.price + product.deliveryFee) * qty;
+        total += (product.price) * qty;
       }
     }
     return total;
@@ -226,14 +226,18 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
                       child: Builder(
                         builder: (context) {
                           final screenWidth = MediaQuery.of(context).size.width;
-                          
+
                           int visibleCount = products.length;
                           if (visibleCount == 0) visibleCount = 1;
                           if (visibleCount > 3) visibleCount = 3;
-                          
+
                           final spacing = 12.0 * (visibleCount - 1);
-                          final totalTakenSpace = 32.0 + 24.0 + spacing; // Container margin (16*2) + ListView padding (12*2) + Spacing
-                          final itemWidth = (screenWidth - totalTakenSpace) / visibleCount;
+                          final totalTakenSpace =
+                              32.0 +
+                              24.0 +
+                              spacing; // Container margin (16*2) + ListView padding (12*2) + Spacing
+                          final itemWidth =
+                              (screenWidth - totalTakenSpace) / visibleCount;
 
                           return Container(
                             margin: const EdgeInsets.symmetric(horizontal: 16),
@@ -402,7 +406,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
               itemCount: presets.length,
               itemBuilder: (context, index) {
                 final qty = presets[index];
-                final price = qty * (product.price + product.deliveryFee);
+                final price = qty * (product.price);
                 return GestureDetector(
                   onTap: () => _selectQuantity(qty),
                   child: Container(
@@ -597,14 +601,6 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
                   ],
                 ),
               ),
-            if (product.deliveryFee > 0 &&
-                _selectedQuantities[product.id] != null) ...[
-              const SizedBox(height: 12),
-              Text(
-                "${AppLocalizations.of(context)!.incl_sar} ${(_selectedQuantities[product.id]! * product.deliveryFee).toInt()} ${AppLocalizations.of(context)!.delivery_suffix}",
-                style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-              ),
-            ],
           ],
         ),
       ),
@@ -613,13 +609,6 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
 
   Widget _buildFloatingBar(BuildContext context, bool isAr) {
     final total = _totalAmount;
-    double deliveryTotal = 0.0;
-    for (var product in widget.campaign.products) {
-      final qty = _selectedQuantities[product.id];
-      if (qty != null) {
-        deliveryTotal += product.deliveryFee * qty;
-      }
-    }
 
     return Container(
       margin: const EdgeInsets.all(
@@ -662,18 +651,6 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
                   color: Color(0xFF102840),
                 ),
               ),
-              if (deliveryTotal > 0)
-                Padding(
-                  padding: const EdgeInsetsDirectional.only(top: 2),
-                  child: Text(
-                    "${AppLocalizations.of(context)!.inclusive_of_sar} ${deliveryTotal.toInt()} ${AppLocalizations.of(context)!.delivery_charge}",
-                    style: const TextStyle(
-                      fontSize: 11,
-                      color: Colors.grey,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
             ],
           ),
           ElevatedButton(
@@ -806,8 +783,12 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
       Navigator.pop(context); // Close loading dialog
       log('Error creating checkout: $e', error: e);
       if (mounted) {
-        String errorMessage = AppLocalizations.of(context)!.error_occurred_try_again;
-        if (e is DioException && e.response?.data is Map && e.response?.data['message'] != null) {
+        String errorMessage = AppLocalizations.of(
+          context,
+        )!.error_occurred_try_again;
+        if (e is DioException &&
+            e.response?.data is Map &&
+            e.response?.data['message'] != null) {
           errorMessage = e.response!.data['message'];
         }
         CustomSnackbar.show(

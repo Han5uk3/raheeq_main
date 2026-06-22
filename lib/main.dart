@@ -13,6 +13,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:raheeq_main/services/notification_service.dart';
 import 'package:raheeq_main/services/freshchat_service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 final ValueNotifier<Locale> localeNotifier = ValueNotifier(const Locale('en'));
 
@@ -86,6 +87,8 @@ class MainApp extends StatelessWidget {
             Locale('ar'), // Arabic
           ],
           theme: ThemeData(
+            fontFamily: GoogleFonts.manrope().fontFamily,
+            fontFamilyFallback: const ['SaudiRiyal', 'SF Pro'],
             appBarTheme: const AppBarTheme(
               backgroundColor: Colors.white,
               foregroundColor: Colors.black,

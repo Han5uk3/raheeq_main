@@ -324,7 +324,7 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
     required bool isAr,
   }) {
     final product = slot.product;
-    final unitPrice = product.price + product.deliveryFee;
+    final unitPrice = product.price;
     final totalPrice = unitPrice * slot.quantity;
 
     return GestureDetector(
