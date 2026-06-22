@@ -7,6 +7,8 @@ import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:intl/intl.dart' show DateFormat;
+import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
+import 'package:dio/dio.dart';
 
 class CustomerReviewsPage extends StatefulWidget {
   const CustomerReviewsPage({super.key});
@@ -44,14 +46,14 @@ class _CustomerReviewsPageState extends State<CustomerReviewsPage> {
         setState(() {
           _isLoading = false;
         });
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              AppLocalizations.of(context)?.error_msg(e.toString()) ??
-                  e.toString(),
-            ),
-            backgroundColor: Colors.red,
-          ),
+        String errorMessage = AppLocalizations.of(context)?.error_msg(e.toString()) ?? e.toString();
+        if (e is DioException && e.response?.data is Map && e.response?.data['message'] != null) {
+          errorMessage = e.response!.data['message'];
+        }
+        CustomSnackbar.show(
+          context: context,
+          message: errorMessage,
+          isError: true,
         );
       }
     }

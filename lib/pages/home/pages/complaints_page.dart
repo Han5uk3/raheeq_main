@@ -8,6 +8,7 @@ import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:raheeq_main/models/order_response_model.dart';
 import 'package:intl/intl.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
+import 'package:dio/dio.dart';
 
 class ComplaintsPage extends StatefulWidget {
   const ComplaintsPage({super.key});
@@ -96,9 +97,13 @@ class _ComplaintsPageState extends State<ComplaintsPage> {
       );
       if (res.statusCode == 200 || res.statusCode == 201) {
         if (mounted) {
+          String successMessage = 'Complaint sent successfully';
+          if (res.data is Map && res.data['message'] != null) {
+            successMessage = res.data['message'];
+          }
           CustomSnackbar.show(
             context: context,
-            message: 'Complaint sent successfully',
+            message: successMessage,
           );
           setState(() {
             _selectedOrder = null;
@@ -110,9 +115,14 @@ class _ComplaintsPageState extends State<ComplaintsPage> {
     } catch (e) {
       log('Complaint API error: $e', name: 'ComplaintsPage', error: e);
       if (mounted) {
+        String errorMessage = 'Failed to send complaint';
+        if (e is DioException && e.response?.data is Map && e.response?.data['message'] != null) {
+          errorMessage = e.response!.data['message'];
+        }
         CustomSnackbar.show(
           context: context,
-          message: 'Failed to send complaint',
+          message: errorMessage,
+          isError: true,
         );
       }
     } finally {

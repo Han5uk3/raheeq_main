@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'dart:developer';
 import '../storage/auth_storage.dart';
+import 'package:raheeq_main/main.dart';
 
 class ApiService {
   static const String baseUrl = 'https://api-staging.suqyarahiq.com/api/v1';
@@ -61,6 +62,7 @@ class ApiService {
           if (token != null) {
             options.headers['Authorization'] = 'Bearer $token';
           }
+          options.headers['Accept-Language'] = localeNotifier.value.languageCode;
           return handler.next(options);
         },
         onError: (DioException e, handler) async {

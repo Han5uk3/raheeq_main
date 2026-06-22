@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'dart:io';
 import 'dart:developer';
@@ -136,7 +137,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
         if (mounted) {
           CustomSnackbar.show(
             context: context,
-            message: AppLocalizations.of(context)!.profile_updated,
+            message: (response.data is Map && response.data['message'] != null)
+                ? response.data['message']
+                : AppLocalizations.of(context)!.profile_updated,
           );
           setState(() {
             _currentUser = AuthStorage.user;
@@ -155,9 +158,17 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
       }
     } catch (e) {
       if (mounted) {
+        String errorMessage = AppLocalizations.of(
+          context,
+        )!.error_msg(e.toString());
+        if (e is DioException &&
+            e.response?.data is Map &&
+            e.response?.data['message'] != null) {
+          errorMessage = e.response!.data['message'];
+        }
         CustomSnackbar.show(
           context: context,
-          message: AppLocalizations.of(context)!.error_msg(e.toString()),
+          message: errorMessage,
           isError: true,
         );
       }
@@ -302,7 +313,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
         if (mounted) {
           CustomSnackbar.show(
             context: context,
-            message: AppLocalizations.of(context)!.profile_pic_updated,
+            message: (response.data is Map && response.data['message'] != null)
+                ? response.data['message']
+                : AppLocalizations.of(context)!.profile_pic_updated,
           );
           setState(() {
             _currentUser = AuthStorage.user;
@@ -311,11 +324,17 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
       }
     } catch (e) {
       if (mounted) {
+        String errorMessage = AppLocalizations.of(
+          context,
+        )!.failed_upload_simulation(e.toString());
+        if (e is DioException &&
+            e.response?.data is Map &&
+            e.response?.data['message'] != null) {
+          errorMessage = e.response!.data['message'];
+        }
         CustomSnackbar.show(
           context: context,
-          message: AppLocalizations.of(
-            context,
-          )!.failed_upload_simulation(e.toString()),
+          message: errorMessage,
           isError: true,
         );
       }

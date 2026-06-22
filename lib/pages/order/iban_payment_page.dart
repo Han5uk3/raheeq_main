@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:raheeq_main/api/apis.dart';
@@ -58,9 +59,18 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
       }
     } catch (e) {
       setState(() => _isLoading = false);
+      String errorMessage = AppLocalizations.of(
+        context,
+      )!.failed_to_load_bank_accounts;
+      if (e is DioException &&
+          e.response?.data is Map &&
+          e.response?.data['message'] != null) {
+        errorMessage = e.response!.data['message'];
+      }
       CustomSnackbar.show(
         context: context,
-        message: AppLocalizations.of(context)!.failed_to_load_bank_accounts,
+        message: errorMessage,
+        isError: true,
       );
     }
   }

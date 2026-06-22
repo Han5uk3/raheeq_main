@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/utils/colors.dart';
@@ -51,7 +52,9 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
         if (mounted) {
           CustomSnackbar.show(
             context: context,
-            message: 'Feedback sent successfully',
+            message: (res.data is Map && res.data['message'] != null)
+                ? res.data['message']
+                : 'Feedback sent successfully',
           );
           _suggestionController.clear();
         }
@@ -59,9 +62,16 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
     } catch (e) {
       log('Feedback API error: $e', name: 'SuggestionsPage', error: e);
       if (mounted) {
+        String errorMessage = 'Failed to send feedback';
+        if (e is DioException &&
+            e.response?.data is Map &&
+            e.response?.data['message'] != null) {
+          errorMessage = e.response!.data['message'];
+        }
         CustomSnackbar.show(
           context: context,
-          message: 'Failed to send feedback',
+          message: errorMessage,
+          isError: true,
         );
       }
     } finally {

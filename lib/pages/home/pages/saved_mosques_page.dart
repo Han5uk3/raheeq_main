@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:raheeq_main/api/apis.dart';
@@ -77,20 +78,31 @@ class _SavedMosquesPageState extends State<SavedMosquesPage> {
       setState(() {
         _savedMosques.removeWhere((m) => m.id == item.id);
       });
-      await _apiService.deleteFavoriteMosque(item.id);
+      final res = await _apiService.deleteFavoriteMosque(item.id);
       if (mounted) {
         CustomSnackbar.show(
           context: context,
-          message: AppLocalizations.of(context)!.removed_from_saved(item.name),
+          message: (res.data is Map && res.data['message'] != null)
+              ? res.data['message']
+              : AppLocalizations.of(context)!.removed_from_saved(item.name),
         );
       }
     } catch (e) {
       // Re-fetch to restore state if deletion fails
       _fetchSavedMosques();
       if (mounted) {
+        String errorMessage = AppLocalizations.of(
+          context,
+        )!.failed_to_remove_mosque;
+        if (e is DioException &&
+            e.response?.data is Map &&
+            e.response?.data['message'] != null) {
+          errorMessage = e.response!.data['message'];
+        }
         CustomSnackbar.show(
           context: context,
-          message: AppLocalizations.of(context)!.failed_to_remove_mosque,
+          message: errorMessage,
+          isError: true,
         );
       }
     }

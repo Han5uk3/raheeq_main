@@ -97,9 +97,13 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
     } catch (e) {
       log('Error applying coupon: $e', error: e);
       if (mounted) {
+        String errorMessage = AppLocalizations.of(context)!.invalid_coupon_code;
+        if (e is DioException && e.response?.data is Map && e.response?.data['message'] != null) {
+          errorMessage = e.response!.data['message'];
+        }
         CustomSnackbar.show(
           context: context,
-          message: AppLocalizations.of(context)!.invalid_coupon_code,
+          message: errorMessage,
           isError: true,
         );
       }
@@ -137,9 +141,13 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
     } catch (e) {
       log('Error removing coupon: $e', error: e);
       if (mounted) {
+        String errorMessage = AppLocalizations.of(context)!.failed_to_remove_coupon;
+        if (e is DioException && e.response?.data is Map && e.response?.data['message'] != null) {
+          errorMessage = e.response!.data['message'];
+        }
         CustomSnackbar.show(
           context: context,
-          message: AppLocalizations.of(context)!.failed_to_remove_coupon,
+          message: errorMessage,
           isError: true,
         );
       }
@@ -187,6 +195,8 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
           errorMessage = AppLocalizations.of(
             context,
           )!.insufficient_balance_to_apply_wallet;
+        } else if (e.response?.data is Map && e.response?.data['message'] != null) {
+          errorMessage = e.response!.data['message'];
         }
 
         CustomSnackbar.show(

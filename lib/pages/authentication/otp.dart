@@ -342,11 +342,13 @@ class _OTPState extends State<OTP> {
 
                                       if (response.statusCode == 200 &&
                                           response.data['success'] == true) {
+                                        String successMessage = AppLocalizations.of(context)!.otp_sent_successfully;
+                                        if (response.data is Map && response.data['message'] != null) {
+                                          successMessage = response.data['message'];
+                                        }
                                         CustomSnackbar.show(
                                           context: context,
-                                          message: AppLocalizations.of(
-                                            context,
-                                          )!.otp_sent_successfully,
+                                          message: successMessage,
                                         );
                                         _startTimer();
                                         setState(() {
@@ -372,11 +374,12 @@ class _OTPState extends State<OTP> {
                                       }
                                       String errorMessage =
                                           'Error: ${e.toString()}';
-                                      if (e is DioException &&
-                                          e.response?.statusCode == 429) {
-                                        errorMessage = AppLocalizations.of(
-                                          context,
-                                        )!.too_many_attempts;
+                                      if (e is DioException) {
+                                        if (e.response?.statusCode == 429) {
+                                          errorMessage = AppLocalizations.of(context)!.too_many_attempts;
+                                        } else if (e.response?.data is Map && e.response?.data['message'] != null) {
+                                          errorMessage = e.response!.data['message'];
+                                        }
                                       }
                                       CustomSnackbar.show(
                                         context: context,
@@ -443,12 +446,13 @@ class _OTPState extends State<OTP> {
                                           response.data['success'] == true) {
                                         final data = response.data['data'];
                                         if (data['userExists'] == true) {
-                                          // User exists, login successful
+                                          String successMessage = AppLocalizations.of(context)!.login_successful;
+                                          if (response.data is Map && response.data['message'] != null) {
+                                            successMessage = response.data['message'];
+                                          }
                                           CustomSnackbar.show(
                                             context: context,
-                                            message: AppLocalizations.of(
-                                              context,
-                                            )!.login_successful,
+                                            message: successMessage,
                                           );
                                           Navigator.pushAndRemoveUntil(
                                             context,
@@ -504,16 +508,14 @@ class _OTPState extends State<OTP> {
                                           errorMessage = AppLocalizations.of(
                                             context,
                                           )!.invalid_otp;
-                                        } else if (e.response?.data != null &&
-                                            e.response!.data['message'] !=
-                                                null) {
-                                          errorMessage =
-                                              e.response!.data['message'];
+                                        } else if (e.response?.data is Map && e.response?.data['message'] != null) {
+                                          errorMessage = e.response!.data['message'];
                                         }
                                       }
                                       CustomSnackbar.show(
                                         context: context,
                                         message: errorMessage,
+                                        isError: true,
                                       );
                                     }
                                   },

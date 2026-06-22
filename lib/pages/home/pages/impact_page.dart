@@ -7,6 +7,7 @@ import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
+import 'package:dio/dio.dart';
 
 class ImpactPage extends StatefulWidget {
   const ImpactPage({super.key});
@@ -38,9 +39,14 @@ class _ImpactPageState extends State<ImpactPage> {
       }
     } catch (e) {
       if (mounted) {
+        String errorMessage = AppLocalizations.of(context)!.error_loading_impact;
+        if (e is DioException && e.response?.data is Map && e.response?.data['message'] != null) {
+          errorMessage = e.response!.data['message'];
+        }
         CustomSnackbar.show(
           context: context,
-          message: AppLocalizations.of(context)!.error_loading_impact,
+          message: errorMessage,
+          isError: true,
         );
       }
       setState(() {

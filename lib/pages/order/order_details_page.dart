@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:raheeq_main/models/order_item.dart';
@@ -173,9 +174,18 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
       Navigator.pop(context); // Close loading dialog
       log('Error creating checkout: $e', error: e);
       if (mounted) {
+        String errorMessage = AppLocalizations.of(
+          context,
+        )!.error_occurred_try_again;
+        if (e is DioException &&
+            e.response?.data is Map &&
+            e.response?.data['message'] != null) {
+          errorMessage = e.response!.data['message'];
+        }
         CustomSnackbar.show(
           context: context,
-          message: AppLocalizations.of(context)!.error_occurred_try_again,
+          message: errorMessage,
+          isError: true,
         );
       }
     }
@@ -583,11 +593,11 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
             ];
           },
           body: Container(
-                color: Colors.white,
-                child: TabBarView(
-                  children: _uniqueProducts.map((product) {
-                    return _buildProductTab(product, isAr);
-                  }).toList(),
+            color: Colors.white,
+            child: TabBarView(
+              children: _uniqueProducts.map((product) {
+                return _buildProductTab(product, isAr);
+              }).toList(),
             ),
           ),
         ),

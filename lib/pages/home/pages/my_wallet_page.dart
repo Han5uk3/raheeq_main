@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:raheeq_main/api/apis.dart';
@@ -43,7 +44,9 @@ class _MyWalletPageState extends State<MyWalletPage> {
         if (mounted) {
           CustomSnackbar.show(
             context: context,
-            message: AppLocalizations.of(context)!.failed_to_load_wallet,
+            message: (response.data is Map && response.data['message'] != null)
+                ? response.data['message']
+                : AppLocalizations.of(context)!.failed_to_load_wallet,
           );
         }
       }
@@ -52,9 +55,18 @@ class _MyWalletPageState extends State<MyWalletPage> {
         _isLoading = false;
       });
       if (mounted) {
+        String errorMessage = AppLocalizations.of(
+          context,
+        )!.error_msg(e.toString());
+        if (e is DioException &&
+            e.response?.data is Map &&
+            e.response?.data['message'] != null) {
+          errorMessage = e.response!.data['message'];
+        }
         CustomSnackbar.show(
           context: context,
-          message: AppLocalizations.of(context)!.error_msg(e.toString()),
+          message: errorMessage,
+          isError: true,
         );
       }
     }
@@ -111,57 +123,56 @@ class _MyWalletPageState extends State<MyWalletPage> {
                         )
                       : SingleChildScrollView(
                           key: const ValueKey('content'),
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  _buildWalletCard(),
-                                  const SizedBox(height: 24),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        AppLocalizations.of(
-                                          context,
-                                        )!.transaction_history,
-                                        style: const TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.black,
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                _buildWalletCard(),
+                                const SizedBox(height: 24),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.transaction_history,
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                    if (_transactions.length > 10)
+                                      TextButton(
+                                        onPressed: () {
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) =>
+                                                  TransactionsHistoryPage(
+                                                    transactions: _transactions,
+                                                  ),
+                                            ),
+                                          );
+                                        },
+                                        child: Text(
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.show_more,
                                         ),
                                       ),
-                                      if (_transactions.length > 10)
-                                        TextButton(
-                                          onPressed: () {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) =>
-                                                    TransactionsHistoryPage(
-                                                      transactions:
-                                                          _transactions,
-                                                    ),
-                                              ),
-                                            );
-                                          },
-                                          child: Text(
-                                            AppLocalizations.of(
-                                              context,
-                                            )!.show_more,
-                                          ),
-                                        ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 16),
-                                  _buildTransactionsList(),
-                                ],
-                              ),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+                                _buildTransactionsList(),
+                              ],
                             ),
                           ),
+                        ),
                 ),
               ),
             ),

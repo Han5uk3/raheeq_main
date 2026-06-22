@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
@@ -120,9 +121,18 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
             _favoriteMosqueIds.remove(id);
           }
         });
+        String errorMessage = AppLocalizations.of(
+          context,
+        )!.failed_to_update_favorite;
+        if (e is DioException &&
+            e.response?.data is Map &&
+            e.response?.data['message'] != null) {
+          errorMessage = e.response!.data['message'];
+        }
         CustomSnackbar.show(
           context: context,
-          message: AppLocalizations.of(context)!.failed_to_update_favorite,
+          message: errorMessage,
+          isError: true,
         );
       }
     }

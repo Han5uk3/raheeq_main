@@ -16,6 +16,7 @@ import 'package:raheeq_main/common_widgets/subscription_details_bottom_sheet.dar
 import 'package:raheeq_main/models/subscription_plan.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
+import 'package:dio/dio.dart';
 
 class CampaignDetailPage extends StatefulWidget {
   final Campaign campaign;
@@ -805,10 +806,15 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
       Navigator.pop(context); // Close loading dialog
       log('Error creating checkout: $e', error: e);
       if (mounted) {
+        String errorMessage = AppLocalizations.of(context)!.error_occurred_try_again;
+        if (e is DioException && e.response?.data is Map && e.response?.data['message'] != null) {
+          errorMessage = e.response!.data['message'];
+        }
         CustomSnackbar.show(
           context: context,
-          message: AppLocalizations.of(context)!.error_occurred_try_again,
+          message: errorMessage,
           bottomMargin: 130,
+          isError: true,
         );
       }
     }
