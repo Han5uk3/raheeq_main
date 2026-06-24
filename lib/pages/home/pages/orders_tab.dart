@@ -4,6 +4,7 @@ import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/models/order_response_model.dart';
 import 'package:raheeq_main/pages/order/booking_details_page.dart';
+import 'package:raheeq_main/pages/order/track_donation_page.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
@@ -542,7 +543,14 @@ class _OrderCardState extends State<_OrderCard> {
                                     ),
                                   ),
                                   onPressed: () {
-                                    // Placeholder for track order
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => TrackDonationPage(
+                                          orderId: widget.order.id,
+                                        ),
+                                      ),
+                                    );
                                   },
                                   child: Text(
                                     AppLocalizations.of(context)!.track_order,

@@ -38,6 +38,8 @@ dependencies:
   sign_in_with_apple: ^8.1.0
   device_info_plus: ^12.4.0
   google_fonts: ^8.1.0
+  video_player: ^2.11.1
+  url_launcher: ^6.3.2
 
 dev_dependencies:
   flutter_test:

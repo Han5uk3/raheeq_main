@@ -12,6 +12,7 @@ class OrderResponseModel {
   final Map<String, dynamic>? driver;
   final Map<String, dynamic>? deliveryProof;
   final Map<String, dynamic>? giftCard;
+  final String? invoiceUrl;
 
   OrderResponseModel({
     required this.id,
@@ -27,6 +28,7 @@ class OrderResponseModel {
     this.driver,
     this.deliveryProof,
     this.giftCard,
+    this.invoiceUrl,
   });
 
   factory OrderResponseModel.fromJson(Map<String, dynamic> json) {
@@ -54,6 +56,7 @@ class OrderResponseModel {
       driver: json['driver'],
       deliveryProof: json['deliveryProof'],
       giftCard: json['giftCard'],
+      invoiceUrl: json['invoice'] ?? json['invoiceUrl'],
     );
   }
 }

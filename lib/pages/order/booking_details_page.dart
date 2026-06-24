@@ -105,6 +105,19 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
     return Text(title, style: style);
   }
 
+  Widget _buildPremiumCard({required Widget child}) {
+    return Card(
+      color: Colors.white,
+      elevation: 2,
+      shadowColor: Colors.black12,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: child,
+      ),
+    );
+  }
+
   Widget _buildContent(bool isAr) {
     if (_isLoading) {
       return const Center(
@@ -182,8 +195,6 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
             ),
           ),
           const SizedBox(height: 32),
-          const Divider(color: Color(0xFFEAEFF2), height: 1),
-          const SizedBox(height: 24),
 
           // Product details
           if (order.product != null) ...[
@@ -191,143 +202,198 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
               AppLocalizations.of(context)!.product_details,
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: CachedNetworkImage(
-                    imageUrl: order.product!.image,
-                    width: 60,
-                    height: 60,
-                    fit: BoxFit.cover,
-                    placeholder: (context, url) => Container(
-                      color: Colors.grey[200],
-                      child: const Center(child: CircularProgressIndicator()),
-                    ),
-                    errorWidget: (context, url, error) => Container(
-                      color: Colors.grey[200],
-                      child: const Icon(Icons.inventory_2_outlined),
+            const SizedBox(height: 12),
+            _buildPremiumCard(
+              child: Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: CachedNetworkImage(
+                      imageUrl: order.product!.image,
+                      width: 60,
+                      height: 60,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => Container(
+                        color: Colors.grey[200],
+                        child: const Center(child: CircularProgressIndicator()),
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        color: Colors.grey[200],
+                        child: const Icon(Icons.inventory_2_outlined),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        isAr ? order.product!.nameAr : order.product!.name,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          isAr ? order.product!.nameAr : order.product!.name,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '${AppLocalizations.of(context)!.quantity}: ${order.product!.quantity}',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
+                        const SizedBox(height: 4),
+                        Text(
+                          '${AppLocalizations.of(context)!.quantity}: ${order.product!.quantity}',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             const SizedBox(height: 24),
           ],
 
           // Target details
           if (order.target != null) ...[
-            const Divider(color: Color(0xFFEAEFF2), height: 1),
-            const SizedBox(height: 24),
             _buildSectionHeader(
               AppLocalizations.of(context)!.location_details,
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(12),
-                  child: CachedNetworkImage(
-                    imageUrl: order.target!.image,
-                    width: 60,
-                    height: 60,
-                    fit: BoxFit.cover,
-                    placeholder: (context, url) => Container(
-                      color: Colors.grey[200],
-                      child: const Center(child: CircularProgressIndicator()),
-                    ),
-                    errorWidget: (context, url, error) => Container(
-                      color: Colors.grey[200],
-                      child: const Icon(Icons.location_on_outlined),
+            const SizedBox(height: 12),
+            _buildPremiumCard(
+              child: Row(
+                children: [
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: CachedNetworkImage(
+                      imageUrl: order.target!.image,
+                      width: 60,
+                      height: 60,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => Container(
+                        color: Colors.grey[200],
+                        child: const Center(child: CircularProgressIndicator()),
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        color: Colors.grey[200],
+                        child: const Icon(Icons.location_on_outlined),
+                      ),
                     ),
                   ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        isAr ? order.target!.labelAr : order.target!.label,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          isAr ? order.target!.labelAr : order.target!.label,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        order.target!.type,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
+                        const SizedBox(height: 4),
+                        Text(
+                          order.target!.type,
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+          ],
+
+          // Gift Card details
+          if (order.giftCard != null) ...[
+            _buildSectionHeader(
+              'Gift Card Details', // Fallback text if localization doesn't have it
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            _buildPremiumCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: order.giftCard!.entries.map((entry) {
+                  return Padding(
+                    padding: const EdgeInsets.only(bottom: 8.0),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: 100,
+                          child: Text(
+                            entry.key,
+                            style: const TextStyle(
+                              color: Colors.grey,
+                              fontSize: 14,
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            entry.value.toString(),
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
             ),
             const SizedBox(height: 24),
           ],
 
           // Financials
           if (order.financials != null) ...[
-            const Divider(color: Color(0xFFEAEFF2), height: 1),
-            const SizedBox(height: 24),
             _buildSectionHeader(
               AppLocalizations.of(context)!.financial_details,
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
-            const SizedBox(height: 16),
-            _buildFinancialRow(
-              AppLocalizations.of(context)!.amount_value,
-              order.financials!.amount,
-              isAr,
-            ),
             const SizedBox(height: 12),
-            _buildFinancialRow(
-              AppLocalizations.of(context)!.delivery_fee,
-              order.financials!.deliveryFee,
-              isAr,
+            _buildPremiumCard(
+              child: Column(
+                children: [
+                  _buildFinancialRow(
+                    AppLocalizations.of(context)!.amount_value,
+                    order.financials!.amount,
+                    isAr,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildFinancialRow(
+                    AppLocalizations.of(context)!.delivery_fee,
+                    order.financials!.deliveryFee,
+                    isAr,
+                  ),
+                  const SizedBox(height: 12),
+                  _buildFinancialRow(
+                    AppLocalizations.of(context)!.vat,
+                    order.financials!.vatAmount,
+                    isAr,
+                  ),
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 12.0),
+                    child: Divider(color: Color(0xFFEAEFF2), height: 1),
+                  ),
+                  _buildFinancialRow(
+                    AppLocalizations.of(context)!.total_amount,
+                    order.financials!.totalAmount,
+                    isAr,
+                    isTotal: true,
+                  ),
+                ],
+              ),
             ),
-            const SizedBox(height: 12),
-            _buildFinancialRow(
-              AppLocalizations.of(context)!.vat,
-              order.financials!.vatAmount,
-              isAr,
-            ),
-            const SizedBox(height: 16),
-            _buildFinancialRow(
-              AppLocalizations.of(context)!.total_amount,
-              order.financials!.totalAmount,
-              isAr,
-              isTotal: true,
-            ),
+            const SizedBox(height: 24), // spacing at bottom
           ],
         ],
       ),
