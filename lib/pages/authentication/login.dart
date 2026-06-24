@@ -18,6 +18,9 @@ import 'package:dio/dio.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:google_sign_in/google_sign_in.dart' as google_sign_in;
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
+import 'package:device_info_plus/device_info_plus.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+
 class Login extends StatefulWidget {
   const Login({super.key});
 
@@ -51,16 +54,20 @@ class _LoginState extends State<Login> {
   Future<void> _handleGoogleSignIn() async {
     log('Tapped Google Sign-In button');
     try {
-      final google_sign_in.GoogleSignIn instance = google_sign_in.GoogleSignIn.instance;
+      final google_sign_in.GoogleSignIn instance =
+          google_sign_in.GoogleSignIn.instance;
       await instance.initialize(
-        serverClientId: '579658096080-e8oiqp649otjnrbs4h9rijcp2hnhlme4.apps.googleusercontent.com',
+        serverClientId:
+            '579658096080-e8oiqp649otjnrbs4h9rijcp2hnhlme4.apps.googleusercontent.com',
       );
-      
+
       log('Starting Google Sign-In authentication...');
-      final google_sign_in.GoogleSignInAccount account = await instance.authenticate();
+      final google_sign_in.GoogleSignInAccount account = await instance
+          .authenticate();
       log('Google Sign-In Account retrieved: ${account.email}');
-      
-      final google_sign_in.GoogleSignInAuthentication auth = account.authentication;
+
+      final google_sign_in.GoogleSignInAuthentication auth =
+          account.authentication;
       if (auth.idToken != null) {
         log('Google Sign-In ID Token retrieved successfully');
         await _authenticateSocial('Google', auth.idToken!);
@@ -100,8 +107,10 @@ class _LoginState extends State<Login> {
           AppleIDAuthorizationScopes.fullName,
         ],
       );
-      log('Apple Sign-In Credential retrieved for user: ${credential.email ?? "Unknown Email"}');
-      
+      log(
+        'Apple Sign-In Credential retrieved for user: ${credential.email ?? "Unknown Email"}',
+      );
+
       if (credential.identityToken != null) {
         log('Apple Sign-In Identity Token retrieved successfully');
         await _authenticateSocial('Apple', credential.identityToken!);
@@ -148,17 +157,35 @@ class _LoginState extends State<Login> {
     );
 
     try {
+      final fcmToken = await FirebaseMessaging.instance.getToken();
+
+      String? deviceId;
+      try {
+        final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+        if (Platform.isIOS) {
+          final IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+          deviceId = iosInfo.identifierForVendor;
+        } else if (Platform.isAndroid) {
+          final AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+          deviceId = androidInfo.id;
+        }
+      } catch (e) {
+        log('Failed to get device info: $e');
+      }
+
       final apiService = ApiService();
       final response = provider == 'Google'
           ? await apiService.googleLogin(
               idToken: idToken,
+              fcmToken: fcmToken,
               deviceType: Platform.isIOS ? 'IOS' : 'ANDROID',
-              deviceId: 'simulated_device_id', // Note: You might want to use actual device ID here in the future
+              deviceId: deviceId ?? 'unknown_device_id',
             )
           : await apiService.appleLogin(
               idToken: idToken,
+              fcmToken: fcmToken,
               deviceType: Platform.isIOS ? 'IOS' : 'ANDROID',
-              deviceId: 'simulated_device_id', // Note: You might want to use actual device ID here in the future
+              deviceId: deviceId ?? 'unknown_device_id',
             );
 
       if (!mounted) return;
@@ -204,7 +231,9 @@ class _LoginState extends State<Login> {
       if (!mounted) return;
       Navigator.pop(context); // Close loading
       String errorMessage = AppLocalizations.of(context)!.authentication_failed;
-      if (e is DioException && e.response?.data is Map && e.response?.data['message'] != null) {
+      if (e is DioException &&
+          e.response?.data is Map &&
+          e.response?.data['message'] != null) {
         errorMessage = e.response?.data['message'];
       }
       CustomSnackbar.show(
@@ -524,8 +553,11 @@ class _LoginState extends State<Login> {
                                           errorMessage = AppLocalizations.of(
                                             context,
                                           )!.too_many_attempts;
-                                        } else if (e.response?.data is Map && e.response?.data['message'] != null) {
-                                          errorMessage = e.response?.data['message'];
+                                        } else if (e.response?.data is Map &&
+                                            e.response?.data['message'] !=
+                                                null) {
+                                          errorMessage =
+                                              e.response?.data['message'];
                                         }
                                       }
                                       CustomSnackbar.show(

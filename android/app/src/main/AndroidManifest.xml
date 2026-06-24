@@ -16,6 +16,7 @@
         <meta-data android:name="io.flutter.embedding.android.EnableImpeller" android:value="false" />
         <meta-data android:name="flutterEmbedding" android:value="2" />
         <meta-data android:name="com.google.android.geo.API_KEY" android:value="AIzaSyB___mbW9IyVrmRpxFN1sYXwPjtZVhZ-x0" />
+        <meta-data android:name="com.google.firebase.messaging.default_notification_icon" android:resource="@drawable/ic_notification" />
     </application>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <!-- Required to query activities that can process text, see:
