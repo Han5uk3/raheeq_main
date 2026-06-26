@@ -1120,6 +1120,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sar_currency => '⃁';
 
   @override
+  String get people_helped => 'People Helped';
+
+  @override
   String get water_cartons => 'Water Cartons';
 
   @override

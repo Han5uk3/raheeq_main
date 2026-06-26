@@ -422,7 +422,7 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
 
                       // Price
                       Text(
-                        '${totalPrice.toStringAsFixed(0)} ${AppLocalizations.of(context)!.sar_currency}',
+                        '\u202A${AppLocalizations.of(context)!.sar_currency} ${totalPrice.toStringAsFixed(0)}\u202C',
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,

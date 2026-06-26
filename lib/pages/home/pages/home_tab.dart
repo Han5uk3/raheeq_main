@@ -170,35 +170,44 @@ class _HomeTabState extends State<HomeTab> {
         _errorMessage = null;
       });
 
-      // Fetch user profile in background to get latest name/wallet values
-      try {
-        await ApiService().getProfile();
-      } catch (_) {}
+      // Run independent API calls concurrently to reduce load time
+      final profileFuture = () async {
+        try {
+          await ApiService().getProfile();
+        } catch (_) {}
+      }();
 
-      // Fetch cities
-      try {
-        final citiesResponse = await ApiService().getCities();
-        if (citiesResponse.statusCode == 200 &&
-            citiesResponse.data['success'] == true) {
-          final List<dynamic> data = citiesResponse.data['data'] ?? [];
-          _cachedCities = data
-              .map((e) => City.fromJson(e as Map<String, dynamic>))
-              .toList();
+      final citiesFuture = () async {
+        try {
+          final citiesResponse = await ApiService().getCities();
+          if (citiesResponse.statusCode == 200 &&
+              citiesResponse.data['success'] == true) {
+            final List<dynamic> data = citiesResponse.data['data'] ?? [];
+            _cachedCities = data
+                .map((e) => City.fromJson(e as Map<String, dynamic>))
+                .toList();
+          }
+        } catch (e) {
+          log('Error fetching cities: $e', name: 'HomeTab');
         }
-      } catch (e) {
-        log('Error fetching cities: $e', name: 'HomeTab');
-      }
+      }();
 
-      try {
-        final impactRes = await ApiService().getImpact();
-        if (impactRes.statusCode == 200 && impactRes.data['success'] == true) {
-          _cachedImpactData = ImpactModel.fromJson(impactRes.data['data']);
+      final impactFuture = () async {
+        try {
+          final impactRes = await ApiService().getImpact();
+          if (impactRes.statusCode == 200 && impactRes.data['success'] == true) {
+            _cachedImpactData = ImpactModel.fromJson(impactRes.data['data']);
+          }
+        } catch (e) {
+          log('Error fetching impact: $e', name: 'HomeTab');
         }
-      } catch (e) {
-        log('Error fetching impact: $e', name: 'HomeTab');
-      }
+      }();
 
-      final response = await ApiService().getHome();
+      final homeFuture = ApiService().getHome();
+
+      await Future.wait([profileFuture, citiesFuture, impactFuture, homeFuture]);
+
+      final response = await homeFuture;
       if (response.statusCode == 200 && response.data['success'] == true) {
         final data = response.data['data'] as Map<String, dynamic>;
         final banners = ((data['banners'] as List<dynamic>?) ?? [])
@@ -221,6 +230,34 @@ class _HomeTabState extends State<HomeTab> {
             ((data['essentialProducts'] as List<dynamic>?) ?? [])
                 .map((p) => Product.fromJson(p as Map<String, dynamic>))
                 .toList();
+
+        if (mounted) {
+          final futures = <Future<void>>[];
+          for (final b in banners) {
+            if (b.image.isNotEmpty) {
+              futures.add(precacheImage(CachedNetworkImageProvider(b.image), context).catchError((_) {}));
+            }
+          }
+          for (final c in campaigns) {
+            if (c.image.isNotEmpty) {
+              futures.add(precacheImage(CachedNetworkImageProvider(c.image), context).catchError((_) {}));
+            }
+          }
+          for (final cat in categories) {
+            if (cat.image.isNotEmpty) {
+              futures.add(precacheImage(CachedNetworkImageProvider(cat.image.trim()), context).catchError((_) {}));
+            }
+          }
+          for (final p in essentialProducts) {
+            if (p.image.isNotEmpty) {
+              futures.add(precacheImage(CachedNetworkImageProvider(p.image), context).catchError((_) {}));
+            }
+          }
+
+          if (futures.isNotEmpty) {
+            await Future.wait(futures).timeout(const Duration(seconds: 2), onTimeout: () => []);
+          }
+        }
 
         _cachedBannerData = banners;
         _cachedCampaigns = campaigns;
@@ -1555,7 +1592,7 @@ class _HomeTabState extends State<HomeTab> {
                                   ),
                                 ),
                                 Text(
-                                  "$price ${AppLocalizations.of(context)!.sar}",
+                                  "\u202A${AppLocalizations.of(context)!.sar} $price\u202C",
                                   style: const TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
@@ -1996,10 +2033,9 @@ class _HomeTabState extends State<HomeTab> {
         'icon': Icons.shopping_bag_outlined,
       },
       {
-        'title': AppLocalizations.of(context)!.amount_paid,
-        'count':
-            '${_impactData!.totalAmountPaid.toStringAsFixed(0)} ${AppLocalizations.of(context)!.sar_currency}',
-        'icon': Icons.payments_outlined,
+        'title': AppLocalizations.of(context)!.people_helped,
+        'count': '${totalCartons * 20}',
+        'icon': Icons.people_outline,
       },
       {
         'title': AppLocalizations.of(context)!.water_cartons,

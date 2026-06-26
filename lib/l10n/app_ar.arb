@@ -355,6 +355,7 @@
   "total_orders": "إجمالي الطلبات",
   "amount_paid": "إجمالي المدفوعات",
   "sar_currency": "⃁",
+  "people_helped": "الأشخاص المستفيدين",
   "water_cartons": "كراتين المياه",
   "chillers": "البرادات",
   "selected_items_count": "محدد: {count} عناصر",

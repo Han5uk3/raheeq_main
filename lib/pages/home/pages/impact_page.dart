@@ -271,16 +271,27 @@ class _ImpactPageState extends State<ImpactPage> {
                               Row(
                                 children: [
                                   Expanded(
-                                    child: AspectRatio(
-                                      aspectRatio: 1.1,
-                                      child: _buildStatCard(
-                                        icon: Icons.inventory_2_outlined,
-                                        value:
-                                            "${AppLocalizations.of(context)!.sar} ${_impactData!.totalAmountPaid.toInt()}",
-                                        label: AppLocalizations.of(
-                                          context,
-                                        )!.total_given,
-                                      ),
+                                    child: Builder(
+                                      builder: (context) {
+                                        int totalCartons = 0;
+                                        for (final breakup in _impactData!.productsBreakup) {
+                                          final nameLower = breakup.name.toLowerCase();
+                                          final nameAr = breakup.nameAr;
+                                          if (nameLower.contains('carton') || nameAr.contains('كرتون')) {
+                                            totalCartons += breakup.totalQuantity;
+                                          }
+                                        }
+                                        return AspectRatio(
+                                          aspectRatio: 1.1,
+                                          child: _buildStatCard(
+                                            icon: Icons.people_outline,
+                                            value: "${totalCartons * 20}",
+                                            label: AppLocalizations.of(
+                                              context,
+                                            )!.people_helped,
+                                          ),
+                                        );
+                                      }
                                     ),
                                   ),
                                   const SizedBox(width: 16),

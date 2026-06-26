@@ -404,6 +404,7 @@
   "total_orders": "Total Orders",
   "amount_paid": "Amount Paid",
   "sar_currency": "⃁",
+  "people_helped": "People Helped",
   "water_cartons": "Water Cartons",
   "chillers": "Chillers",
   "selected_items_count": "Selected: {count} items",

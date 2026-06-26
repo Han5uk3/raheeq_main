@@ -418,7 +418,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
           ),
         ),
         Text(
-          '$amount ${AppLocalizations.of(context)!.sar_currency}',
+          '\u202A${AppLocalizations.of(context)!.sar_currency} $amount\u202C',
           style: TextStyle(
             fontSize: isTotal ? 16 : 14,
             fontWeight: FontWeight.bold,

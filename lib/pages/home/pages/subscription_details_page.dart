@@ -227,7 +227,7 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
             const SizedBox(height: 8),
             _buildDetailRow(
               AppLocalizations.of(context)!.total_amount,
-              '${_details!.totalAmount} ${AppLocalizations.of(context)!.sar_currency}',
+              '\u202A${AppLocalizations.of(context)!.sar_currency} ${_details!.totalAmount}\u202C',
               isBold: true,
             ),
           ],
@@ -335,7 +335,7 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
             crossAxisAlignment: CrossAxisAlignment.end,
             children: [
               Text(
-                '${subOrder.totalAmount} ${AppLocalizations.of(context)!.sar_currency}',
+                '\u202A${AppLocalizations.of(context)!.sar_currency} ${subOrder.totalAmount}\u202C',
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   color: AppColors.buttonBlue,

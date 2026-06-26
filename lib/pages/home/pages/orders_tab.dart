@@ -379,7 +379,7 @@ class _OrderCardState extends State<_OrderCard> {
         : '';
 
     final String totalCost =
-        '${widget.order.totalAmount} ${AppLocalizations.of(context)!.sar_currency}';
+        '\u202A${AppLocalizations.of(context)!.sar_currency} ${widget.order.totalAmount}\u202C';
 
     return Card(
       color: Colors.white,

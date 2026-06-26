@@ -129,7 +129,12 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
             item['cityId'] = specificData.id;
           }
         } else {
-          item['categorySlug'] = slug;
+          final specificData = state.categoryItem.specificData;
+          if (optionType == 'most_in_need' && specificData is City) {
+            item['cityId'] = specificData.id;
+          } else {
+            item['categorySlug'] = slug;
+          }
         }
         items.add(item);
       }
@@ -492,7 +497,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
               ],
             ),
             titleWidget: Text(
-              "${_totalPrice.toStringAsFixed(2)} ${AppLocalizations.of(context)!.sar_currency}",
+              "\u202A‪${AppLocalizations.of(context)!.sar_currency} ${_totalPrice.toStringAsFixed(2)}‬\u202C",
               style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,

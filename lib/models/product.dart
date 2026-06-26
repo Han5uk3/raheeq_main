@@ -94,6 +94,6 @@ class Product {
     final formatted = totalUnitPrice.toStringAsFixed(
       totalUnitPrice.truncateToDouble() == totalUnitPrice ? 0 : 2,
     );
-    return '$formatted $suffix';
+    return '\u202A$suffix $formatted\u202C';
   }
 }

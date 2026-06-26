@@ -27,8 +27,7 @@ class CampaignDetailPage extends StatefulWidget {
   State<CampaignDetailPage> createState() => _CampaignDetailPageState();
 }
 
-class _CampaignDetailPageState extends State<CampaignDetailPage>
-    with SingleTickerProviderStateMixin {
+class _CampaignDetailPageState extends State<CampaignDetailPage> {
   Product? _selectedProduct;
   Map<String, int> _selectedQuantities = {};
   Map<String, bool> _isCustomMap = {};
@@ -41,40 +40,9 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
 
   bool get _hasAnySelection => _selectedQuantities.values.any((qty) => qty > 0);
 
-  void _updateBarAnimation() {
-    if (_hasAnySelection) {
-      if (_barAnimController.status != AnimationStatus.forward &&
-          _barAnimController.status != AnimationStatus.completed) {
-        _barAnimController.forward();
-      }
-    } else {
-      if (_barAnimController.status != AnimationStatus.reverse &&
-          _barAnimController.status != AnimationStatus.dismissed) {
-        _barAnimController.reverse();
-      }
-    }
-  }
-
-  late AnimationController _barAnimController;
-  late Animation<double> _barSlideAnimation;
-  late Animation<double> _barFadeAnimation;
-
   @override
   void initState() {
     super.initState();
-    _barAnimController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 380),
-    );
-    _barSlideAnimation = CurvedAnimation(
-      parent: _barAnimController,
-      curve: Curves.easeOutCubic,
-      reverseCurve: Curves.easeInCubic,
-    );
-    _barFadeAnimation = CurvedAnimation(
-      parent: _barAnimController,
-      curve: const Interval(0.0, 0.6, curve: Curves.easeOut),
-    );
 
     // Auto-select first product if available
     if (widget.campaign.products.isNotEmpty) {
@@ -84,7 +52,6 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
 
   @override
   void dispose() {
-    _barAnimController.dispose();
     _customController.dispose();
     _customFocusNode.dispose();
     _noteController.dispose();
@@ -135,7 +102,6 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
         _customController.clear();
       }
     });
-    _updateBarAnimation();
   }
 
   @override
@@ -281,23 +247,10 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
           ),
 
           // Floating Bottom Bar
-          AnimatedBuilder(
-            animation: _barSlideAnimation,
-            builder: (context, child) {
-              final offset = (1.0 - _barSlideAnimation.value) * 150;
-              return Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                child: Transform.translate(
-                  offset: Offset(0, offset),
-                  child: Opacity(
-                    opacity: _barFadeAnimation.value.clamp(0.0, 1.0),
-                    child: child!,
-                  ),
-                ),
-              );
-            },
+          Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
             child: _buildFloatingBar(context, isAr),
           ),
         ],
@@ -443,7 +396,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
                             ),
                           ),
                           Text(
-                            "${price.toInt()} ${AppLocalizations.of(context)!.sar_currency}",
+                            "\u202A${AppLocalizations.of(context)!.sar_currency} ${price.toStringAsFixed(price.truncateToDouble() == price ? 0 : 2)}\u202C",
                             style: const TextStyle(
                               fontSize: 12,
                               color: Colors.grey,
@@ -458,7 +411,8 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
             ),
             const SizedBox(height: 32),
             Text(
-              AppLocalizations.of(context)!.or_enter_custom_quantity_min_min,
+              AppLocalizations.of(context)!.or_enter_custom_quantity_min_min
+                  .replaceAll(r'$min', min.toString()),
               style: const TextStyle(
                 fontWeight: FontWeight.w600,
                 fontSize: 15,
@@ -483,7 +437,6 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
                   setState(() {
                     _isCustomMap[product.id] = true;
                     _selectedQuantities.remove(product.id);
-                    _updateBarAnimation();
                   });
                 },
                 onChanged: (val) {
@@ -492,12 +445,10 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
                     setState(() {
                       _selectedQuantities[product.id] = parsed;
                     });
-                    _updateBarAnimation();
                   } else {
                     setState(() {
                       _selectedQuantities.remove(product.id);
                     });
-                    _updateBarAnimation();
                   }
                 },
                 decoration: InputDecoration(
@@ -644,7 +595,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
               ),
               const SizedBox(height: 4),
               Text(
-                "${total.toStringAsFixed(total.truncateToDouble() == total ? 0 : 2)} ${AppLocalizations.of(context)!.sar_currency}",
+                "\u202A${AppLocalizations.of(context)!.sar_currency} ${total.toStringAsFixed(total.truncateToDouble() == total ? 0 : 2)}\u202C",
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w900,
@@ -658,10 +609,37 @@ class _CampaignDetailPageState extends State<CampaignDetailPage>
               FocusManager.instance.primaryFocus?.unfocus();
               if (_hasAnySelection) {
                 _showDonationTypeDialog(context, isAr);
+              } else {
+                final min = _selectedProduct?.minQuantity ?? 1;
+                final customText = _customController.text;
+                final parsed = int.tryParse(customText);
+
+                if (_isCustomMap[_selectedProduct?.id] == true &&
+                    customText.isNotEmpty &&
+                    parsed != null &&
+                    parsed < min) {
+                  CustomSnackbar.show(
+                    context: context,
+                    message: AppLocalizations.of(
+                      context,
+                    )!.minimum_quantity_is(min.toString()),
+                    isError: true,
+                  );
+                } else {
+                  CustomSnackbar.show(
+                    context: context,
+                    message: AppLocalizations.of(
+                      context,
+                    )!.select_a_product_to_continue,
+                    isError: true,
+                  );
+                }
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1B6A8C),
+              backgroundColor: _hasAnySelection
+                  ? const Color(0xFF1B6A8C)
+                  : Colors.grey[400],
               foregroundColor: Colors.white,
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
               shape: RoundedRectangleBorder(

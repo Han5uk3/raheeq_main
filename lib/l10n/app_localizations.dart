@@ -2230,6 +2230,12 @@ abstract class AppLocalizations {
   /// **'⃁'**
   String get sar_currency;
 
+  /// No description provided for @people_helped.
+  ///
+  /// In en, this message translates to:
+  /// **'People Helped'**
+  String get people_helped;
+
   /// No description provided for @water_cartons.
   ///
   /// In en, this message translates to:
