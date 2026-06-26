@@ -880,7 +880,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
               style: const TextStyle(fontSize: 14, color: Colors.white70),
             ),
             titleWidget: Text(
-              "\u202A${AppLocalizations.of(context)!.sar_currency} ${_checkoutData.finalTotal.toStringAsFixed(2)}‬\u202C",
+              "\u202A${AppLocalizations.of(context)!.sar_currency} ${_checkoutData.finalTotal.toStringAsFixed(2)}\u202C",
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -1217,7 +1217,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                                     CrossAxisAlignment.start,
                                                 children: [
                                                   Text(
-                                                    "${AppLocalizations.of(context)!.available_colon} \u202A‪${AppLocalizations.of(context)!.sar_currency} ${_checkoutData.walletBalance.toStringAsFixed(2)}‬\u202C",
+                                                    "${AppLocalizations.of(context)!.available_colon} \u202A${AppLocalizations.of(context)!.sar_currency} ${_checkoutData.walletBalance.toStringAsFixed(2)}\u202C",
                                                     style: const TextStyle(
                                                       fontSize: 14,
                                                       color: Colors.black,
@@ -1324,7 +1324,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                           ),
                                         ),
                                         Text(
-                                          "\u202A‪${AppLocalizations.of(context)!.sar_currency} ${(sp.product.price * sp.quantity).toStringAsFixed(2)}‬\u202C",
+                                          "\u202A${AppLocalizations.of(context)!.sar_currency} ${(sp.product.price * sp.quantity).toStringAsFixed(2)}\u202C",
                                           style: const TextStyle(
                                             fontSize: 15,
                                             fontWeight: FontWeight.w700,
@@ -1398,7 +1398,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                       ),
                                     ),
                                     Text(
-                                      "\u202A‪${AppLocalizations.of(context)!.sar_currency} ${_checkoutData.finalTotal.toStringAsFixed(2)}‬\u202C",
+                                      "\u202A${AppLocalizations.of(context)!.sar_currency} ${_checkoutData.finalTotal.toStringAsFixed(2)}‬\u202C",
                                       style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,

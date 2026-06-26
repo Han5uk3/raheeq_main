@@ -113,64 +113,72 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
 
     return Scaffold(
       extendBodyBehindAppBar: true,
+      floatingActionButton: _buildFloatingBar(context, isAr),
       body: Stack(
         children: [
           // Background Gradient
           Container(decoration: const BoxDecoration(color: Color(0x4D91E3FE))),
 
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              CustomAppBar(
-                title: title,
-                subtitle: description,
-                isStartAligned: true,
-                showBackButton: true,
-                hasBackgroundColor: false,
-              ),
+          SingleChildScrollView(
+            physics: const ClampingScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CustomAppBar(
+                  title: title,
+                  subtitle: description,
+                  isStartAligned: true,
+                  showBackButton: true,
+                  hasBackgroundColor: false,
+                ),
 
-              // Stack for List and Quantity Container to create floating effect
-              Expanded(
-                child: Stack(
+                // Stack for List and Quantity Container to create floating effect
+                Stack(
                   clipBehavior: Clip.none,
                   children: [
                     // Quantity Selection Container (Background in Stack)
-                    Positioned(
-                      top: 100, // Start lower so list overlaps it
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(30),
-                            topRight: Radius.circular(30),
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.05),
-                              blurRadius: 10,
-                              offset: const Offset(0, -4),
-                            ),
-                          ],
+                    Container(
+                      margin: const EdgeInsets.only(
+                        top: 100,
+                      ), // Start lower so list overlaps it
+                      width: double.infinity,
+                      constraints: BoxConstraints(
+                        minHeight: MediaQuery.of(context).size.height - 300,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(30),
+                          topRight: Radius.circular(30),
                         ),
-                        child: ClipRRect(
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(30),
-                            topRight: Radius.circular(30),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withValues(alpha: 0.05),
+                            blurRadius: 10,
+                            offset: const Offset(0, -4),
                           ),
-                          child: SingleChildScrollView(
-                            physics: const ClampingScrollPhysics(),
-                            padding: const EdgeInsetsDirectional.only(
-                              start: 12,
-                              end: 12,
-                              top: 85, // 80 overlap + 24 extra space
-                              bottom: 120, // space for bottom bar
-                            ),
-                            child: _selectedProduct != null
-                                ? _buildQuantitySection(context, isAr)
-                                : Center(
+                        ],
+                      ),
+                      child: ClipRRect(
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(30),
+                          topRight: Radius.circular(30),
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsetsDirectional.only(
+                            start: 12,
+                            end: 12,
+                            top: 85, // 80 overlap + 24 extra space
+                            bottom:
+                                280, // extra space for bottom bar and keyboard
+                          ),
+                          child: _selectedProduct != null
+                              ? _buildQuantitySection(context, isAr)
+                              : Center(
+                                  child: Padding(
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 50,
+                                    ),
                                     child: Text(
                                       AppLocalizations.of(
                                         context,
@@ -180,7 +188,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                                       ),
                                     ),
                                   ),
-                          ),
+                                ),
                         ),
                       ),
                     ),
@@ -244,16 +252,8 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                     ),
                   ],
                 ),
-              ),
-            ],
-          ),
-
-          // Floating Bottom Bar
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: _buildFloatingBar(context, isAr),
+              ],
+            ),
           ),
         ],
       ),
@@ -429,6 +429,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                 border: Border.all(color: Colors.grey, width: 1.5),
               ),
               child: TextField(
+                scrollPadding: const EdgeInsets.only(bottom: 200),
                 cursorColor: AppColors.buttonBlueDark,
                 controller: _customController,
                 focusNode: _customFocusNode,
@@ -535,6 +536,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                         border: Border.all(color: Colors.grey, width: 1.5),
                       ),
                       child: TextField(
+                        scrollPadding: const EdgeInsets.only(bottom: 200),
                         cursorColor: Colors.grey,
                         controller: _noteController,
                         focusNode: _noteFocusNode,
@@ -566,7 +568,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
     return Container(
       margin: const EdgeInsets.all(
         16,
-      ).copyWith(bottom: MediaQuery.of(context).padding.bottom + 16),
+      ).copyWith(bottom: MediaQuery.of(context).padding.bottom),
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       decoration: BoxDecoration(
         color: Colors.white,

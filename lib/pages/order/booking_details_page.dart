@@ -5,7 +5,6 @@ import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/models/order_response_model.dart';
-import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:shimmer/shimmer.dart';
@@ -548,20 +547,20 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
     );
   }
 
-  Color _getStatusColor(String status) {
-    switch (status) {
-      case 'PENDING':
-      case 'PROCESSING':
-        return Colors.orange;
-      case 'DISPATCHED':
-      case 'OUT_FOR_DELIVERY':
-        return Colors.blue;
-      case 'DELIVERED':
-        return Colors.green;
-      case 'CANCELLED':
-        return Colors.red;
-      default:
-        return Colors.grey;
-    }
-  }
+  // Color _getStatusColor(String status) {
+  //   switch (status) {
+  //     case 'PENDING':
+  //     case 'PROCESSING':
+  //       return Colors.orange;
+  //     case 'DISPATCHED':
+  //     case 'OUT_FOR_DELIVERY':
+  //       return Colors.blue;
+  //     case 'DELIVERED':
+  //       return Colors.green;
+  //     case 'CANCELLED':
+  //       return Colors.red;
+  //     default:
+  //       return Colors.grey;
+  //   }
+  // }
 }

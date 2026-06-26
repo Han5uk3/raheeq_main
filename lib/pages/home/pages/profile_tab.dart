@@ -634,21 +634,21 @@ class _ProfileTabState extends State<ProfileTab> {
     );
   }
 
-  Widget _buildInfoCardItem(String value, String label) {
-    return Column(
-      children: [
-        Text(
-          value,
-          style: const TextStyle(
-            fontSize: 20,
-            color: AppColors.buttonBlue,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
-      ],
-    );
-  }
+  // Widget _buildInfoCardItem(String value, String label) {
+  //   return Column(
+  //     children: [
+  //       Text(
+  //         value,
+  //         style: const TextStyle(
+  //           fontSize: 20,
+  //           color: AppColors.buttonBlue,
+  //           fontWeight: FontWeight.bold,
+  //         ),
+  //       ),
+  //       Text(label, style: const TextStyle(fontSize: 12, color: Colors.grey)),
+  //     ],
+  //   );
+  // }
 
   Widget _buildMenuTile({
     required IconData icon,

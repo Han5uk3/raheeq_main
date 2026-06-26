@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
-import 'package:raheeq_main/models/review_model.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/api/apis.dart';

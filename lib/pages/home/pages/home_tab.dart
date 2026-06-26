@@ -843,9 +843,10 @@ class _HomeTabState extends State<HomeTab> {
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
+                alignment: Alignment.center,
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   color: Colors.orange.withValues(alpha: 0.1),
@@ -860,6 +861,7 @@ class _HomeTabState extends State<HomeTab> {
               const SizedBox(height: 16),
               Text(
                 AppLocalizations.of(context)!.warning,
+                textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -868,10 +870,10 @@ class _HomeTabState extends State<HomeTab> {
               ),
               const SizedBox(height: 12),
               Text(
-                AppLocalizations.of(
-                  context,
-                )!.your_current_basket_will_be_cleared_and_you_will_be_moved_to_targetname,
-                textAlign: TextAlign.start,
+                AppLocalizations.of(context)!
+                    .your_current_basket_will_be_cleared_and_you_will_be_moved_to_targetname
+                    .replaceAll('\$targetName', targetName),
+                textAlign: TextAlign.center,
                 style: const TextStyle(
                   fontSize: 14,
                   color: Colors.black54,
