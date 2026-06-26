@@ -66,11 +66,11 @@ class _ComplaintsPageState extends State<ComplaintsPage> {
     final loc = AppLocalizations.of(context)!;
     if (_selectedComplaintOption == 0) {
       description = loc.complaint_option_1;
-    } else if (_selectedComplaintOption == 1)
+    } else if (_selectedComplaintOption == 1) {
       description = loc.complaint_option_2;
-    else if (_selectedComplaintOption == 2)
+    } else if (_selectedComplaintOption == 2) {
       description = loc.complaint_option_3;
-    else if (_selectedComplaintOption == 3) {
+    } else if (_selectedComplaintOption == 3) {
       if (_complaintOtherController.text.trim().isEmpty) {
         setState(() => _complaintError = true);
         return;

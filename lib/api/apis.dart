@@ -721,7 +721,7 @@ class ApiService {
       } else {
         final data = <String, dynamic>{
           'paymentMethod': paymentMethod,
-          if (note != null) 'note': note,
+          'note': ?note,
         };
         log('API REQUEST BODY: $data', name: 'CreateOrder');
         final response = await _dio.post(url, data: data);

@@ -81,12 +81,13 @@ class _OrdersTabState extends State<OrdersTab>
       _errorMessage = null;
       _currentPage = 1;
       _hasMore = true;
-      if (_tabController.index == 0)
+      if (_tabController.index == 0) {
         _newOrders.clear();
-      else if (_tabController.index == 1)
+      } else if (_tabController.index == 1) {
         _outForDelivery.clear();
-      else
+      } else {
         _delivered.clear();
+      }
     });
 
     try {

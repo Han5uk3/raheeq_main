@@ -1398,7 +1398,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                       ),
                                     ),
                                     Text(
-                                      "\u202A${AppLocalizations.of(context)!.sar_currency} ${_checkoutData.finalTotal.toStringAsFixed(2)}‬\u202C",
+                                      "\u202A${AppLocalizations.of(context)!.sar_currency} ${_checkoutData.finalTotal.toStringAsFixed(2)}\u202C",
                                       style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
@@ -1776,7 +1776,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                                   ),
                                                   Container(
                                                     color: Colors.black
-                                                        .withOpacity(0.3),
+                                                        .withValues(alpha: 0.3),
                                                     child: const Center(
                                                       child: Icon(
                                                         Icons.zoom_in,
@@ -1922,7 +1922,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
   void _showFullscreenImage(BuildContext context, String imageUrl, bool isAr) {
     showDialog(
       context: context,
-      barrierColor: Colors.black.withOpacity(0.9),
+      barrierColor: Colors.black.withValues(alpha: 0.9),
       builder: (ctx) => Dialog(
         backgroundColor: Colors.transparent,
         insetPadding: EdgeInsets.zero,
@@ -2089,7 +2089,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
           Row(
             children: [
               Text(
-                "\u202A‪${AppLocalizations.of(context)!.sar_currency} ${value.toStringAsFixed(2)}‬\u202C",
+                "\u202A${AppLocalizations.of(context)!.sar_currency} ${value.toStringAsFixed(2)}\u202C",
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: isFree ? FontWeight.normal : FontWeight.w600,

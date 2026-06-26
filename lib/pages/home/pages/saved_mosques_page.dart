@@ -183,7 +183,7 @@ class _SavedMosquesPageState extends State<SavedMosquesPage> {
                             alignment: Alignment.topCenter,
                             children: <Widget>[
                               ...previousChildren,
-                              if (currentChild != null) currentChild,
+                              ?currentChild,
                             ],
                           );
                         },

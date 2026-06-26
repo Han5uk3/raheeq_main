@@ -626,14 +626,18 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
 
   String _localizeStatus(String status, BuildContext context) {
     final lowerStatus = status.toLowerCase();
-    if (lowerStatus == 'active')
+    if (lowerStatus == 'active') {
       return AppLocalizations.of(context)!.status_active;
-    if (lowerStatus == 'cancelled')
+    }
+    if (lowerStatus == 'cancelled') {
       return AppLocalizations.of(context)!.status_cancelled;
-    if (lowerStatus == 'expired')
+    }
+    if (lowerStatus == 'expired') {
       return AppLocalizations.of(context)!.status_expired;
-    if (lowerStatus == 'pending')
+    }
+    if (lowerStatus == 'pending') {
       return AppLocalizations.of(context)!.status_pending;
+    }
 
     return status.isNotEmpty
         ? status[0].toUpperCase() + status.substring(1).toLowerCase()
