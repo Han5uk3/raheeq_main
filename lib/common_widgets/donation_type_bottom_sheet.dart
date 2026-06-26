@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/utils/colors.dart';
+import 'package:raheeq_main/utils/rtl_helpers.dart';
 
 class DonationTypeBottomSheet extends StatefulWidget {
   final VoidCallback onOneTimeSelected;
@@ -111,19 +112,37 @@ class _DonationTypeBottomSheetState extends State<DonationTypeBottomSheet> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    AppLocalizations.of(context)!.choose_donation_type,
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.black87,
+                  GestureDetector(
+                    onTap: () {
+                      FocusManager.instance.primaryFocus?.unfocus();
+                      SystemChannels.textInput.invokeMethod('TextInput.hide');
+                      Navigator.pop(context);
+                    },
+                    child: Container(
+                      width: 50,
+                      height: 50,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.grey[200],
+                      ),
+                      child: Icon(
+                        backArrowIcon(context),
+                        size: 20,
+                        color: Colors.black,
+                      ),
                     ),
                   ),
-                  IconButton(
-                    onPressed: () => Navigator.pop(context),
-                    icon: const Icon(Icons.close, color: Colors.black87),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Text(
+                      AppLocalizations.of(context)!.choose_donation_type,
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.black87,
+                      ),
+                    ),
                   ),
                 ],
               ),
@@ -154,8 +173,8 @@ class _DonationTypeBottomSheetState extends State<DonationTypeBottomSheet> {
                   Expanded(
                     child: _buildDonationOption(
                       isAr: isAr,
-                      title: AppLocalizations.of(context)!.monthly,
-                      subtitle: AppLocalizations.of(context)!.recurring_impact,
+                      title: AppLocalizations.of(context)!.subscription,
+                      subtitle: AppLocalizations.of(context)!.recurring_donation,
                       icon: Icons.sync,
                       isSelected: _selectedType == 'monthly',
                       onTap: () {

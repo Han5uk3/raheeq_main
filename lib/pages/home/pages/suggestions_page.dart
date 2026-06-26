@@ -158,7 +158,7 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
                               height: 20,
                               width: 20,
                               child: WaterLoadingIndicator(
-                                dropletBackgroundColor: AppColors.white,
+                                waveColor1: AppColors.white,
                               ),
                             )
                           : Text(

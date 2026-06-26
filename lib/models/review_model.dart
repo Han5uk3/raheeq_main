@@ -49,6 +49,7 @@ class ReviewsData {
 
 class ReviewModel {
   final String id;
+  final String? subOrderId;
   final int rating;
   final String reviewText;
   final DateTime? createdAt;
@@ -57,6 +58,7 @@ class ReviewModel {
 
   ReviewModel({
     required this.id,
+    this.subOrderId,
     required this.rating,
     required this.reviewText,
     this.createdAt,
@@ -67,6 +69,7 @@ class ReviewModel {
   factory ReviewModel.fromJson(Map<String, dynamic> json) {
     return ReviewModel(
       id: json['id'] ?? '',
+      subOrderId: json['subOrderId'] ?? (json['subOrder'] != null ? json['subOrder']['id'] : null),
       rating: json['rating'] ?? 0,
       reviewText: json['reviewText'] ?? '',
       createdAt: json['createdAt'] != null

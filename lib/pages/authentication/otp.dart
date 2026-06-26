@@ -38,7 +38,8 @@ class _OTPState extends State<OTP> {
   late final List<FocusNode> _focusNodes = List.generate(4, (index) {
     final node = FocusNode();
     node.onKeyEvent = (node, event) {
-      if (event is KeyDownEvent && event.logicalKey == LogicalKeyboardKey.backspace) {
+      if (event is KeyDownEvent &&
+          event.logicalKey == LogicalKeyboardKey.backspace) {
         if (_controllers[index].text.isEmpty && index > 0) {
           _focusNodes[index - 1].requestFocus();
           _controllers[index - 1].clear();
@@ -54,16 +55,13 @@ class _OTPState extends State<OTP> {
   Timer? _timer;
   int _secondsRemaining = 60;
   bool _canResend = false;
-  String? _receivedOtp;
-  bool _isLoadingOtp = true;
+
   bool _isVerifying = false;
 
   @override
   void initState() {
     super.initState();
     _startTimer();
-    _receivedOtp = widget.receivedOtp;
-    _isLoadingOtp = false;
   }
 
   @override
@@ -263,7 +261,10 @@ class _OTPState extends State<OTP> {
                               ),
                               child: TextField(
                                 onTap: () {
-                                  if (_controllers.every((c) => c.text.isEmpty) && index != 0) {
+                                  if (_controllers.every(
+                                        (c) => c.text.isEmpty,
+                                      ) &&
+                                      index != 0) {
                                     _focusNodes[0].requestFocus();
                                   }
                                 },
@@ -345,21 +346,20 @@ class _OTPState extends State<OTP> {
 
                                       if (response.statusCode == 200 &&
                                           response.data['success'] == true) {
-                                        String successMessage = AppLocalizations.of(context)!.otp_sent_successfully;
-                                        if (response.data is Map && response.data['message'] != null) {
-                                          successMessage = response.data['message'];
+                                        String successMessage =
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.otp_sent_successfully;
+                                        if (response.data is Map &&
+                                            response.data['message'] != null) {
+                                          successMessage =
+                                              response.data['message'];
                                         }
                                         CustomSnackbar.show(
                                           context: context,
                                           message: successMessage,
                                         );
                                         _startTimer();
-                                        setState(() {
-                                          _receivedOtp =
-                                              response.data['data']?['otp']
-                                                  ?.toString() ??
-                                              'N/A';
-                                        });
                                       } else {
                                         CustomSnackbar.show(
                                           context: context,
@@ -379,9 +379,14 @@ class _OTPState extends State<OTP> {
                                           'Error: ${e.toString()}';
                                       if (e is DioException) {
                                         if (e.response?.statusCode == 429) {
-                                          errorMessage = AppLocalizations.of(context)!.too_many_attempts;
-                                        } else if (e.response?.data is Map && e.response?.data['message'] != null) {
-                                          errorMessage = e.response!.data['message'];
+                                          errorMessage = AppLocalizations.of(
+                                            context,
+                                          )!.too_many_attempts;
+                                        } else if (e.response?.data is Map &&
+                                            e.response?.data['message'] !=
+                                                null) {
+                                          errorMessage =
+                                              e.response!.data['message'];
                                         }
                                       }
                                       CustomSnackbar.show(
@@ -434,30 +439,42 @@ class _OTPState extends State<OTP> {
 
                                     setState(() => _isVerifying = true);
                                     try {
-                                      final fcmToken = await FirebaseMessaging.instance.getToken();
-                                      
+                                      final fcmToken = await FirebaseMessaging
+                                          .instance
+                                          .getToken();
+
                                       String? deviceId;
                                       try {
-                                        final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+                                        final DeviceInfoPlugin deviceInfo =
+                                            DeviceInfoPlugin();
                                         if (Platform.isIOS) {
-                                          final IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
-                                          deviceId = iosInfo.identifierForVendor;
+                                          final IosDeviceInfo iosInfo =
+                                              await deviceInfo.iosInfo;
+                                          deviceId =
+                                              iosInfo.identifierForVendor;
                                         } else if (Platform.isAndroid) {
-                                          final AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+                                          final AndroidDeviceInfo androidInfo =
+                                              await deviceInfo.androidInfo;
                                           deviceId = androidInfo.id;
                                         }
                                       } catch (e) {
-                                        debugPrint('Failed to get device info: $e');
+                                        debugPrint(
+                                          'Failed to get device info: $e',
+                                        );
                                       }
 
-                                      final response = await ApiService().verifyOtp(
-                                        countryCode: widget.countryCode,
-                                        phoneNumber: widget.phoneNumber,
-                                        otp: otp,
-                                        fcmToken: fcmToken,
-                                        deviceType: Platform.isIOS ? 'IOS' : 'ANDROID',
-                                        deviceId: deviceId ?? 'unknown_device_id',
-                                      );
+                                      final response = await ApiService()
+                                          .verifyOtp(
+                                            countryCode: widget.countryCode,
+                                            phoneNumber: widget.phoneNumber,
+                                            otp: otp,
+                                            fcmToken: fcmToken,
+                                            deviceType: Platform.isIOS
+                                                ? 'IOS'
+                                                : 'ANDROID',
+                                            deviceId:
+                                                deviceId ?? 'unknown_device_id',
+                                          );
 
                                       if (!context.mounted) return;
                                       setState(() => _isVerifying = false);
@@ -466,9 +483,15 @@ class _OTPState extends State<OTP> {
                                           response.data['success'] == true) {
                                         final data = response.data['data'];
                                         if (data['userExists'] == true) {
-                                          String successMessage = AppLocalizations.of(context)!.login_successful;
-                                          if (response.data is Map && response.data['message'] != null) {
-                                            successMessage = response.data['message'];
+                                          String successMessage =
+                                              AppLocalizations.of(
+                                                context,
+                                              )!.login_successful;
+                                          if (response.data is Map &&
+                                              response.data['message'] !=
+                                                  null) {
+                                            successMessage =
+                                                response.data['message'];
                                           }
                                           CustomSnackbar.show(
                                             context: context,
@@ -528,8 +551,11 @@ class _OTPState extends State<OTP> {
                                           errorMessage = AppLocalizations.of(
                                             context,
                                           )!.invalid_otp;
-                                        } else if (e.response?.data is Map && e.response?.data['message'] != null) {
-                                          errorMessage = e.response!.data['message'];
+                                        } else if (e.response?.data is Map &&
+                                            e.response?.data['message'] !=
+                                                null) {
+                                          errorMessage =
+                                              e.response!.data['message'];
                                         }
                                       }
                                       CustomSnackbar.show(
@@ -553,8 +579,7 @@ class _OTPState extends State<OTP> {
                                     height: 20,
                                     width: 20,
                                     child: WaterLoadingIndicator(
-                                      dropletBackgroundColor:
-                                          AppColors.buttonBlueDark,
+                                      waveColor1: AppColors.buttonBlueDark,
                                     ),
                                   )
                                 : Text(

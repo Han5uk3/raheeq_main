@@ -258,6 +258,7 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
           SizedBox(
             height: 210,
             child: ListView.builder(
+              physics: const ClampingScrollPhysics(),
               scrollDirection: Axis.horizontal,
               itemCount: slots.length,
               itemBuilder: (context, index) {

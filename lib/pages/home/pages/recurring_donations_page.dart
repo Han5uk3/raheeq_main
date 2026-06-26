@@ -1,4 +1,6 @@
-import 'package:raheeq_main/common_widgets/water_loading.dart';
+import 'package:intl/intl.dart' show DateFormat;
+import 'package:shimmer/shimmer.dart';
+
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
@@ -89,7 +91,16 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
                     topRight: Radius.circular(30),
                   ),
                 ),
-                child: _buildContent(isAr),
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 500),
+                  layoutBuilder: (currentChild, previousChildren) {
+                    return Stack(
+                      alignment: Alignment.topCenter,
+                      children: <Widget>[...previousChildren, if (currentChild != null) currentChild],
+                    );
+                  },
+                  child: _buildContent(isAr),
+                ),
               ),
             ),
           ),
@@ -100,17 +111,12 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
 
   Widget _buildContent(bool isAr) {
     if (_isLoading) {
-      return const Center(
-        child: SizedBox(
-          height: 30,
-          width: 30,
-          child: WaterLoadingIndicator(size: 30),
-        ),
-      );
+      return _buildShimmerLoading();
     }
 
     if (_errorMessage != null) {
       return Center(
+        key: const ValueKey('error'),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -119,7 +125,7 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
             Text(_errorMessage!, style: const TextStyle(color: Colors.grey)),
             TextButton(
               onPressed: _fetchSubscriptions,
-              child: const Text("Retry"),
+              child: Text(AppLocalizations.of(context)!.retry),
             ),
           ],
         ),
@@ -128,6 +134,7 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
 
     if (_subscriptions.isEmpty) {
       return Center(
+        key: const ValueKey('empty'),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -169,9 +176,11 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
     }
 
     return RefreshIndicator(
+      key: const ValueKey('content'),
       onRefresh: _fetchSubscriptions,
       color: AppColors.buttonBlue,
       child: ListView.separated(
+        physics: const ClampingScrollPhysics(),
         padding: const EdgeInsets.all(16),
         itemCount: _subscriptions.length,
         separatorBuilder: (context, index) => const SizedBox(height: 12),
@@ -184,113 +193,243 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
   }
 
   Widget _buildSubscriptionCard(SubscriptionModel subscription, bool isAr) {
-    return Card(
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (context) =>
-                  SubscriptionDetailsPage(subscriptionId: subscription.id),
-            ),
-          );
-        },
-        borderRadius: BorderRadius.circular(16),
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (subscription.planImage.isNotEmpty) ...[
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.network(
-                    subscription.planImage,
-                    width: 60,
-                    height: 60,
-                    fit: BoxFit.cover,
-                    errorBuilder: (context, error, stackTrace) {
-                      return Container(
-                        width: 60,
-                        height: 60,
-                        color: Colors.grey[200],
-                        child: const Icon(
-                          Icons.image_not_supported,
-                          color: Colors.grey,
-                        ),
-                      );
-                    },
-                  ),
+    final bool isActive = subscription.status.toLowerCase() == 'active';
+    final Color statusColor = isActive ? Colors.green : Colors.red;
+    final planName = isAr ? subscription.planNameAr : subscription.planName;
+
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                SubscriptionDetailsPage(subscriptionId: subscription.id),
+          ),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Top Banner (now white background)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(16),
+                  topRight: Radius.circular(16),
                 ),
-                const SizedBox(width: 16),
-              ],
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      isAr ? subscription.planNameAr : subscription.planName,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: AppColors.buttonBlueDark,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: statusColor,
+                          shape: BoxShape.circle,
+                        ),
                       ),
+                      const SizedBox(width: 8),
+                      Text(
+                        _localizeStatus(subscription.status, context),
+                        style: TextStyle(
+                          color: statusColor,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
+                  Text(
+                    "${AppLocalizations.of(context)!.since}${DateFormat.yMMMd(Localizations.localeOf(context).languageCode).format(subscription.startDate)}",
+                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                  ),
+                ],
+              ),
+            ),
+
+            // Card Body
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Title
+                  Text(
+                    textDirection: TextDirection.ltr,
+                    "#${subscription.subscriptionNumber}",
+                    style: const TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.buttonBlueDark,
                     ),
-                    const SizedBox(height: 8),
-                    Row(
+                  ),
+                  const SizedBox(height: 4),
+
+                  // Location (Target Name)
+                  const SizedBox(height: 12),
+
+                  // Package Details Box
+                  Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF5F7F8),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(Icons.repeat, size: 16, color: Colors.grey),
-                        const SizedBox(width: 4),
                         Text(
-                          subscription.frequency,
-                          style: const TextStyle(fontSize: 14),
+                          planName,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.buttonBlueDark,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          _localizeFrequency(subscription.frequency),
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                          ),
                         ),
                       ],
                     ),
-                    const SizedBox(height: 12),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: _getStatusColor(
-                          subscription.status,
-                        ).withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        subscription.status.toUpperCase(),
-                        style: TextStyle(
-                          color: _getStatusColor(subscription.status),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              const Icon(Icons.chevron_right, color: Colors.grey),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Color _getStatusColor(String status) {
-    switch (status.toLowerCase()) {
-      case 'active':
-        return Colors.green;
-      case 'cancelled':
-        return Colors.red;
-      case 'expired':
-        return Colors.orange;
-      default:
-        return Colors.grey;
+  String _localizeFrequency(String frequency) {
+    final freq = frequency.toLowerCase().trim();
+    if (freq == 'everyday') {
+      return AppLocalizations.of(context)!.everyday;
+    } else if (freq == 'once_a_week') {
+      return AppLocalizations.of(context)!.once_a_week;
+    } else if (freq == 'once_a_month') {
+      return AppLocalizations.of(context)!.once_a_month;
+    } else if (freq == "twice_a_week") {
+      return AppLocalizations.of(context)!.twice_a_week;
+    } else if (freq == 'custom') {
+      return AppLocalizations.of(context)!.custom;
     }
+    return frequency;
+  }
+
+  String _localizeStatus(String status, BuildContext context) {
+    final lowerStatus = status.toLowerCase();
+    if (lowerStatus == 'active') {
+      return AppLocalizations.of(context)!.status_active;
+    }
+    if (lowerStatus == 'cancelled') {
+      return AppLocalizations.of(context)!.status_cancelled;
+    }
+    if (lowerStatus == 'expired') {
+      return AppLocalizations.of(context)!.status_expired;
+    }
+    if (lowerStatus == 'pending') {
+      return AppLocalizations.of(context)!.status_pending;
+    }
+
+    return status.isNotEmpty
+        ? status[0].toUpperCase() + status.substring(1).toLowerCase()
+        : '';
+  }
+
+  Widget _buildShimmerLoading() {
+    return Shimmer.fromColors(
+      key: const ValueKey('loader'),
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: ListView.separated(
+        physics: const ClampingScrollPhysics(),
+        padding: const EdgeInsets.all(16),
+        itemCount: 5,
+        separatorBuilder: (context, index) => const SizedBox(height: 12),
+        itemBuilder: (context, index) {
+          return Container(
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(color: Colors.white),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 20,
+                  ),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(16),
+                      topRight: Radius.circular(16),
+                    ),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        children: [
+                          Container(
+                            width: 8,
+                            height: 8,
+                            decoration: const BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(width: 60, height: 16, color: Colors.white),
+                        ],
+                      ),
+                      Container(width: 80, height: 14, color: Colors.white),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(width: 150, height: 20, color: Colors.white),
+                      const SizedBox(height: 16),
+                      Container(
+                        width: double.infinity,
+                        height: 70,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
+      ),
+    );
   }
 }

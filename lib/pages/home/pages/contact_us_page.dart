@@ -42,7 +42,7 @@ class _ContactUsPageState extends State<ContactUsPage> {
               color: Colors.white,
               borderRadius: BorderRadius.circular(16),
             ),
-            child: WaterLoadingIndicator(showContainer: false, size: 20),
+            child: WaterLoadingIndicator(size: 20),
           ),
         ),
       );

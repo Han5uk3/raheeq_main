@@ -101,6 +101,7 @@ class _ProductSelectionPageState extends State<ProductSelectionPage> {
                 children: [
                   Expanded(
                     child: ListView.separated(
+                      physics: const ClampingScrollPhysics(),
                       padding: const EdgeInsets.all(24),
                       itemCount: widget.availableProducts.length,
                       separatorBuilder: (_, _) => const SizedBox(height: 16),
@@ -200,7 +201,9 @@ class _ProductSelectionPageState extends State<ProductSelectionPage> {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        product.formattedPrice(AppLocalizations.of(context)!.sar_per_unit),
+                        product.formattedPrice(
+                          AppLocalizations.of(context)!.sar_per_unit,
+                        ),
                         style: const TextStyle(
                           fontSize: 14,
                           color: AppColors.buttonBlueDark,

@@ -14,7 +14,7 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 3), () {
+    Future.delayed(const Duration(seconds: 5), () {
       if (mounted) {
         final hasSession = AuthStorage.accessToken != null;
         Navigator.of(context).pushReplacement(
@@ -39,6 +39,7 @@ class _SplashScreenState extends State<SplashScreen> {
             child: Image.asset(
               'assets/Raheeq_LOGO_transparent.apng',
               width: MediaQuery.of(context).size.width,
+              fit: BoxFit.contain,
             ),
           ),
         ],

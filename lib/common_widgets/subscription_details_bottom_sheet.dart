@@ -295,7 +295,7 @@ class _SubscriptionDetailsBottomSheetState
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          AppLocalizations.of(context)!.delivery_days_select_maxallowed,
+          AppLocalizations.of(context)!.delivery_days_select_maxallowed.replaceAll(r'$maxAllowed', maxAllowed.toString()),
           style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
@@ -409,14 +409,6 @@ class _SubscriptionDetailsBottomSheetState
                         ),
                       ],
                     ),
-                  ),
-                  IconButton(
-                    onPressed: () {
-                      FocusManager.instance.primaryFocus?.unfocus();
-                      SystemChannels.textInput.invokeMethod('TextInput.hide');
-                      Navigator.pop(context);
-                    },
-                    icon: const Icon(Icons.close, color: Colors.black87),
                   ),
                 ],
               ),

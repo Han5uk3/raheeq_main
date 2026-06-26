@@ -255,7 +255,7 @@ class _ProfileTabState extends State<ProfileTab> {
                 ),
               ),
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 24),
+                padding: const EdgeInsets.symmetric(horizontal: 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -313,20 +313,20 @@ class _ProfileTabState extends State<ProfileTab> {
                             );
                           },
                         ),
-                        _buildMenuTile(
-                          icon: Icons.description_outlined,
-                          title: AppLocalizations.of(context)!.tax_receipts,
-                          onTap: () {
-                            CustomSnackbar.show(
-                              context: context,
-                              message: AppLocalizations.of(
-                                context,
-                              )!.feature_coming_soon,
-                              duration: Duration(seconds: 1),
-                              bottomMargin: 130,
-                            );
-                          },
-                        ),
+                        // _buildMenuTile(
+                        //   icon: Icons.description_outlined,
+                        //   title: AppLocalizations.of(context)!.tax_receipts,
+                        //   onTap: () {
+                        //     CustomSnackbar.show(
+                        //       context: context,
+                        //       message: AppLocalizations.of(
+                        //         context,
+                        //       )!.feature_coming_soon,
+                        //       duration: Duration(seconds: 1),
+                        //       bottomMargin: 130,
+                        //     );
+                        //   },
+                        // ),
                       ],
                     ),
                     const SizedBox(height: 16),

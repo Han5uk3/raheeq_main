@@ -64,6 +64,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                   ),
                 ),
                 child: SingleChildScrollView(
+                  physics: const ClampingScrollPhysics(),
                   padding: const EdgeInsets.all(24),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,

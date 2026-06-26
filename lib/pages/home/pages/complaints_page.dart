@@ -64,9 +64,9 @@ class _ComplaintsPageState extends State<ComplaintsPage> {
 
     String description = '';
     final loc = AppLocalizations.of(context)!;
-    if (_selectedComplaintOption == 0)
+    if (_selectedComplaintOption == 0) {
       description = loc.complaint_option_1;
-    else if (_selectedComplaintOption == 1)
+    } else if (_selectedComplaintOption == 1)
       description = loc.complaint_option_2;
     else if (_selectedComplaintOption == 2)
       description = loc.complaint_option_3;
@@ -101,10 +101,7 @@ class _ComplaintsPageState extends State<ComplaintsPage> {
           if (res.data is Map && res.data['message'] != null) {
             successMessage = res.data['message'];
           }
-          CustomSnackbar.show(
-            context: context,
-            message: successMessage,
-          );
+          CustomSnackbar.show(context: context, message: successMessage);
           setState(() {
             _selectedOrder = null;
             _selectedComplaintOption = -1;
@@ -116,7 +113,9 @@ class _ComplaintsPageState extends State<ComplaintsPage> {
       log('Complaint API error: $e', name: 'ComplaintsPage', error: e);
       if (mounted) {
         String errorMessage = 'Failed to send complaint';
-        if (e is DioException && e.response?.data is Map && e.response?.data['message'] != null) {
+        if (e is DioException &&
+            e.response?.data is Map &&
+            e.response?.data['message'] != null) {
           errorMessage = e.response!.data['message'];
         }
         CustomSnackbar.show(
@@ -148,8 +147,13 @@ class _ComplaintsPageState extends State<ComplaintsPage> {
             children: [
               Expanded(
                 child: _orders.isEmpty
-                    ? const Center(child: Text('No orders found'))
+                    ? Center(
+                        child: Text(
+                          AppLocalizations.of(context)!.no_orders_found,
+                        ),
+                      )
                     : ListView.builder(
+                        physics: const ClampingScrollPhysics(),
                         itemCount: _orders.length,
                         itemBuilder: (ctx, index) {
                           final order = _orders[index];
@@ -478,7 +482,7 @@ class _ComplaintsPageState extends State<ComplaintsPage> {
                               height: 20,
                               width: 20,
                               child: WaterLoadingIndicator(
-                                dropletBackgroundColor: AppColors.white,
+                                waveColor1: Colors.white,
                               ),
                             )
                           : Text(

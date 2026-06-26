@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/utils/colors.dart';
-import 'package:raheeq_main/common_widgets/water_loading.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
@@ -103,24 +103,11 @@ class _MyWalletPageState extends State<MyWalletPage> {
                   layoutBuilder: (currentChild, previousChildren) {
                     return Stack(
                       alignment: Alignment.topCenter,
-                      children: <Widget>[
-                        ...previousChildren,
-                        if (currentChild != null) currentChild,
-                      ],
+                      children: <Widget>[...previousChildren, ?currentChild],
                     );
                   },
                   child: _isLoading
-                      ? SizedBox(
-                          key: const ValueKey('loader'),
-                          height: MediaQuery.of(context).size.height - 200,
-                          child: const Center(
-                            child: SizedBox(
-                              height: 30,
-                              width: 30,
-                              child: WaterLoadingIndicator(size: 30),
-                            ),
-                          ),
-                        )
+                      ? _buildShimmerLoading()
                       : SingleChildScrollView(
                           key: const ValueKey('content'),
                           physics: const AlwaysScrollableScrollPhysics(),
@@ -178,6 +165,66 @@ class _MyWalletPageState extends State<MyWalletPage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildShimmerLoading() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: SingleChildScrollView(
+        physics: const ClampingScrollPhysics(),
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+              width: double.infinity,
+              height: 140,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+              ),
+            ),
+            const SizedBox(height: 24),
+            Container(width: 150, height: 24, color: Colors.white),
+            const SizedBox(height: 16),
+            ListView.separated(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              itemCount: 5,
+              separatorBuilder: (context, index) => const Divider(height: 1),
+              itemBuilder: (context, index) {
+                return ListTile(
+                  contentPadding: const EdgeInsets.symmetric(
+                    vertical: 8,
+                    horizontal: 4,
+                  ),
+                  leading: const CircleAvatar(backgroundColor: Colors.white),
+                  title: Container(
+                    width: double.infinity,
+                    height: 16,
+                    color: Colors.white,
+                  ),
+                  subtitle: Padding(
+                    padding: const EdgeInsetsDirectional.only(top: 4),
+                    child: Container(
+                      width: 100,
+                      height: 12,
+                      color: Colors.white,
+                    ),
+                  ),
+                  trailing: Container(
+                    width: 50,
+                    height: 16,
+                    color: Colors.white,
+                  ),
+                );
+              },
+            ),
+          ],
+        ),
       ),
     );
   }

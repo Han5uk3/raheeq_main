@@ -72,32 +72,36 @@ class MainApp extends StatelessWidget {
     return ValueListenableBuilder<Locale>(
       valueListenable: localeNotifier,
       builder: (context, locale, child) {
-        return MaterialApp(
-          navigatorKey: AuthStorage.navigatorKey,
-          locale: locale,
-          localizationsDelegates: const [
-            CountryLocalizations.delegate,
-            AppLocalizations.delegate,
-            GlobalMaterialLocalizations.delegate,
-            GlobalWidgetsLocalizations.delegate,
-            GlobalCupertinoLocalizations.delegate,
-          ],
-          supportedLocales: const [
-            Locale('en'), // English
-            Locale('ar'), // Arabic
-          ],
-          theme: ThemeData(
-            fontFamily: GoogleFonts.manrope().fontFamily,
-            fontFamilyFallback: const ['SaudiRiyal', 'SF Pro'],
-            appBarTheme: const AppBarTheme(
-              backgroundColor: Colors.white,
-              foregroundColor: Colors.black,
-              elevation: 0,
+        return SafeArea(
+          bottom: true,
+          top: false,
+          child: MaterialApp(
+            navigatorKey: AuthStorage.navigatorKey,
+            locale: locale,
+            localizationsDelegates: const [
+              CountryLocalizations.delegate,
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            supportedLocales: const [
+              Locale('en'), // English
+              Locale('ar'), // Arabic
+            ],
+            theme: ThemeData(
+              fontFamily: GoogleFonts.manrope().fontFamily,
+              fontFamilyFallback: const ['SaudiRiyal', 'SF Pro'],
+              appBarTheme: const AppBarTheme(
+                backgroundColor: Colors.white,
+                foregroundColor: Colors.black,
+                elevation: 0,
+              ),
+              useMaterial3: true,
             ),
-            useMaterial3: true,
+            debugShowCheckedModeBanner: false,
+            home: const SplashScreen(),
           ),
-          debugShowCheckedModeBanner: false,
-          home: const SplashScreen(),
         );
       },
     );

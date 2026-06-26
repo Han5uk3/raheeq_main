@@ -137,14 +137,6 @@ class _SubscriptionPlansBottomSheetState
                         ],
                       ),
                     ),
-                    IconButton(
-                      onPressed: () {
-                        FocusManager.instance.primaryFocus?.unfocus();
-                        SystemChannels.textInput.invokeMethod('TextInput.hide');
-                        Navigator.pop(context);
-                      },
-                      icon: const Icon(Icons.close, color: Colors.black87),
-                    ),
                   ],
                 ),
               ),

@@ -8,6 +8,8 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:dio/dio.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:raheeq_main/utils/formatters.dart';
 
 class ImpactPage extends StatefulWidget {
   const ImpactPage({super.key});
@@ -39,8 +41,12 @@ class _ImpactPageState extends State<ImpactPage> {
       }
     } catch (e) {
       if (mounted) {
-        String errorMessage = AppLocalizations.of(context)!.error_loading_impact;
-        if (e is DioException && e.response?.data is Map && e.response?.data['message'] != null) {
+        String errorMessage = AppLocalizations.of(
+          context,
+        )!.error_loading_impact;
+        if (e is DioException &&
+            e.response?.data is Map &&
+            e.response?.data['message'] != null) {
           errorMessage = e.response!.data['message'];
         }
         CustomSnackbar.show(
@@ -94,22 +100,13 @@ class _ImpactPageState extends State<ImpactPage> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              AppLocalizations.of(context)!.recent_donations,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppColors.buttonBlueDark,
-              ),
-            ),
-            Text(
-              AppLocalizations.of(context)!.view_all,
-              style: const TextStyle(fontSize: 14, color: AppColors.buttonBlue),
-            ),
-          ],
+        Text(
+          AppLocalizations.of(context)!.products_overview,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: AppColors.buttonBlueDark,
+          ),
         ),
         const SizedBox(height: 16),
         ..._impactData!.productsBreakup.map((product) {
@@ -162,33 +159,122 @@ class _ImpactPageState extends State<ImpactPage> {
                           color: Colors.grey,
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 4,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.green.shade50,
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          AppLocalizations.of(context)!.delivered,
-                          style: TextStyle(
-                            fontSize: 10,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.green.shade700,
-                          ),
-                        ),
-                      ),
                     ],
                   ),
                 ),
               ],
             ),
           );
-        }).toList(),
+        }),
       ],
+    );
+  }
+
+  Widget _buildShimmerLoader() {
+    return Shimmer.fromColors(
+      key: const ValueKey('loader'),
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          for (int i = 0; i < 3; i++) ...[
+            Row(
+              children: [
+                Expanded(
+                  child: AspectRatio(
+                    aspectRatio: 1.1,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: AspectRatio(
+                    aspectRatio: 1.1,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            if (i < 2) const SizedBox(height: 16),
+          ],
+          const SizedBox(height: 24),
+          Container(
+            width: 150,
+            height: 24,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(4),
+            ),
+          ),
+          const SizedBox(height: 16),
+          for (int i = 0; i < 3; i++)
+            Container(
+              margin: const EdgeInsets.only(bottom: 12),
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: double.infinity,
+                          height: 16,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                        const SizedBox(height: 8),
+                        Container(
+                          width: 100,
+                          height: 12,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Container(
+                          width: 60,
+                          height: 20,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+        ],
+      ),
     );
   }
 
@@ -203,7 +289,7 @@ class _ImpactPageState extends State<ImpactPage> {
             child: CustomAppBar(
               hasBackgroundColor: true,
               isStartAligned: true,
-              title: AppLocalizations.of(context)!.your_impact,
+              title: AppLocalizations.of(context)!.donations_overview,
               subtitle: AppLocalizations.of(context)!.see_the_difference,
               showBackButton: true,
               onBackTap: () => Navigator.pop(context),
@@ -225,95 +311,150 @@ class _ImpactPageState extends State<ImpactPage> {
                   horizontal: 24,
                   vertical: 24,
                 ),
-                child: _isLoading
-                    ? const Center(child: WaterLoadingIndicator())
-                    : _impactData == null
-                    ? Center(
-                        child: Text(
-                          AppLocalizations.of(context)!.no_impact_data_found,
-                        ),
-                      )
-                    : Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Column(
-                            children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: AspectRatio(
-                                      aspectRatio: 1.1,
-                                      child: _buildStatCard(
-                                        icon: Icons.water_drop_outlined,
-                                        value: "${_impactData!.totalOrders}",
-                                        label: AppLocalizations.of(
-                                          context,
-                                        )!.total_donations,
-                                      ),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Expanded(
-                                    child: AspectRatio(
-                                      aspectRatio: 1.1,
-                                      child: _buildStatCard(
-                                        icon: Icons.people_outline,
-                                        value: "${_impactData!.totalProducts}",
-                                        label: AppLocalizations.of(
-                                          context,
-                                        )!.products_donated,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 16),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Builder(
-                                      builder: (context) {
-                                        int totalCartons = 0;
-                                        for (final breakup in _impactData!.productsBreakup) {
-                                          final nameLower = breakup.name.toLowerCase();
-                                          final nameAr = breakup.nameAr;
-                                          if (nameLower.contains('carton') || nameAr.contains('كرتون')) {
-                                            totalCartons += breakup.totalQuantity;
-                                          }
-                                        }
-                                        return AspectRatio(
-                                          aspectRatio: 1.1,
-                                          child: _buildStatCard(
-                                            icon: Icons.people_outline,
-                                            value: "${totalCartons * 20}",
-                                            label: AppLocalizations.of(
-                                              context,
-                                            )!.people_helped,
-                                          ),
-                                        );
-                                      }
-                                    ),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Expanded(
-                                    child: AspectRatio(
-                                      aspectRatio: 1.1,
-                                      child: _buildStatCard(
-                                        icon: Icons.trending_up,
-                                        value:
-                                            "${_impactData!.totalMosques.toString().padLeft(2, '0')}",
-                                        label: AppLocalizations.of(
-                                          context,
-                                        )!.mosques_helped,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ],
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 500),
+                  layoutBuilder: (currentChild, previousChildren) {
+                    return Stack(
+                      alignment: Alignment.topCenter,
+                      children: <Widget>[...previousChildren, ?currentChild],
+                    );
+                  },
+                  child: _isLoading
+                      ? _buildShimmerLoader()
+                      : _impactData == null
+                      ? Center(
+                          key: const ValueKey('empty'),
+                          child: Text(
+                            AppLocalizations.of(context)!.no_impact_data_found,
                           ),
-                          const SizedBox(height: 24),
-                          /*Container(
+                        )
+                      : Column(
+                          key: const ValueKey('content'),
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: AspectRatio(
+                                        aspectRatio: 1.1,
+                                        child: _buildStatCard(
+                                          icon:
+                                              Icons.volunteer_activism_outlined,
+                                          value: Formatters.formatCount(
+                                            _impactData!.totalOrders,
+                                          ),
+                                          label: AppLocalizations.of(
+                                            context,
+                                          )!.total_donations,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    Expanded(
+                                      child: AspectRatio(
+                                        aspectRatio: 1.1,
+                                        child: _buildStatCard(
+                                          icon: Icons.local_shipping_outlined,
+                                          value: Formatters.formatCount(
+                                            _impactData!.totalProducts,
+                                          ),
+                                          label: AppLocalizations.of(
+                                            context,
+                                          )!.products_donated,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Builder(
+                                        builder: (context) {
+                                          int totalCartons = 0;
+                                          for (final breakup
+                                              in _impactData!.productsBreakup) {
+                                            final nameLower = breakup.name
+                                                .toLowerCase();
+                                            final nameAr = breakup.nameAr;
+                                            if (nameLower.contains('carton') ||
+                                                nameAr.contains('كرتون')) {
+                                              totalCartons +=
+                                                  breakup.totalQuantity;
+                                            }
+                                          }
+                                          return AspectRatio(
+                                            aspectRatio: 1.1,
+                                            child: _buildStatCard(
+                                              icon: Icons.people_outline,
+                                              value: Formatters.formatCount(
+                                                totalCartons * 20,
+                                              ),
+                                              label: AppLocalizations.of(
+                                                context,
+                                              )!.people_helped,
+                                            ),
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    Expanded(
+                                      child: AspectRatio(
+                                        aspectRatio: 1.1,
+                                        child: _buildStatCard(
+                                          icon: Icons.mosque_outlined,
+                                          value: Formatters.formatCount(
+                                            _impactData!.totalMosques,
+                                          ),
+                                          label: AppLocalizations.of(
+                                            context,
+                                          )!.mosques_helped,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: AspectRatio(
+                                        aspectRatio: 1.1,
+                                        child: _buildStatCard(
+                                          icon: Icons.account_balance_outlined,
+                                          value:
+                                              "\u202A${AppLocalizations.of(context)!.sar} ${Formatters.formatCount(_impactData!.totalAmountPaid)}\u202C",
+                                          label: AppLocalizations.of(
+                                            context,
+                                          )!.total_amount,
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    Expanded(
+                                      child: AspectRatio(
+                                        aspectRatio: 1.1,
+                                        child: _buildStatCard(
+                                          icon: Icons.house_outlined,
+                                          value: Formatters.formatCount(
+                                            _impactData!.totalOrphanages,
+                                          ),
+                                          label: AppLocalizations.of(
+                                            context,
+                                          )!.orphanages_helped,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 24),
+                            /*Container(
                             width: double.infinity,
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
@@ -385,9 +526,10 @@ class _ImpactPageState extends State<ImpactPage> {
                             ),
                           ),
                           const SizedBox(height: 24),*/
-                          _buildRecentDonations(isAr),
-                        ],
-                      ),
+                            _buildRecentDonations(isAr),
+                          ],
+                        ),
+                ),
               ),
             ),
           ),

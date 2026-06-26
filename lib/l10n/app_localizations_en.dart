@@ -408,6 +408,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get recent_donations => 'Recent Donations';
 
   @override
+  String get products_overview => 'Products Overview';
+
+  @override
+  String get donations_overview => 'Donations Overview';
+
+  @override
+  String get orphanages_helped => 'Orphanages Helped';
+
+  @override
   String get sar => '⃁';
 
   @override
@@ -1274,4 +1283,131 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get my_chillers_subtitle => 'View the status of donated chillers';
+
+  @override
+  String get rate_order => 'Rate Order';
+
+  @override
+  String get submit_review => 'Submit Review';
+
+  @override
+  String get write_review => 'Write your review...';
+
+  @override
+  String get review_submitted => 'Review submitted successfully';
+
+  @override
+  String get rate_order_title => 'Rate your order';
+
+  @override
+  String get how_was_your_experience => 'How was your experience?';
+
+  @override
+  String get track_donation => 'Track Donation';
+
+  @override
+  String get since => 'Since ';
+
+  @override
+  String get everyday => 'Everyday';
+
+  @override
+  String get once_a_week => 'Once a week';
+
+  @override
+  String get once_a_month => 'Once a month';
+
+  @override
+  String get twice_a_week => 'Twice a week';
+
+  @override
+  String get status_active => 'Active';
+
+  @override
+  String get status_cancelled => 'Cancelled';
+
+  @override
+  String get status_expired => 'Expired';
+
+  @override
+  String get status_pending => 'Pending';
+
+  @override
+  String get view_invoice => 'View Invoice';
+
+  @override
+  String get could_not_open_invoice => 'Could not open invoice';
+
+  @override
+  String get error_loading_order_details => 'Failed to load order details';
+
+  @override
+  String get error_occurred_loading_order =>
+      'An error occurred while loading order details.';
+
+  @override
+  String get error_title => 'Error';
+
+  @override
+  String get order_placed => 'Order Placed';
+
+  @override
+  String get current_status => 'Current Status';
+
+  @override
+  String get delivering_to => 'Delivering to';
+
+  @override
+  String get delivery_progress => 'Delivery Progress';
+
+  @override
+  String get delivery_completed => 'Delivery completed';
+
+  @override
+  String get proof_of_delivery => 'Proof of Delivery';
+
+  @override
+  String get mosque_front => 'Mosque Front';
+
+  @override
+  String get mosque_inside => 'Mosque Inside';
+
+  @override
+  String get packages => 'Packages';
+
+  @override
+  String get delivery_video => 'Delivery Video';
+
+  @override
+  String get mark_all_read => 'Mark all as read';
+
+  @override
+  String get clear_notifications => 'Clear notifications';
+
+  @override
+  String get no_deliveries_found_for_this_order =>
+      'No deliveries found for this order.';
+
+  @override
+  String get no_details_found => 'No details found.';
+
+  @override
+  String get no_orders_found => 'No orders found';
+
+  @override
+  String get failed_to_mark_all_as_read => 'Failed to mark all as read';
+
+  @override
+  String get failed_to_clear_notifications => 'Failed to clear notifications';
+
+  @override
+  String get failed_to_retrieve_google_id_token =>
+      'Failed to retrieve Google ID token';
+
+  @override
+  String get failed_to_retrieve_apple_identity_token =>
+      'Failed to retrieve Apple Identity token';
+
+  @override
+  String get failed_to_submit_review => 'Failed to submit review';
 }

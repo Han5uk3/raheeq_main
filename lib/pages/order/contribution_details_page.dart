@@ -11,7 +11,7 @@ import 'package:flutter_paytabs_bridge/IOSThemeConfiguration.dart';
 import 'package:flutter_paytabs_bridge/PaymentSdkTokeniseType.dart';
 import 'package:flutter_paytabs_bridge/PaymentSdkApms.dart';
 import 'package:raheeq_main/pages/order/payment_status_page.dart';
-import 'package:raheeq_main/pages/order/iban_payment_page.dart';
+import 'package:raheeq_main/pages/order/choose_iban_account_bottom_sheet.dart';
 // import 'package:intl/intl.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/models/order_item.dart';
@@ -251,10 +251,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
 
     if (_selectedPaymentMethod == 'IBAN') {
       log('Payment Flow: Selected IBAN', name: 'CheckoutFlow');
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (_) => IbanPaymentPage(isAr: isAr)),
-      );
+      ChooseIbanAccountBottomSheet.showAsBottomSheet(context, isAr: isAr);
     } else {
       log(
         'Payment Flow: Selected $_selectedPaymentMethod',
@@ -669,10 +666,10 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
     if (sub is! Map) return const SizedBox.shrink();
 
     final startDate = sub['startDate'] != null
-        ? DateTime.tryParse(sub['startDate'].toString())
+        ? DateTime.tryParse(sub['startDate'].toString())?.toLocal()
         : null;
     final endDate = sub['endDate'] != null
-        ? DateTime.tryParse(sub['endDate'].toString())
+        ? DateTime.tryParse(sub['endDate'].toString())?.toLocal()
         : null;
     final months = sub['months'] as int?;
     final daysOfWeek = (sub['daysOfWeek'] as List<dynamic>?)?.cast<int>();
@@ -883,7 +880,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
               style: const TextStyle(fontSize: 14, color: Colors.white70),
             ),
             titleWidget: Text(
-              "\u202A‪${AppLocalizations.of(context)!.sar_currency} ${_checkoutData.finalTotal.toStringAsFixed(2)}‬\u202C",
+              "\u202A${AppLocalizations.of(context)!.sar_currency} ${_checkoutData.finalTotal.toStringAsFixed(2)}‬\u202C",
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -1090,10 +1087,13 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                           child: TextField(
                                             inputFormatters: [
                                               TextInputFormatter.withFunction(
-                                                (oldValue, newValue) => TextEditingValue(
-                                                  text: newValue.text.toUpperCase(),
-                                                  selection: newValue.selection,
-                                                ),
+                                                (oldValue, newValue) =>
+                                                    TextEditingValue(
+                                                      text: newValue.text
+                                                          .toUpperCase(),
+                                                      selection:
+                                                          newValue.selection,
+                                                    ),
                                               ),
                                             ],
                                             cursorColor:
@@ -1642,6 +1642,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                   SizedBox(
                     height: itemsWithGiftCards.length == 1 ? 300 : 230,
                     child: ListView.separated(
+                      physics: const ClampingScrollPhysics(),
                       padding: const EdgeInsets.symmetric(horizontal: 24),
                       scrollDirection: Axis.horizontal,
                       itemCount: itemsWithGiftCards.length,

@@ -301,15 +301,6 @@ class _RegistrationState extends State<Registration> {
                                                         201) &&
                                                 response.data['success'] ==
                                                     true) {
-                                              // ScaffoldMessenger.of(
-                                              //   context,
-                                              // ).showSnackBar(
-                                              //   const SnackBar(
-                                              //     content: Text(
-                                              //       'Registration Successful!',
-                                              //     ),
-                                              //   ),
-                                              // );
                                               Navigator.pushAndRemoveUntil(
                                                 context,
                                                 MaterialPageRoute(
@@ -406,8 +397,7 @@ class _RegistrationState extends State<Registration> {
                                         height: 20,
                                         width: 20,
                                         child: WaterLoadingIndicator(
-                                          dropletBackgroundColor:
-                                              AppColors.buttonBlueDark,
+                                          waveColor1: Colors.white,
                                         ),
                                       )
                                     : Text(

@@ -125,6 +125,7 @@ class _CitySelectorDialogState extends State<CitySelectorDialog> {
             else
               Flexible(
                 child: SingleChildScrollView(
+                  physics: const ClampingScrollPhysics(),
                   child: Wrap(
                     spacing: 12,
                     runSpacing: 12,

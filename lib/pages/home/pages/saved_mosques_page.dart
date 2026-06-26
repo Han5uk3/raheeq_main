@@ -1,5 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/models/category.dart';
@@ -187,18 +188,7 @@ class _SavedMosquesPageState extends State<SavedMosquesPage> {
                           );
                         },
                         child: _isLoading
-                            ? SizedBox(
-                                key: const ValueKey('loader'),
-                                height:
-                                    MediaQuery.of(context).size.height - 200,
-                                child: const Center(
-                                  child: SizedBox(
-                                    height: 30,
-                                    width: 30,
-                                    child: WaterLoadingIndicator(size: 30),
-                                  ),
-                                ),
-                              )
+                            ? _buildShimmerLoading()
                             : _errorMessage != null
                             ? SizedBox(
                                 key: const ValueKey('error'),
@@ -409,6 +399,7 @@ class _SavedMosquesPageState extends State<SavedMosquesPage> {
           SizedBox(
             height: 40,
             child: ListView.builder(
+              physics: const ClampingScrollPhysics(),
               scrollDirection: Axis.horizontal,
               itemCount: _selectedItemsList.length,
               itemBuilder: (context, index) {
@@ -493,6 +484,80 @@ class _SavedMosquesPageState extends State<SavedMosquesPage> {
             ],
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildShimmerLoading() {
+    return Shimmer.fromColors(
+      key: const ValueKey('loader'),
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: ListView.separated(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(16),
+        itemCount: 5,
+        separatorBuilder: (context, index) =>
+            const Divider(height: 16, color: Colors.transparent),
+        itemBuilder: (context, index) {
+          return Card(
+            clipBehavior: Clip.antiAlias,
+            color: Colors.white,
+            elevation: 3,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(20),
+              side: const BorderSide(color: Colors.transparent, width: 2),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Container(height: 140, color: Colors.white),
+                Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              width: 150,
+                              height: 18,
+                              color: Colors.white,
+                            ),
+                            const SizedBox(height: 4),
+                            Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Icon(
+                                  Icons.location_on_outlined,
+                                  color: Colors.white,
+                                  size: 16,
+                                ),
+                                const SizedBox(width: 4),
+                                Expanded(
+                                  child: Container(
+                                    width: double.infinity,
+                                    height: 12,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                      const Icon(Icons.favorite, color: Colors.white),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+        },
       ),
     );
   }

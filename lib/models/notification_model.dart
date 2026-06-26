@@ -7,7 +7,7 @@ class NotificationModel {
   final String? driverId;
   final String? adminId;
   final Map<String, dynamic> data;
-  final bool isRead;
+  bool isRead;
   final DateTime createdAt;
 
   NotificationModel({

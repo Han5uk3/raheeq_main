@@ -1,8 +1,14 @@
+import 'package:raheeq_main/models/review_model.dart';
+
 class OrderResponseModel {
   final String id;
   final String subOrderNumber;
   final String status;
   final DateTime createdAt;
+  final DateTime? assignedAt;
+  final DateTime? completedAt;
+  final DateTime? confirmedAt;
+  final DateTime? cancelledAt;
   final ParentOrder? parentOrder;
   final OrderProduct? product;
   final OrderFinancials? financials;
@@ -13,12 +19,17 @@ class OrderResponseModel {
   final Map<String, dynamic>? deliveryProof;
   final Map<String, dynamic>? giftCard;
   final String? invoiceUrl;
+  ReviewModel? review;
 
   OrderResponseModel({
     required this.id,
     required this.subOrderNumber,
     required this.status,
     required this.createdAt,
+    this.assignedAt,
+    this.completedAt,
+    this.confirmedAt,
+    this.cancelledAt,
     this.parentOrder,
     this.product,
     this.financials,
@@ -29,6 +40,7 @@ class OrderResponseModel {
     this.deliveryProof,
     this.giftCard,
     this.invoiceUrl,
+    this.review,
   });
 
   factory OrderResponseModel.fromJson(Map<String, dynamic> json) {
@@ -39,6 +51,23 @@ class OrderResponseModel {
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'])
           : DateTime.now(),
+      assignedAt: json['assignedAt'] != null
+          ? DateTime.tryParse(json['assignedAt'])
+          : (json['dispatchedAt'] != null
+                ? DateTime.tryParse(json['dispatchedAt'])
+                : null),
+      completedAt: json['completedAt'] != null
+          ? DateTime.tryParse(json['completedAt'])
+          : (json['deliveryProof'] != null &&
+                    json['deliveryProof']['deliveredAt'] != null
+                ? DateTime.tryParse(json['deliveryProof']['deliveredAt'])
+                : null),
+      confirmedAt: json['confirmedAt'] != null
+          ? DateTime.tryParse(json['confirmedAt'])
+          : null,
+      cancelledAt: json['cancelledAt'] != null
+          ? DateTime.tryParse(json['cancelledAt'])
+          : null,
       parentOrder: json['parentOrder'] != null
           ? ParentOrder.fromJson(json['parentOrder'])
           : null,
@@ -56,7 +85,19 @@ class OrderResponseModel {
       driver: json['driver'],
       deliveryProof: json['deliveryProof'],
       giftCard: json['giftCard'],
-      invoiceUrl: json['invoice'] ?? json['invoiceUrl'],
+      invoiceUrl:
+          json['invoice'] ??
+          json['invoiceUrl'] ??
+          json['invoice_url'] ??
+          json['invoicePdfUrl'] ??
+          json['invoicePdf'] ??
+          (json['parentOrder'] != null
+              ? (json['parentOrder']['invoicePdfUrl'] ??
+                    json['parentOrder']['invoiceUrl'] ??
+                    json['parentOrder']['invoice'] ??
+                    json['parentOrder']['invoice_url'])
+              : null),
+      review: json['review'] != null ? ReviewModel.fromJson(json['review']) : null,
     );
   }
 }
@@ -65,18 +106,25 @@ class ParentOrder {
   final String orderNumber;
   final String paymentMethod;
   final String paymentStatus;
+  final String? invoicePdfUrl;
 
   ParentOrder({
     required this.orderNumber,
     required this.paymentMethod,
     required this.paymentStatus,
+    this.invoicePdfUrl,
   });
 
   factory ParentOrder.fromJson(Map<String, dynamic> json) {
     return ParentOrder(
-      orderNumber: json['orderNumber'] ?? '',
+      orderNumber: json['orderNumber']?.toString() ?? '',
       paymentMethod: json['paymentMethod'] ?? '',
       paymentStatus: json['paymentStatus'] ?? '',
+      invoicePdfUrl:
+          json['invoicePdfUrl'] ??
+          json['invoiceUrl'] ??
+          json['invoice'] ??
+          json['invoice_url'],
     );
   }
 }
@@ -115,6 +163,8 @@ class OrderFinancials {
   final double amount;
   final double deliveryFee;
   final double vatAmount;
+  final double walletAmount;
+  final double discountAmount;
   final double totalAmount;
 
   OrderFinancials({
@@ -122,6 +172,8 @@ class OrderFinancials {
     required this.amount,
     required this.deliveryFee,
     required this.vatAmount,
+    required this.walletAmount,
+    required this.discountAmount,
     required this.totalAmount,
   });
 
@@ -131,6 +183,8 @@ class OrderFinancials {
       amount: (json['amount'] ?? 0).toDouble(),
       deliveryFee: (json['deliveryFee'] ?? 0).toDouble(),
       vatAmount: (json['vatAmount'] ?? 0).toDouble(),
+      walletAmount: (json['walletAmount'] ?? 0).toDouble(),
+      discountAmount: (json['discountAmount'] ?? 0).toDouble(),
       totalAmount: (json['totalAmount'] ?? 0).toDouble(),
     );
   }

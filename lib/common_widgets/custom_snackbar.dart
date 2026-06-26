@@ -25,7 +25,7 @@ class CustomSnackbar {
     if (overlay == null) return;
 
     late OverlayEntry overlayEntry;
-    
+
     overlayEntry = OverlayEntry(
       builder: (context) => _AnimatedSnackbarOverlay(
         message: message,
@@ -68,10 +68,12 @@ class _AnimatedSnackbarOverlay extends StatefulWidget {
   });
 
   @override
-  _AnimatedSnackbarOverlayState createState() => _AnimatedSnackbarOverlayState();
+  _AnimatedSnackbarOverlayState createState() =>
+      _AnimatedSnackbarOverlayState();
 }
 
-class _AnimatedSnackbarOverlayState extends State<_AnimatedSnackbarOverlay> with SingleTickerProviderStateMixin {
+class _AnimatedSnackbarOverlayState extends State<_AnimatedSnackbarOverlay>
+    with SingleTickerProviderStateMixin {
   late AnimationController _controller;
   late Animation<double> _scaleAnimation;
   late Animation<double> _opacityAnimation;
@@ -91,16 +93,29 @@ class _AnimatedSnackbarOverlayState extends State<_AnimatedSnackbarOverlay> with
     );
 
     _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutBack, reverseCurve: Curves.easeInBack),
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeOutBack,
+        reverseCurve: Curves.easeInBack,
+      ),
     );
 
     _opacityAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic, reverseCurve: Curves.easeInCubic),
+      CurvedAnimation(
+        parent: _controller,
+        curve: Curves.easeOutCubic,
+        reverseCurve: Curves.easeInCubic,
+      ),
     );
-    
-    _slideAnimation = Tween<Offset>(begin: const Offset(0, 0.5), end: Offset.zero).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic, reverseCurve: Curves.easeInCubic),
-    );
+
+    _slideAnimation =
+        Tween<Offset>(begin: const Offset(0, 0.5), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _controller,
+            curve: Curves.easeOutCubic,
+            reverseCurve: Curves.easeInCubic,
+          ),
+        );
 
     _controller.forward();
 
@@ -137,7 +152,10 @@ class _AnimatedSnackbarOverlayState extends State<_AnimatedSnackbarOverlay> with
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      bottom: math.max(MediaQuery.of(context).viewInsets.bottom + 24, widget.bottomMargin), // Respect keyboard and clear bottom nav
+      bottom: math.max(
+        MediaQuery.of(context).viewInsets.bottom + 24,
+        widget.bottomMargin,
+      ), // Respect keyboard and clear bottom nav
       left: 20,
       right: 20,
       child: SafeArea(
@@ -150,13 +168,22 @@ class _AnimatedSnackbarOverlayState extends State<_AnimatedSnackbarOverlay> with
               child: FadeTransition(
                 opacity: _opacityAnimation,
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
                   decoration: BoxDecoration(
-                    color: widget.isError ? Colors.redAccent.shade400 : AppColors.buttonBlueDark,
+                    color: widget.isError
+                        ? Colors.red
+                        : AppColors.buttonBlueDark,
                     borderRadius: BorderRadius.circular(16),
                     boxShadow: [
                       BoxShadow(
-                        color: (widget.isError ? Colors.redAccent.shade400 : AppColors.buttonBlueDark).withValues(alpha: 0.3),
+                        color:
+                            (widget.isError
+                                    ? Colors.red
+                                    : AppColors.buttonBlueDark)
+                                .withValues(alpha: 0.3),
                         blurRadius: 16,
                         offset: const Offset(0, 8),
                       ),
@@ -172,7 +199,9 @@ class _AnimatedSnackbarOverlayState extends State<_AnimatedSnackbarOverlay> with
                           shape: BoxShape.circle,
                         ),
                         child: Icon(
-                          widget.isError ? Icons.error_outline_rounded : Icons.check_circle_outline_rounded,
+                          widget.isError
+                              ? Icons.error_outline_rounded
+                              : Icons.check_circle_outline_rounded,
                           color: Colors.white,
                           size: 20,
                         ),

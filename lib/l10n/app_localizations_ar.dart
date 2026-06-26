@@ -407,6 +407,15 @@ class AppLocalizationsAr extends AppLocalizations {
   String get recent_donations => 'التبرعات الأخيرة';
 
   @override
+  String get products_overview => 'نظرة عامة على المنتجات';
+
+  @override
+  String get donations_overview => 'نظرة عامة على التبرعات';
+
+  @override
+  String get orphanages_helped => 'دور الأيتام التي تمت مساعدتها';
+
+  @override
   String get sar => '⃁';
 
   @override
@@ -475,7 +484,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get enter_quantity_min_min => 'أدخل الكمية (الحد الأدنى: \$min)';
 
   @override
-  String get custom => 'كمية مخصصة';
+  String get custom => 'مخصص';
 
   @override
   String get for_name => 'لـ: \$name';
@@ -1264,4 +1273,131 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get my_chillers_subtitle => 'عرض حالة الثلاجات المتبرع بها';
+
+  @override
+  String get rate_order => 'تقييم الطلب';
+
+  @override
+  String get submit_review => 'إرسال التقييم';
+
+  @override
+  String get write_review => 'اكتب تقييمك...';
+
+  @override
+  String get review_submitted => 'تم إرسال التقييم بنجاح';
+
+  @override
+  String get rate_order_title => 'قيم طلبك';
+
+  @override
+  String get how_was_your_experience => 'كيف كانت تجربتك؟';
+
+  @override
+  String get track_donation => 'تتبع التبرع';
+
+  @override
+  String get since => 'منذ ';
+
+  @override
+  String get everyday => 'كل يوم';
+
+  @override
+  String get once_a_week => 'مرة في الأسبوع';
+
+  @override
+  String get once_a_month => 'مرة في الشهر';
+
+  @override
+  String get twice_a_week => 'مرتين في الأسبوع';
+
+  @override
+  String get status_active => 'نشط';
+
+  @override
+  String get status_cancelled => 'ملغى';
+
+  @override
+  String get status_expired => 'منتهي';
+
+  @override
+  String get status_pending => 'قيد الانتظار';
+
+  @override
+  String get view_invoice => 'عرض الفاتورة';
+
+  @override
+  String get could_not_open_invoice => 'تعذر فتح الفاتورة';
+
+  @override
+  String get error_loading_order_details => 'فشل في تحميل تفاصيل الطلب';
+
+  @override
+  String get error_occurred_loading_order =>
+      'حدث خطأ أثناء تحميل تفاصيل الطلب.';
+
+  @override
+  String get error_title => 'خطأ';
+
+  @override
+  String get order_placed => 'تم الطلب';
+
+  @override
+  String get current_status => 'الحالة الحالية';
+
+  @override
+  String get delivering_to => 'التوصيل إلى';
+
+  @override
+  String get delivery_progress => 'تقدم التوصيل';
+
+  @override
+  String get delivery_completed => 'تم التوصيل';
+
+  @override
+  String get proof_of_delivery => 'إثبات التوصيل';
+
+  @override
+  String get mosque_front => 'واجهة المسجد';
+
+  @override
+  String get mosque_inside => 'داخل المسجد';
+
+  @override
+  String get packages => 'الطرود';
+
+  @override
+  String get delivery_video => 'فيديو التوصيل';
+
+  @override
+  String get mark_all_read => 'تحديد الكل كمقروء';
+
+  @override
+  String get clear_notifications => 'مسح الإشعارات';
+
+  @override
+  String get no_deliveries_found_for_this_order =>
+      'لم يتم العثور على توصيلات لهذا الطلب.';
+
+  @override
+  String get no_details_found => 'لم يتم العثور على تفاصيل.';
+
+  @override
+  String get no_orders_found => 'لم يتم العثور على طلبات';
+
+  @override
+  String get failed_to_mark_all_as_read => 'فشل في تحديد الكل كمقروء';
+
+  @override
+  String get failed_to_clear_notifications => 'فشل في مسح الإشعارات';
+
+  @override
+  String get failed_to_retrieve_google_id_token =>
+      'فشل في استرداد رمز Google ID';
+
+  @override
+  String get failed_to_retrieve_apple_identity_token =>
+      'فشل في استرداد رمز Apple Identity';
+
+  @override
+  String get failed_to_submit_review => 'فشل في إرسال التقييم';
 }

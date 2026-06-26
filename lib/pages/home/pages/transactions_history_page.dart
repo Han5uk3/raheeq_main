@@ -9,7 +9,8 @@ class TransactionsHistoryPage extends StatefulWidget {
   const TransactionsHistoryPage({super.key, required this.transactions});
 
   @override
-  State<TransactionsHistoryPage> createState() => _TransactionsHistoryPageState();
+  State<TransactionsHistoryPage> createState() =>
+      _TransactionsHistoryPageState();
 }
 
 class _TransactionsHistoryPageState extends State<TransactionsHistoryPage> {
@@ -28,7 +29,9 @@ class _TransactionsHistoryPageState extends State<TransactionsHistoryPage> {
       }
 
       if (_selectedFilter == 'day') {
-        return date.year == now.year && date.month == now.month && date.day == now.day;
+        return date.year == now.year &&
+            date.month == now.month &&
+            date.day == now.day;
       } else if (_selectedFilter == 'month') {
         return date.year == now.year && date.month == now.month;
       } else if (_selectedFilter == 'year') {
@@ -56,16 +59,23 @@ class _TransactionsHistoryPageState extends State<TransactionsHistoryPage> {
             onBackTap: () => Navigator.pop(context),
           ),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 16.0,
+              vertical: 12.0,
+            ),
             child: Row(
               children: [
                 Text(
                   "${loc.filter_by}: ",
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
                 ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: SingleChildScrollView(
+                    physics: const ClampingScrollPhysics(),
                     scrollDirection: Axis.horizontal,
                     child: Row(
                       children: [
@@ -92,9 +102,11 @@ class _TransactionsHistoryPageState extends State<TransactionsHistoryPage> {
                     ),
                   )
                 : ListView.separated(
+                    physics: const ClampingScrollPhysics(),
                     padding: const EdgeInsets.all(16),
                     itemCount: transactions.length,
-                    separatorBuilder: (context, index) => const Divider(height: 1),
+                    separatorBuilder: (context, index) =>
+                        const Divider(height: 1),
                     itemBuilder: (context, index) {
                       final tx = transactions[index];
                       final type = tx['type'] ?? 'UNKNOWN';
@@ -123,7 +135,9 @@ class _TransactionsHistoryPageState extends State<TransactionsHistoryPage> {
                               ? Colors.green.withValues(alpha: 0.1)
                               : Colors.red.withValues(alpha: 0.1),
                           child: Icon(
-                            isCredit ? Icons.arrow_downward : Icons.arrow_upward,
+                            isCredit
+                                ? Icons.arrow_downward
+                                : Icons.arrow_upward,
                             color: isCredit ? Colors.green : Colors.red,
                           ),
                         ),

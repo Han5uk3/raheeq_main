@@ -9,17 +9,13 @@ class WaterLoadingIndicator extends StatefulWidget {
   final String? message;
   final Color? waveColor1;
   final Color? waveColor2;
-  final Color? dropletBackgroundColor;
-  final bool showContainer;
 
   const WaterLoadingIndicator({
     super.key,
-    this.size = 40.0,
+    this.size = 24.0,
     this.message,
     this.waveColor1,
     this.waveColor2,
-    this.dropletBackgroundColor,
-    this.showContainer = true,
   });
 
   @override
@@ -86,14 +82,7 @@ class _WaterLoadingIndicatorState extends State<WaterLoadingIndicator>
             height: barHeight,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(barWidth / 2),
-              gradient: LinearGradient(
-                colors: [
-                  widget.waveColor1 ?? AppColors.buttonBlue,
-                  widget.waveColor2 ?? AppColors.headerlightblue,
-                ],
-                begin: Alignment.bottomCenter,
-                end: Alignment.topCenter,
-              ),
+              color: widget.waveColor1 ?? AppColors.buttonBlue,
             ),
           );
         });
@@ -118,18 +107,7 @@ class _WaterLoadingIndicatorState extends State<WaterLoadingIndicator>
           ),
         );
 
-        Widget content;
-        if (widget.showContainer) {
-          content = SizedBox(
-            width: widget.size,
-            height: widget.size,
-            child: Center(child: soundwave),
-          );
-        } else {
-          content = soundwave;
-        }
-
-        return content;
+        return soundwave;
       },
     );
 

@@ -161,6 +161,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                             topRight: Radius.circular(30),
                           ),
                           child: SingleChildScrollView(
+                            physics: const ClampingScrollPhysics(),
                             padding: const EdgeInsetsDirectional.only(
                               start: 12,
                               end: 12,
@@ -221,6 +222,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                             ),
                             height: 160,
                             child: ListView.separated(
+                              physics: const ClampingScrollPhysics(),
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 12,
                               ),

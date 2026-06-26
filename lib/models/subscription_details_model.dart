@@ -5,7 +5,9 @@ class SubscriptionDetailsModel extends SubscriptionModel {
   final int ordersCount;
   final String paymentMethod;
   final double totalAmount;
+  final String? invoiceUrl;
   final List<SubscriptionDeliveryModel> deliveries;
+  final List<dynamic> giftCards;
 
   SubscriptionDetailsModel({
     required super.id,
@@ -18,11 +20,15 @@ class SubscriptionDetailsModel extends SubscriptionModel {
     required super.purchasedDate,
     required super.startDate,
     required super.endDate,
+    super.targetName,
+    super.targetNameAr,
     this.monthsCount,
     required this.ordersCount,
     required this.paymentMethod,
     required this.totalAmount,
+    this.invoiceUrl,
     required this.deliveries,
+    this.giftCards = const [],
   });
 
   factory SubscriptionDetailsModel.fromJson(Map<String, dynamic> json) {
@@ -43,15 +49,19 @@ class SubscriptionDetailsModel extends SubscriptionModel {
       endDate: json['endDate'] != null
           ? DateTime.parse(json['endDate'])
           : DateTime.now(),
+      targetName: json['target'] != null ? (json['target']['label'] ?? '') : (json['targetName'] ?? ''),
+      targetNameAr: json['target'] != null ? (json['target']['labelAr'] ?? '') : (json['targetNameAr'] ?? ''),
       monthsCount: json['monthsCount'],
       ordersCount: json['ordersCount'] ?? 0,
       paymentMethod: json['paymentMethod'] ?? '',
       totalAmount: (json['totalAmount'] ?? 0).toDouble(),
+      invoiceUrl: json['invoiceUrl'],
       deliveries:
           (json['deliveries'] as List<dynamic>?)
               ?.map((e) => SubscriptionDeliveryModel.fromJson(e))
               .toList() ??
           [],
+      giftCards: json['giftCards'] ?? (json['giftCard'] != null ? [json['giftCard']] : []),
     );
   }
 }
@@ -61,6 +71,7 @@ class SubscriptionDeliveryModel {
   final String orderNumber;
   final DateTime? scheduledDate;
   final DateTime createdAt;
+  final String status;
   final List<SubscriptionSubOrderModel> subOrders;
 
   SubscriptionDeliveryModel({
@@ -68,6 +79,7 @@ class SubscriptionDeliveryModel {
     required this.orderNumber,
     this.scheduledDate,
     required this.createdAt,
+    required this.status,
     required this.subOrders,
   });
 
@@ -81,6 +93,7 @@ class SubscriptionDeliveryModel {
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'])
           : DateTime.now(),
+      status: json['status'] ?? 'PENDING',
       subOrders:
           (json['subOrders'] as List<dynamic>?)
               ?.map((e) => SubscriptionSubOrderModel.fromJson(e))
@@ -98,6 +111,7 @@ class SubscriptionSubOrderModel {
   final SubscriptionProductModel? product;
   final SubscriptionTargetModel? target;
   final String? deliveryProof;
+  final Map<String, dynamic>? giftCard;
 
   SubscriptionSubOrderModel({
     required this.id,
@@ -107,6 +121,7 @@ class SubscriptionSubOrderModel {
     this.product,
     this.target,
     this.deliveryProof,
+    this.giftCard,
   });
 
   factory SubscriptionSubOrderModel.fromJson(Map<String, dynamic> json) {
@@ -122,6 +137,7 @@ class SubscriptionSubOrderModel {
           ? SubscriptionTargetModel.fromJson(json['target'])
           : null,
       deliveryProof: json['deliveryProof'],
+      giftCard: json['giftCard'],
     );
   }
 }

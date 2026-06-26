@@ -11,7 +11,6 @@ import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/models/checkout.dart';
 import 'dart:developer';
-import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/common_widgets/donation_type_bottom_sheet.dart';
 import 'package:raheeq_main/common_widgets/subscription_plans_bottom_sheet.dart';
 import 'package:raheeq_main/common_widgets/subscription_details_bottom_sheet.dart';
@@ -30,6 +29,7 @@ class ReviewOrderPage extends StatefulWidget {
 
 class _ReviewOrderPageState extends State<ReviewOrderPage> {
   late List<Product> _uniqueProducts;
+  bool _isProcessing = false;
 
   @override
   void initState() {
@@ -145,13 +145,9 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
   Future<void> _processOneTimeCheckout(BuildContext context, bool isAr) async {
     final items = _prepareCheckoutItems();
 
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext loadingCtx) {
-        return const Center(child: WaterLoadingIndicator());
-      },
-    );
+    setState(() {
+      _isProcessing = true;
+    });
 
     try {
       final apiService = ApiService();
@@ -166,9 +162,10 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
       final checkoutDataMap = response.data['data'];
       final checkoutData = Checkout.fromJson(checkoutDataMap);
 
-      Navigator.pop(context); // Close loading dialog
-
       if (mounted) {
+        setState(() {
+          _isProcessing = false;
+        });
         _navigateToDetails(
           context,
           AppLocalizations.of(context)!.one_time_donation,
@@ -176,9 +173,11 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
         );
       }
     } catch (e) {
-      Navigator.pop(context); // Close loading dialog
       log('Error creating checkout: $e', error: e);
       if (mounted) {
+        setState(() {
+          _isProcessing = false;
+        });
         String errorMessage = AppLocalizations.of(
           context,
         )!.error_occurred_try_again;
@@ -219,6 +218,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
     }).toList();
 
     return ListView.separated(
+      physics: const ClampingScrollPhysics(),
       padding: const EdgeInsetsDirectional.only(
         start: 24,
         end: 24,
@@ -474,135 +474,143 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
       );
     }
 
-    return DefaultTabController(
-      length: _uniqueProducts.length,
-      child: Scaffold(
-        backgroundColor: Colors.white,
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-        floatingActionButton: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 0),
-          child: BottomActionPill(
-            subtitleWidget: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  '$_totalQuantity ${AppLocalizations.of(context)!.items}',
-                  style: const TextStyle(fontSize: 12, color: Colors.white),
-                ),
-                const SizedBox(height: 2),
-                Text(
-                  AppLocalizations.of(context)!.total_price,
-                  style: const TextStyle(fontSize: 12, color: Colors.white),
-                ),
-              ],
-            ),
-            titleWidget: Text(
-              "\u202A‪${AppLocalizations.of(context)!.sar_currency} ${_totalPrice.toStringAsFixed(2)}‬\u202C",
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
-                color: AppColors.white,
+    return IgnorePointer(
+      ignoring: _isProcessing,
+      child: DefaultTabController(
+        length: _uniqueProducts.length,
+        child: Scaffold(
+          backgroundColor: Colors.white,
+          floatingActionButtonLocation:
+              FloatingActionButtonLocation.centerFloat,
+          floatingActionButton: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 0),
+            child: BottomActionPill(
+              isLoading: _isProcessing,
+              subtitleWidget: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '$_totalQuantity ${AppLocalizations.of(context)!.items}',
+                    style: const TextStyle(fontSize: 12, color: Colors.white),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    AppLocalizations.of(context)!.total_price,
+                    style: const TextStyle(fontSize: 12, color: Colors.white),
+                  ),
+                ],
               ),
+              titleWidget: Text(
+                "\u202A${AppLocalizations.of(context)!.sar_currency} ${_totalPrice.toStringAsFixed(2)}\u202C",
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: AppColors.white,
+                ),
+              ),
+              buttonText: AppLocalizations.of(context)!.continue_btn,
+              onButtonTap: () {
+                FocusManager.instance.primaryFocus?.unfocus();
+                final hasChiller = _uniqueProducts.any(
+                  (p) => p.serialNumber == 2,
+                );
+                if (hasChiller) {
+                  _processOneTimeCheckout(context, isAr);
+                } else {
+                  _showDonationTypeDialog(context, isAr);
+                }
+              },
             ),
-            buttonText: AppLocalizations.of(context)!.continue_btn,
-            onButtonTap: () {
-              FocusManager.instance.primaryFocus?.unfocus();
-              final hasChiller = _uniqueProducts.any(
-                (p) => p.serialNumber == 2,
-              );
-              if (hasChiller) {
-                _processOneTimeCheckout(context, isAr);
-              } else {
-                _showDonationTypeDialog(context, isAr);
-              }
-            },
           ),
-        ),
-        body: NestedScrollView(
-          headerSliverBuilder: (context, innerBoxIsScrolled) {
-            return [
-              SliverToBoxAdapter(
-                child: CustomAppBar(
-                  hasBackgroundColor: true,
-                  isStartAligned: true,
-                  title: title,
-                  subtitle: subtitle,
-                  showBackButton: true,
-                  onBackTap: () => Navigator.pop(context),
+          body: NestedScrollView(
+            headerSliverBuilder: (context, innerBoxIsScrolled) {
+              return [
+                SliverToBoxAdapter(
+                  child: CustomAppBar(
+                    hasBackgroundColor: true,
+                    isStartAligned: true,
+                    title: title,
+                    subtitle: subtitle,
+                    showBackButton: true,
+                    onBackTap: () => Navigator.pop(context),
+                  ),
                 ),
-              ),
-              SliverToBoxAdapter(
-                child: Container(
-                  color: const Color(0x4D91E3FE),
+                SliverToBoxAdapter(
                   child: Container(
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(30),
-                        topRight: Radius.circular(30),
+                    color: const Color(0x4D91E3FE),
+                    child: Container(
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(30),
+                          topRight: Radius.circular(30),
+                        ),
                       ),
-                    ),
-                    child: Column(
-                      children: [
-                        const SizedBox(height: 16),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(25),
-                            child: Container(
-                              height: 50,
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFF0F4F8),
-                                borderRadius: BorderRadius.circular(25),
-                              ),
-                              child: TabBar(
-                                splashFactory: NoSplash.splashFactory,
-                                isScrollable: _uniqueProducts.length > 3,
-                                dividerColor: Colors.transparent,
-                                labelColor: Colors.white,
-                                unselectedLabelColor: AppColors.buttonBlueDark,
-                                indicatorSize: TabBarIndicatorSize.tab,
-                                indicator: BoxDecoration(
+                      child: Column(
+                        children: [
+                          const SizedBox(height: 16),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 24.0,
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(25),
+                              child: Container(
+                                height: 50,
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFF0F4F8),
                                   borderRadius: BorderRadius.circular(25),
-                                  color: AppColors.buttonBlueDark,
                                 ),
-                                labelPadding: EdgeInsets.zero,
-                                labelStyle: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                ),
-                                tabs: _uniqueProducts
-                                    .map(
-                                      (p) => Tab(
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 10,
-                                          ),
-                                          child: Text(
-                                            p.localizedName(isAr),
-                                            style: TextStyle(fontSize: 12),
+                                child: TabBar(
+                                  splashFactory: NoSplash.splashFactory,
+                                  isScrollable: _uniqueProducts.length > 3,
+                                  dividerColor: Colors.transparent,
+                                  labelColor: Colors.white,
+                                  unselectedLabelColor:
+                                      AppColors.buttonBlueDark,
+                                  indicatorSize: TabBarIndicatorSize.tab,
+                                  indicator: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(25),
+                                    color: AppColors.buttonBlueDark,
+                                  ),
+                                  labelPadding: EdgeInsets.zero,
+                                  labelStyle: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                  tabs: _uniqueProducts
+                                      .map(
+                                        (p) => Tab(
+                                          child: Padding(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 10,
+                                            ),
+                                            child: Text(
+                                              p.localizedName(isAr),
+                                              style: TextStyle(fontSize: 12),
+                                            ),
                                           ),
                                         ),
-                                      ),
-                                    )
-                                    .toList(),
+                                      )
+                                      .toList(),
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   ),
                 ),
+              ];
+            },
+            body: Container(
+              color: Colors.white,
+              child: TabBarView(
+                children: _uniqueProducts.map((product) {
+                  return _buildProductTab(product, isAr);
+                }).toList(),
               ),
-            ];
-          },
-          body: Container(
-            color: Colors.white,
-            child: TabBarView(
-              children: _uniqueProducts.map((product) {
-                return _buildProductTab(product, isAr);
-              }).toList(),
             ),
           ),
         ),

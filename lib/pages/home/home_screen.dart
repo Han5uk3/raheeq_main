@@ -97,7 +97,8 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
       body: Container(
         key: ValueKey<int>(_currentIndex),
-        decoration: (_currentIndex == 0 || _currentIndex == 1 || _currentIndex == 3)
+        decoration:
+            (_currentIndex == 0 || _currentIndex == 1 || _currentIndex == 3)
             ? null
             : const BoxDecoration(
                 color: Color(0xFFF8FAFB),

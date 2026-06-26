@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
+import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/models/order_response_model.dart';
 import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:url_launcher/url_launcher.dart';
+import 'package:shimmer/shimmer.dart';
 
 class BookingDetailsPage extends StatefulWidget {
   final String orderId;
@@ -76,6 +79,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
               hasBackgroundColor: true,
               isStartAligned: true,
               title: title,
+              subtitle: _order?.subOrderNumber ?? "",
               showBackButton: true,
               onBackTap: () => Navigator.pop(context),
             ),
@@ -92,7 +96,16 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                     topRight: Radius.circular(30),
                   ),
                 ),
-                child: _buildContent(isAr),
+                child: AnimatedSwitcher(
+                  duration: const Duration(milliseconds: 500),
+                  layoutBuilder: (currentChild, previousChildren) {
+                    return Stack(
+                      alignment: Alignment.topCenter,
+                      children: <Widget>[...previousChildren, ?currentChild],
+                    );
+                  },
+                  child: _buildContent(isAr),
+                ),
               ),
             ),
           ),
@@ -109,24 +122,76 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
     return Card(
       color: Colors.white,
       elevation: 2,
-      shadowColor: Colors.black12,
+
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: child,
-      ),
+      child: Padding(padding: const EdgeInsets.all(16.0), child: child),
     );
   }
 
   Widget _buildContent(bool isAr) {
     if (_isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(color: AppColors.buttonBlueDark),
+      return Padding(
+        key: const ValueKey('loader'),
+        padding: const EdgeInsets.all(16.0),
+        child: Shimmer.fromColors(
+          baseColor: Colors.grey[300]!,
+          highlightColor: Colors.grey[100]!,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                height: 120,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                height: 100,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                height: 200,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                height: 350,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+              const SizedBox(height: 16),
+              Container(
+                height: 55,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+            ],
+          ),
+        ),
       );
     }
 
     if (_errorMessage != null || _order == null) {
       return Center(
+        key: const ValueKey('error'),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
@@ -138,7 +203,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
             ),
             TextButton(
               onPressed: _fetchOrderDetails,
-              child: const Text("Retry"),
+              child: Text(AppLocalizations.of(context)!.retry),
             ),
           ],
         ),
@@ -146,223 +211,240 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
     }
 
     final order = _order!;
-    final dateFormat = DateFormat('MMM dd, yyyy - hh:mm a');
-    final formattedDate = dateFormat.format(order.createdAt.toLocal());
-    final orderPrefix = AppLocalizations.of(context)!.order;
 
     return Padding(
-      padding: const EdgeInsets.all(24.0),
+      key: const ValueKey('content'),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Order Header
-          Center(
-            child: Column(
-              children: [
-                Text(
-                  '$orderPrefix #${order.subOrderNumber}',
-                  style: const TextStyle(
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.buttonBlueDark,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: _getStatusColor(order.status).withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: Text(
-                    order.status,
-                    style: TextStyle(
-                      color: _getStatusColor(order.status),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  formattedDate,
-                  style: const TextStyle(color: Colors.grey, fontSize: 14),
-                ),
-              ],
-            ),
-          ),
-          const SizedBox(height: 32),
-
           // Product details
           if (order.product != null) ...[
-            _buildSectionHeader(
-              AppLocalizations.of(context)!.product_details,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 12),
             _buildPremiumCard(
-              child: Row(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: CachedNetworkImage(
-                      imageUrl: order.product!.image,
-                      width: 60,
-                      height: 60,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Container(
-                        color: Colors.grey[200],
-                        child: const Center(child: CircularProgressIndicator()),
-                      ),
-                      errorWidget: (context, url, error) => Container(
-                        color: Colors.grey[200],
-                        child: const Icon(Icons.inventory_2_outlined),
-                      ),
+                  _buildSectionHeader(
+                    AppLocalizations.of(context)!.product_details,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          isAr ? order.product!.nameAr : order.product!.name,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
+                  SizedBox(height: 12),
+                  Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: CachedNetworkImage(
+                          imageUrl: order.product!.image,
+                          width: 60,
+                          height: 60,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => Shimmer.fromColors(
+                            baseColor: Colors.grey[300]!,
+                            highlightColor: Colors.grey[100]!,
+                            child: Container(color: Colors.white),
+                          ),
+                          errorWidget: (context, url, error) => Container(
+                            color: Colors.grey[200],
+                            child: const Icon(Icons.inventory_2_outlined),
                           ),
                         ),
-                        const SizedBox(height: 4),
-                        Text(
-                          '${AppLocalizations.of(context)!.quantity}: ${order.product!.quantity}',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey,
-                          ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              isAr
+                                  ? order.product!.nameAr
+                                  : order.product!.name,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              '${AppLocalizations.of(context)!.quantity}: ${order.product!.quantity}',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ],
               ),
             ),
-            const SizedBox(height: 24),
           ],
 
           // Target details
           if (order.target != null) ...[
-            _buildSectionHeader(
-              AppLocalizations.of(context)!.location_details,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 12),
-            _buildPremiumCard(
-              child: Row(
-                children: [
-                  ClipRRect(
-                    borderRadius: BorderRadius.circular(12),
-                    child: CachedNetworkImage(
-                      imageUrl: order.target!.image,
-                      width: 60,
-                      height: 60,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Container(
-                        color: Colors.grey[200],
-                        child: const Center(child: CircularProgressIndicator()),
-                      ),
-                      errorWidget: (context, url, error) => Container(
-                        color: Colors.grey[200],
-                        child: const Icon(Icons.location_on_outlined),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          isAr ? order.target!.labelAr : order.target!.label,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          order.target!.type,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            const SizedBox(height: 24),
-          ],
-
-          // Gift Card details
-          if (order.giftCard != null) ...[
-            _buildSectionHeader(
-              'Gift Card Details', // Fallback text if localization doesn't have it
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
             const SizedBox(height: 12),
             _buildPremiumCard(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: order.giftCard!.entries.map((entry) {
-                  return Padding(
-                    padding: const EdgeInsets.only(bottom: 8.0),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(
-                          width: 100,
-                          child: Text(
-                            entry.key,
-                            style: const TextStyle(
-                              color: Colors.grey,
-                              fontSize: 14,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Expanded(
-                          child: Text(
-                            entry.value.toString(),
-                            style: const TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.w500,
-                            ),
-                          ),
-                        ),
-                      ],
+                children: [
+                  _buildSectionHeader(
+                    AppLocalizations.of(context)!.location_details,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
                     ),
-                  );
-                }).toList(),
+                  ),
+                  SizedBox(height: 12),
+                  Row(
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: CachedNetworkImage(
+                          imageUrl: order.target!.image,
+                          width: 60,
+                          height: 60,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => Shimmer.fromColors(
+                            baseColor: Colors.grey[300]!,
+                            highlightColor: Colors.grey[100]!,
+                            child: Container(color: Colors.white),
+                          ),
+                          errorWidget: (context, url, error) => Container(
+                            color: Colors.grey[200],
+                            child: const Icon(Icons.location_on_outlined),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              isAr
+                                  ? order.target!.labelAr
+                                  : order.target!.label,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 24),
+          ],
+
+          // Gift Card details
+          if (order.giftCard != null) ...[
+            Builder(
+              builder: (context) {
+                final String? giftCardUrl =
+                    order.giftCard!['generatedImage'] ??
+                    order.giftCard!['image'] ??
+                    order.giftCard!['url'] ??
+                    order.giftCard!['pdfUrl']; // add fallbacks just in case
+
+                if (giftCardUrl == null) return const SizedBox.shrink();
+
+                return Column(
+                  children: [
+                    const SizedBox(height: 12),
+                    _buildPremiumCard(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildSectionHeader(
+                            isAr ? 'بطاقة الإهداء' : 'Gift Card',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          GestureDetector(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => Scaffold(
+                                    backgroundColor: Colors.black,
+                                    appBar: AppBar(
+                                      backgroundColor: Colors.black,
+                                      iconTheme: const IconThemeData(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    body: Center(
+                                      child: InteractiveViewer(
+                                        child: CachedNetworkImage(
+                                          imageUrl: giftCardUrl,
+                                          fit: BoxFit.contain,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(12),
+                              child: CachedNetworkImage(
+                                imageUrl: giftCardUrl,
+                                height: 290,
+                                width: double.infinity,
+                                fit: BoxFit.cover,
+                                placeholder: (context, url) =>
+                                    Shimmer.fromColors(
+                                      baseColor: Colors.grey[300]!,
+                                      highlightColor: Colors.grey[100]!,
+                                      child: Container(
+                                        height: 290,
+                                        width: double.infinity,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                errorWidget: (context, url, error) => Container(
+                                  color: Colors.grey[200],
+                                  height: 290,
+                                  width: double.infinity,
+                                  child: const Center(child: Icon(Icons.error)),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+              },
+            ),
           ],
 
           // Financials
           if (order.financials != null) ...[
-            _buildSectionHeader(
-              AppLocalizations.of(context)!.financial_details,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 12),
             _buildPremiumCard(
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  const SizedBox(height: 12),
+                  _buildSectionHeader(
+                    AppLocalizations.of(context)!.financial_details,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 16),
                   _buildFinancialRow(
                     AppLocalizations.of(context)!.amount_value,
                     order.financials!.amount,
@@ -394,6 +476,43 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
               ),
             ),
             const SizedBox(height: 24), // spacing at bottom
+          ],
+
+          // View Invoice Button
+          if (order.invoiceUrl != null && order.invoiceUrl!.isNotEmpty) ...[
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.buttonBlueDark,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                onPressed: () async {
+                  final url = Uri.parse(order.invoiceUrl!);
+                  try {
+                    await launchUrl(url, mode: LaunchMode.externalApplication);
+                  } catch (e) {
+                    if (mounted) {
+                      CustomSnackbar.show(
+                        context: context,
+                        message: AppLocalizations.of(
+                          context,
+                        )!.could_not_open_invoice,
+                      );
+                    }
+                  }
+                },
+                icon: const Icon(Icons.receipt, color: Colors.white, size: 20),
+                label: Text(
+                  AppLocalizations.of(context)!.view_invoice,
+                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
           ],
         ],
       ),

@@ -34,10 +34,7 @@ class MyChillersPage extends StatelessWidget {
                 child: Center(
                   child: Text(
                     AppLocalizations.of(context)!.no_deliveries_found,
-                    style: const TextStyle(
-                      color: Colors.grey,
-                      fontSize: 16,
-                    ),
+                    style: const TextStyle(color: Colors.grey, fontSize: 16),
                   ),
                 ),
               ),

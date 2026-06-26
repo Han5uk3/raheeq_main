@@ -76,7 +76,9 @@ class _LoginState extends State<Login> {
         if (mounted) {
           CustomSnackbar.show(
             context: context,
-            message: 'Failed to retrieve Google ID token',
+            message: AppLocalizations.of(
+              context,
+            )!.failed_to_retrieve_google_id_token,
             isError: true,
           );
         }
@@ -119,7 +121,9 @@ class _LoginState extends State<Login> {
         if (mounted) {
           CustomSnackbar.show(
             context: context,
-            message: 'Failed to retrieve Apple Identity token',
+            message: AppLocalizations.of(
+              context,
+            )!.failed_to_retrieve_apple_identity_token,
             isError: true,
           );
         }
@@ -581,8 +585,7 @@ class _LoginState extends State<Login> {
                                     height: 20,
                                     width: 20,
                                     child: WaterLoadingIndicator(
-                                      dropletBackgroundColor:
-                                          AppColors.buttonBlueDark,
+                                      waveColor1: AppColors.buttonBlueDark,
                                     ),
                                   )
                                 : Text(

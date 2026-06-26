@@ -854,6 +854,24 @@ abstract class AppLocalizations {
   /// **'Recent Donations'**
   String get recent_donations;
 
+  /// No description provided for @products_overview.
+  ///
+  /// In en, this message translates to:
+  /// **'Products Overview'**
+  String get products_overview;
+
+  /// No description provided for @donations_overview.
+  ///
+  /// In en, this message translates to:
+  /// **'Donations Overview'**
+  String get donations_overview;
+
+  /// No description provided for @orphanages_helped.
+  ///
+  /// In en, this message translates to:
+  /// **'Orphanages Helped'**
+  String get orphanages_helped;
+
   /// No description provided for @sar.
   ///
   /// In en, this message translates to:
@@ -2529,6 +2547,252 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'View the status of donated chillers'**
   String get my_chillers_subtitle;
+
+  /// No description provided for @rate_order.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate Order'**
+  String get rate_order;
+
+  /// No description provided for @submit_review.
+  ///
+  /// In en, this message translates to:
+  /// **'Submit Review'**
+  String get submit_review;
+
+  /// No description provided for @write_review.
+  ///
+  /// In en, this message translates to:
+  /// **'Write your review...'**
+  String get write_review;
+
+  /// No description provided for @review_submitted.
+  ///
+  /// In en, this message translates to:
+  /// **'Review submitted successfully'**
+  String get review_submitted;
+
+  /// No description provided for @rate_order_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Rate your order'**
+  String get rate_order_title;
+
+  /// No description provided for @how_was_your_experience.
+  ///
+  /// In en, this message translates to:
+  /// **'How was your experience?'**
+  String get how_was_your_experience;
+
+  /// No description provided for @track_donation.
+  ///
+  /// In en, this message translates to:
+  /// **'Track Donation'**
+  String get track_donation;
+
+  /// No description provided for @since.
+  ///
+  /// In en, this message translates to:
+  /// **'Since '**
+  String get since;
+
+  /// No description provided for @everyday.
+  ///
+  /// In en, this message translates to:
+  /// **'Everyday'**
+  String get everyday;
+
+  /// No description provided for @once_a_week.
+  ///
+  /// In en, this message translates to:
+  /// **'Once a week'**
+  String get once_a_week;
+
+  /// No description provided for @once_a_month.
+  ///
+  /// In en, this message translates to:
+  /// **'Once a month'**
+  String get once_a_month;
+
+  /// No description provided for @twice_a_week.
+  ///
+  /// In en, this message translates to:
+  /// **'Twice a week'**
+  String get twice_a_week;
+
+  /// No description provided for @status_active.
+  ///
+  /// In en, this message translates to:
+  /// **'Active'**
+  String get status_active;
+
+  /// No description provided for @status_cancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get status_cancelled;
+
+  /// No description provided for @status_expired.
+  ///
+  /// In en, this message translates to:
+  /// **'Expired'**
+  String get status_expired;
+
+  /// No description provided for @status_pending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get status_pending;
+
+  /// No description provided for @view_invoice.
+  ///
+  /// In en, this message translates to:
+  /// **'View Invoice'**
+  String get view_invoice;
+
+  /// No description provided for @could_not_open_invoice.
+  ///
+  /// In en, this message translates to:
+  /// **'Could not open invoice'**
+  String get could_not_open_invoice;
+
+  /// No description provided for @error_loading_order_details.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load order details'**
+  String get error_loading_order_details;
+
+  /// No description provided for @error_occurred_loading_order.
+  ///
+  /// In en, this message translates to:
+  /// **'An error occurred while loading order details.'**
+  String get error_occurred_loading_order;
+
+  /// No description provided for @error_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Error'**
+  String get error_title;
+
+  /// No description provided for @order_placed.
+  ///
+  /// In en, this message translates to:
+  /// **'Order Placed'**
+  String get order_placed;
+
+  /// No description provided for @current_status.
+  ///
+  /// In en, this message translates to:
+  /// **'Current Status'**
+  String get current_status;
+
+  /// No description provided for @delivering_to.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivering to'**
+  String get delivering_to;
+
+  /// No description provided for @delivery_progress.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery Progress'**
+  String get delivery_progress;
+
+  /// No description provided for @delivery_completed.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery completed'**
+  String get delivery_completed;
+
+  /// No description provided for @proof_of_delivery.
+  ///
+  /// In en, this message translates to:
+  /// **'Proof of Delivery'**
+  String get proof_of_delivery;
+
+  /// No description provided for @mosque_front.
+  ///
+  /// In en, this message translates to:
+  /// **'Mosque Front'**
+  String get mosque_front;
+
+  /// No description provided for @mosque_inside.
+  ///
+  /// In en, this message translates to:
+  /// **'Mosque Inside'**
+  String get mosque_inside;
+
+  /// No description provided for @packages.
+  ///
+  /// In en, this message translates to:
+  /// **'Packages'**
+  String get packages;
+
+  /// No description provided for @delivery_video.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery Video'**
+  String get delivery_video;
+
+  /// No description provided for @mark_all_read.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark all as read'**
+  String get mark_all_read;
+
+  /// No description provided for @clear_notifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear notifications'**
+  String get clear_notifications;
+
+  /// No description provided for @no_deliveries_found_for_this_order.
+  ///
+  /// In en, this message translates to:
+  /// **'No deliveries found for this order.'**
+  String get no_deliveries_found_for_this_order;
+
+  /// No description provided for @no_details_found.
+  ///
+  /// In en, this message translates to:
+  /// **'No details found.'**
+  String get no_details_found;
+
+  /// No description provided for @no_orders_found.
+  ///
+  /// In en, this message translates to:
+  /// **'No orders found'**
+  String get no_orders_found;
+
+  /// No description provided for @failed_to_mark_all_as_read.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to mark all as read'**
+  String get failed_to_mark_all_as_read;
+
+  /// No description provided for @failed_to_clear_notifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to clear notifications'**
+  String get failed_to_clear_notifications;
+
+  /// No description provided for @failed_to_retrieve_google_id_token.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to retrieve Google ID token'**
+  String get failed_to_retrieve_google_id_token;
+
+  /// No description provided for @failed_to_retrieve_apple_identity_token.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to retrieve Apple Identity token'**
+  String get failed_to_retrieve_apple_identity_token;
+
+  /// No description provided for @failed_to_submit_review.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to submit review'**
+  String get failed_to_submit_review;
 }
 
 class _AppLocalizationsDelegate

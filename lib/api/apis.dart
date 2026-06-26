@@ -62,7 +62,8 @@ class ApiService {
           if (token != null) {
             options.headers['Authorization'] = 'Bearer $token';
           }
-          options.headers['Accept-Language'] = localeNotifier.value.languageCode;
+          options.headers['Accept-Language'] =
+              localeNotifier.value.languageCode;
           return handler.next(options);
         },
         onError: (DioException e, handler) async {
@@ -872,13 +873,36 @@ class ApiService {
     }
   }
 
-  /// Get My Orders
-  Future<Response> getMyOrders({int page = 1, int limit = 20}) async {
+  /// Rate Sub Order
+  Future<Response> rateOrder(
+    String subOrderId,
+    int rating,
+    String reviewText,
+  ) async {
     try {
-      final response = await _dio.get(
-        '/orders',
-        queryParameters: {'page': page, 'limit': limit},
+      final response = await _dio.post(
+        '/orders/sub-orders/$subOrderId/review',
+        data: {'rating': rating, 'reviewText': reviewText},
       );
+      return response;
+    } catch (e) {
+      log('Error rating order: $e', name: 'Orders');
+      rethrow;
+    }
+  }
+
+  /// Get My Orders
+  Future<Response> getMyOrders({
+    int page = 1,
+    int limit = 20,
+    String? tab,
+  }) async {
+    try {
+      final queryParams = <String, dynamic>{'page': page, 'limit': limit};
+      if (tab != null) {
+        queryParams['tab'] = tab;
+      }
+      final response = await _dio.get('/orders', queryParameters: queryParams);
       return response;
     } catch (e) {
       rethrow;
@@ -889,6 +913,16 @@ class ApiService {
   Future<Response> getOrderDetails(String id) async {
     try {
       final response = await _dio.get('/orders/$id');
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Get Sub Order Details
+  Future<Response> getSubOrderDetails(String id) async {
+    try {
+      final response = await _dio.get('/orders/$id/sub-orders');
       return response;
     } catch (e) {
       rethrow;
@@ -922,24 +956,6 @@ class ApiService {
   Future<Response> getSubOrdersByOrderId(String orderId) async {
     try {
       final response = await _dio.get('/orders/$orderId/sub-orders');
-      return response;
-    } catch (e) {
-      rethrow;
-    }
-  }
-
-  /// Rate Order (Sub Order)
-  Future<Response> rateOrder({
-    required String subOrderId,
-    required int rating,
-    required String reviewText,
-  }) async {
-    try {
-      final data = {'rating': rating, 'reviewText': reviewText};
-      final response = await _dio.post(
-        '/orders/sub-orders/$subOrderId/review',
-        data: data,
-      );
       return response;
     } catch (e) {
       rethrow;

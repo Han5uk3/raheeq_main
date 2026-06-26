@@ -1,27 +1,34 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
-import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
+import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/models/order_response_model.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:video_player/video_player.dart';
 import 'package:shimmer/shimmer.dart';
 
-class TrackDonationPage extends StatefulWidget {
+class TrackSubscriptionDeliveryPage extends StatefulWidget {
   final String orderId;
+  final String subOrderId;
 
-  const TrackDonationPage({super.key, required this.orderId});
+  const TrackSubscriptionDeliveryPage({
+    super.key,
+    required this.orderId,
+    required this.subOrderId,
+  });
 
   @override
-  State<TrackDonationPage> createState() => _TrackDonationPageState();
+  State<TrackSubscriptionDeliveryPage> createState() =>
+      _TrackSubscriptionDeliveryPageState();
 }
 
-class _TrackDonationPageState extends State<TrackDonationPage> {
+class _TrackSubscriptionDeliveryPageState
+    extends State<TrackSubscriptionDeliveryPage> {
   bool _isLoading = true;
   String? _errorMessage;
-  OrderResponseModel? _order;
+  List<OrderResponseModel> _subOrders = [];
 
   @override
   void initState() {
@@ -36,27 +43,35 @@ class _TrackDonationPageState extends State<TrackDonationPage> {
     });
 
     try {
-      final response = await ApiService().getOrderDetails(widget.orderId);
+      final response = await ApiService().getSubOrderDetails(widget.orderId);
       if (response.statusCode == 200 && response.data['success'] == true) {
-        setState(() {
-          _order = OrderResponseModel.fromJson(response.data['data']);
-          _isLoading = false;
-        });
+        final data = response.data['data'] as List?;
+        if (data != null) {
+          setState(() {
+            _subOrders = data
+                .map((e) => OrderResponseModel.fromJson(e))
+                .where(
+                  (e) => widget.subOrderId.isEmpty || e.id == widget.subOrderId,
+                )
+                .toList();
+            _isLoading = false;
+          });
+        } else {
+          setState(() {
+            _subOrders = [];
+            _isLoading = false;
+          });
+        }
       } else {
-        if (!mounted) return;
         setState(() {
           _errorMessage =
-              response.data['message'] ??
-              AppLocalizations.of(context)!.error_loading_order_details;
+              response.data['message'] ?? 'Failed to load sub orders';
           _isLoading = false;
         });
       }
     } catch (e) {
-      if (!mounted) return;
       setState(() {
-        _errorMessage = AppLocalizations.of(
-          context,
-        )!.error_occurred_loading_order;
+        _errorMessage = 'An error occurred while loading order details.';
         _isLoading = false;
       });
     }
@@ -64,7 +79,7 @@ class _TrackDonationPageState extends State<TrackDonationPage> {
 
   @override
   Widget build(BuildContext context) {
-    String title = AppLocalizations.of(context)!.track_donation;
+    String title = "Track donation";
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
 
     return Scaffold(
@@ -76,7 +91,7 @@ class _TrackDonationPageState extends State<TrackDonationPage> {
               hasBackgroundColor: true,
               isStartAligned: true,
               title: title,
-              subtitle: _order?.subOrderNumber ?? "  ",
+              subtitle: widget.orderId,
               showBackButton: true,
               onBackTap: () => Navigator.pop(context),
             ),
@@ -166,7 +181,7 @@ class _TrackDonationPageState extends State<TrackDonationPage> {
       );
     }
 
-    if (_errorMessage != null || _order == null) {
+    if (_errorMessage != null) {
       return Center(
         key: const ValueKey('error'),
         child: Padding(
@@ -181,7 +196,7 @@ class _TrackDonationPageState extends State<TrackDonationPage> {
               ),
               const SizedBox(height: 16),
               Text(
-                _errorMessage ?? AppLocalizations.of(context)!.error_title,
+                _errorMessage ?? "Error",
                 style: const TextStyle(color: Colors.grey),
               ),
               TextButton(
@@ -194,86 +209,63 @@ class _TrackDonationPageState extends State<TrackDonationPage> {
       );
     }
 
-    final order = _order!;
+    if (_subOrders.isEmpty) {
+      return Center(
+        key: const ValueKey('empty'),
+        child: Text(
+          AppLocalizations.of(context)!.no_deliveries_found_for_this_order,
+        ),
+      );
+    }
 
-    return Padding(
+    return SingleChildScrollView(
       key: const ValueKey('content'),
+      physics: const ClampingScrollPhysics(),
       padding: const EdgeInsets.all(16.0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildStatusCard(order),
-          const SizedBox(height: 16),
-          if (order.target != null) _buildDeliveringToCard(order, isAr),
-          const SizedBox(height: 16),
-          _buildDeliveryProgressCard(order),
-          _buildDeliveryProofs(order),
-          const SizedBox(height: 16),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatusCard(OrderResponseModel order) {
-    IconData statusIcon = Icons.pending_actions;
-    Color statusColor = Colors.orange;
-
-    if (order.status == 'DELIVERED') {
-      statusIcon = Icons.check_circle;
-      statusColor = Colors.green;
-    } else if (order.status == 'DISPATCHED' ||
-        order.status == 'OUT_FOR_DELIVERY') {
-      statusIcon = Icons.local_shipping;
-      statusColor = Colors.blue;
-    }
-
-    String localizedStatus = order.status.replaceAll('_', ' ');
-    if (order.status == 'PENDING') {
-      localizedStatus = AppLocalizations.of(context)!.order_placed;
-    } else if (order.status == 'ASSIGNED') {
-      localizedStatus = AppLocalizations.of(context)!.out_for_delivery;
-    } else if (order.status == 'CONFIRMED') {
-      localizedStatus = AppLocalizations.of(context)!.delivered;
-    }
-
-    return Card(
-      color: Colors.white,
-      elevation: 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Row(
-          children: [
-            Container(
-              padding: const EdgeInsets.all(12),
-              decoration: BoxDecoration(
-                color: statusColor.withValues(alpha: 0.1),
-                shape: BoxShape.circle,
-              ),
-              child: Icon(statusIcon, color: statusColor),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
+          ListView.builder(
+            padding: EdgeInsets.zero,
+            shrinkWrap: true,
+            physics: const NeverScrollableScrollPhysics(),
+            itemCount: _subOrders.length,
+            itemBuilder: (context, index) {
+              final order = _subOrders[index];
+              return Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    AppLocalizations.of(context)!.current_status,
-                    style: const TextStyle(color: Colors.grey, fontSize: 12),
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    localizedStatus,
+                    "#${order.subOrderNumber}",
+                    textDirection: TextDirection.ltr,
+                    textAlign: TextAlign.start,
                     style: const TextStyle(
-                      fontSize: 16,
                       fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                      color: AppColors.buttonBlueDark,
                     ),
                   ),
+
+                  if (order.target != null) _buildDeliveringToCard(order, isAr),
+
+                  _buildDeliveryProgressCard(order),
+
+                  if (order.status == 'COMPLETED' ||
+                      order.status == 'DELIVERED') ...[
+                    const SizedBox(height: 16),
+                    _buildActionButtons(order),
+                    const SizedBox(height: 16),
+                    _buildDeliveryProofs(order),
+                  ],
+
+                  if (index < _subOrders.length - 1) const Divider(height: 48),
+                  if (index == _subOrders.length - 1)
+                    const SizedBox(height: 24),
                 ],
-              ),
-            ),
-          ],
-        ),
+              );
+            },
+          ),
+        ],
       ),
     );
   }
@@ -310,9 +302,9 @@ class _TrackDonationPageState extends State<TrackDonationPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
-                    AppLocalizations.of(context)!.delivering_to,
-                    style: const TextStyle(color: Colors.grey, fontSize: 12),
+                  const Text(
+                    "Delivering to",
+                    style: TextStyle(color: Colors.grey, fontSize: 12),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -337,9 +329,10 @@ class _TrackDonationPageState extends State<TrackDonationPage> {
         order.driver != null ||
         order.status == 'DISPATCHED' ||
         order.status == 'OUT_FOR_DELIVERY' ||
-        order.status == 'DELIVERED';
+        order.status == 'DELIVERED' ||
+        order.status == 'COMPLETED';
     final bool isDelivered =
-        order.status == 'CONFIRMED' || order.status == 'COMPLETED';
+        order.status == 'DELIVERED' || order.status == 'COMPLETED';
 
     return Card(
       color: Colors.white,
@@ -350,28 +343,28 @@ class _TrackDonationPageState extends State<TrackDonationPage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              AppLocalizations.of(context)!.delivery_progress,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            const Text(
+              "Delivery Progress",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 24),
             _buildTimelineItem(
-              title: AppLocalizations.of(context)!.order_placed,
+              title: "Order Placed",
               date: order.createdAt,
               isReached: isOrderPlaced,
               isLast: false,
               icon: Icons.receipt_long,
             ),
             _buildTimelineItem(
-              title: AppLocalizations.of(context)!.out_for_delivery,
+              title: "Out for delivery",
               date: order.assignedAt,
               isReached: isOutForDelivery,
               isLast: false,
               icon: Icons.local_shipping,
             ),
             _buildTimelineItem(
-              title: AppLocalizations.of(context)!.delivery_completed,
-              date: order.completedAt,
+              title: "Delivery completed",
+              date: order.confirmedAt,
               isReached: isDelivered,
               isLast: true,
               icon: Icons.check_circle,
@@ -455,6 +448,31 @@ class _TrackDonationPageState extends State<TrackDonationPage> {
     );
   }
 
+  Widget _buildActionButtons(OrderResponseModel order) {
+    return SizedBox(
+      width: double.infinity,
+      child: OutlinedButton.icon(
+        style: OutlinedButton.styleFrom(
+          side: const BorderSide(color: AppColors.buttonBlueDark),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+          padding: const EdgeInsets.symmetric(vertical: 12),
+        ),
+        onPressed: () {
+          // Scroll to proofs or nothing, as proofs are below.
+        },
+        icon: const Icon(
+          Icons.photo_library,
+          color: AppColors.buttonBlueDark,
+          size: 18,
+        ),
+        label: const Text(
+          "Proof of Delivery",
+          style: TextStyle(color: AppColors.buttonBlueDark, fontSize: 12),
+        ),
+      ),
+    );
+  }
+
   Widget _buildDeliveryProofs(OrderResponseModel order) {
     if (order.deliveryProof == null || order.deliveryProof!.isEmpty) {
       return const SizedBox.shrink();
@@ -462,194 +480,109 @@ class _TrackDonationPageState extends State<TrackDonationPage> {
 
     final proofs = order.deliveryProof!;
 
-    return Padding(
-      padding: const EdgeInsets.only(top: 16.0),
-      child: Row(
-        children: [
-          Expanded(
-            child: ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.buttonBlueDark,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30),
-                ),
-                padding: const EdgeInsets.symmetric(vertical: 16),
-              ),
-              onPressed: () => _showProofsBottomSheet(context, proofs),
-              child: Text(
-                AppLocalizations.of(context)!.proof_of_delivery,
-                style: const TextStyle(color: Colors.white, fontSize: 14),
-              ),
-            ),
-          ),
-        ],
-      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          "Proof of Delivery",
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+        ),
+        const SizedBox(height: 16),
+        if (proofs['mosqueFrontImage'] != null)
+          _buildProofCard("Mosque Front", proofs['mosqueFrontImage'], false),
+        if (proofs['mosqueInsideImage'] != null)
+          _buildProofCard("Mosque Inside", proofs['mosqueInsideImage'], false),
+        if (proofs['packagesImage'] != null)
+          _buildProofCard("Packages", proofs['packagesImage'], false),
+        if (proofs['deliveryVideo'] != null)
+          _buildProofCard("Delivery Video", proofs['deliveryVideo'], true),
+      ],
     );
   }
 
-  void _showProofsBottomSheet(
-    BuildContext context,
-    Map<String, dynamic> proofs,
-  ) {
-    showModalBottomSheet(
-      context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.white,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-      ),
-      builder: (context) {
-        return Padding(
-          padding: const EdgeInsets.all(24.0),
+  Widget _buildProofCard(String title, String url, bool isVideo) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16.0),
+      child: GestureDetector(
+        onTap: () {
+          if (isVideo) {
+            _showVideoPreview(url);
+          } else {
+            _showImagePreview(url);
+          }
+        },
+        child: Card(
+          color: Colors.white,
+          elevation: 2,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
           child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              // Center(
-              //   child: Container(
-              //     width: 40,
-              //     height: 4,
-              //     decoration: BoxDecoration(
-              //       color: Colors.grey[300],
-              //       borderRadius: BorderRadius.circular(2),
-              //     ),
-              //   ),
-              // ),
-              // const SizedBox(height: 24),
-              Row(
-                children: [
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.grey[200],
-                      ),
-                      child: const Icon(
-                        Icons.arrow_back,
-                        size: 20,
-                        color: Colors.black,
-                      ),
-                    ),
+              Container(
+                height: 200,
+                decoration: const BoxDecoration(
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+                ),
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(16),
                   ),
-                  const SizedBox(width: 16),
-                  Text(
-                    AppLocalizations.of(context)!.proof_of_delivery,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      if (!isVideo)
+                        CachedNetworkImage(
+                          imageUrl: url,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => Shimmer.fromColors(
+                            baseColor: Colors.grey[300]!,
+                            highlightColor: Colors.grey[100]!,
+                            child: Container(color: Colors.white),
+                          ),
+                          errorWidget: (context, url, error) => Container(
+                            color: Colors.grey[200],
+                            child: const Icon(
+                              Icons.broken_image,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        )
+                      else
+                        Container(
+                          color: Colors.black12,
+                          child: const Icon(
+                            Icons.videocam,
+                            size: 48,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      if (isVideo)
+                        const Center(
+                          child: CircleAvatar(
+                            backgroundColor: Colors.black54,
+                            child: Icon(Icons.play_arrow, color: Colors.white),
+                          ),
+                        ),
+                    ],
                   ),
-                ],
+                ),
               ),
-              const SizedBox(height: 24),
-              GridView.count(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                crossAxisCount: 2,
-                mainAxisSpacing: 16,
-                crossAxisSpacing: 16,
-                childAspectRatio: 0.8,
-                children: [
-                  if (proofs['mosqueFrontImage'] != null)
-                    _buildSmallProofCard(
-                      AppLocalizations.of(context)!.mosque_front,
-                      proofs['mosqueFrontImage'],
-                      false,
-                    ),
-                  if (proofs['mosqueInsideImage'] != null)
-                    _buildSmallProofCard(
-                      AppLocalizations.of(context)!.mosque_inside,
-                      proofs['mosqueInsideImage'],
-                      false,
-                    ),
-                  if (proofs['packagesImage'] != null)
-                    _buildSmallProofCard(
-                      AppLocalizations.of(context)!.packages,
-                      proofs['packagesImage'],
-                      false,
-                    ),
-                  if (proofs['deliveryVideo'] != null)
-                    _buildSmallProofCard(
-                      AppLocalizations.of(context)!.delivery_video,
-                      proofs['deliveryVideo'],
-                      true,
-                    ),
-                ],
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Text(
+                  title,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
               ),
             ],
           ),
-        );
-      },
-    );
-  }
-
-  Widget _buildSmallProofCard(String title, String url, bool isVideo) {
-    return GestureDetector(
-      onTap: () {
-        if (isVideo) {
-          _showVideoPreview(url);
-        } else {
-          _showImagePreview(url);
-        }
-      },
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Expanded(
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  if (!isVideo)
-                    CachedNetworkImage(
-                      imageUrl: url,
-                      fit: BoxFit.cover,
-                      placeholder: (context, url) => Shimmer.fromColors(
-                        baseColor: Colors.grey[300]!,
-                        highlightColor: Colors.grey[100]!,
-                        child: Container(color: Colors.white),
-                      ),
-                      errorWidget: (context, url, error) => Container(
-                        color: Colors.grey[200],
-                        child: const Icon(
-                          Icons.broken_image,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    )
-                  else
-                    Container(
-                      color: Colors.black12,
-                      child: const Icon(
-                        Icons.videocam,
-                        size: 48,
-                        color: Colors.grey,
-                      ),
-                    ),
-                  if (isVideo)
-                    const Center(
-                      child: CircleAvatar(
-                        backgroundColor: Colors.black54,
-                        child: Icon(Icons.play_arrow, color: Colors.white),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Text(
-            title,
-            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
+        ),
       ),
     );
   }
@@ -667,24 +600,12 @@ class _TrackDonationPageState extends State<TrackDonationPage> {
               InteractiveViewer(
                 child: CachedNetworkImage(imageUrl: url, fit: BoxFit.contain),
               ),
-              PositionedDirectional(
-                top: 0,
-                start: 20,
-                child: GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.grey[200],
-                    ),
-                    child: const Icon(
-                      Icons.arrow_back,
-                      size: 20,
-                      color: Colors.black,
-                    ),
-                  ),
+              Positioned(
+                top: 40,
+                right: 20,
+                child: IconButton(
+                  icon: const Icon(Icons.close, color: Colors.white, size: 30),
+                  onPressed: () => Navigator.pop(context),
                 ),
               ),
             ],
@@ -705,24 +626,12 @@ class _TrackDonationPageState extends State<TrackDonationPage> {
             fit: StackFit.expand,
             children: [
               _VideoPlayerWidget(url: url),
-              PositionedDirectional(
-                top: 0,
-                start: 20,
-                child: GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.grey[200],
-                    ),
-                    child: const Icon(
-                      Icons.arrow_back,
-                      size: 20,
-                      color: Colors.black,
-                    ),
-                  ),
+              Positioned(
+                top: 40,
+                right: 20,
+                child: IconButton(
+                  icon: const Icon(Icons.close, color: Colors.white, size: 30),
+                  onPressed: () => Navigator.pop(context),
                 ),
               ),
             ],

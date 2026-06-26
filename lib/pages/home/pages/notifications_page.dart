@@ -5,7 +5,8 @@ import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/models/notification_model.dart';
 import 'package:intl/intl.dart';
-import 'package:raheeq_main/pages/home/home_screen.dart';
+import 'package:shimmer/shimmer.dart';
+import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
@@ -56,6 +57,32 @@ class _NotificationsPageState extends State<NotificationsPage> {
     }
   }
 
+  Future<void> _markAllAsRead() async {
+    try {
+      final response = await ApiService().readAllNotifications();
+      if (response.statusCode == 200) {
+        setState(() {
+          for (var notification in _notifications) {
+            notification.isRead = true;
+          }
+        });
+        if (mounted) {
+          final message =
+              response.data['message'] ?? 'All notifications marked as read';
+          CustomSnackbar.show(context: context, message: message);
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        CustomSnackbar.show(
+          context: context,
+          message: AppLocalizations.of(context)!.failed_to_mark_all_as_read,
+          isError: true,
+        );
+      }
+    }
+  }
+
   Future<void> _readNotification(NotificationModel notification) async {
     if (!notification.isRead) {
       try {
@@ -89,40 +116,13 @@ class _NotificationsPageState extends State<NotificationsPage> {
     }
 
     // Handle navigation based on data payload
-    if (notification.data.containsKey('orderId') &&
-        notification.data['orderId'] != null) {
-      if (mounted) {
-        Navigator.popUntil(context, (route) => route.isFirst);
-        HomeScreen.switchTabNotifier.value = 1;
-      }
-    }
-  }
-
-  Future<void> _readAllNotifications() async {
-    try {
-      final response = await ApiService().readAllNotifications();
-      if (response.statusCode == 200) {
-        setState(() {
-          for (int i = 0; i < _notifications.length; i++) {
-            final notification = _notifications[i];
-            _notifications[i] = NotificationModel(
-              id: notification.id,
-              title: notification.title,
-              body: notification.body,
-              category: notification.category,
-              userId: notification.userId,
-              driverId: notification.driverId,
-              adminId: notification.adminId,
-              data: notification.data,
-              isRead: true,
-              createdAt: notification.createdAt,
-            );
-          }
-        });
-      }
-    } catch (e) {
-      // Fail silently
-    }
+    // if (notification.data.containsKey('orderId') &&
+    //     notification.data['orderId'] != null) {
+    //   if (mounted) {
+    //     Navigator.popUntil(context, (route) => route.isFirst);
+    //     HomeScreen.switchTabNotifier.value = 1;
+    //   }
+    // }
   }
 
   Future<void> _clearAllNotifications() async {
@@ -132,9 +132,21 @@ class _NotificationsPageState extends State<NotificationsPage> {
         setState(() {
           _notifications.clear();
         });
+        if (mounted) {
+          final message =
+              response.data['message'] ??
+              'All notifications cleared successfully';
+          CustomSnackbar.show(context: context, message: message);
+        }
       }
     } catch (e) {
-      // Fail silently
+      if (mounted) {
+        CustomSnackbar.show(
+          context: context,
+          message: AppLocalizations.of(context)!.failed_to_clear_notifications,
+          isError: true,
+        );
+      }
     }
   }
 
@@ -145,46 +157,122 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
     return Scaffold(
       backgroundColor: Colors.white,
-      body: Column(
-        children: [
-          CustomAppBar(
-            hasBackgroundColor: true,
-            isStartAligned: true,
-            title: title,
-            subtitle: subtitle,
-            showBackButton: true,
-            onBackTap: () => Navigator.pop(context),
-          ),
-          Expanded(
-            child: Container(
-              color: const Color(0x4D91E3FE),
-              child: Container(
+      body: RefreshIndicator(
+        onRefresh: _fetchNotifications,
+        color: AppColors.buttonBlue,
+        child: SingleChildScrollView(
+          physics: const ClampingScrollPhysics(),
+          child: Column(
+            children: [
+              CustomAppBar(
+                hasBackgroundColor: true,
+                isStartAligned: true,
+                title: title,
+                subtitle: subtitle,
+                showBackButton: true,
+                onBackTap: () => Navigator.pop(context),
+                actions: [
+                  PopupMenuButton<String>(
+                    borderRadius: BorderRadius.circular(12),
+                    color: Colors.white,
+                    icon: const Icon(Icons.more_vert, color: Colors.black),
+                    onSelected: (value) {
+                      if (value == 'mark_all_read') {
+                        _markAllAsRead();
+                      } else if (value == 'clear_all') {
+                        _clearAllNotifications();
+                      }
+                    },
+                    itemBuilder: (context) => [
+                      PopupMenuItem(
+                        value: 'mark_all_read',
+                        child: Text(
+                          AppLocalizations.of(context)!.mark_all_read,
+                        ),
+                      ),
+                      PopupMenuItem(
+                        value: 'clear_all',
+                        child: Text(
+                          AppLocalizations.of(context)!.clear_notifications,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+              Container(
                 width: double.infinity,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(30),
+                color: const Color(0x4D91E3FE),
+                child: Container(
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30),
+                    ),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30),
+                    ),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight:
+                            MediaQuery.of(context).size.height -
+                            90 -
+                            MediaQuery.paddingOf(context).top,
+                      ),
+                      child: AnimatedSwitcher(
+                        duration: const Duration(milliseconds: 500),
+                        layoutBuilder: (currentChild, previousChildren) {
+                          return Stack(
+                            alignment: Alignment.topCenter,
+                            children: <Widget>[
+                              ...previousChildren,
+                              ?currentChild,
+                            ],
+                          );
+                        },
+                        child: _buildContent(),
+                      ),
+                    ),
                   ),
                 ),
-                child: _buildContent(),
               ),
-            ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
 
   Widget _buildContent() {
     if (_isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(color: AppColors.buttonBlueDark),
+      return ListView.separated(
+        key: const ValueKey('loader'),
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        padding: const EdgeInsets.all(16.0),
+        itemCount: 10,
+        separatorBuilder: (context, index) => const SizedBox(height: 12),
+        itemBuilder: (context, index) => Shimmer.fromColors(
+          baseColor: Colors.grey[300]!,
+          highlightColor: Colors.grey[100]!,
+          child: Container(
+            height: 80,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+        ),
       );
     }
 
     if (_errorMessage != null) {
       return Center(
+        key: const ValueKey('error'),
         child: Padding(
           padding: const EdgeInsets.all(32.0),
           child: Column(
@@ -222,6 +310,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
     if (_notifications.isEmpty) {
       return Center(
+        key: const ValueKey('empty'),
         child: Text(
           "No new notifications",
           style: TextStyle(color: AppColors.headersubtitlecolor, fontSize: 16),
@@ -229,47 +318,18 @@ class _NotificationsPageState extends State<NotificationsPage> {
       );
     }
 
-    return Column(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              TextButton(
-                onPressed: _readAllNotifications,
-                child: const Text(
-                  "Mark all as read",
-                  style: TextStyle(color: AppColors.buttonBlueDark),
-                ),
-              ),
-              TextButton(
-                onPressed: _clearAllNotifications,
-                child: const Text(
-                  "Clear all",
-                  style: TextStyle(color: Colors.redAccent),
-                ),
-              ),
-            ],
-          ),
-        ),
-        Expanded(
-          child: RefreshIndicator(
-            onRefresh: _fetchNotifications,
-            color: AppColors.buttonBlue,
-            child: ListView.separated(
-              padding: const EdgeInsets.only(top: 0, bottom: 40),
-              itemCount: _notifications.length,
-              separatorBuilder: (context, index) =>
-                  const Divider(color: Color(0xFFEAEFF2), height: 1),
-              itemBuilder: (context, index) {
-                final notification = _notifications[index];
-                return _buildNotificationItem(notification);
-              },
-            ),
-          ),
-        ),
-      ],
+    return ListView.separated(
+      key: const ValueKey('content'),
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      padding: const EdgeInsets.only(top: 0, bottom: 40),
+      itemCount: _notifications.length,
+      separatorBuilder: (context, index) =>
+          const Divider(color: Color(0xFFEAEFF2), height: 1),
+      itemBuilder: (context, index) {
+        final notification = _notifications[index];
+        return _buildNotificationItem(notification);
+      },
     );
   }
 

@@ -1,6 +1,7 @@
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'dart:developer';
+import 'package:raheeq_main/utils/formatters.dart';
 
 import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'dart:async';
@@ -195,7 +196,8 @@ class _HomeTabState extends State<HomeTab> {
       final impactFuture = () async {
         try {
           final impactRes = await ApiService().getImpact();
-          if (impactRes.statusCode == 200 && impactRes.data['success'] == true) {
+          if (impactRes.statusCode == 200 &&
+              impactRes.data['success'] == true) {
             _cachedImpactData = ImpactModel.fromJson(impactRes.data['data']);
           }
         } catch (e) {
@@ -205,7 +207,12 @@ class _HomeTabState extends State<HomeTab> {
 
       final homeFuture = ApiService().getHome();
 
-      await Future.wait([profileFuture, citiesFuture, impactFuture, homeFuture]);
+      await Future.wait([
+        profileFuture,
+        citiesFuture,
+        impactFuture,
+        homeFuture,
+      ]);
 
       final response = await homeFuture;
       if (response.statusCode == 200 && response.data['success'] == true) {
@@ -235,27 +242,49 @@ class _HomeTabState extends State<HomeTab> {
           final futures = <Future<void>>[];
           for (final b in banners) {
             if (b.image.isNotEmpty) {
-              futures.add(precacheImage(CachedNetworkImageProvider(b.image), context).catchError((_) {}));
+              futures.add(
+                precacheImage(
+                  CachedNetworkImageProvider(b.image),
+                  context,
+                ).catchError((_) {}),
+              );
             }
           }
           for (final c in campaigns) {
             if (c.image.isNotEmpty) {
-              futures.add(precacheImage(CachedNetworkImageProvider(c.image), context).catchError((_) {}));
+              futures.add(
+                precacheImage(
+                  CachedNetworkImageProvider(c.image),
+                  context,
+                ).catchError((_) {}),
+              );
             }
           }
           for (final cat in categories) {
             if (cat.image.isNotEmpty) {
-              futures.add(precacheImage(CachedNetworkImageProvider(cat.image.trim()), context).catchError((_) {}));
+              futures.add(
+                precacheImage(
+                  CachedNetworkImageProvider(cat.image.trim()),
+                  context,
+                ).catchError((_) {}),
+              );
             }
           }
           for (final p in essentialProducts) {
             if (p.image.isNotEmpty) {
-              futures.add(precacheImage(CachedNetworkImageProvider(p.image), context).catchError((_) {}));
+              futures.add(
+                precacheImage(
+                  CachedNetworkImageProvider(p.image),
+                  context,
+                ).catchError((_) {}),
+              );
             }
           }
 
           if (futures.isNotEmpty) {
-            await Future.wait(futures).timeout(const Duration(seconds: 2), onTimeout: () => []);
+            await Future.wait(
+              futures,
+            ).timeout(const Duration(seconds: 2), onTimeout: () => []);
           }
         }
 
@@ -1067,11 +1096,12 @@ class _HomeTabState extends State<HomeTab> {
                                     Text(
                                       AppLocalizations.of(context)!.donate_now,
                                       style: const TextStyle(
-                                        fontSize: 13,
+                                        fontSize: 12,
                                         fontWeight: FontWeight.w600,
                                         color: Colors.white,
                                       ),
                                     ),
+                                    const SizedBox(width: 4),
                                     Container(
                                       padding: const EdgeInsets.all(4),
                                       decoration: const BoxDecoration(
@@ -1409,6 +1439,7 @@ class _HomeTabState extends State<HomeTab> {
         SizedBox(
           height: 330,
           child: ListView.builder(
+            physics: const ClampingScrollPhysics(),
             padding: EdgeInsets.zero,
             scrollDirection: Axis.horizontal,
             itemCount: _essentialProducts.length,
@@ -1656,7 +1687,7 @@ class _HomeTabState extends State<HomeTab> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    AppLocalizations.of(context)!.recent_donations,
+                    AppLocalizations.of(context)!.donations_overview,
                     style: TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -1665,9 +1696,7 @@ class _HomeTabState extends State<HomeTab> {
                   ),
                   const SizedBox(height: 2),
                   Text(
-                    AppLocalizations.of(
-                      context,
-                    )!.view_status_and_delivery_details,
+                    AppLocalizations.of(context)!.see_the_difference,
                     style: TextStyle(
                       fontSize: 12,
                       color: Colors.white.withValues(alpha: 0.8),
@@ -1706,12 +1735,12 @@ class _HomeTabState extends State<HomeTab> {
       clipBehavior: Clip.none,
       children: [
         Material(
-          color: Colors.white,
+          color: Colors.grey.shade100,
           elevation: 1,
           borderRadius: BorderRadius.circular(10),
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: Colors.grey.shade100,
               borderRadius: BorderRadius.circular(10),
               border: isSelected
                   ? Border.all(color: AppColors.buttonBlueDark, width: 1.5)
@@ -2029,22 +2058,22 @@ class _HomeTabState extends State<HomeTab> {
     final impactItems = [
       {
         'title': AppLocalizations.of(context)!.total_orders,
-        'count': '${_impactData!.totalOrders}',
+        'count': Formatters.formatCount(_impactData!.totalOrders),
         'icon': Icons.shopping_bag_outlined,
       },
       {
         'title': AppLocalizations.of(context)!.people_helped,
-        'count': '${totalCartons * 20}',
+        'count': Formatters.formatCount(totalCartons * 20),
         'icon': Icons.people_outline,
       },
       {
         'title': AppLocalizations.of(context)!.water_cartons,
-        'count': '$totalCartons',
+        'count': Formatters.formatCount(totalCartons),
         'icon': Icons.water_drop_outlined,
       },
       {
         'title': AppLocalizations.of(context)!.chillers,
-        'count': '$totalChillers',
+        'count': Formatters.formatCount(totalChillers),
         'icon': Icons.kitchen_outlined,
       },
     ];
