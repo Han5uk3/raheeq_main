@@ -235,6 +235,45 @@ class _OTPState extends State<OTP> {
                             fontWeight: FontWeight.w500,
                           ),
                         ),
+                        if (widget.receivedOtp != null &&
+                            widget.receivedOtp!.isNotEmpty) ...[
+                          const SizedBox(height: 12),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.buttonBlueLight,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: AppColors.buttonBlue.withValues(
+                                  alpha: 0.3,
+                                ),
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.message_outlined,
+                                  size: 16,
+                                  color: AppColors.buttonBlueDark,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  "OTP: ${widget.receivedOtp}",
+                                  textDirection: TextDirection.ltr,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: AppColors.buttonBlueDark,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
                         const SizedBox(height: 20),
 
                         // OTP Display Section
