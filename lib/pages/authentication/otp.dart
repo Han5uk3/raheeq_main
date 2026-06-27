@@ -494,6 +494,7 @@ class _OTPState extends State<OTP> {
                                                 response.data['message'];
                                           }
                                           CustomSnackbar.show(
+                                            bottomMargin: 130,
                                             context: context,
                                             message: successMessage,
                                           );

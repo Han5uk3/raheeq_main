@@ -61,9 +61,16 @@ class ChooseWaterPackageScreen extends StatefulWidget {
 }
 
 class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
-  // Selected slot IDs
   String? _selectedChillerSlotId;
   String? _selectedCartonSlotId;
+
+  final ScrollController _scrollController = ScrollController();
+
+  @override
+  void dispose() {
+    _scrollController.dispose();
+    super.dispose();
+  }
 
   // ── Build the flat list of slots ────────────────────────────────────────────
 
@@ -256,28 +263,39 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
 
           // Horizontal slot list
           SizedBox(
-            height: 210,
-            child: ListView.builder(
-              physics: const ClampingScrollPhysics(),
-              scrollDirection: Axis.horizontal,
-              itemCount: slots.length,
-              itemBuilder: (context, index) {
-                final slot = slots[index];
-                final isSelected = _isSlotSelected(slot);
+            height: 220, // Increased height slightly to accommodate scrollbar
+            child: Scrollbar(
+              controller: _scrollController,
+              interactive: true,
+              thumbVisibility: true,
+              thickness: 4.0,
+              radius: const Radius.circular(4.0),
+              child: ListView.builder(
+                controller: _scrollController,
+                physics: const ClampingScrollPhysics(),
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.only(
+                  bottom: 12.0,
+                ), // Padding for scrollbar
+                itemCount: slots.length,
+                itemBuilder: (context, index) {
+                  final slot = slots[index];
+                  final isSelected = _isSlotSelected(slot);
 
-                return Padding(
-                  padding: EdgeInsets.only(
-                    left: index == 0 ? 16.0 : 2.0,
-                    right: index == slots.length - 1 ? 16.0 : 2.0,
-                  ),
-                  child: _buildSlotCard(
-                    slot: slot,
-                    isSelected: isSelected,
-                    onTap: () => _toggleSlot(slot),
-                    isAr: isAr,
-                  ),
-                );
-              },
+                  return Padding(
+                    padding: EdgeInsets.only(
+                      left: index == 0 ? 16.0 : 2.0,
+                      right: index == slots.length - 1 ? 16.0 : 2.0,
+                    ),
+                    child: _buildSlotCard(
+                      slot: slot,
+                      isSelected: isSelected,
+                      onTap: () => _toggleSlot(slot),
+                      isAr: isAr,
+                    ),
+                  );
+                },
+              ),
             ),
           ),
 
