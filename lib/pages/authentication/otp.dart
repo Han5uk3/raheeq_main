@@ -311,6 +311,9 @@ class _OTPState extends State<OTP> {
                                 controller: _controllers[index],
                                 focusNode: _focusNodes[index],
                                 keyboardType: TextInputType.number,
+                                textInputAction: index == 3
+                                    ? TextInputAction.done
+                                    : TextInputAction.next,
                                 textAlign: TextAlign.center,
                                 textDirection: TextDirection.ltr,
                                 inputFormatters: [
@@ -596,7 +599,11 @@ class _OTPState extends State<OTP> {
                                                 null) {
                                           errorMessage =
                                               e.response!.data['message'];
+                                        } else {
+                                          errorMessage = 'API Error: ${e.response?.statusCode}';
                                         }
+                                      } else {
+                                        errorMessage = 'Error: $e';
                                       }
                                       CustomSnackbar.show(
                                         context: context,
