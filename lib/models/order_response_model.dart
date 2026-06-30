@@ -19,6 +19,8 @@ class OrderResponseModel {
   final Map<String, dynamic>? deliveryProof;
   final Map<String, dynamic>? giftCard;
   final String? invoiceUrl;
+  final Map<String, dynamic>? deliveredLocationDetails;
+  final bool? isChillerAvailable;
   ReviewModel? review;
 
   OrderResponseModel({
@@ -40,6 +42,8 @@ class OrderResponseModel {
     this.deliveryProof,
     this.giftCard,
     this.invoiceUrl,
+    this.deliveredLocationDetails,
+    this.isChillerAvailable,
     this.review,
   });
 
@@ -97,6 +101,8 @@ class OrderResponseModel {
                     json['parentOrder']['invoice'] ??
                     json['parentOrder']['invoice_url'])
               : null),
+      deliveredLocationDetails: json['deliveredLocationDetails'],
+      isChillerAvailable: json['isChillerAvailable'],
       review: json['review'] != null ? ReviewModel.fromJson(json['review']) : null,
     );
   }

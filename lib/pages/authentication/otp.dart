@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:pinput/pinput.dart';
 import 'package:dio/dio.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/pages/authentication/registration.dart';
@@ -31,26 +31,8 @@ class OTP extends StatefulWidget {
 }
 
 class _OTPState extends State<OTP> {
-  final List<TextEditingController> _controllers = List.generate(
-    4,
-    (index) => TextEditingController(),
-  );
-  late final List<FocusNode> _focusNodes = List.generate(4, (index) {
-    final node = FocusNode();
-    node.onKeyEvent = (node, event) {
-      if (event is KeyDownEvent &&
-          event.logicalKey == LogicalKeyboardKey.backspace) {
-        if (_controllers[index].text.isEmpty && index > 0) {
-          _focusNodes[index - 1].requestFocus();
-          _controllers[index - 1].clear();
-          setState(() {});
-          return KeyEventResult.handled;
-        }
-      }
-      return KeyEventResult.ignored;
-    };
-    return node;
-  });
+  final _pinController = TextEditingController();
+  final _focusNode = FocusNode();
 
   Timer? _timer;
   int _secondsRemaining = 60;
@@ -67,12 +49,8 @@ class _OTPState extends State<OTP> {
   @override
   void dispose() {
     _timer?.cancel();
-    for (var controller in _controllers) {
-      controller.dispose();
-    }
-    for (var node in _focusNodes) {
-      node.dispose();
-    }
+    _pinController.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 
@@ -91,26 +69,6 @@ class _OTPState extends State<OTP> {
         }
       });
     });
-  }
-
-  void _handleOtpPaste(String value, int startIndex) {
-    final digits = value.replaceAll(RegExp(r'[^0-9]'), '').split('');
-    if (digits.isEmpty) return;
-
-    int currentIndex = startIndex;
-    for (final digit in digits) {
-      if (currentIndex >= _controllers.length) break;
-      _controllers[currentIndex].text = digit;
-      currentIndex++;
-    }
-
-    if (currentIndex < _focusNodes.length) {
-      _focusNodes[currentIndex].requestFocus();
-    } else {
-      _focusNodes.last.unfocus();
-    }
-
-    setState(() {});
   }
 
   String get _formattedTime {
@@ -277,69 +235,53 @@ class _OTPState extends State<OTP> {
                         const SizedBox(height: 20),
 
                         // OTP Display Section
-                        Row(
-                          textDirection: TextDirection.ltr,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: List.generate(
-                            4,
-                            (index) => Container(
-                              margin: EdgeInsetsDirectional.only(
-                                start: index == 0 ? 0 : 8,
-                              ),
-                              width: 45,
-                              height: 55,
-                              decoration: BoxDecoration(
-                                color: Colors.grey[50],
-                                borderRadius: BorderRadius.circular(12),
-                                border: Border.all(
-                                  color: _focusNodes[index].hasFocus
-                                      ? AppColors.buttonBlueDark
-                                      : AppColors.indicatorGrey,
-                                  width: _focusNodes[index].hasFocus ? 2 : 1,
-                                ),
-                              ),
-                              child: TextField(
-                                onTap: () {
-                                  if (_controllers.every(
-                                        (c) => c.text.isEmpty,
-                                      ) &&
-                                      index != 0) {
-                                    _focusNodes[0].requestFocus();
-                                  }
-                                },
-                                cursorColor: AppColors.buttonBlueDark,
-                                controller: _controllers[index],
-                                focusNode: _focusNodes[index],
-                                keyboardType: TextInputType.number,
-                                textInputAction: index == 3
-                                    ? TextInputAction.done
-                                    : TextInputAction.next,
-                                textAlign: TextAlign.center,
-                                textDirection: TextDirection.ltr,
-                                inputFormatters: [
-                                  FilteringTextInputFormatter.digitsOnly,
+                        Center(
+                          child: Directionality(
+                            textDirection: TextDirection.ltr,
+                            child: Pinput(
+                              length: 4,
+                              controller: _pinController,
+                              focusNode: _focusNode,
+                              cursor: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    width: 2,
+                                    height: 24,
+                                    color: AppColors.buttonBlueDark,
+                                  ),
                                 ],
-                                decoration: const InputDecoration(
-                                  border: InputBorder.none,
-                                  counterText: "",
-                                ),
-                                style: const TextStyle(
+                              ),
+                              defaultPinTheme: PinTheme(
+                                width: 50,
+                                height: 70,
+                                textStyle: const TextStyle(
                                   fontSize: 20,
                                   fontWeight: FontWeight.bold,
                                 ),
-                                onChanged: (value) {
-                                  if (value.length > 1) {
-                                    _handleOtpPaste(value, index);
-                                    return;
-                                  }
-
-                                  if (value.isNotEmpty && index < 3) {
-                                    _focusNodes[index + 1].requestFocus();
-                                  } else if (value.isEmpty && index > 0) {
-                                    _focusNodes[index - 1].requestFocus();
-                                  }
-                                  setState(() {});
-                                },
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[50],
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: AppColors.indicatorGrey,
+                                  ),
+                                ),
+                              ),
+                              focusedPinTheme: PinTheme(
+                                width: 50,
+                                height: 70,
+                                textStyle: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[50],
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: AppColors.buttonBlueDark,
+                                    width: 2,
+                                  ),
+                                ),
                               ),
                             ),
                           ),
@@ -466,9 +408,7 @@ class _OTPState extends State<OTP> {
                             onPressed: _isVerifying
                                 ? null
                                 : () async {
-                                    final otp = _controllers
-                                        .map((c) => c.text)
-                                        .join();
+                                    final otp = _pinController.text;
                                     if (otp.length < 4) {
                                       CustomSnackbar.show(
                                         context: context,
@@ -600,7 +540,8 @@ class _OTPState extends State<OTP> {
                                           errorMessage =
                                               e.response!.data['message'];
                                         } else {
-                                          errorMessage = 'API Error: ${e.response?.statusCode}';
+                                          errorMessage =
+                                              'API Error: ${e.response?.statusCode}';
                                         }
                                       } else {
                                         errorMessage = 'Error: $e';

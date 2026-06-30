@@ -2793,6 +2793,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed to submit review'**
   String get failed_to_submit_review;
+
+  /// No description provided for @no_chillers_found.
+  ///
+  /// In en, this message translates to:
+  /// **'No chillers found'**
+  String get no_chillers_found;
+
+  /// No description provided for @location.
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get location;
+
+  /// No description provided for @address.
+  ///
+  /// In en, this message translates to:
+  /// **'Address'**
+  String get address;
+
+  /// No description provided for @gift_card.
+  ///
+  /// In en, this message translates to:
+  /// **'Gift Card'**
+  String get gift_card;
+
+  /// No description provided for @chiller_info.
+  ///
+  /// In en, this message translates to:
+  /// **'Chiller Info'**
+  String get chiller_info;
+
+  /// No description provided for @chiller_available.
+  ///
+  /// In en, this message translates to:
+  /// **'Chiller Available'**
+  String get chiller_available;
+
+  /// No description provided for @yes.
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get yes;
+
+  /// No description provided for @no.
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get no;
+
+  /// No description provided for @delivered_to.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered To'**
+  String get delivered_to;
 }
 
 class _AppLocalizationsDelegate

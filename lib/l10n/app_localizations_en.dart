@@ -1410,4 +1410,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get failed_to_submit_review => 'Failed to submit review';
+
+  @override
+  String get no_chillers_found => 'No chillers found';
+
+  @override
+  String get location => 'Location';
+
+  @override
+  String get address => 'Address';
+
+  @override
+  String get gift_card => 'Gift Card';
+
+  @override
+  String get chiller_info => 'Chiller Info';
+
+  @override
+  String get chiller_available => 'Chiller Available';
+
+  @override
+  String get yes => 'Yes';
+
+  @override
+  String get no => 'No';
+
+  @override
+  String get delivered_to => 'Delivered To';
 }

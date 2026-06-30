@@ -452,7 +452,7 @@
   "how_was_your_experience": "كيف كانت تجربتك؟",
   "mark_all_read": "تحديد الكل كمقروء",
   "clear_notifications": "مسح الإشعارات",
-  "retry": "إعادة المحاولة",
+  "no_chillers_found": "لم يتم العثور على مبردات",
   "no_deliveries_found_for_this_order": "لم يتم العثور على توصيلات لهذا الطلب.",
   "no_details_found": "لم يتم العثور على تفاصيل.",
   "no_orders_found": "لم يتم العثور على طلبات",
@@ -460,5 +460,13 @@
   "failed_to_clear_notifications": "فشل في مسح الإشعارات",
   "failed_to_retrieve_google_id_token": "فشل في استرداد رمز Google ID",
   "failed_to_retrieve_apple_identity_token": "فشل في استرداد رمز Apple Identity",
-  "failed_to_submit_review": "فشل في إرسال التقييم"
+  "failed_to_submit_review": "فشل في إرسال التقييم",
+  "location": "الموقع",
+  "address": "العنوان",
+  "gift_card": "بطاقة الإهداء",
+  "chiller_info": "معلومات المبرد",
+  "chiller_available": "مبرد متاح",
+  "yes": "نعم",
+  "no": "لا",
+  "delivered_to": "تم التوصيل إلى"
 }

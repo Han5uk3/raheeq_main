@@ -1400,4 +1400,31 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get failed_to_submit_review => 'فشل في إرسال التقييم';
+
+  @override
+  String get no_chillers_found => 'لم يتم العثور على مبردات';
+
+  @override
+  String get location => 'الموقع';
+
+  @override
+  String get address => 'العنوان';
+
+  @override
+  String get gift_card => 'بطاقة الإهداء';
+
+  @override
+  String get chiller_info => 'معلومات المبرد';
+
+  @override
+  String get chiller_available => 'مبرد متاح';
+
+  @override
+  String get yes => 'نعم';
+
+  @override
+  String get no => 'لا';
+
+  @override
+  String get delivered_to => 'تم التوصيل إلى';
 }

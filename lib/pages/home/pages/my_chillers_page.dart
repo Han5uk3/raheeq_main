@@ -91,11 +91,7 @@ class _MyChillersPageState extends State<MyChillersPage> {
                         color: Colors.white,
                       ),
                       const SizedBox(height: 8),
-                      Container(
-                        width: 120,
-                        height: 12,
-                        color: Colors.white,
-                      ),
+                      Container(width: 120, height: 12, color: Colors.white),
                       const SizedBox(height: 12),
                       Container(
                         width: double.infinity,
@@ -155,35 +151,38 @@ class _MyChillersPageState extends State<MyChillersPage> {
                   layoutBuilder: (currentChild, previousChildren) {
                     return Stack(
                       alignment: Alignment.topCenter,
-                      children: <Widget>[...previousChildren, if (currentChild != null) currentChild],
+                      children: <Widget>[
+                        ...previousChildren,
+                        if (currentChild != null) currentChild,
+                      ],
                     );
                   },
                   child: _isLoading
                       ? _buildShimmerLoading()
                       : _chillers.isEmpty
-                          ? Center(
-                              key: const ValueKey('empty'),
-                              child: Text(
-                                AppLocalizations.of(context)!.no_deliveries_found,
-                                style: const TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            )
-                          : ListView.builder(
-                              key: const ValueKey('content'),
-                              physics: const ClampingScrollPhysics(),
-                              padding: const EdgeInsets.all(24),
-                              itemCount: _chillers.length,
-                              itemBuilder: (context, index) {
-                                final chiller = _chillers[index];
-                                return Padding(
-                                  padding: const EdgeInsets.only(bottom: 16),
-                                  child: _buildChillerItem(chiller),
-                                );
-                              },
+                      ? Center(
+                          key: const ValueKey('empty'),
+                          child: Text(
+                            AppLocalizations.of(context)!.no_chillers_found,
+                            style: const TextStyle(
+                              color: Colors.grey,
+                              fontSize: 16,
                             ),
+                          ),
+                        )
+                      : ListView.builder(
+                          key: const ValueKey('content'),
+                          physics: const ClampingScrollPhysics(),
+                          padding: const EdgeInsets.all(24),
+                          itemCount: _chillers.length,
+                          itemBuilder: (context, index) {
+                            final chiller = _chillers[index];
+                            return Padding(
+                              padding: const EdgeInsets.only(bottom: 16),
+                              child: _buildChillerItem(chiller),
+                            );
+                          },
+                        ),
                 ),
               ),
             ),
@@ -197,18 +196,18 @@ class _MyChillersPageState extends State<MyChillersPage> {
     final isArabic = Localizations.localeOf(context).languageCode == 'ar';
     final productName = isArabic
         ? (chiller.product?.nameAr.isNotEmpty == true
-            ? chiller.product!.nameAr
-            : chiller.product?.name ?? '')
+              ? chiller.product!.nameAr
+              : chiller.product?.name ?? '')
         : (chiller.product?.name.isNotEmpty == true
-            ? chiller.product!.name
-            : chiller.product?.nameAr ?? '');
+              ? chiller.product!.name
+              : chiller.product?.nameAr ?? '');
     final locationName = isArabic
         ? (chiller.deliveredLocation?.nameAr.isNotEmpty == true
-            ? chiller.deliveredLocation!.nameAr
-            : chiller.deliveredLocation?.name ?? '')
+              ? chiller.deliveredLocation!.nameAr
+              : chiller.deliveredLocation?.name ?? '')
         : (chiller.deliveredLocation?.name.isNotEmpty == true
-            ? chiller.deliveredLocation!.name
-            : chiller.deliveredLocation?.nameAr ?? '');
+              ? chiller.deliveredLocation!.name
+              : chiller.deliveredLocation?.nameAr ?? '');
 
     return Container(
       decoration: BoxDecoration(
@@ -226,7 +225,8 @@ class _MyChillersPageState extends State<MyChillersPage> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if (chiller.product?.image != null && chiller.product!.image.isNotEmpty)
+          if (chiller.product?.image != null &&
+              chiller.product!.image.isNotEmpty)
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: Image.network(
@@ -238,7 +238,10 @@ class _MyChillersPageState extends State<MyChillersPage> {
                   width: 80,
                   height: 80,
                   color: Colors.grey[200],
-                  child: const Icon(Icons.image_not_supported, color: Colors.grey),
+                  child: const Icon(
+                    Icons.image_not_supported,
+                    color: Colors.grey,
+                  ),
                 ),
               ),
             )
@@ -267,10 +270,7 @@ class _MyChillersPageState extends State<MyChillersPage> {
                 const SizedBox(height: 4),
                 Text(
                   'Order: ${chiller.subOrderNumber}',
-                  style: TextStyle(
-                    fontSize: 12,
-                    color: Colors.grey[600],
-                  ),
+                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                 ),
                 const SizedBox(height: 8),
                 Row(
@@ -279,7 +279,9 @@ class _MyChillersPageState extends State<MyChillersPage> {
                     const SizedBox(width: 4),
                     Expanded(
                       child: Text(
-                        locationName.isNotEmpty ? locationName : 'Unknown Location',
+                        locationName.isNotEmpty
+                            ? locationName
+                            : 'Unknown Location',
                         style: const TextStyle(
                           fontSize: 12,
                           color: Colors.blue,
@@ -295,7 +297,10 @@ class _MyChillersPageState extends State<MyChillersPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 8,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: chiller.status == 'CONFIRMED'
                             ? Colors.green.withOpacity(0.1)
@@ -318,7 +323,7 @@ class _MyChillersPageState extends State<MyChillersPage> {
                         Icons.check_circle,
                         color: Colors.green,
                         size: 20,
-                      )
+                      ),
                   ],
                 ),
               ],

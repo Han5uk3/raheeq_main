@@ -197,7 +197,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
             const Icon(Icons.error_outline, color: Colors.redAccent, size: 48),
             const SizedBox(height: 16),
             Text(
-              _errorMessage ?? "Error",
+              _errorMessage ?? AppLocalizations.of(context)!.error_title,
               style: const TextStyle(color: Colors.grey),
             ),
             TextButton(
@@ -283,8 +283,10 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
             ),
           ],
 
-          // Target details
-          if (order.target != null) ...[
+          // Target and Location details
+          if (order.target != null ||
+              order.locationDetails != null ||
+              order.deliveredLocationDetails != null) ...[
             const SizedBox(height: 12),
             _buildPremiumCard(
               child: Column(
@@ -297,46 +299,19 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 12),
-                  Row(
-                    children: [
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: CachedNetworkImage(
-                          imageUrl: order.target!.image,
-                          width: 60,
-                          height: 60,
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) => Shimmer.fromColors(
-                            baseColor: Colors.grey[300]!,
-                            highlightColor: Colors.grey[100]!,
-                            child: Container(color: Colors.white),
-                          ),
-                          errorWidget: (context, url, error) => Container(
-                            color: Colors.grey[200],
-                            child: const Icon(Icons.location_on_outlined),
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              isAr
-                                  ? order.target!.labelAr
-                                  : order.target!.label,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                  const SizedBox(height: 12),
+                  if (order.target != null) ...[
+                    _buildInfoRow(
+                      AppLocalizations.of(context)!.location,
+                      isAr ? order.target!.labelAr : order.target!.label,
+                    ),
+                  ],
+                  if (order.locationDetails != null &&
+                      order.locationDetails!['address'] != null)
+                    _buildInfoRow(
+                      AppLocalizations.of(context)!.address,
+                      order.locationDetails!['address'].toString(),
+                    ),
                 ],
               ),
             ),
@@ -362,7 +337,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           _buildSectionHeader(
-                            isAr ? 'بطاقة الإهداء' : 'Gift Card',
+                            AppLocalizations.of(context)!.gift_card,
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -426,6 +401,77 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                   ],
                 );
               },
+            ),
+          ],
+
+          // // Parent Order details
+          // if (order.parentOrder != null) ...[
+          //   const SizedBox(height: 12),
+          //   _buildPremiumCard(
+          //     child: Column(
+          //       crossAxisAlignment: CrossAxisAlignment.start,
+          //       children: [
+          //         _buildSectionHeader(
+          //           isAr ? 'الطلب الأساسي' : 'Parent Order',
+          //           style: const TextStyle(
+          //             fontSize: 16,
+          //             fontWeight: FontWeight.bold,
+          //           ),
+          //         ),
+          //         const SizedBox(height: 12),
+          //         _buildInfoRow(
+          //           isAr ? 'رقم الطلب' : 'Order Number',
+          //           order.parentOrder!.orderNumber,
+          //         ),
+          //         _buildInfoRow(
+          //           isAr ? 'طريقة الدفع' : 'Payment Method',
+          //           order.parentOrder!.paymentMethod,
+          //         ),
+          //         _buildInfoRow(
+          //           isAr ? 'حالة الدفع' : 'Payment Status',
+          //           order.parentOrder!.paymentStatus,
+          //         ),
+          //       ],
+          //     ),
+          //   ),
+          // ],
+
+          // Additional Order Details
+          if (order.assignedAt != null ||
+              order.confirmedAt != null ||
+              order.cancelledAt != null ||
+              order.isChillerAvailable != null) ...[
+            const SizedBox(height: 12),
+            _buildPremiumCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildSectionHeader(
+                    AppLocalizations.of(context)!.chiller_info,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  if (order.isChillerAvailable != null)
+                    _buildInfoRow(
+                      AppLocalizations.of(context)!.chiller_available,
+                      order.isChillerAvailable!
+                          ? AppLocalizations.of(context)!.yes
+                          : AppLocalizations.of(context)!.no,
+                    ),
+                  const SizedBox(height: 12),
+                  if (order.deliveredLocationDetails != null &&
+                      order.deliveredLocationDetails!['location_name'] !=
+                          null) ...[
+                    _buildInfoRow(
+                      AppLocalizations.of(context)!.delivered_to,
+                      order.deliveredLocationDetails!['location_name'],
+                    ),
+                  ],
+                ],
+              ),
             ),
           ],
 
@@ -547,20 +593,32 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
     );
   }
 
-  // Color _getStatusColor(String status) {
-  //   switch (status) {
-  //     case 'PENDING':
-  //     case 'PROCESSING':
-  //       return Colors.orange;
-  //     case 'DISPATCHED':
-  //     case 'OUT_FOR_DELIVERY':
-  //       return Colors.blue;
-  //     case 'DELIVERED':
-  //       return Colors.green;
-  //     case 'CANCELLED':
-  //       return Colors.red;
-  //     default:
-  //       return Colors.grey;
-  //   }
-  // }
+  Widget _buildInfoRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8.0),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Expanded(
+            flex: 2,
+            child: Text(
+              label,
+              style: const TextStyle(color: Colors.grey, fontSize: 14),
+            ),
+          ),
+          Expanded(
+            flex: 3,
+            child: Text(
+              value,
+              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatDate(DateTime date) {
+    return "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}";
+  }
 }

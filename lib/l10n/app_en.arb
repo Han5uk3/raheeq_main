@@ -504,5 +504,14 @@
   "failed_to_clear_notifications": "Failed to clear notifications",
   "failed_to_retrieve_google_id_token": "Failed to retrieve Google ID token",
   "failed_to_retrieve_apple_identity_token": "Failed to retrieve Apple Identity token",
-  "failed_to_submit_review": "Failed to submit review"
+  "failed_to_submit_review": "Failed to submit review",
+  "no_chillers_found": "No chillers found",
+  "location": "Location",
+  "address": "Address",
+  "gift_card": "Gift Card",
+  "chiller_info": "Chiller Info",
+  "chiller_available": "Chiller Available",
+  "yes": "Yes",
+  "no": "No",
+  "delivered_to": "Delivered To"
 }
