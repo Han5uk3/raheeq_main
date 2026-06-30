@@ -77,6 +77,16 @@ class MainApp extends StatelessWidget {
           top: false,
           child: MaterialApp(
             navigatorKey: AuthStorage.navigatorKey,
+            builder: (context, child) {
+              final isArabic = locale.languageCode == 'ar';
+              final mediaQueryData = MediaQuery.of(context);
+              return MediaQuery(
+                data: mediaQueryData.copyWith(
+                  textScaler: _ArabicTextScaler(mediaQueryData.textScaler, isArabic),
+                ),
+                child: child!,
+              );
+            },
             locale: locale,
             localizationsDelegates: const [
               CountryLocalizations.delegate,
@@ -89,16 +99,23 @@ class MainApp extends StatelessWidget {
               Locale('en'), // English
               Locale('ar'), // Arabic
             ],
-            theme: ThemeData(
-              fontFamily: GoogleFonts.manrope().fontFamily,
-              fontFamilyFallback: const ['SaudiRiyal', 'SF Pro'],
-              appBarTheme: const AppBarTheme(
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.black,
-                elevation: 0,
-              ),
-              useMaterial3: true,
-            ),
+            theme: () {
+              var theme = ThemeData(
+                fontFamily: GoogleFonts.manrope().fontFamily,
+                fontFamilyFallback: const ['SaudiRiyal', 'SF Pro'],
+                appBarTheme: const AppBarTheme(
+                  backgroundColor: Colors.white,
+                  foregroundColor: Colors.black,
+                  elevation: 0,
+                ),
+                useMaterial3: true,
+              );
+              return theme.copyWith(
+                textTheme: theme.textTheme.apply(
+                  fontSizeDelta: locale.languageCode == 'ar' ? 2.0 : 0.0,
+                ),
+              );
+            }(),
             debugShowCheckedModeBanner: false,
             home: const SplashScreen(),
           ),
@@ -106,4 +123,21 @@ class MainApp extends StatelessWidget {
       },
     );
   }
+}
+
+class _ArabicTextScaler extends TextScaler {
+  final TextScaler baseScaler;
+  final bool isArabic;
+
+  const _ArabicTextScaler(this.baseScaler, this.isArabic);
+
+  @override
+  double scale(double fontSize) {
+    double scaled = baseScaler.scale(fontSize);
+    return isArabic ? scaled + 2.0 : scaled;
+  }
+
+  @override
+  // ignore: deprecated_member_use
+  double get textScaleFactor => baseScaler.textScaleFactor;
 }
