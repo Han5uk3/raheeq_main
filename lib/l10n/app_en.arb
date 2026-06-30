@@ -513,5 +513,6 @@
   "chiller_available": "Chiller Available",
   "yes": "Yes",
   "no": "No",
-  "delivered_to": "Delivered To"
+  "delivered_to": "Delivered To",
+  "coupon_not_applicable": "Coupon codes cannot be applied to this order"
 }

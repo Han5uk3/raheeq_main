@@ -468,5 +468,6 @@
   "chiller_available": "مبرد متاح",
   "yes": "نعم",
   "no": "لا",
-  "delivered_to": "تم التوصيل إلى"
+  "delivered_to": "تم التوصيل إلى",
+  "coupon_not_applicable": "لا يمكن تطبيق أكواد الخصم على هذا الطلب"
 }

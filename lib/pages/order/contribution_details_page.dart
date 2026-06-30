@@ -832,6 +832,11 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
+    bool isOnlyWaterCartons = _checkoutData.items.isNotEmpty &&
+        _checkoutData.items.every((item) =>
+            item.product != null &&
+            (item.product!.serialNumber == 1 || item.product!.serialNumber == 4));
+
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
     final title = AppLocalizations.of(context)!.payment;
     final subtitle = AppLocalizations.of(context)!.final_review_and_payment;
@@ -999,8 +1004,16 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                SizedBox(height: 8),
-                                if (_checkoutData.couponCode != null &&
+                                const SizedBox(height: 8),
+                                if (!isOnlyWaterCartons)
+                                  Padding(
+                                    padding: const EdgeInsets.symmetric(vertical: 8.0),
+                                    child: Text(
+                                      AppLocalizations.of(context)!.coupon_not_applicable,
+                                      style: const TextStyle(color: Colors.red, fontSize: 14),
+                                    ),
+                                  )
+                                else if (_checkoutData.couponCode != null &&
                                     _checkoutData.couponCode!.isNotEmpty)
                                   Container(
                                     padding: const EdgeInsets.symmetric(

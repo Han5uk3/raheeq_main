@@ -1437,4 +1437,8 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get delivered_to => 'Delivered To';
+
+  @override
+  String get coupon_not_applicable =>
+      'Coupon codes cannot be applied to this order';
 }
