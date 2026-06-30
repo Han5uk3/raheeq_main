@@ -1049,4 +1049,12 @@ class ApiService {
       rethrow;
     }
   }
+  Future<Response> getMyChillers() async {
+    try {
+      final response = await _dio.get('/orders/my-chillers');
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
 }
