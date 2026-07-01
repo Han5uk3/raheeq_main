@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
+import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/api/apis.dart';
@@ -926,192 +927,204 @@ class _OrderCardState extends State<_OrderCard> {
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
-            return Container(
-              padding: EdgeInsets.only(
-                bottom: MediaQuery.of(context).viewInsets.bottom,
-              ),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(30),
-                  topRight: Radius.circular(30),
-                ),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(24.0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[300],
-                        borderRadius: BorderRadius.circular(2),
-                      ),
+            return PopScope(
+              canPop: !isSubmitting,
+              child: AbsorbPointer(
+                absorbing: isSubmitting,
+                child: Container(
+                  padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).viewInsets.bottom,
+                  ),
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30),
                     ),
-                    const SizedBox(height: 24),
-                    Row(
+                  ),
+                  child: Padding(
+                    padding: const EdgeInsets.all(24.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        GestureDetector(
-                          onTap: () => Navigator.pop(context),
-                          child: Container(
-                            width: 40,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: Colors.grey[200],
-                            ),
-                            child: const Icon(
-                              Icons.arrow_back,
-                              size: 20,
-                              color: Colors.black,
-                            ),
+                        Container(
+                          width: 40,
+                          height: 4,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[300],
+                            borderRadius: BorderRadius.circular(2),
                           ),
                         ),
-                        const SizedBox(width: 16),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                        const SizedBox(height: 24),
+                        Row(
                           children: [
-                            Text(
-                              AppLocalizations.of(context)!.rate_order_title,
-                              style: const TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.bold,
+                            GestureDetector(
+                              onTap: () => Navigator.pop(context),
+                              child: Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: Colors.grey[200],
+                                ),
+                                child: const Icon(
+                                  Icons.arrow_back,
+                                  size: 20,
+                                  color: Colors.black,
+                                ),
                               ),
                             ),
+                            const SizedBox(width: 16),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.rate_order_title,
+                                  style: const TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
 
-                            Text(
-                              AppLocalizations.of(
-                                context,
-                              )!.how_was_your_experience,
-                              style: const TextStyle(color: Colors.grey),
+                                Text(
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.how_was_your_experience,
+                                  style: const TextStyle(color: Colors.grey),
+                                ),
+                              ],
                             ),
                           ],
                         ),
+                        const SizedBox(height: 24),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: List.generate(5, (index) {
+                            return IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  rating = index + 1;
+                                });
+                              },
+                              icon: Icon(
+                                index < rating ? Icons.star : Icons.star_border,
+                                color: Colors.amber,
+                                size: 40,
+                              ),
+                            );
+                          }),
+                        ),
+                        const SizedBox(height: 24),
+                        TextField(
+                          cursorColor: AppColors.buttonBlueDark,
+                          controller: reviewController,
+                          maxLines: 4,
+                          decoration: InputDecoration(
+                            hintText: AppLocalizations.of(
+                              context,
+                            )!.write_review,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide(color: Colors.grey[300]!),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: BorderSide(color: Colors.grey[300]!),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(16),
+                              borderSide: const BorderSide(
+                                color: AppColors.buttonBlue,
+                              ),
+                            ),
+                            filled: true,
+                            fillColor: Colors.grey[50],
+                          ),
+                        ),
+                        const SizedBox(height: 24),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 50,
+                          child: ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: AppColors.buttonBlueDark,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(25),
+                              ),
+                            ),
+                            onPressed: isSubmitting
+                                ? null
+                                : () async {
+                                    setState(() {
+                                      isSubmitting = true;
+                                    });
+                                    try {
+                                      final response = await ApiService()
+                                          .rateOrder(
+                                            orderId,
+                                            rating,
+                                            reviewController.text.trim(),
+                                          );
+                                      if (response.statusCode == 200 ||
+                                          response.statusCode == 201) {
+                                        if (context.mounted) {
+                                          Navigator.pop(context);
+                                          CustomSnackbar.show(
+                                            context: context,
+                                            message: AppLocalizations.of(
+                                              context,
+                                            )!.review_submitted,
+                                          );
+                                          widget.onRefresh();
+                                        }
+                                      } else {
+                                        if (context.mounted) {
+                                          CustomSnackbar.show(
+                                            context: context,
+                                            message:
+                                                response.data['message'] ??
+                                                'Failed to submit review',
+                                          );
+                                        }
+                                      }
+                                    } catch (e) {
+                                      if (context.mounted) {
+                                        CustomSnackbar.show(
+                                          context: context,
+                                          message: 'Failed to submit review',
+                                        );
+                                      }
+                                    } finally {
+                                      if (context.mounted) {
+                                        setState(() {
+                                          isSubmitting = false;
+                                        });
+                                      }
+                                    }
+                                  },
+                            child: isSubmitting
+                                ? SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: WaterLoadingIndicator(
+                                      size: 20,
+                                      waveColor1: Colors.white,
+                                    ),
+                                  )
+                                : Text(
+                                    AppLocalizations.of(context)!.submit_review,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                          ),
+                        ),
                       ],
                     ),
-                    const SizedBox(height: 24),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: List.generate(5, (index) {
-                        return IconButton(
-                          onPressed: () {
-                            setState(() {
-                              rating = index + 1;
-                            });
-                          },
-                          icon: Icon(
-                            index < rating ? Icons.star : Icons.star_border,
-                            color: Colors.amber,
-                            size: 40,
-                          ),
-                        );
-                      }),
-                    ),
-                    const SizedBox(height: 24),
-                    TextField(
-                      controller: reviewController,
-                      maxLines: 4,
-                      decoration: InputDecoration(
-                        hintText: AppLocalizations.of(context)!.write_review,
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          borderSide: BorderSide(color: Colors.grey[300]!),
-                        ),
-                        enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          borderSide: BorderSide(color: Colors.grey[300]!),
-                        ),
-                        focusedBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          borderSide: const BorderSide(
-                            color: AppColors.buttonBlue,
-                          ),
-                        ),
-                        filled: true,
-                        fillColor: Colors.grey[50],
-                      ),
-                    ),
-                    const SizedBox(height: 24),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.buttonBlueDark,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(25),
-                          ),
-                        ),
-                        onPressed: isSubmitting
-                            ? null
-                            : () async {
-                                setState(() {
-                                  isSubmitting = true;
-                                });
-                                try {
-                                  final response = await ApiService().rateOrder(
-                                    orderId,
-                                    rating,
-                                    reviewController.text.trim(),
-                                  );
-                                  if (response.statusCode == 200 ||
-                                      response.statusCode == 201) {
-                                    if (context.mounted) {
-                                      Navigator.pop(context);
-                                      CustomSnackbar.show(
-                                        context: context,
-                                        message: AppLocalizations.of(
-                                          context,
-                                        )!.review_submitted,
-                                      );
-                                      widget.onRefresh();
-                                    }
-                                  } else {
-                                    if (context.mounted) {
-                                      CustomSnackbar.show(
-                                        context: context,
-                                        message:
-                                            response.data['message'] ??
-                                            'Failed to submit review',
-                                      );
-                                    }
-                                  }
-                                } catch (e) {
-                                  if (context.mounted) {
-                                    CustomSnackbar.show(
-                                      context: context,
-                                      message: 'Failed to submit review',
-                                    );
-                                  }
-                                } finally {
-                                  if (context.mounted) {
-                                    setState(() {
-                                      isSubmitting = false;
-                                    });
-                                  }
-                                }
-                              },
-                        child: isSubmitting
-                            ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 2,
-                                ),
-                              )
-                            : Text(
-                                AppLocalizations.of(context)!.submit_review,
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
             );

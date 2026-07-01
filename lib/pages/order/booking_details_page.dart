@@ -523,6 +523,47 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
             const SizedBox(height: 24), // spacing at bottom
           ],
 
+          // Customer Review
+          if (order.review != null) ...[
+            _buildPremiumCard(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _buildSectionHeader(
+                    AppLocalizations.of(context)!.review,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: List.generate(5, (index) {
+                      return Icon(
+                        index < order.review!.rating
+                            ? Icons.star
+                            : Icons.star_border,
+                        color: Colors.amber,
+                        size: 20,
+                      );
+                    }),
+                  ),
+                  if (order.review!.reviewText.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Text(
+                      order.review!.reviewText,
+                      style: const TextStyle(
+                        fontSize: 14,
+                        color: Colors.black87,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+          ],
+
           // View Invoice Button
           if (order.invoiceUrl != null && order.invoiceUrl!.isNotEmpty) ...[
             SizedBox(
@@ -616,9 +657,5 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
         ],
       ),
     );
-  }
-
-  String _formatDate(DateTime date) {
-    return "${date.year}-${date.month.toString().padLeft(2, '0')}-${date.day.toString().padLeft(2, '0')} ${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}";
   }
 }

@@ -1,4 +1,3 @@
-import 'package:raheeq_main/models/review_model.dart';
 
 class OrderResponseModel {
   final String id;
@@ -21,7 +20,7 @@ class OrderResponseModel {
   final String? invoiceUrl;
   final Map<String, dynamic>? deliveredLocationDetails;
   final bool? isChillerAvailable;
-  ReviewModel? review;
+  OrderReviewModel? review;
 
   OrderResponseModel({
     required this.id,
@@ -103,7 +102,7 @@ class OrderResponseModel {
               : null),
       deliveredLocationDetails: json['deliveredLocationDetails'],
       isChillerAvailable: json['isChillerAvailable'],
-      review: json['review'] != null ? ReviewModel.fromJson(json['review']) : null,
+      review: json['review'] != null ? OrderReviewModel.fromJson(json['review']) : null,
     );
   }
 }
@@ -215,6 +214,23 @@ class OrderTarget {
       label: json['label'] ?? '',
       labelAr: json['labelAr'] ?? '',
       image: json['image'] ?? '',
+    );
+  }
+}
+
+class OrderReviewModel {
+  final int rating;
+  final String reviewText;
+
+  OrderReviewModel({
+    required this.rating,
+    required this.reviewText,
+  });
+
+  factory OrderReviewModel.fromJson(Map<String, dynamic> json) {
+    return OrderReviewModel(
+      rating: json['rating'] ?? 0,
+      reviewText: json['reviewText'] ?? '',
     );
   }
 }

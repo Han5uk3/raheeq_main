@@ -2848,6 +2848,12 @@ abstract class AppLocalizations {
   /// **'Delivered To'**
   String get delivered_to;
 
+  /// No description provided for @review.
+  ///
+  /// In en, this message translates to:
+  /// **'Review'**
+  String get review;
+
   /// No description provided for @coupon_not_applicable.
   ///
   /// In en, this message translates to:

@@ -1429,5 +1429,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get delivered_to => 'تم التوصيل إلى';
 
   @override
+  String get review => 'التقييم';
+
+  @override
   String get coupon_not_applicable => 'لا يمكن تطبيق أكواد الخصم على هذا الطلب';
 }
