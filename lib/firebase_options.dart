@@ -51,18 +51,19 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyBlkOItn9hMgKTnsuc4kxrSlm4nOIiffLI',
-    appId: '1:579658096080:android:fe77cb5903d183e6d6add5',
+    appId: '1:579658096080:android:5c4a5e5fbfb28d12d6add5',
     messagingSenderId: '579658096080',
     projectId: 'suqyarahiq-app-173f2',
     storageBucket: 'suqyarahiq-app-173f2.firebasestorage.app',
   );
-
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyCLHHF7TukQcRF4Fsv2C67El5iNd8qwxZg',
-    appId: '1:579658096080:ios:191988aebc10e628d6add5',
+    appId: '1:579658096080:ios:b0c531ee0d8a1848d6add5',
     messagingSenderId: '579658096080',
     projectId: 'suqyarahiq-app-173f2',
     storageBucket: 'suqyarahiq-app-173f2.firebasestorage.app',
+    androidClientId: '579658096080-5onpmak5jbnbvhpkjlmmk4v1qkvv9m8p.apps.googleusercontent.com',
+    iosClientId: '579658096080-ncd5iskpiei33dfg2j255sujkjer39vq.apps.googleusercontent.com',
     iosBundleId: 'com.rahiq.app',
   );
 }
