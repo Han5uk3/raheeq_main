@@ -1308,6 +1308,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get once_a_month => 'مرة في الشهر';
 
   @override
+  String get tap_to_view => 'اضغط لعرض الوسائط';
+
+  @override
   String get twice_a_week => 'مرتين في الأسبوع';
 
   @override

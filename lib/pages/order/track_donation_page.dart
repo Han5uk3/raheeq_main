@@ -218,10 +218,11 @@ class _TrackDonationPageState extends State<TrackDonationPage> {
     IconData statusIcon = Icons.pending_actions;
     Color statusColor = Colors.orange;
 
-    if (order.status == 'DELIVERED') {
+    if (order.status == 'CONFIRMED') {
       statusIcon = Icons.check_circle;
       statusColor = Colors.green;
     } else if (order.status == 'DISPATCHED' ||
+        order.status == 'DELIVERED' ||
         order.status == 'OUT_FOR_DELIVERY') {
       statusIcon = Icons.local_shipping;
       statusColor = Colors.blue;
@@ -230,7 +231,7 @@ class _TrackDonationPageState extends State<TrackDonationPage> {
     String localizedStatus = order.status.replaceAll('_', ' ');
     if (order.status == 'PENDING') {
       localizedStatus = AppLocalizations.of(context)!.order_placed;
-    } else if (order.status == 'ASSIGNED') {
+    } else if (order.status == 'ASSIGNED' || order.status == 'DELIVERED') {
       localizedStatus = AppLocalizations.of(context)!.out_for_delivery;
     } else if (order.status == 'CONFIRMED') {
       localizedStatus = AppLocalizations.of(context)!.delivered;
@@ -505,17 +506,17 @@ class _TrackDonationPageState extends State<TrackDonationPage> {
             mainAxisSize: MainAxisSize.min,
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Center(
-              //   child: Container(
-              //     width: 40,
-              //     height: 4,
-              //     decoration: BoxDecoration(
-              //       color: Colors.grey[300],
-              //       borderRadius: BorderRadius.circular(2),
-              //     ),
-              //   ),
-              // ),
-              // const SizedBox(height: 24),
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: Colors.grey[300],
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
               Row(
                 children: [
                   GestureDetector(
@@ -535,12 +536,25 @@ class _TrackDonationPageState extends State<TrackDonationPage> {
                     ),
                   ),
                   const SizedBox(width: 16),
-                  Text(
-                    AppLocalizations.of(context)!.proof_of_delivery,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        AppLocalizations.of(context)!.proof_of_delivery,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        AppLocalizations.of(context)!.tap_to_view,
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
                   ),
                 ],
               ),

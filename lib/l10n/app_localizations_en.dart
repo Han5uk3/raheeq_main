@@ -1318,6 +1318,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get once_a_month => 'Once a month';
 
   @override
+  String get tap_to_view => 'Tap item to view media';
+
+  @override
   String get twice_a_week => 'Twice a week';
 
   @override

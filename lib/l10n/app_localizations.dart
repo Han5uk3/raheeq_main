@@ -2614,6 +2614,12 @@ abstract class AppLocalizations {
   /// **'Once a month'**
   String get once_a_month;
 
+  /// No description provided for @tap_to_view.
+  ///
+  /// In en, this message translates to:
+  /// **'Tap item to view media'**
+  String get tap_to_view;
+
   /// No description provided for @twice_a_week.
   ///
   /// In en, this message translates to:

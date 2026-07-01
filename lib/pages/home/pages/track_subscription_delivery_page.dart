@@ -494,8 +494,8 @@ class _TrackSubscriptionDeliveryPageState
           _buildProofCard("Mosque Inside", proofs['mosqueInsideImage'], false),
         if (proofs['packagesImage'] != null)
           _buildProofCard("Packages", proofs['packagesImage'], false),
-        if (proofs['deliveryVideo'] != null)
-          _buildProofCard("Delivery Video", proofs['deliveryVideo'], true),
+        if (proofs['deliveryVideo'] != null && proofs['deliveryVideo'].toString().isNotEmpty || proofs['proofVideo'] != null && proofs['proofVideo'].toString().isNotEmpty || proofs['video'] != null && proofs['video'].toString().isNotEmpty)
+          _buildProofCard("Delivery Video", proofs['deliveryVideo'] ?? proofs['proofVideo'] ?? proofs['video'], true),
       ],
     );
   }
