@@ -334,7 +334,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
   }
 
   Widget _buildNotificationItem(NotificationModel notification) {
-    final dateFormat = DateFormat('MMM dd, yyyy - hh:mm a');
+    final locale = Localizations.localeOf(context).languageCode;
+    final dateFormat = DateFormat('MMM dd, yyyy - hh:mm a', locale);
     final formattedDate = dateFormat.format(notification.createdAt.toLocal());
 
     return Material(

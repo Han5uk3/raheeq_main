@@ -271,7 +271,8 @@ class _MyWalletPageState extends State<MyWalletPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            "${_balance.toStringAsFixed(2)} SAR",
+            '\u202A${AppLocalizations.of(context)!.sar_currency} ${_balance.toStringAsFixed(2)}\u202C',
+
             style: const TextStyle(
               color: Colors.white,
               fontSize: 36,

@@ -11,6 +11,7 @@ import 'package:raheeq_main/storage/auth_storage.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import 'package:raheeq_main/services/notification_service.dart';
+import 'package:raheeq_main/storage/app_storage.dart';
 import 'package:raheeq_main/services/freshchat_service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -30,6 +31,9 @@ void main() {
 Future<void> _initDependencies() async {
   await dotenv.load(fileName: ".env");
   await AuthStorage.init();
+  await AppStorage.init();
+  localeNotifier.value = Locale(AppStorage.localeCode);
+
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   await Permission.notification.request();
@@ -82,7 +86,10 @@ class MainApp extends StatelessWidget {
               final mediaQueryData = MediaQuery.of(context);
               return MediaQuery(
                 data: mediaQueryData.copyWith(
-                  textScaler: _ArabicTextScaler(mediaQueryData.textScaler, isArabic),
+                  textScaler: _ArabicTextScaler(
+                    mediaQueryData.textScaler,
+                    isArabic,
+                  ),
                 ),
                 child: child!,
               );
@@ -110,11 +117,7 @@ class MainApp extends StatelessWidget {
                 ),
                 useMaterial3: true,
               );
-              return theme.copyWith(
-                textTheme: theme.textTheme.apply(
-                  fontSizeDelta: locale.languageCode == 'ar' ? 2.0 : 0.0,
-                ),
-              );
+              return theme;
             }(),
             debugShowCheckedModeBanner: false,
             home: const SplashScreen(),
@@ -134,7 +137,7 @@ class _ArabicTextScaler extends TextScaler {
   @override
   double scale(double fontSize) {
     double scaled = baseScaler.scale(fontSize);
-    return isArabic ? scaled + 2.0 : scaled;
+    return isArabic ? scaled + 1.0 : scaled;
   }
 
   @override

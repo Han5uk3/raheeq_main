@@ -246,7 +246,8 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
   }
 
   Widget _buildInfoCard(bool isAr) {
-    final dateFormat = DateFormat('MMM dd, yyyy');
+    final locale = Localizations.localeOf(context).languageCode;
+    final dateFormat = DateFormat('MMM dd, yyyy', locale);
     return Card(
       color: Colors.white,
       elevation: 2,

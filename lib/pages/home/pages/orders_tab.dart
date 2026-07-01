@@ -523,6 +523,8 @@ class _OrderCardState extends State<_OrderCard> {
           return 'حملة';
         case 'location':
           return 'موقع';
+        case 'city':
+          return 'مدينة';
         default:
           return target.type;
       }
@@ -534,6 +536,8 @@ class _OrderCardState extends State<_OrderCard> {
           return 'Campaign';
         case 'location':
           return 'Location';
+        case 'city':
+          return 'City';
         default:
           return target.type[0].toUpperCase() +
               target.type.substring(1).toLowerCase();
@@ -543,9 +547,10 @@ class _OrderCardState extends State<_OrderCard> {
 
   @override
   Widget build(BuildContext context) {
-    final isAr = Localizations.localeOf(context).languageCode == 'ar';
-    final dateFormat = DateFormat('MMM dd, yyyy');
-    final timeFormat = DateFormat('hh:mm a');
+    final locale = Localizations.localeOf(context).languageCode;
+    final isAr = locale == 'ar';
+    final dateFormat = DateFormat('MMM dd, yyyy', locale);
+    final timeFormat = DateFormat('hh:mm a', locale);
     final orderDate = widget.order.createdAt.toLocal();
     final formattedDate = dateFormat.format(orderDate);
     final formattedTime = timeFormat.format(orderDate);

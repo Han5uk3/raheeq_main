@@ -3,10 +3,10 @@ import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'dart:developer';
 import 'package:raheeq_main/utils/formatters.dart';
 
-import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:raheeq_main/models/banner_data.dart';
 import 'package:raheeq_main/models/campaign.dart';
 import 'package:raheeq_main/models/category.dart';
@@ -432,14 +432,14 @@ class _HomeTabState extends State<HomeTab> {
                                     child: CachedNetworkImage(
                                       imageUrl: bannerUrl,
                                       fit: BoxFit.cover,
-                                      placeholder: (context, url) => Container(
-                                        color: AppColors.buttonBlueDark,
-                                        child: const Center(
-                                          child: WaterLoadingIndicator(
-                                            size: 20,
+                                      placeholder: (context, url) =>
+                                          Shimmer.fromColors(
+                                            baseColor: Colors.grey[300]!,
+                                            highlightColor: Colors.grey[100]!,
+                                            child: Container(
+                                              color: Colors.white,
+                                            ),
                                           ),
-                                        ),
-                                      ),
                                       errorWidget: (context, url, error) =>
                                           Container(
                                             color: AppColors.buttonBlueDark,
@@ -976,7 +976,7 @@ class _HomeTabState extends State<HomeTab> {
         }
       },
       child: Container(
-        height: isEven ? 190 : 160,
+        height: isEven ? 190 : 165,
         width: double.infinity,
         margin: const EdgeInsetsDirectional.only(bottom: 16),
         decoration: BoxDecoration(
@@ -1166,7 +1166,7 @@ class _HomeTabState extends State<HomeTab> {
             crossAxisCount: 3,
             crossAxisSpacing: 16,
             mainAxisSpacing: 16,
-            childAspectRatio: 0.7,
+            childAspectRatio: 0.75,
           ),
           itemBuilder: (context, index) {
             final category = _categories[index];
@@ -1598,8 +1598,10 @@ class _HomeTabState extends State<HomeTab> {
                             child: CachedNetworkImage(
                               imageUrl: imageUrl,
                               fit: BoxFit.contain,
-                              placeholder: (context, url) => const Center(
-                                child: WaterLoadingIndicator(size: 30),
+                              placeholder: (context, url) => Shimmer.fromColors(
+                                baseColor: Colors.grey[300]!,
+                                highlightColor: Colors.grey[100]!,
+                                child: Container(color: Colors.white),
                               ),
                               errorWidget: (context, url, error) => const Icon(
                                 Icons.water_drop,
@@ -1755,7 +1757,7 @@ class _HomeTabState extends State<HomeTab> {
                 Padding(
                   padding: const EdgeInsets.all(6.0),
                   child: AspectRatio(
-                    aspectRatio: 1.0,
+                    aspectRatio: 1.1,
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(10),
                       child: Container(
@@ -1774,13 +1776,12 @@ class _HomeTabState extends State<HomeTab> {
                             : CachedNetworkImage(
                                 imageUrl: imgPath,
                                 fit: BoxFit.contain,
-                                placeholder: (context, url) => const Center(
-                                  child: SizedBox(
-                                    width: 20,
-                                    height: 20,
-                                    child: WaterLoadingIndicator(size: 30),
-                                  ),
-                                ),
+                                placeholder: (context, url) =>
+                                    Shimmer.fromColors(
+                                      baseColor: Colors.grey[300]!,
+                                      highlightColor: Colors.grey[100]!,
+                                      child: Container(color: Colors.white),
+                                    ),
                                 errorWidget: (context, url, error) =>
                                     const Center(
                                       child: Icon(
@@ -1840,173 +1841,6 @@ class _HomeTabState extends State<HomeTab> {
       ],
     );
   }
-
-  // Widget buildNearbyMosqueSection(BuildContext context) {
-  //   return Column(
-  //     crossAxisAlignment: CrossAxisAlignment.start,
-  //     children: [
-  //       const Padding(
-  //         padding: EdgeInsets.symmetric(horizontal: 16),
-  //         child: Text(
-  //           "Nearby Mosque",
-  //           style: TextStyle(
-  //             fontSize: 18,
-  //             fontWeight: FontWeight.bold,
-  //             color: Colors.black87,
-  //           ),
-  //         ),
-  //       ),
-  //       const SizedBox(height: 16),
-  //       SizedBox(
-  //         height: 336,
-  //         child: ListView.builder(
-  //           padding: EdgeInsets.zero,
-  //           scrollDirection: Axis.horizontal,
-  //           itemCount: 5,
-  //           itemBuilder: (context, index) {
-  //             return buildNearbyMosqueCard(
-  //               context,
-  //               "Sheikh Zayed Mosque",
-  //               "Abu Dhabi, UAE",
-  //               "https://upload.wikimedia.org/wikipedia/en/thumb/7/7d/Sheikh_Zayed_Mosque_view.jpg/500px-Sheikh_Zayed_Mosque_view.jpg",
-  //               index,
-  //               5,
-  //             );
-  //           },
-  //         ),
-  //       ),
-  //     ],
-  //   );
-  // }
-
-  // Widget buildNearbyMosqueCard(
-  //   BuildContext context,
-  //   String title,
-  //   String location,
-  //   String imgPath,
-  //   int index,
-  //   int totalLength,
-  // ) {
-  //   return Container(
-  //     width: 260,
-  //     margin: EdgeInsetsDirectional.only(
-  //       start: index == 0 ? 16 : 8,
-  //       end: index == totalLength - 1 ? 16 : 8,
-  //     ),
-  //     decoration: BoxDecoration(
-  //       color: Colors.white,
-  //       border: Border.all(color: const Color(0xffE2E2E2), width: 1),
-  //       borderRadius: BorderRadius.circular(24),
-  //     ),
-  //     child: Column(
-  //       crossAxisAlignment: CrossAxisAlignment.start,
-  //       children: [
-  //         Padding(
-  //           padding: const EdgeInsetsDirectional.only(
-  //             start: 16,
-  //             top: 16,
-  //             end: 16,
-  //             bottom: 8,
-  //           ),
-  //           child: buildHighNeedBadge(context),
-  //         ),
-  //         Padding(
-  //           padding: const EdgeInsets.symmetric(horizontal: 16),
-  //           child: Text(
-  //             title,
-  //             maxLines: 1,
-  //             overflow: TextOverflow.ellipsis,
-  //             style: const TextStyle(
-  //               fontSize: 16,
-  //               fontWeight: FontWeight.bold,
-  //               color: Colors.black,
-  //             ),
-  //           ),
-  //         ),
-  //         Padding(
-  //           padding: const EdgeInsets.symmetric(horizontal: 16),
-  //           child: Row(
-  //             children: [
-  //               const Icon(
-  //                 Icons.location_on_outlined,
-  //                 size: 14,
-  //                 color: Colors.black,
-  //               ),
-  //               const SizedBox(width: 4),
-  //               Text(
-  //                 location,
-  //                 style: const TextStyle(fontSize: 13, color: Colors.black54),
-  //               ),
-  //               const Text(
-  //                 ", 2.5 km",
-  //                 style: TextStyle(fontSize: 13, color: Colors.black54),
-  //               ),
-  //             ],
-  //           ),
-  //         ),
-  //         Padding(
-  //           padding: const EdgeInsetsDirectional.only(
-  //             start: 16,
-  //             end: 16,
-  //             top: 16,
-  //           ),
-  //           child: ClipRRect(
-  //             borderRadius: const BorderRadius.all(Radius.circular(12)),
-  //             child: SizedBox(
-  //               height: 150,
-  //               width: double.infinity,
-  //               child: CachedNetworkImage(
-  //                 imageUrl: imgPath,
-  //                 fit: BoxFit.cover,
-  //                 placeholder: (context, url) => Container(
-  //                   color: Colors.black.withValues(alpha: 0.05),
-  //                   child: const Center(child: WaterLoadingIndicator(size: 30)),
-  //                 ),
-  //               ),
-  //             ),
-  //           ),
-  //         ),
-  //         Padding(
-  //           padding: const EdgeInsets.all(16),
-  //           child: Column(
-  //             crossAxisAlignment: CrossAxisAlignment.start,
-  //             children: [
-  //               Container(
-  //                 padding: const EdgeInsets.symmetric(
-  //                   horizontal: 12,
-  //                   vertical: 8,
-  //                 ),
-  //                 decoration: BoxDecoration(
-  //                   color: AppColors.buttonBlue,
-  //                   borderRadius: BorderRadius.circular(18),
-  //                 ),
-  //                 child: Row(
-  //                   mainAxisSize: MainAxisSize.min,
-  //                   children: [
-  //                     Text(
-  //                       "Donate Now",
-  //                       style: TextStyle(
-  //                         color: Colors.white,
-  //                         fontSize: 14,
-  //                         fontWeight: FontWeight.w600,
-  //                       ),
-  //                     ),
-  //                     SizedBox(width: 8),
-  //                     Icon(
-  //                       forwardArrowIcon(context),
-  //                       size: 16,
-  //                       color: Colors.white,
-  //                     ),
-  //                   ],
-  //                 ),
-  //               ),
-  //             ],
-  //           ),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
 
   Widget buildHighNeedBadge(BuildContext context) {
     return Container(
@@ -2143,7 +1977,7 @@ class _HomeTabState extends State<HomeTab> {
                         Text(
                           item['title'] as String,
                           style: const TextStyle(
-                            fontSize: 14,
+                            fontSize: 12,
                             color: Colors.white,
                           ),
                           maxLines: 1,

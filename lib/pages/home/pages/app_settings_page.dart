@@ -1,5 +1,6 @@
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
+import 'package:raheeq_main/storage/app_storage.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:raheeq_main/main.dart';
@@ -297,9 +298,10 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
   }) {
     final isSelected = currentLocaleCode == localeCode;
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
         localeNotifier.value = Locale(localeCode);
-        Navigator.pop(context);
+        await AppStorage.saveLocale(localeCode);
+        if (context.mounted) Navigator.pop(context);
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
