@@ -362,7 +362,15 @@ class _LoginState extends State<Login> {
                                   builder: (context) => InkWell(
                                     onTap: () {
                                       showCountryPicker(
-                                        favorite: ["SA"],
+                                        favorite: [
+                                          "SA",
+                                          "AE",
+                                          "KW",
+                                          "BH",
+                                          "QA",
+                                          "OM",
+                                          "SD",
+                                        ],
                                         context: context,
                                         showPhoneCode: true,
                                         onSelect: (Country country) {

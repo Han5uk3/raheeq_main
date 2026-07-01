@@ -7,6 +7,7 @@ class Checkout {
   final String? campaignId;
   final dynamic campaign;
   final bool useWallet;
+  final bool? canApplyCoupon;
   final String? couponCode;
   final dynamic couponDetails;
   final double walletBalance;
@@ -30,6 +31,7 @@ class Checkout {
     required this.userId,
     this.campaignId,
     this.campaign,
+    this.canApplyCoupon,
     required this.useWallet,
     this.couponCode,
     this.couponDetails,
@@ -55,6 +57,7 @@ class Checkout {
       id: json['id'] ?? '',
       userId: json['userId'] ?? '',
       campaignId: json['campaignId'],
+      canApplyCoupon: json['canApplyCoupon'] ?? false,
       campaign: json['campaign'],
       useWallet: json['wallet']?['isUsed'] ?? json['useWallet'] ?? false,
       couponCode: json['couponCode'],
@@ -126,6 +129,7 @@ class CheckoutItem {
   final dynamic giftCard;
   final dynamic location;
   final int quantity;
+
   final String productId;
   final double unitPrice;
   final String? locationId;

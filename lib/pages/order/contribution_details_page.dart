@@ -832,10 +832,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
 
   @override
   Widget build(BuildContext context) {
-    bool isOnlyWaterCartons = _checkoutData.items.isNotEmpty &&
-        _checkoutData.items.every((item) =>
-            item.product != null &&
-            (item.product!.serialNumber == 1 || item.product!.serialNumber == 4));
+    bool canApplyCoupon = _checkoutData.canApplyCoupon ?? false;
 
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
     final title = AppLocalizations.of(context)!.payment;
@@ -986,172 +983,88 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                         _buildGiftCardSection(isAr),
 
                         const SizedBox(height: 16),
-                        Card(
-                          color: Colors.white,
-                          elevation: 3,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  AppLocalizations.of(context)!.coupon_code,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
+                        SizedBox(
+                          width: double.infinity,
+                          child: Card(
+                            color: Colors.white,
+                            elevation: 3,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    AppLocalizations.of(context)!.coupon_code,
+                                    style: const TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(height: 8),
-                                if (!isOnlyWaterCartons)
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 8.0),
-                                    child: Text(
-                                      AppLocalizations.of(context)!.coupon_not_applicable,
-                                      style: const TextStyle(color: Colors.red, fontSize: 14),
-                                    ),
-                                  )
-                                else if (_checkoutData.couponCode != null &&
-                                    _checkoutData.couponCode!.isNotEmpty)
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 16,
-                                      vertical: 12,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.green.withValues(
-                                        alpha: 0.1,
+                                  const SizedBox(height: 8),
+                                  if (!canApplyCoupon)
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 8.0,
                                       ),
-                                      borderRadius: BorderRadius.circular(12),
-                                      border: Border.all(
+                                      child: Text(
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.coupon_not_applicable,
+                                        style: const TextStyle(
+                                          color: Colors.red,
+                                          fontSize: 14,
+                                        ),
+                                      ),
+                                    )
+                                  else if (_checkoutData.couponCode != null &&
+                                      _checkoutData.couponCode!.isNotEmpty)
+                                    Container(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                        vertical: 12,
+                                      ),
+                                      decoration: BoxDecoration(
                                         color: Colors.green.withValues(
-                                          alpha: 0.3,
+                                          alpha: 0.1,
+                                        ),
+                                        borderRadius: BorderRadius.circular(12),
+                                        border: Border.all(
+                                          color: Colors.green.withValues(
+                                            alpha: 0.3,
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        const Icon(
-                                          Icons.check_circle,
-                                          color: Colors.green,
-                                        ),
-                                        const SizedBox(width: 8),
-                                        Expanded(
-                                          child: Text(
-                                            _checkoutData.couponCode!,
-                                            style: const TextStyle(
-                                              fontSize: 16,
-                                              fontWeight: FontWeight.bold,
-                                              color: Colors.green,
-                                            ),
+                                      child: Row(
+                                        children: [
+                                          const Icon(
+                                            Icons.check_circle,
+                                            color: Colors.green,
                                           ),
-                                        ),
-                                        ElevatedButton(
-                                          onPressed: _isApplyingCoupon
-                                              ? null
-                                              : () => _removeCoupon(isAr),
-                                          style: ElevatedButton.styleFrom(
-                                            backgroundColor: Colors.red,
-                                            foregroundColor: Colors.white,
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 12,
-                                              vertical: 6,
-                                            ),
-                                            minimumSize: Size.zero,
-                                            tapTargetSize: MaterialTapTargetSize
-                                                .shrinkWrap,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  BorderRadius.circular(30),
-                                            ),
-                                            elevation: 0,
-                                          ),
-                                          child: _isApplyingCoupon
-                                              ? const WaterLoadingIndicator(
-                                                  size: 16,
-                                                  waveColor1: Colors.white,
-                                                  waveColor2: Colors.white,
-                                                )
-                                              : Text(
-                                                  AppLocalizations.of(
-                                                    context,
-                                                  )!.remove,
-                                                  style: const TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                        ),
-                                      ],
-                                    ),
-                                  )
-                                else
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: Container(
-                                          decoration: BoxDecoration(
-                                            color: const Color(0xFFF5F5F5),
-                                            borderRadius: BorderRadius.circular(
-                                              12,
-                                            ),
-                                          ),
-                                          child: TextField(
-                                            inputFormatters: [
-                                              TextInputFormatter.withFunction(
-                                                (oldValue, newValue) =>
-                                                    TextEditingValue(
-                                                      text: newValue.text
-                                                          .toUpperCase(),
-                                                      selection:
-                                                          newValue.selection,
-                                                    ),
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                              _checkoutData.couponCode!,
+                                              style: const TextStyle(
+                                                fontSize: 16,
+                                                fontWeight: FontWeight.bold,
+                                                color: Colors.green,
                                               ),
-                                            ],
-                                            cursorColor:
-                                                AppColors.buttonBlueDark,
-
-                                            controller: _couponController,
-                                            decoration: InputDecoration(
-                                              border: InputBorder.none,
-                                              isDense: true,
-                                              contentPadding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 16,
-                                                    vertical: 8,
-                                                  ),
-                                              hintText: AppLocalizations.of(
-                                                context,
-                                              )!.enter_coupon_code,
                                             ),
                                           ),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      ValueListenableBuilder<TextEditingValue>(
-                                        valueListenable: _couponController,
-                                        builder: (context, value, child) {
-                                          final bool isEmpty = value.text
-                                              .trim()
-                                              .isEmpty;
-                                          return ElevatedButton(
-                                            onPressed:
-                                                (_isApplyingCoupon || isEmpty)
+                                          ElevatedButton(
+                                            onPressed: _isApplyingCoupon
                                                 ? null
-                                                : () => _applyCoupon(isAr),
+                                                : () => _removeCoupon(isAr),
                                             style: ElevatedButton.styleFrom(
-                                              backgroundColor:
-                                                  AppColors.buttonBlueDark,
-                                              disabledBackgroundColor:
-                                                  Colors.grey.shade300,
-                                              disabledForegroundColor:
-                                                  Colors.grey.shade600,
+                                              backgroundColor: Colors.red,
                                               foregroundColor: Colors.white,
                                               padding:
                                                   const EdgeInsets.symmetric(
-                                                    horizontal: 16,
-                                                    vertical: 8,
+                                                    horizontal: 12,
+                                                    vertical: 6,
                                                   ),
                                               minimumSize: Size.zero,
                                               tapTargetSize:
@@ -1167,23 +1080,119 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                                 ? const WaterLoadingIndicator(
                                                     size: 16,
                                                     waveColor1: Colors.white,
-                                                    waveColor2: Colors.white,
                                                   )
                                                 : Text(
                                                     AppLocalizations.of(
                                                       context,
-                                                    )!.apply,
+                                                    )!.remove,
                                                     style: const TextStyle(
                                                       fontWeight:
                                                           FontWeight.bold,
                                                     ),
                                                   ),
-                                          );
-                                        },
+                                          ),
+                                        ],
                                       ),
-                                    ],
-                                  ),
-                              ],
+                                    )
+                                  else
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Container(
+                                            decoration: BoxDecoration(
+                                              color: const Color(0xFFF5F5F5),
+                                              borderRadius:
+                                                  BorderRadius.circular(12),
+                                            ),
+                                            child: TextField(
+                                              inputFormatters: [
+                                                TextInputFormatter.withFunction(
+                                                  (oldValue, newValue) =>
+                                                      TextEditingValue(
+                                                        text: newValue.text
+                                                            .toUpperCase(),
+                                                        selection:
+                                                            newValue.selection,
+                                                      ),
+                                                ),
+                                              ],
+                                              cursorColor:
+                                                  AppColors.buttonBlueDark,
+
+                                              controller: _couponController,
+                                              decoration: InputDecoration(
+                                                border: InputBorder.none,
+                                                isDense: true,
+                                                contentPadding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 16,
+                                                      vertical: 8,
+                                                    ),
+                                                hintText: AppLocalizations.of(
+                                                  context,
+                                                )!.enter_coupon_code,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        ValueListenableBuilder<
+                                          TextEditingValue
+                                        >(
+                                          valueListenable: _couponController,
+                                          builder: (context, value, child) {
+                                            final bool isEmpty = value.text
+                                                .trim()
+                                                .isEmpty;
+                                            return ElevatedButton(
+                                              onPressed:
+                                                  (_isApplyingCoupon || isEmpty)
+                                                  ? null
+                                                  : () => _applyCoupon(isAr),
+                                              style: ElevatedButton.styleFrom(
+                                                backgroundColor:
+                                                    AppColors.buttonBlueDark,
+                                                disabledBackgroundColor:
+                                                    Colors.grey.shade300,
+                                                disabledForegroundColor:
+                                                    Colors.grey.shade600,
+                                                foregroundColor: Colors.white,
+                                                padding:
+                                                    const EdgeInsets.symmetric(
+                                                      horizontal: 16,
+                                                      vertical: 8,
+                                                    ),
+                                                minimumSize: Size.zero,
+                                                tapTargetSize:
+                                                    MaterialTapTargetSize
+                                                        .shrinkWrap,
+                                                shape: RoundedRectangleBorder(
+                                                  borderRadius:
+                                                      BorderRadius.circular(30),
+                                                ),
+                                                elevation: 0,
+                                              ),
+                                              child: _isApplyingCoupon
+                                                  ? const WaterLoadingIndicator(
+                                                      size: 16,
+                                                      waveColor1: Colors.white,
+                                                    )
+                                                  : Text(
+                                                      AppLocalizations.of(
+                                                        context,
+                                                      )!.apply,
+                                                      style: const TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
+                                            );
+                                          },
+                                        ),
+                                      ],
+                                    ),
+                                ],
+                              ),
                             ),
                           ),
                         ),
@@ -1273,7 +1282,6 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                             ? const WaterLoadingIndicator(
                                                 size: 16,
                                                 waveColor1: Colors.white,
-                                                waveColor2: Colors.white,
                                               )
                                             : Text(
                                                 _checkoutData.useWallet
@@ -1294,9 +1302,8 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                               ),
                             ),
                           ),
-                          const SizedBox(height: 16),
                         ],
-
+                        const SizedBox(height: 16),
                         Card(
                           color: Colors.white,
                           elevation: 3,

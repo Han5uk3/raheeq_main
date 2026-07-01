@@ -190,6 +190,13 @@ class _ProfileTabState extends State<ProfileTab> {
         _isSaving = true;
       });
 
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        barrierColor: Colors.transparent,
+        builder: (_) => const PopScope(canPop: false, child: SizedBox.expand()),
+      );
+
       // Call API logout silently to notify server, then wipe storage
       final refToken = AuthStorage.refreshToken ?? '';
       await ApiService().logout(refreshToken: refToken);

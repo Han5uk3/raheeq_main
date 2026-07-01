@@ -295,7 +295,8 @@ class _SubscriptionDetailsBottomSheetState
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          AppLocalizations.of(context)!.delivery_days_select_maxallowed.replaceAll(r'$maxAllowed', maxAllowed.toString()),
+          AppLocalizations.of(context)!.delivery_days_select_maxallowed
+              .replaceAll(r'$maxAllowed', maxAllowed.toString()),
           style: const TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
@@ -469,7 +470,6 @@ class _SubscriptionDetailsBottomSheetState
                       ? const WaterLoadingIndicator(
                           size: 24,
                           waveColor1: Colors.white,
-                          waveColor2: Colors.white,
                         )
                       : Text(
                           AppLocalizations.of(context)!.continue_btn,

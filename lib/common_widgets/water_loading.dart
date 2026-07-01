@@ -6,17 +6,10 @@ import 'package:raheeq_main/utils/colors.dart';
 /// Replaces the legacy Water Loading Indicator with an interactive, glowing soundwave animation.
 class WaterLoadingIndicator extends StatefulWidget {
   final double size;
-  final String? message;
-  final Color? waveColor1;
-  final Color? waveColor2;
 
-  const WaterLoadingIndicator({
-    super.key,
-    this.size = 24.0,
-    this.message,
-    this.waveColor1,
-    this.waveColor2,
-  });
+  final Color? waveColor1;
+
+  const WaterLoadingIndicator({super.key, this.size = 24.0, this.waveColor1});
 
   @override
   State<WaterLoadingIndicator> createState() => _WaterLoadingIndicatorState();
@@ -55,9 +48,6 @@ class _WaterLoadingIndicatorState extends State<WaterLoadingIndicator>
 
     final barWidth = innerSize * 0.12;
     final spacing = innerSize * 0.08;
-
-    final bool hasMessage =
-        widget.message != null && widget.message!.isNotEmpty;
 
     final Widget animationWidget = AnimatedBuilder(
       animation: _controller,
@@ -111,27 +101,6 @@ class _WaterLoadingIndicatorState extends State<WaterLoadingIndicator>
       },
     );
 
-    if (!hasMessage) {
-      return animationWidget;
-    }
-
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        animationWidget,
-        const SizedBox(height: 16),
-        Text(
-          widget.message!,
-          textAlign: TextAlign.center,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: AppColors.buttonBlueDark,
-            letterSpacing: 0.5,
-          ),
-        ),
-      ],
-    );
+    return SizedBox(height: widget.size, child: animationWidget);
   }
 }

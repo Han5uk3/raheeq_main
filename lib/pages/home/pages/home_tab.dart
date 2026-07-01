@@ -942,7 +942,7 @@ class _HomeTabState extends State<HomeTab> {
     final description = campaign.localizedDescription(isAr);
     final imageUrl = campaign.image;
 
-    final bool isEven = index % 2 == 0;
+    final bool isEven = index == 0 ? true : index % 2 == 0;
     final primaryColor = isEven
         ? const Color(0xFF3CAAD4)
         : const Color(0xFF086091);
@@ -976,7 +976,7 @@ class _HomeTabState extends State<HomeTab> {
         }
       },
       child: Container(
-        height: isEven ? 200 : 150,
+        height: isEven ? 190 : 160,
         width: double.infinity,
         margin: const EdgeInsetsDirectional.only(bottom: 16),
         decoration: BoxDecoration(
@@ -1044,11 +1044,11 @@ class _HomeTabState extends State<HomeTab> {
               //   ),
               // Text content
               Padding(
-                padding: EdgeInsetsDirectional.only(
+                padding: const EdgeInsetsDirectional.only(
                   start: 20,
-                  top: isEven ? 40 : 25,
+                  top: 25,
                   end: 20,
-                  bottom: 20,
+                  bottom: 25,
                 ),
                 child: LayoutBuilder(
                   builder: (context, constraints) {
@@ -1078,7 +1078,7 @@ class _HomeTabState extends State<HomeTab> {
                               fontSize: 13,
                             ),
                           ),
-                          SizedBox(height: isEven ? 24 : 12),
+                          const Spacer(),
                           Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [

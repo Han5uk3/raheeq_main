@@ -628,11 +628,7 @@ class _GiftCardPageState extends State<GiftCardPage> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
       ),
       child: _isApplying
-          ? const WaterLoadingIndicator(
-              size: 20,
-              waveColor1: Colors.white,
-              waveColor2: Colors.white,
-            )
+          ? const WaterLoadingIndicator(size: 20, waveColor1: Colors.white)
           : Text(
               AppLocalizations.of(context)!.save_gift_card_info,
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
