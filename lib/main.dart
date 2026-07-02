@@ -96,13 +96,12 @@ class MainApp extends StatelessWidget {
           child: MaterialApp(
             navigatorKey: AuthStorage.navigatorKey,
             builder: (context, child) {
-              final isArabic = locale.languageCode == 'ar';
               final mediaQueryData = MediaQuery.of(context);
               return MediaQuery(
                 data: mediaQueryData.copyWith(
                   textScaler: _ArabicTextScaler(
                     mediaQueryData.textScaler,
-                    isArabic,
+                    true,
                   ),
                 ),
                 child: child!,

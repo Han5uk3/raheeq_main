@@ -2049,7 +2049,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Icon(
-                    size: 24,
+                    size: 18,
                     Icons.card_giftcard_outlined,
                     color: AppColors.buttonBlueDark,
                   ),

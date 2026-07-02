@@ -12,6 +12,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:raheeq_main/pages/home/home_screen.dart';
 
 class OrdersTab extends StatefulWidget {
   const OrdersTab({super.key});
@@ -466,7 +467,35 @@ class _OrdersTabState extends State<OrdersTab>
         key: const ValueKey('empty'),
         height: availableHeight > 200 ? availableHeight : 200,
         alignment: Alignment.center,
-        child: Text(emptyMessage, style: const TextStyle(color: Colors.grey)),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(emptyMessage, style: const TextStyle(color: Colors.grey)),
+            const SizedBox(height: 16),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.buttonBlueDark,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 24,
+                  vertical: 12,
+                ),
+              ),
+              onPressed: () {
+                HomeScreen.switchTabNotifier.value = 0;
+              },
+              child: Text(
+                AppLocalizations.of(context)!.order_now,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ],
+        ),
       );
     }
 
@@ -510,40 +539,6 @@ class _OrderCard extends StatefulWidget {
 
 class _OrderCardState extends State<_OrderCard> {
   bool _isExpanded = false;
-
-  String _formatTargetType(OrderTarget target, bool isAr) {
-    if (target.type.isEmpty) return '';
-    final lowerType = target.type.toLowerCase();
-
-    if (isAr) {
-      switch (lowerType) {
-        case 'category':
-          return 'فئة';
-        case 'campaign':
-          return 'حملة';
-        case 'location':
-          return 'موقع';
-        case 'city':
-          return 'مدينة';
-        default:
-          return target.type;
-      }
-    } else {
-      switch (lowerType) {
-        case 'category':
-          return 'Category';
-        case 'campaign':
-          return 'Campaign';
-        case 'location':
-          return 'Location';
-        case 'city':
-          return 'City';
-        default:
-          return target.type[0].toUpperCase() +
-              target.type.substring(1).toLowerCase();
-      }
-    }
-  }
 
   @override
   Widget build(BuildContext context) {

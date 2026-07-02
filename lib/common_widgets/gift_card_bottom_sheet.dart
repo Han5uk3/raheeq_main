@@ -210,36 +210,40 @@ class _GiftCardPageState extends State<GiftCardPage> {
                             const SizedBox(height: 24),
                           ] else if (_selectedTemplate != null) ...[
                             ClipRRect(
-                              borderRadius: BorderRadiusGeometry.circular(12),
+                              borderRadius: BorderRadius.circular(12),
                               child: SizedBox(
                                 height: 291,
-                                child: CachedNetworkImage(
-                                  imageUrl: _selectedTemplate!.image,
-                                  width: double.infinity,
-                                  placeholder: (context, url) =>
-                                      Shimmer.fromColors(
-                                        baseColor: Colors.grey[300]!,
-                                        highlightColor: Colors.grey[100]!,
-                                        child: Container(
+                                width: double.infinity,
+                                child: InteractiveViewer(
+                                  minScale: 1.0,
+                                  maxScale: 4.0,
+                                  child: CachedNetworkImage(
+                                    imageUrl: _selectedTemplate!.image,
+                                    width: double.infinity,
+                                    placeholder: (context, url) =>
+                                        Shimmer.fromColors(
+                                          baseColor: Colors.grey[300]!,
+                                          highlightColor: Colors.grey[100]!,
+                                          child: Container(
+                                            height: 300,
+                                            width: double.infinity,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                    fit: BoxFit.contain,
+                                    errorWidget: (context, error, stackTrace) =>
+                                        Container(
                                           height: 300,
                                           width: double.infinity,
-                                          color: Colors.white,
+                                          color: Colors.grey[200],
+                                          alignment: Alignment.center,
+                                          child: const Icon(
+                                            Icons.broken_image,
+                                            size: 50,
+                                            color: Colors.grey,
+                                          ),
                                         ),
-                                      ),
-
-                                  fit: BoxFit.contain,
-                                  errorWidget: (context, error, stackTrace) =>
-                                      Container(
-                                        height: 300,
-                                        width: double.infinity,
-                                        color: Colors.grey[200],
-                                        alignment: Alignment.center,
-                                        child: const Icon(
-                                          Icons.broken_image,
-                                          size: 50,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
+                                  ),
                                 ),
                               ),
                             ),

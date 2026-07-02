@@ -379,7 +379,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                               fontWeight: notification.isRead
                                   ? FontWeight.w500
                                   : FontWeight.bold,
-                              color: Colors.black87,
+                              color: Colors.black,
                             ),
                           ),
                         ),
@@ -401,7 +401,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                         fontSize: 14,
                         color: notification.isRead
                             ? Colors.black54
-                            : Colors.black87,
+                            : Colors.black,
                       ),
                     ),
                     const SizedBox(height: 8),
