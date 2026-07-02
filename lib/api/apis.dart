@@ -501,9 +501,12 @@ class ApiService {
   }
 
   /// Get Mosques data
-  Future<Response> getMosques() async {
+  Future<Response> getMosques({int page = 1, int limit = 100}) async {
     try {
-      final response = await _dio.get('/mosques');
+      final response = await _dio.get(
+        '/mosques',
+        queryParameters: {'page': page, 'limit': limit},
+      );
       return response;
     } catch (e) {
       rethrow;
@@ -521,9 +524,12 @@ class ApiService {
   }
 
   /// Get Orphanages data
-  Future<Response> getOrphanages() async {
+  Future<Response> getOrphanages({int page = 1, int limit = 10}) async {
     try {
-      final response = await _dio.get('/orphanages');
+      final response = await _dio.get(
+        '/orphanages',
+        queryParameters: {'page': page, 'limit': limit},
+      );
       return response;
     } catch (e) {
       rethrow;
@@ -531,9 +537,12 @@ class ApiService {
   }
 
   /// Get Miqat Mosques data
-  Future<Response> getMiqatMosques() async {
+  Future<Response> getMiqatMosques({int page = 1, int limit = 10}) async {
     try {
-      final response = await _dio.get('/mosques/miqat');
+      final response = await _dio.get(
+        '/mosques/miqat',
+        queryParameters: {'page': page, 'limit': limit},
+      );
       return response;
     } catch (e) {
       rethrow;
@@ -1049,6 +1058,7 @@ class ApiService {
       rethrow;
     }
   }
+
   Future<Response> getMyChillers() async {
     try {
       final response = await _dio.get('/orders/my-chillers');

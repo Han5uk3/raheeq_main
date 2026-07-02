@@ -37,10 +37,16 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
   final ApiService _apiService = ApiService();
   bool _isLoading = true;
   List<Place> _items = [];
+  List<Place> _allMapItems = [];
+  bool _isLoadingMapItems = true;
   List<Place> _filteredItems = [];
 
   late TabController _tabController;
   final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  int _currentPage = 1;
+  bool _isLoadingMore = false;
+  bool _hasMore = true;
 
   Map<String, dynamic>? _selectedCity;
 
@@ -72,12 +78,71 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
       setState(() {});
     });
     _searchController.addListener(_onSearchChanged);
+    _scrollController.addListener(_scrollListener);
     _initData();
+  }
+
+  void _scrollListener() {
+    if (_scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent - 200 &&
+        !_isLoading &&
+        !_isLoadingMore &&
+        _hasMore) {
+      _loadMoreItems();
+    }
+  }
+
+  Future<void> _loadMoreItems() async {
+    setState(() {
+      _isLoadingMore = true;
+    });
+    _currentPage++;
+    await _fetchItems(isLoadMore: true);
   }
 
   Future<void> _initData() async {
     await _fetchFavorites();
+    _fetchAllMapItems();
     await _fetchItems();
+  }
+
+  Future<void> _fetchAllMapItems() async {
+    try {
+      dynamic response;
+      if (widget.slug == 'orphanages') {
+        response = await _apiService.getOrphanages(page: 1, limit: 1000);
+      } else if (widget.slug == 'meqat_mosques') {
+        response = await _apiService.getMiqatMosques(page: 1, limit: 1000);
+      } else {
+        response = await _apiService.getMosques(page: 1, limit: 1000);
+      }
+
+      if (response.statusCode == 200 && response.data['success'] == true) {
+        final List<dynamic> data = response.data['data'] ?? [];
+        if (mounted) {
+          setState(() {
+            if (widget.slug == 'orphanages') {
+              _allMapItems = data
+                  .map((e) => Orphanage.fromJson(e as Map<String, dynamic>))
+                  .toList();
+            } else if (widget.slug == 'meqat_mosques') {
+              _allMapItems = data
+                  .map((e) => MeqatMosque.fromJson(e as Map<String, dynamic>))
+                  .toList();
+            } else {
+              _allMapItems = data
+                  .map((e) => Mosque.fromJson(e as Map<String, dynamic>))
+                  .toList();
+            }
+            _isLoadingMapItems = false;
+          });
+        }
+      } else {
+        if (mounted) setState(() => _isLoadingMapItems = false);
+      }
+    } catch (e) {
+      if (mounted) setState(() => _isLoadingMapItems = false);
+    }
   }
 
   Future<void> _fetchFavorites() async {
@@ -141,6 +206,7 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
 
   @override
   void dispose() {
+    _scrollController.dispose();
     _tabController.dispose();
     _searchController.dispose();
     super.dispose();
@@ -164,41 +230,83 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
     });
   }
 
-  Future<void> _fetchItems() async {
+  Future<void> _fetchItems({bool isLoadMore = false}) async {
+    if (!isLoadMore) {
+      setState(() {
+        _isLoading = true;
+        _currentPage = 1;
+        _hasMore = true;
+        _items.clear();
+      });
+    }
+
     try {
       dynamic response;
       if (widget.slug == 'orphanages') {
-        response = await _apiService.getOrphanages();
+        response = await _apiService.getOrphanages(
+          page: _currentPage,
+          limit: 1000,
+        );
       } else if (widget.slug == 'meqat_mosques') {
-        response = await _apiService.getMiqatMosques();
+        response = await _apiService.getMiqatMosques(
+          page: _currentPage,
+          limit: 1000,
+        );
       } else {
-        response = await _apiService.getMosques();
+        response = await _apiService.getMosques(
+          page: _currentPage,
+          limit: 1000,
+        );
       }
 
       if (response.statusCode == 200 && response.data['success'] == true) {
         final List<dynamic> data = response.data['data'] ?? [];
+        final Map<String, dynamic>? meta = response.data['meta'];
+
         setState(() {
+          List<Place> newItems = [];
           if (widget.slug == 'orphanages') {
-            _items = data
+            newItems = data
                 .map((e) => Orphanage.fromJson(e as Map<String, dynamic>))
                 .toList();
           } else if (widget.slug == 'meqat_mosques') {
-            _items = data
+            newItems = data
                 .map((e) => MeqatMosque.fromJson(e as Map<String, dynamic>))
                 .toList();
           } else {
-            _items = data
+            newItems = data
                 .map((e) => Mosque.fromJson(e as Map<String, dynamic>))
                 .toList();
           }
-          _filteredItems = List.from(_items);
+
+          if (isLoadMore) {
+            _items.addAll(newItems);
+          } else {
+            _items = newItems;
+          }
+
+          if (meta != null) {
+            final int totalPages = meta['totalPages'] ?? 1;
+            _hasMore = _currentPage < totalPages;
+          } else {
+            _hasMore = newItems.isNotEmpty;
+          }
+
+          _onSearchChanged(); // update _filteredItems
           _isLoading = false;
+          _isLoadingMore = false;
         });
       } else {
-        setState(() => _isLoading = false);
+        setState(() {
+          _isLoading = false;
+          _isLoadingMore = false;
+        });
       }
     } catch (e) {
-      setState(() => _isLoading = false);
+      setState(() {
+        _isLoading = false;
+        _isLoadingMore = false;
+      });
     }
   }
 
@@ -384,12 +492,21 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
       return Center(child: Text(emptyText));
     }
     return ListView.separated(
+      controller: _scrollController,
       physics: const ClampingScrollPhysics(),
       padding: const EdgeInsets.all(16),
-      itemCount: _filteredItems.length,
+      itemCount: _filteredItems.length + (_isLoadingMore ? 1 : 0),
       separatorBuilder: (context, index) =>
           const Divider(height: 16, color: Colors.transparent),
       itemBuilder: (context, index) {
+        if (index == _filteredItems.length) {
+          return const Center(
+            child: Padding(
+              padding: EdgeInsets.all(8.0),
+              child: WaterLoadingIndicator(size: 30),
+            ),
+          );
+        }
         final item = _filteredItems[index];
         log(
           "Place: ${item.id}, ${item.name}, ${item.nameAr}, ${item.latitude}, ${item.longitude}, ${item.address}, ${item.image}",
@@ -476,11 +593,15 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
                             crossAxisAlignment: CrossAxisAlignment.center,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(
-                                item.localizedName(isAr),
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
+                              Expanded(
+                                child: Text(
+                                  item.localizedName(isAr),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
                                 ),
                               ),
                               if (widget.slug != 'orphanages')
@@ -583,7 +704,11 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
   }
 
   Widget _buildMapTab(bool isAr) {
-    final Set<Marker> markers = _items.map((item) {
+    if (_isLoadingMapItems) {
+      return const Center(child: WaterLoadingIndicator(size: 30));
+    }
+
+    final Set<Marker> markers = _allMapItems.map((item) {
       return Marker(
         markerId: MarkerId(item.id),
         position: LatLng(item.latitude, item.longitude),

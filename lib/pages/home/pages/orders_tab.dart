@@ -176,7 +176,7 @@ class _OrdersTabState extends State<OrdersTab>
             Container(
               width: double.infinity,
               constraints: BoxConstraints(
-                minHeight: MediaQuery.of(context).size.height - 150,
+                minHeight: MediaQuery.of(context).size.height - 100,
               ),
               decoration: const BoxDecoration(
                 color: Color(0xFFF8FAFB),
@@ -278,7 +278,7 @@ class _OrdersTabState extends State<OrdersTab>
                         vertical: 16.0,
                         horizontal: 16.0,
                       ),
-                      itemCount: 3,
+                      itemCount: 10,
                       separatorBuilder: (context, index) =>
                           const SizedBox(height: 12),
                       itemBuilder: (context, index) {
