@@ -606,26 +606,6 @@ class _OrderCardState extends State<_OrderCard> {
                     textDirection: TextDirection.ltr,
                     style: const TextStyle(color: Colors.grey, fontSize: 14),
                   ),
-                  if (widget.order.target?.type != null &&
-                      widget.order.target!.type.isNotEmpty)
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.grey[100],
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        _formatTargetType(widget.order.target!, isAr),
-                        style: const TextStyle(
-                          color: AppColors.buttonBlue,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
                 ],
               ),
               const Divider(),

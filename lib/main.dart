@@ -1,5 +1,7 @@
 import 'package:country_picker/country_picker.dart';
 import 'package:freshchat_sdk/freshchat_sdk.dart';
+import 'package:flutter/services.dart';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -20,6 +22,13 @@ final ValueNotifier<Locale> localeNotifier = ValueNotifier(const Locale('en'));
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      systemNavigationBarColor: Colors.transparent,
+      systemNavigationBarIconBrightness: Brightness.dark,
+    ),
+  );
 
   // Start the app immediately to show the splash screen
   runApp(const MainApp());
@@ -76,8 +85,13 @@ class MainApp extends StatelessWidget {
     return ValueListenableBuilder<Locale>(
       valueListenable: localeNotifier,
       builder: (context, locale, child) {
+        final double bottomPadding = MediaQueryData.fromView(
+          View.of(context),
+        ).padding.bottom;
+        final bool isThickNavBar = bottomPadding > 24.0;
+
         return SafeArea(
-          bottom: true,
+          bottom: Platform.isAndroid ? isThickNavBar : true,
           top: false,
           child: MaterialApp(
             navigatorKey: AuthStorage.navigatorKey,
