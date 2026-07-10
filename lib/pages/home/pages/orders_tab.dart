@@ -169,179 +169,186 @@ class _OrdersTabState extends State<OrdersTab>
         child: Column(
           children: [
             CustomAppBar(
+              hasBackgroundColor: true,
+
               title: AppLocalizations.of(context)!.my_orders,
               subtitle: AppLocalizations.of(context)!.track_your_donations,
               centerTitle: true,
             ),
             Container(
-              width: double.infinity,
-              constraints: BoxConstraints(
-                minHeight: MediaQuery.of(context).size.height - 100,
-              ),
-              decoration: const BoxDecoration(
-                color: Color(0xFFF8FAFB),
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(30),
-                  topRight: Radius.circular(30),
+              decoration: BoxDecoration(color: AppColors.buttonBlueDark),
+              child: Container(
+                width: double.infinity,
+                constraints: BoxConstraints(
+                  minHeight: MediaQuery.of(context).size.height - 100,
                 ),
-              ),
-              child: Column(
-                children: [
-                  const SizedBox(height: 16),
-                  Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                    child: Container(
-                      height: 50,
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFE5E9EC),
-                        borderRadius: BorderRadius.circular(25),
-                      ),
-                      child: TabBar(
-                        controller: _tabController,
-                        splashFactory: NoSplash.splashFactory,
-                        splashBorderRadius: BorderRadius.circular(25),
-                        isScrollable: false,
-                        dividerColor: Colors.transparent,
-                        labelColor: Colors.white,
-                        unselectedLabelColor: AppColors.buttonBlueDark,
-                        indicatorSize: TabBarIndicatorSize.tab,
-                        indicator: BoxDecoration(
+                decoration: const BoxDecoration(
+                  color: Color(0xFFF8FAFB),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(30),
+                    topRight: Radius.circular(30),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    const SizedBox(height: 16),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                      child: Container(
+                        height: 50,
+                        decoration: BoxDecoration(
+                          color: const Color(0xFFE5E9EC),
                           borderRadius: BorderRadius.circular(25),
-                          color: AppColors.buttonBlueDark,
                         ),
-                        labelPadding: EdgeInsets.zero,
-                        labelStyle: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 13,
+                        child: TabBar(
+                          controller: _tabController,
+                          splashFactory: NoSplash.splashFactory,
+                          splashBorderRadius: BorderRadius.circular(25),
+                          isScrollable: false,
+                          dividerColor: Colors.transparent,
+                          labelColor: Colors.white,
+                          unselectedLabelColor: AppColors.buttonBlueDark,
+                          indicatorSize: TabBarIndicatorSize.tab,
+                          indicator: BoxDecoration(
+                            borderRadius: BorderRadius.circular(25),
+                            color: AppColors.buttonBlueDark,
+                          ),
+                          labelPadding: EdgeInsets.zero,
+                          labelStyle: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
+                          tabs: [
+                            Tab(
+                              child: Center(
+                                child: Text(
+                                  AppLocalizations.of(context)!.new_orders,
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                            Tab(
+                              child: Center(
+                                child: Text(
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.out_for_delivery,
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                            Tab(
+                              child: Center(
+                                child: Text(
+                                  AppLocalizations.of(context)!.delivered,
+                                  textAlign: TextAlign.center,
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                        tabs: [
-                          Tab(
-                            child: Center(
-                              child: Text(
-                                AppLocalizations.of(context)!.new_orders,
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          ),
-                          Tab(
-                            child: Center(
-                              child: Text(
-                                AppLocalizations.of(context)!.out_for_delivery,
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          ),
-                          Tab(
-                            child: Center(
-                              child: Text(
-                                AppLocalizations.of(context)!.delivered,
-                                textAlign: TextAlign.center,
-                              ),
-                            ),
-                          ),
-                        ],
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  AnimatedBuilder(
-                    animation: tabController,
-                    builder: (context, _) {
-                      if (tabController.index == 0) {
-                        return _buildOrdersList(
-                          _newOrders,
-                          AppLocalizations.of(context)!.no_new_orders,
-                          false,
-                        );
-                      } else if (tabController.index == 1) {
-                        return _buildOrdersList(
-                          _outForDelivery,
-                          AppLocalizations.of(
-                            context,
-                          )!.no_orders_out_for_delivery,
-                          false,
-                        );
-                      } else {
-                        return _buildOrdersList(
-                          _delivered,
-                          AppLocalizations.of(context)!.no_delivered_orders,
-                          true,
-                        );
-                      }
-                    },
-                  ),
-                  if (_isLoadingMore)
-                    ListView.separated(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 16.0,
-                        horizontal: 16.0,
-                      ),
-                      itemCount: 10,
-                      separatorBuilder: (context, index) =>
-                          const SizedBox(height: 12),
-                      itemBuilder: (context, index) {
-                        return Shimmer.fromColors(
-                          baseColor: Colors.grey[300]!,
-                          highlightColor: Colors.grey[100]!,
-                          child: Card(
-                            color: Colors.white,
-                            elevation: 2,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 35,
-                              ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    width: 60,
-                                    height: 60,
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Container(
-                                          height: 16,
-                                          width: double.infinity,
-                                          color: Colors.white,
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Container(
-                                          height: 14,
-                                          width: 150,
-                                          color: Colors.white,
-                                        ),
-                                        const SizedBox(height: 8),
-                                        Container(
-                                          height: 16,
-                                          width: 80,
-                                          color: Colors.white,
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        );
+                    const SizedBox(height: 16),
+                    AnimatedBuilder(
+                      animation: tabController,
+                      builder: (context, _) {
+                        if (tabController.index == 0) {
+                          return _buildOrdersList(
+                            _newOrders,
+                            AppLocalizations.of(context)!.no_new_orders,
+                            false,
+                          );
+                        } else if (tabController.index == 1) {
+                          return _buildOrdersList(
+                            _outForDelivery,
+                            AppLocalizations.of(
+                              context,
+                            )!.no_orders_out_for_delivery,
+                            false,
+                          );
+                        } else {
+                          return _buildOrdersList(
+                            _delivered,
+                            AppLocalizations.of(context)!.no_delivered_orders,
+                            true,
+                          );
+                        }
                       },
                     ),
-                  const SizedBox(height: 145), // Padding at the bottom
-                ],
+                    if (_isLoadingMore)
+                      ListView.separated(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 16.0,
+                          horizontal: 16.0,
+                        ),
+                        itemCount: 10,
+                        separatorBuilder: (context, index) =>
+                            const SizedBox(height: 12),
+                        itemBuilder: (context, index) {
+                          return Shimmer.fromColors(
+                            baseColor: Colors.grey[300]!,
+                            highlightColor: Colors.grey[100]!,
+                            child: Card(
+                              color: Colors.white,
+                              elevation: 2,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 35,
+                                ),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      width: 60,
+                                      height: 60,
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Container(
+                                            height: 16,
+                                            width: double.infinity,
+                                            color: Colors.white,
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Container(
+                                            height: 14,
+                                            width: 150,
+                                            color: Colors.white,
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Container(
+                                            height: 16,
+                                            width: 80,
+                                            color: Colors.white,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+                    const SizedBox(height: 145), // Padding at the bottom
+                  ],
+                ),
               ),
             ),
           ],

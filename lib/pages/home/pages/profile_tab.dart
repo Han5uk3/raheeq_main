@@ -214,7 +214,7 @@ class _ProfileTabState extends State<ProfileTab> {
       );
     }
     return Scaffold(
-      backgroundColor: Colors.transparent,
+      backgroundColor: AppColors.buttonBlueDark,
       body: SingleChildScrollView(
         key: const ValueKey('content'),
         physics: const ClampingScrollPhysics(),
@@ -223,7 +223,7 @@ class _ProfileTabState extends State<ProfileTab> {
             // Scrollable Header mimicking the original AppBar
             Container(
               width: double.infinity,
-              color: const Color(0x4D91E3FE),
+              color: AppColors.buttonBlueDark,
               padding: const EdgeInsetsDirectional.fromSTEB(16, 60, 16, 20),
               child: Center(
                 child: Column(
@@ -234,7 +234,7 @@ class _ProfileTabState extends State<ProfileTab> {
                       style: const TextStyle(
                         fontSize: 22,
                         fontWeight: FontWeight.w700,
-                        color: Colors.black,
+                        color: Colors.white,
                       ),
                     ),
                     const SizedBox(height: 2),
@@ -243,7 +243,7 @@ class _ProfileTabState extends State<ProfileTab> {
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
-                        color: AppColors.headersubtitlecolor,
+                        color: Color(0xFFD4D4D4),
                       ),
                     ),
                   ],

@@ -91,6 +91,7 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: (_currentIndex == 0 || _currentIndex == 1 || _currentIndex == 3)
           ? null
           : CustomAppBar(
+              hasBackgroundColor: true,
               title: _getAppBarTitle(context),
               subtitle: _getAppBarSubtitle(context),
               centerTitle: true,

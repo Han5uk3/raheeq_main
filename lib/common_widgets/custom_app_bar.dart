@@ -44,7 +44,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       elevation: 0,
       scrolledUnderElevation: 0,
       backgroundColor: hasBackgroundColor
-          ? const Color(0x4D91E3FE)
+          ? Color(0xFF1A6A8F)
           : Colors.transparent,
 
       leading: leadingWidget,
@@ -60,7 +60,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             style: const TextStyle(
               fontSize: 22,
               fontWeight: FontWeight.w700,
-              color: Colors.black,
+              color: Colors.white,
             ),
           ),
           if (hasSubtitle) ...[
@@ -78,7 +78,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         ],
       ),
       actions: actions,
-      flexibleSpace: Container(color: const Color(0x4D91E3FE)),
+      flexibleSpace: Container(color: AppColors.buttonBlueDark),
     );
   }
 
@@ -170,7 +170,7 @@ class CustomSliverAppBar extends StatelessWidget {
           : null,
       flexibleSpace: FlexibleSpaceBar(
         collapseMode: CollapseMode.pin,
-        background: Container(color: const Color(0x4D91E3FE)),
+        background: Container(color: AppColors.buttonBlueDark),
         title: hasSubtitle
             ? LayoutBuilder(
                 builder: (context, constraints) {

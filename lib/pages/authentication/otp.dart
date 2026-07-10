@@ -189,11 +189,12 @@ class _OTPState extends State<OTP> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFB),
+      backgroundColor: AppColors.white,
       appBar: AppBar(
         toolbarHeight: 80,
         centerTitle: true,
         backgroundColor: AppColors.buttonBlueDark,
+        shape: Border.all(width: 0, color: AppColors.buttonBlueDark),
         elevation: 0,
         title: Text(
           AppLocalizations.of(context)!.enter_verification_code,

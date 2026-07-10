@@ -96,7 +96,7 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
           ),
           Expanded(
             child: Container(
-              color: const Color(0x4D91E3FE),
+              color: AppColors.buttonBlueDark,
               child: Container(
                 width: double.infinity,
                 decoration: const BoxDecoration(

@@ -175,7 +175,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                   PopupMenuButton<String>(
                     borderRadius: BorderRadius.circular(12),
                     color: Colors.white,
-                    icon: const Icon(Icons.more_vert, color: Colors.black),
+                    icon: const Icon(Icons.more_vert, color: Colors.white),
                     onSelected: (value) {
                       if (value == 'mark_all_read') {
                         _markAllAsRead();
@@ -202,7 +202,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
               ),
               Container(
                 width: double.infinity,
-                color: const Color(0x4D91E3FE),
+                color: AppColors.buttonBlueDark,
                 child: Container(
                   decoration: const BoxDecoration(
                     color: Colors.white,
@@ -253,17 +253,61 @@ class _NotificationsPageState extends State<NotificationsPage> {
         key: const ValueKey('loader'),
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.only(top: 0, bottom: 40),
         itemCount: 10,
-        separatorBuilder: (context, index) => const SizedBox(height: 12),
+        separatorBuilder: (context, index) =>
+            const Divider(color: Color(0xFFEAEFF2), height: 1),
         itemBuilder: (context, index) => Shimmer.fromColors(
           baseColor: Colors.grey[300]!,
           highlightColor: Colors.grey[100]!,
-          child: Container(
-            height: 80,
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    shape: BoxShape.circle,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        height: 16,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      const SizedBox(height: 6),
+                      Container(
+                        height: 14,
+                        width: MediaQuery.of(context).size.width * 0.6,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        height: 12,
+                        width: 100,
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
         ),

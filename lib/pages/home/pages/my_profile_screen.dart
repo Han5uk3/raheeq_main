@@ -92,210 +92,6 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
     }
   }
 
-  // Future<void> _saveProfileChanges() async {
-  //   if (!_formKey.currentState!.validate()) return;
-
-  //   final hasExistingEmail =
-  //       _currentUser?.email != null && _currentUser!.email.trim().isNotEmpty;
-  //   final newEmail = _emailController.text.trim();
-  //   final bool emailChanged = !hasExistingEmail && newEmail.isNotEmpty;
-
-  //   final hasChanges =
-  //       _firstNameController.text.trim() != (_currentUser?.firstName ?? '') ||
-  //       _lastNameController.text.trim() != (_currentUser?.lastName ?? '') ||
-  //       (_selectedGender?.toUpperCase() ?? 'MALE') !=
-  //           (_currentUser?.gender.toUpperCase() ?? 'MALE') ||
-  //       _selectedAvatarPath != null ||
-  //       emailChanged;
-
-  //   if (!hasChanges) {
-  //     setState(() {
-  //       _isEditing = false;
-  //     });
-  //     return;
-  //   }
-
-  //   setState(() {
-  //     _isSaving = true;
-  //   });
-
-  //   try {
-  //     final response = await ApiService().updateProfile(
-  //       firstName: _firstNameController.text.trim(),
-  //       lastName: _lastNameController.text.trim(),
-  //       email: emailChanged ? newEmail : null,
-  //       gender: _selectedGender?.toUpperCase() ?? 'MALE',
-  //       profileImage: _selectedAvatarPath,
-  //     );
-
-  //     if (response.statusCode == 200 && response.data['success'] == true) {
-  //       if (mounted) {
-  //         CustomSnackbar.show(
-  //           context: context,
-  //           message: (response.data is Map && response.data['message'] != null)
-  //               ? response.data['message']
-  //               : AppLocalizations.of(context)!.profile_updated,
-  //         );
-  //         setState(() {
-  //           _currentUser = AuthStorage.user;
-  //           _isEditing = false;
-  //           _selectedAvatarPath = null;
-  //         });
-  //       }
-  //     } else {
-  //       if (mounted) {
-  //         CustomSnackbar.show(
-  //           context: context,
-  //           message: response.data['message'] ?? "Failed to update profile",
-  //           isError: true,
-  //         );
-  //       }
-  //     }
-  //   } catch (e) {
-  //     if (mounted) {
-  //       String errorMessage = AppLocalizations.of(
-  //         context,
-  //       )!.error_msg(e.toString());
-  //       if (e is DioException &&
-  //           e.response?.data is Map &&
-  //           e.response?.data['message'] != null) {
-  //         errorMessage = e.response!.data['message'];
-  //       }
-  //       CustomSnackbar.show(
-  //         context: context,
-  //         message: errorMessage,
-  //         isError: true,
-  //       );
-  //     }
-  //   } finally {
-  //     if (mounted) {
-  //       setState(() {
-  //         _isSaving = false;
-  //       });
-  //     }
-  //   }
-  // }
-
-  // Future<void> _pickAvatar(ImageSource source) async {
-  //   try {
-  //     final picker = ImagePicker();
-  //     final pickedFile = await picker.pickImage(
-  //       source: source,
-  //       imageQuality: 80,
-  //     );
-  //     if (pickedFile != null) {
-  //       setState(() {
-  //         _selectedAvatarPath = pickedFile.path;
-  //       });
-  //     }
-  //   } catch (e, stackTrace) {
-  //     log(
-  //       'Error picking image: $e',
-  //       name: 'Profile',
-  //       error: e,
-  //       stackTrace: stackTrace,
-  //     );
-  //     if (mounted) {
-  //       CustomSnackbar.show(
-  //         context: context,
-  //         message: AppLocalizations.of(
-  //           context,
-  //         )!.failed_to_pick_image(e.toString()),
-  //         isError: true,
-  //       );
-  //     }
-  //   }
-  // }
-
-  // Future<void> _showAvatarBottomSheet() async {
-  //   showModalBottomSheet(
-  //     context: context,
-  //     backgroundColor: Colors.transparent,
-  //     builder: (context) {
-  //       return Container(
-  //         decoration: const BoxDecoration(
-  //           color: Colors.white,
-  //           borderRadius: BorderRadius.only(
-  //             topLeft: Radius.circular(30),
-  //             topRight: Radius.circular(30),
-  //           ),
-  //         ),
-  //         padding: const EdgeInsets.all(24),
-  //         child: Column(
-  //           mainAxisSize: MainAxisSize.min,
-  //           children: [
-  //             Container(
-  //               width: 40,
-  //               height: 4,
-  //               decoration: BoxDecoration(
-  //                 color: Colors.grey[300],
-  //                 borderRadius: BorderRadius.circular(2),
-  //               ),
-  //             ),
-  //             const SizedBox(height: 24),
-  //             const Text(
-  //               "Change Profile Photo",
-  //               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-  //             ),
-  //             const SizedBox(height: 24),
-  //             Row(
-  //               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-  //               children: [
-  //                 _buildAvatarOption(
-  //                   icon: Icons.camera_alt_outlined,
-  //                   label: AppLocalizations.of(context)!.camera,
-  //                   onTap: () {
-  //                     Navigator.pop(context);
-  //                     _pickAvatar(ImageSource.camera);
-  //                   },
-  //                 ),
-  //                 _buildAvatarOption(
-  //                   icon: Icons.photo_library_outlined,
-  //                   label: AppLocalizations.of(context)!.gallery,
-  //                   onTap: () {
-  //                     Navigator.pop(context);
-  //                     _pickAvatar(ImageSource.gallery);
-  //                   },
-  //                 ),
-  //               ],
-  //             ),
-  //             const SizedBox(height: 16),
-  //           ],
-  //         ),
-  //       );
-  //     },
-  //   );
-  // }
-
-  // Widget _buildAvatarOption({
-  //   required IconData icon,
-  //   required String label,
-  //   required VoidCallback onTap,
-  // }) {
-  //   return InkWell(
-  //     onTap: onTap,
-  //     borderRadius: BorderRadius.circular(15),
-  //     child: Container(
-  //       width: 100,
-  //       padding: const EdgeInsets.symmetric(vertical: 16),
-  //       decoration: BoxDecoration(
-  //         border: Border.all(color: Colors.grey[200]!),
-  //         borderRadius: BorderRadius.circular(15),
-  //       ),
-  //       child: Column(
-  //         children: [
-  //           Icon(icon, size: 28, color: AppColors.buttonBlueDark),
-  //           const SizedBox(height: 8),
-  //           Text(
-  //             label,
-  //             style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
-  //           ),
-  //         ],
-  //       ),
-  //     ),
-  //   );
-  // }
-
   @override
   Widget build(BuildContext context) {
     if (_currentUser == null) {
@@ -307,7 +103,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
     final avatarUrl = _currentUser?.avatarUrl;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.buttonBlueDark,
       body: Column(
         children: [
           Expanded(
@@ -321,57 +117,12 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                     title: AppLocalizations.of(context)!.personal_information,
                     showBackButton: true,
                     onBackTap: () => Navigator.pop(context),
-                    // actions: [
-                    //   Padding(
-                    //     padding: const EdgeInsets.all(8.0),
-                    //     child: Container(
-                    //       width: 40,
-                    //       height: 40,
-                    //       decoration: const BoxDecoration(
-                    //         color: Colors.white,
-                    //         shape: BoxShape.circle,
-                    //         boxShadow: [
-                    //           BoxShadow(
-                    //             color: Colors.black12,
-                    //             blurRadius: 4,
-                    //             offset: Offset(0, 2),
-                    //           ),
-                    //         ],
-                    //       ),
-                    //       child: Center(
-                    //         child: IconButton(
-                    //           icon: Icon(
-                    //             _isEditing
-                    //                 ? Symbols.save_sharp
-                    //                 : Symbols.edit_square_sharp,
-                    //             color: Colors.black,
-                    //             size: 20,
-                    //           ),
-                    //           onPressed: _isSaving
-                    //               ? null
-                    //               : () {
-                    //                   if (_isEditing) {
-                    //                     _saveProfileChanges();
-                    //                   } else {
-                    //                     setState(() {
-                    //                       _isEditing = true;
-                    //                     });
-                    //                   }
-                    //                 },
-                    //           padding: EdgeInsets.zero,
-                    //           constraints: const BoxConstraints(),
-                    //         ),
-                    //       ),
-                    //     ),
-                    //   ),
-                    //   const SizedBox(width: 8),
-                    // ],
                   ),
                   Container(
                     constraints: BoxConstraints(
                       minHeight: MediaQuery.of(context).size.height - 100,
                     ),
-                    color: const Color(0x4D91E3FE),
+                    color: AppColors.buttonBlueDark,
                     child: Container(
                       width: double.infinity,
                       decoration: const BoxDecoration(
@@ -458,33 +209,13 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                                                       : null,
                                                 ),
                                               ),
-                                              // if (_isEditing)
-                                              //   PositionedDirectional(
-                                              //     bottom: 0,
-                                              //     end: 0,
-                                              //     child: Container(
-                                              //       padding:
-                                              //           const EdgeInsets.all(6),
-                                              //       decoration: BoxDecoration(
-                                              //         color: Colors.amber[600],
-                                              //         shape: BoxShape.circle,
-                                              //         border: Border.all(
-                                              //           color: Colors.white,
-                                              //           width: 2,
-                                              //         ),
-                                              //       ),
-                                              //       child: const Icon(
-                                              //         Icons.camera_alt,
-                                              //         color: Colors.white,
-                                              //         size: 14,
-                                              //       ),
-                                              //     ),
-                                              //   ),
                                             ],
                                           ),
                                           SizedBox(height: 8),
                                           Text(
-                                            "Profile Picture",
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.profile_picture,
                                             style: TextStyle(
                                               fontSize: 14,
                                               color: AppColors.grey,
@@ -522,8 +253,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                                                     label: AppLocalizations.of(
                                                       context,
                                                     )!.first_name,
-                                                    hint:
-                                                        "Enter your first name",
+                                                    hint: AppLocalizations.of(
+                                                      context,
+                                                    )!.enter_first_name,
                                                     enabled: false,
                                                   ),
                                                   const SizedBox(height: 16),
@@ -533,8 +265,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                                                     label: AppLocalizations.of(
                                                       context,
                                                     )!.last_name,
-                                                    hint:
-                                                        "Enter your last name",
+                                                    hint: AppLocalizations.of(
+                                                      context,
+                                                    )!.enter_last_name,
                                                     enabled: false,
                                                   ),
                                                   const SizedBox(height: 16),
@@ -544,7 +277,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                                                     label: AppLocalizations.of(
                                                       context,
                                                     )!.email_address,
-                                                    hint: "Enter your email",
+                                                    hint: AppLocalizations.of(
+                                                      context,
+                                                    )!.enter_email_optional_hint,
                                                     enabled: false,
                                                     isOptional: true,
                                                     isEmail: true,
@@ -556,8 +291,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                                                     label: AppLocalizations.of(
                                                       context,
                                                     )!.phone_number,
-                                                    hint:
-                                                        "Enter your phone number",
+                                                    hint: AppLocalizations.of(
+                                                      context,
+                                                    )!.enter_phone_number_hint,
                                                     enabled: false,
                                                   ),
                                                   const SizedBox(height: 16),
@@ -633,14 +369,14 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
               final trimmedValue = value?.trim() ?? '';
               if (trimmedValue.isEmpty) {
                 if (isOptional) return null;
-                return 'This field is required';
+                return AppLocalizations.of(context)!.field_required;
               }
               if (isEmail) {
                 final emailRegex = RegExp(
                   r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
                 );
                 if (!emailRegex.hasMatch(trimmedValue)) {
-                  return 'Please enter a valid email address';
+                  return AppLocalizations.of(context)!.enter_valid_email;
                 }
               }
               return null;
@@ -655,9 +391,9 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
-          "Gender",
-          style: TextStyle(
+        Text(
+          AppLocalizations.of(context)!.gender,
+          style: const TextStyle(
             fontSize: 16,
             fontWeight: FontWeight.bold,
             color: Colors.black87,
@@ -681,7 +417,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
               initialValue: _selectedGender,
 
               hint: Text(
-                "Select Gender",
+                AppLocalizations.of(context)!.select_gender,
                 style: TextStyle(color: Colors.grey[400], fontSize: 13),
               ),
               items: ["MALE", "FEMALE", "OTHER"]
@@ -689,16 +425,21 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                     (label) => DropdownMenuItem(
                       value: label,
                       child: Text(
-                        label[0] + label.substring(1).toLowerCase(),
+                        label == "MALE"
+                            ? AppLocalizations.of(context)!.male
+                            : label == "FEMALE"
+                            ? AppLocalizations.of(context)!.female
+                            : AppLocalizations.of(context)!.other_gender,
                         style: const TextStyle(fontSize: 14),
                       ),
                     ),
                   )
                   .toList(),
               onChanged: null,
-              decoration: InputDecoration(border: InputBorder.none),
-              validator: (value) =>
-                  value == null ? 'Please select gender' : null,
+              decoration: const InputDecoration(border: InputBorder.none),
+              validator: (value) => value == null
+                  ? AppLocalizations.of(context)!.please_select_gender
+                  : null,
             ),
           ),
         ),
@@ -745,6 +486,26 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                 ),
                 const SizedBox(height: 16),
                 Container(width: 100, height: 16, color: Colors.white),
+                const SizedBox(height: 8),
+                Container(
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Container(width: 120, height: 16, color: Colors.white),
+                const SizedBox(height: 8),
+                Container(
+                  height: 50,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                Container(width: 120, height: 16, color: Colors.white),
                 const SizedBox(height: 8),
                 Container(
                   height: 50,

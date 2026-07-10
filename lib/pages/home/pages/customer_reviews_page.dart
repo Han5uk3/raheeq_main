@@ -204,7 +204,7 @@ class _CustomerReviewsPageState extends State<CustomerReviewsPage> {
           SliverFillRemaining(
             hasScrollBody: true,
             child: Container(
-              color: const Color(0x4D91E3FE),
+              color: AppColors.buttonBlueDark,
               child: Container(
                 decoration: const BoxDecoration(
                   color: Color(0xFFF8FAFB),

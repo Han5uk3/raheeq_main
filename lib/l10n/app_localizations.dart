@@ -2865,6 +2865,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Coupon codes cannot be applied to this order'**
   String get coupon_not_applicable;
+
+  /// No description provided for @profile_picture.
+  ///
+  /// In en, this message translates to:
+  /// **'Profile Picture'**
+  String get profile_picture;
 }
 
 class _AppLocalizationsDelegate

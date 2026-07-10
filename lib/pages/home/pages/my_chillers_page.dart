@@ -3,6 +3,7 @@ import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/models/chiller_model.dart';
+import 'package:raheeq_main/utils/colors.dart';
 import 'dart:developer';
 import 'package:shimmer/shimmer.dart';
 
@@ -137,7 +138,7 @@ class _MyChillersPageState extends State<MyChillersPage> {
           SliverFillRemaining(
             hasScrollBody: true,
             child: Container(
-              color: const Color(0x4D91E3FE),
+              color: AppColors.buttonBlueDark,
               child: Container(
                 decoration: const BoxDecoration(
                   color: Color(0xFFF8FAFB),

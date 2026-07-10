@@ -360,7 +360,7 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
             child: Column(
               children: [
                 Container(
-                  color: const Color(0x4D91E3FE),
+                  color: AppColors.buttonBlueDark,
                   child: Container(
                     decoration: BoxDecoration(
                       color: Colors.white,

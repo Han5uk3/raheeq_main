@@ -67,9 +67,10 @@ class _RegistrationState extends State<Registration> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8FAFB),
+      backgroundColor: AppColors.buttonBlueDark,
       appBar: AppBar(
         backgroundColor: AppColors.buttonBlueDark,
+        shape: Border.all(width: 0, color: AppColors.buttonBlueDark),
         centerTitle: true,
         toolbarHeight: 80,
         title: Text(

@@ -516,5 +516,6 @@
   "no": "No",
   "delivered_to": "Delivered To",
   "review": "Review",
-  "coupon_not_applicable": "Coupon codes cannot be applied to this order"
+  "coupon_not_applicable": "Coupon codes cannot be applied to this order",
+  "profile_picture": "Profile Picture"
 }

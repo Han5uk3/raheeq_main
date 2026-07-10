@@ -349,13 +349,11 @@ class _HomeTabState extends State<HomeTab> {
             decoration: BoxDecoration(
               // color: AppColors.buttonBlueDark,
               gradient: LinearGradient(
-                colors: [AppColors.newBlue, Color.fromARGB(255, 25, 141, 195)],
+                colors: [
+                  AppColors.buttonBlueDark,
+                  Color.fromARGB(255, 25, 141, 195),
+                ],
               ),
-              // gradient: LinearGradient(
-              //   begin: AlignmentDirectional.centerStart,
-              //   end: AlignmentDirectional.centerEnd,
-              //   colors: [Color(0x4D91E3FE), Color(0xFF6EC4E0)],
-              // ),
             ),
             child: RefreshIndicator(
               onRefresh: _fetchHomeData,
@@ -541,7 +539,7 @@ class _HomeTabState extends State<HomeTab> {
                               ),
                             ),
 
-                          const SizedBox(height: 8),
+                          const SizedBox(height: 16),
                           Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             child: buildQuickServicesSection(context),
@@ -660,7 +658,7 @@ class _HomeTabState extends State<HomeTab> {
           gradient: LinearGradient(
             begin: AlignmentDirectional.centerStart,
             end: AlignmentDirectional.centerEnd,
-            colors: [Color(0x4D91E3FE), Color(0xFF6EC4E0)],
+            colors: [AppColors.buttonBlueDark, Color(0xFF6EC4E0)],
           ),
         ),
         child: SingleChildScrollView(
@@ -733,11 +731,93 @@ class _HomeTabState extends State<HomeTab> {
                     children: [
                       const SizedBox(height: 20),
                       Container(
-                        height: 160,
+                        height: 210,
                         width: double.infinity,
-                        decoration: BoxDecoration(
-                          color: Colors.black.withValues(alpha: 0.05),
-                          borderRadius: BorderRadius.circular(20),
+                        margin: const EdgeInsetsDirectional.only(bottom: 0),
+                        child: Stack(
+                          clipBehavior: Clip.none,
+                          children: [
+                            Positioned(
+                              left: 0,
+                              right: 0,
+                              bottom: 0,
+                              height: 150,
+                              child: Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.black.withValues(alpha: 0.05),
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                              ),
+                            ),
+                            Positioned.fill(
+                              child: Row(
+                                children: [
+                                  Expanded(
+                                    flex: 7,
+                                    child: Padding(
+                                      padding: const EdgeInsetsDirectional.only(
+                                        start: 16,
+                                        top: 85,
+                                        bottom: 16,
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Container(
+                                            height: 44,
+                                            width: double.infinity,
+                                            decoration: BoxDecoration(
+                                              color: Colors.black.withValues(
+                                                alpha: 0.05,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 12),
+                                          Container(
+                                            height: 32,
+                                            width: 100,
+                                            decoration: BoxDecoration(
+                                              color: Colors.black.withValues(
+                                                alpha: 0.05,
+                                              ),
+                                              borderRadius:
+                                                  BorderRadius.circular(30),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    flex: 9,
+                                    child: Padding(
+                                      padding: const EdgeInsetsDirectional.only(
+                                        end: 16,
+                                        top: 16,
+                                        bottom: 16,
+                                      ),
+                                      child: Container(
+                                        decoration: BoxDecoration(
+                                          color: Colors.black.withValues(
+                                            alpha: 0.05,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            16,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                       const SizedBox(height: 24),
@@ -995,9 +1075,8 @@ class _HomeTabState extends State<HomeTab> {
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      AppColors.newBlue,
-
-                      Color.fromARGB(255, 25, 141, 195),
+                      AppColors.buttonBlueDark,
+                      Color.fromARGB(255, 31, 163, 224),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(20),
@@ -1662,8 +1741,11 @@ class _HomeTabState extends State<HomeTab> {
         width: double.infinity,
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
-          gradient: const LinearGradient(
-            colors: [Color(0xFF1A6A8F), Color(0xFF91E3FE)],
+          gradient: LinearGradient(
+            colors: [
+              AppColors.buttonBlueDark,
+              Color.fromARGB(255, 31, 163, 224),
+            ],
             begin: AlignmentDirectional.centerStart,
             end: AlignmentDirectional.centerEnd,
           ),
@@ -1739,12 +1821,12 @@ class _HomeTabState extends State<HomeTab> {
       clipBehavior: Clip.none,
       children: [
         Material(
-          color: Colors.grey.shade100,
-          elevation: 1,
+          color: Colors.white,
+          elevation: 0.5,
           borderRadius: BorderRadius.circular(10),
           child: Container(
             decoration: BoxDecoration(
-              color: Colors.grey.shade100,
+              color: Colors.white,
               borderRadius: BorderRadius.circular(10),
               border: isSelected
                   ? Border.all(color: AppColors.buttonBlueDark, width: 1.5)
@@ -1942,7 +2024,14 @@ class _HomeTabState extends State<HomeTab> {
             return Container(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               decoration: BoxDecoration(
-                color: const Color(0xFF0D1D39),
+                gradient: LinearGradient(
+                  colors: [
+                    AppColors.buttonBlueDark,
+                    Color.fromARGB(255, 31, 163, 224),
+                  ],
+                  begin: AlignmentDirectional.centerStart,
+                  end: AlignmentDirectional.centerEnd,
+                ),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Row(

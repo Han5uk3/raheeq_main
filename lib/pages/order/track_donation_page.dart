@@ -83,7 +83,7 @@ class _TrackDonationPageState extends State<TrackDonationPage> {
           ),
           SliverToBoxAdapter(
             child: Container(
-              color: const Color(0x4D91E3FE),
+              color: AppColors.buttonBlueDark,
               child: Container(
                 width: double.infinity,
                 constraints: BoxConstraints(

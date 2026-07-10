@@ -81,7 +81,7 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
           ),
           Expanded(
             child: Container(
-              color: const Color(0x4D91E3FE),
+              color: AppColors.buttonBlueDark,
               child: Container(
                 width: double.infinity,
                 decoration: const BoxDecoration(
@@ -96,7 +96,10 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
                   layoutBuilder: (currentChild, previousChildren) {
                     return Stack(
                       alignment: Alignment.topCenter,
-                      children: <Widget>[...previousChildren, if (currentChild != null) currentChild],
+                      children: <Widget>[
+                        ...previousChildren,
+                        if (currentChild != null) currentChild,
+                      ],
                     );
                   },
                   child: _buildContent(isAr),

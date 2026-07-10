@@ -537,7 +537,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                 ),
                 SliverToBoxAdapter(
                   child: Container(
-                    color: const Color(0x4D91E3FE),
+                    color: AppColors.buttonBlueDark,
                     child: Container(
                       decoration: const BoxDecoration(
                         color: Colors.white,

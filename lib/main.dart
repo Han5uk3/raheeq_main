@@ -124,8 +124,8 @@ class MainApp extends StatelessWidget {
                 fontFamily: GoogleFonts.manrope().fontFamily,
                 fontFamilyFallback: const ['SaudiRiyal', 'SF Pro'],
                 appBarTheme: const AppBarTheme(
-                  backgroundColor: Colors.white,
-                  foregroundColor: Colors.black,
+                  backgroundColor: Color(0xFF1A6A8F),
+                  foregroundColor: Colors.white,
                   elevation: 0,
                 ),
                 useMaterial3: true,

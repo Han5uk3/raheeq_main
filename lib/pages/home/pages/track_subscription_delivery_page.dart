@@ -98,7 +98,7 @@ class _TrackSubscriptionDeliveryPageState
           ),
           SliverToBoxAdapter(
             child: Container(
-              color: const Color(0x4D91E3FE),
+              color: AppColors.buttonBlueDark,
               child: Container(
                 width: double.infinity,
                 constraints: BoxConstraints(
@@ -494,8 +494,16 @@ class _TrackSubscriptionDeliveryPageState
           _buildProofCard("Mosque Inside", proofs['mosqueInsideImage'], false),
         if (proofs['packagesImage'] != null)
           _buildProofCard("Packages", proofs['packagesImage'], false),
-        if (proofs['deliveryVideo'] != null && proofs['deliveryVideo'].toString().isNotEmpty || proofs['proofVideo'] != null && proofs['proofVideo'].toString().isNotEmpty || proofs['video'] != null && proofs['video'].toString().isNotEmpty)
-          _buildProofCard("Delivery Video", proofs['deliveryVideo'] ?? proofs['proofVideo'] ?? proofs['video'], true),
+        if (proofs['deliveryVideo'] != null &&
+                proofs['deliveryVideo'].toString().isNotEmpty ||
+            proofs['proofVideo'] != null &&
+                proofs['proofVideo'].toString().isNotEmpty ||
+            proofs['video'] != null && proofs['video'].toString().isNotEmpty)
+          _buildProofCard(
+            "Delivery Video",
+            proofs['deliveryVideo'] ?? proofs['proofVideo'] ?? proofs['video'],
+            true,
+          ),
       ],
     );
   }

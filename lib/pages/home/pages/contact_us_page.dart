@@ -85,7 +85,7 @@ class _ContactUsPageState extends State<ContactUsPage> {
           ),
           Expanded(
             child: Container(
-              color: const Color(0x4D91E3FE),
+              color: AppColors.buttonBlueDark,
               child: Container(
                 width: double.infinity,
                 decoration: const BoxDecoration(

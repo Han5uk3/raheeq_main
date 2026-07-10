@@ -1447,4 +1447,7 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get coupon_not_applicable =>
       'Coupon codes cannot be applied to this order';
+
+  @override
+  String get profile_picture => 'Profile Picture';
 }

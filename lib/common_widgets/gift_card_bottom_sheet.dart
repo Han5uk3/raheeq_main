@@ -168,7 +168,7 @@ class _GiftCardPageState extends State<GiftCardPage> {
             ),
             SliverToBoxAdapter(
               child: Container(
-                color: Color(0x4D91E3FE),
+                color: AppColors.buttonBlueDark,
                 child: Container(
                   width: double.infinity,
                   constraints: BoxConstraints(
@@ -181,21 +181,34 @@ class _GiftCardPageState extends State<GiftCardPage> {
                       topRight: Radius.circular(30),
                     ),
                   ),
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(24.0, 24.0, 24.0, 40.0),
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          _buildLabel(
+                  child: Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            top: 24,
+                            bottom: 8,
+                            left: 16,
+                            right: 16,
+                          ),
+                          child: _buildLabel(
                             AppLocalizations.of(context)!.select_card_template,
                           ),
-                          const SizedBox(height: 12),
-                          _buildTemplatesList(),
-                          const SizedBox(height: 24),
-                          if (_isLoadingTemplates) ...[
-                            Shimmer.fromColors(
+                        ),
+
+                        _buildTemplatesList(),
+
+                        if (_isLoadingTemplates) ...[
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              top: 8,
+                              bottom: 16,
+                              left: 16,
+                              right: 16,
+                            ),
+                            child: Shimmer.fromColors(
                               baseColor: Colors.grey[300]!,
                               highlightColor: Colors.grey[100]!,
                               child: Container(
@@ -207,16 +220,25 @@ class _GiftCardPageState extends State<GiftCardPage> {
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 24),
-                          ] else if (_selectedTemplate != null) ...[
-                            ClipRRect(
+                          ),
+                        ] else if (_selectedTemplate != null) ...[
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              top: 8,
+                              bottom: 16,
+                              left: 16,
+                              right: 16,
+                            ),
+                            child: ClipRRect(
                               borderRadius: BorderRadius.circular(12),
                               child: SizedBox(
                                 height: 291,
                                 width: double.infinity,
-                                child: InteractiveViewer(
-                                  minScale: 1.0,
-                                  maxScale: 4.0,
+                                child: GestureDetector(
+                                  onTap: () => _showImageDialog(
+                                    context,
+                                    _selectedTemplate!.image,
+                                  ),
                                   child: CachedNetworkImage(
                                     imageUrl: _selectedTemplate!.image,
                                     width: double.infinity,
@@ -247,49 +269,117 @@ class _GiftCardPageState extends State<GiftCardPage> {
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 24),
-                          ],
+                          ),
+                        ],
 
-                          if (widget.checkoutData.items
-                                  .where((item) => item.giftCard == null)
-                                  .length >
-                              1) ...[
-                            _buildLabel(
+                        if (widget.checkoutData.items
+                                .where((item) => item.giftCard == null)
+                                .length >
+                            1) ...[
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              top: 0,
+                              bottom: 8,
+                              left: 16,
+                              right: 16,
+                            ),
+                            child: _buildLabel(
                               AppLocalizations.of(context)!.select_sub_order,
                             ),
-                            const SizedBox(height: 8),
-                            _buildItemDropdown(),
-                            const SizedBox(height: 16),
-                          ],
-                          _buildLabel(
+                          ),
+
+                          Padding(
+                            padding: const EdgeInsets.only(
+                              top: 0,
+                              bottom: 16,
+                              left: 16,
+                              right: 16,
+                            ),
+                            child: _buildItemDropdown(),
+                          ),
+                        ],
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            top: 0,
+                            bottom: 8,
+                            left: 16,
+                            right: 16,
+                          ),
+                          child: _buildLabel(
                             AppLocalizations.of(context)!.sender_name_title,
                           ),
-                          const SizedBox(height: 8),
-                          _buildTextField(
+                        ),
+
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            top: 0,
+                            bottom: 16,
+                            left: 16,
+                            right: 16,
+                          ),
+                          child: _buildTextField(
                             _senderController,
                             AppLocalizations.of(context)!.enter_sender_name,
                           ),
-                          const SizedBox(height: 16),
+                        ),
 
-                          _buildLabel(
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            top: 0,
+                            bottom: 8,
+                            left: 16,
+                            right: 16,
+                          ),
+                          child: _buildLabel(
                             AppLocalizations.of(context)!.receiver_name_title,
                           ),
-                          const SizedBox(height: 8),
-                          _buildTextField(
+                        ),
+
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            top: 0,
+                            bottom: 16,
+                            left: 16,
+                            right: 16,
+                          ),
+                          child: _buildTextField(
                             _receiverController,
                             AppLocalizations.of(context)!.enter_receiver_name,
                           ),
-                          const SizedBox(height: 16),
+                        ),
 
-                          _buildLabel(
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            top: 0,
+                            bottom: 8,
+                            left: 16,
+                            right: 16,
+                          ),
+                          child: _buildLabel(
                             AppLocalizations.of(context)!.receiver_whatsapp,
                           ),
-                          const SizedBox(height: 8),
-                          _buildPhoneField(),
-                          const SizedBox(height: 32),
-                          _buildApplyButton(),
-                        ],
-                      ),
+                        ),
+
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            top: 0,
+                            bottom: 16,
+                            left: 16,
+                            right: 16,
+                          ),
+                          child: _buildPhoneField(),
+                        ),
+
+                        Padding(
+                          padding: const EdgeInsets.only(
+                            top: 0,
+                            bottom: 16,
+                            left: 16,
+                            right: 16,
+                          ),
+                          child: _buildApplyButton(),
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -470,7 +560,7 @@ class _GiftCardPageState extends State<GiftCardPage> {
                       borderRadius: BorderRadius.circular(4),
                       child: Image.network(
                         "https://flagcdn.com/w80/${_selectedCountry.countryCode.toLowerCase()}.png",
-                        width: 24,
+                        width: 16,
                         height: 16,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) =>
@@ -560,20 +650,24 @@ class _GiftCardPageState extends State<GiftCardPage> {
 
   Widget _buildTemplatesList() {
     if (_isLoadingTemplates) {
-      return Wrap(
-        spacing: 8,
-        runSpacing: 8,
-        children: List.generate(
-          3,
-          (index) => Shimmer.fromColors(
-            baseColor: Colors.grey[300]!,
-            highlightColor: Colors.grey[100]!,
-            child: Container(
-              width: 80,
-              height: 35,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(20),
+      return SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: List.generate(
+            5,
+            (index) => Padding(
+              padding: EdgeInsetsGeometry.directional(start: 16, end: 16),
+              child: Shimmer.fromColors(
+                baseColor: Colors.grey[300]!,
+                highlightColor: Colors.grey[100]!,
+                child: Container(
+                  width: 80,
+                  height: 35,
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
               ),
             ),
           ),
@@ -585,40 +679,47 @@ class _GiftCardPageState extends State<GiftCardPage> {
       return Text(AppLocalizations.of(context)!.no_templates_available);
     }
 
-    return Wrap(
-      spacing: 8,
-      runSpacing: 8,
-      children: _templates.map((template) {
-        final isSelected = _selectedTemplate?.id == template.id;
-        final name = widget.isAr ? template.nameAr : template.name;
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Padding(
+        padding: EdgeInsetsGeometry.directional(start: 16, end: 16),
+        child: Row(
+          children: _templates.map((template) {
+            final isSelected = _selectedTemplate?.id == template.id;
+            final name = widget.isAr ? template.nameAr : template.name;
 
-        return ChoiceChip(
-          label: Text(name),
-          selected: isSelected,
-          selectedColor: AppColors.buttonBlueDark,
-          backgroundColor: isSelected
-              ? AppColors.buttonBlueDark
-              : Colors.grey.shade100,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-            side: BorderSide(
-              color: isSelected
-                  ? AppColors.buttonBlueDark
-                  : Colors.grey.shade300,
-            ),
-          ),
-          showCheckmark: false,
-          labelStyle: TextStyle(
-            color: isSelected ? AppColors.white : Colors.black87,
-            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-          ),
-          onSelected: (selected) {
-            if (selected) {
-              setState(() => _selectedTemplate = template);
-            }
-          },
-        );
-      }).toList(),
+            return Padding(
+              padding: const EdgeInsets.only(right: 8.0),
+              child: ChoiceChip(
+                label: Text(name),
+                selected: isSelected,
+                selectedColor: AppColors.buttonBlueDark,
+                backgroundColor: isSelected
+                    ? AppColors.buttonBlueDark
+                    : Colors.grey.shade100,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                  side: BorderSide(
+                    color: isSelected
+                        ? AppColors.buttonBlueDark
+                        : Colors.grey.shade300,
+                  ),
+                ),
+                showCheckmark: false,
+                labelStyle: TextStyle(
+                  color: isSelected ? AppColors.white : Colors.black87,
+                  fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                ),
+                onSelected: (selected) {
+                  if (selected) {
+                    setState(() => _selectedTemplate = template);
+                  }
+                },
+              ),
+            );
+          }).toList(),
+        ),
+      ),
     );
   }
 
@@ -637,6 +738,51 @@ class _GiftCardPageState extends State<GiftCardPage> {
               AppLocalizations.of(context)!.save_gift_card_info,
               style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
+    );
+  }
+
+  void _showImageDialog(BuildContext context, String imageUrl) {
+    showDialog(
+      context: context,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: EdgeInsets.zero,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            GestureDetector(
+              onTap: () => Navigator.of(context).pop(),
+              child: Container(color: Colors.black87),
+            ),
+            InteractiveViewer(
+              minScale: 1.0,
+              maxScale: 4.0,
+              child: CachedNetworkImage(
+                imageUrl: imageUrl,
+                fit: BoxFit.contain,
+                placeholder: (context, url) => const Center(
+                  child: CircularProgressIndicator(color: Colors.white),
+                ),
+                errorWidget: (context, error, stackTrace) => const Center(
+                  child: Icon(
+                    Icons.broken_image,
+                    color: Colors.white,
+                    size: 50,
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              top: 40,
+              right: 20,
+              child: IconButton(
+                icon: const Icon(Icons.close, color: Colors.white, size: 30),
+                onPressed: () => Navigator.of(context).pop(),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

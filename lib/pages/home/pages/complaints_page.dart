@@ -138,6 +138,7 @@ class _ComplaintsPageState extends State<ComplaintsPage> {
       ),
       isScrollControlled: true,
       context: context,
+      backgroundColor: Colors.white,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -187,13 +188,14 @@ class _ComplaintsPageState extends State<ComplaintsPage> {
                             'MMM dd, yyyy - hh:mm a',
                           );
                           return Card(
+                            color: Colors.white,
                             margin: const EdgeInsets.symmetric(
                               horizontal: 16,
                               vertical: 8,
                             ),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(12),
-                              side: const BorderSide(color: Color(0xFFEAEFF2)),
+                              side: const BorderSide(color: Colors.white),
                             ),
                             elevation: 3,
                             child: InkWell(
@@ -364,7 +366,7 @@ class _ComplaintsPageState extends State<ComplaintsPage> {
           ),
           Expanded(
             child: Container(
-              color: const Color(0x4D91E3FE),
+              color: AppColors.buttonBlueDark,
               child: Container(
                 width: double.infinity,
                 decoration: const BoxDecoration(

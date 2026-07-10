@@ -103,7 +103,7 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
                 constraints: BoxConstraints(
                   minHeight: MediaQuery.of(context).size.height - 100,
                 ),
-                color: const Color(0x4D91E3FE),
+                color: AppColors.buttonBlueDark,
                 child: Container(
                   width: double.infinity,
                   decoration: const BoxDecoration(

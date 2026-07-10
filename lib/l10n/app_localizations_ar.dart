@@ -1436,4 +1436,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get coupon_not_applicable => 'لا يمكن تطبيق أكواد الخصم على هذا الطلب';
+
+  @override
+  String get profile_picture => 'صورة الملف الشخصي';
 }

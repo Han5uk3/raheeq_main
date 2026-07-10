@@ -70,8 +70,8 @@ class _PaymentStatusPageState extends State<PaymentStatusPage>
       case PaymentStatus.success:
         title = AppLocalizations.of(context)!.payment_successful;
         description = AppLocalizations.of(context)!.thank_you_for_your_donation;
-        color = const Color(0xFF4CAF50);
-        lightColor = const Color(0xFFE8F5E9);
+        color = AppColors.buttonBlueDark;
+        lightColor = AppColors.buttonBlueDark.withValues(alpha: 0.1);
         fallbackIcon = Icons.check_circle_outline;
         break;
       case PaymentStatus.failed:
@@ -81,15 +81,15 @@ class _PaymentStatusPageState extends State<PaymentStatusPage>
             AppLocalizations.of(
               context,
             )!.an_error_occurred_while_processing_the_payment;
-        color = const Color(0xFFE53935);
-        lightColor = const Color(0xFFFFEBEE);
+        color = AppColors.buttonBlueDark;
+        lightColor = AppColors.buttonBlueDark.withValues(alpha: 0.1);
         fallbackIcon = Icons.error_outline;
         break;
       case PaymentStatus.pendingApproval:
         title = AppLocalizations.of(context)!.pending_approval;
         description = AppLocalizations.of(context)!.order_received_iban_message;
-        color = const Color(0xFFFF9800);
-        lightColor = const Color(0xFFFFF3E0);
+        color = AppColors.buttonBlueDark;
+        lightColor = AppColors.buttonBlueDark.withValues(alpha: 0.1);
         fallbackIcon = Icons.access_time;
         break;
     }

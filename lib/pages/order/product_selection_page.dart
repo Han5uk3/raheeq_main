@@ -87,7 +87,7 @@ class _ProductSelectionPageState extends State<ProductSelectionPage> {
           ),
           Expanded(
             child: Container(
-              color: const Color(0x4D91E3FE),
+              color: AppColors.buttonBlueDark,
 
               width: double.infinity,
               decoration: const BoxDecoration(

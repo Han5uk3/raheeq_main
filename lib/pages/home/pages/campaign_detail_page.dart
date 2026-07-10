@@ -118,7 +118,9 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
       body: Stack(
         children: [
           // Background Gradient
-          Container(decoration: const BoxDecoration(color: Color(0x4D91E3FE))),
+          Container(
+            decoration: const BoxDecoration(color: AppColors.buttonBlueDark),
+          ),
 
           SingleChildScrollView(
             physics: const ClampingScrollPhysics(),
@@ -130,7 +132,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                   subtitle: description,
                   isStartAligned: true,
                   showBackButton: true,
-                  hasBackgroundColor: false,
+                  hasBackgroundColor: true,
                 ),
 
                 // Stack for List and Quantity Container to create floating effect
@@ -570,7 +572,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.buttonBlue,
         borderRadius: BorderRadius.circular(40),
         border: Border.all(color: Colors.grey[200]!),
         boxShadow: [
@@ -592,7 +594,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                 AppLocalizations.of(context)!.payable_amount,
                 style: const TextStyle(
                   fontSize: 12,
-                  color: Colors.grey,
+                  color: Colors.white,
                   fontWeight: FontWeight.w500,
                 ),
               ),
@@ -602,7 +604,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.w900,
-                  color: Color(0xFF102840),
+                  color: Colors.white,
                 ),
               ),
             ],
@@ -611,7 +613,11 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
             onPressed: () {
               FocusManager.instance.primaryFocus?.unfocus();
               if (_hasAnySelection) {
-                _showDonationTypeDialog(context, isAr);
+                if (widget.campaign.canSubscribe) {
+                  _showDonationTypeDialog(context, isAr);
+                } else {
+                  _processOneTimeCheckout(context, isAr);
+                }
               } else {
                 final min = _selectedProduct?.minQuantity ?? 1;
                 final customText = _customController.text;
@@ -640,10 +646,8 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
               }
             },
             style: ElevatedButton.styleFrom(
-              backgroundColor: _hasAnySelection
-                  ? const Color(0xFF1B6A8C)
-                  : Colors.grey[400],
-              foregroundColor: Colors.white,
+              backgroundColor: Colors.white,
+              foregroundColor: Colors.black,
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30),

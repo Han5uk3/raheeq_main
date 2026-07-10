@@ -908,7 +908,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
             ),
             SliverToBoxAdapter(
               child: Container(
-                color: const Color(0x4D91E3FE),
+                color: AppColors.buttonBlueDark,
                 child: Container(
                   width: double.infinity,
                   decoration: const BoxDecoration(
@@ -931,7 +931,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                         // Container(
                         //   padding: const EdgeInsets.all(16.0),
                         //   decoration: BoxDecoration(
-                        //     color: const Color(0x4D91E3FE),
+                        //     color: AppColors.buttonBlueDark,
                         //     borderRadius: BorderRadius.circular(20),
                         //   ),
                         //   child: Row(
