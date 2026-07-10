@@ -11,4 +11,6 @@ class AppColors {
   static const Color buttonBlueLight = Color(0xFFF1F9FD);
   static const Color headerlightblue = Color(0xFF6EC4E0);
   static Color headersubtitlecolor = Colors.grey.shade600;
+  static Color newBlue = Color(0xFF1A6A8F);
+  //  Color(0xFF0D1D39);
 }

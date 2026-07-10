@@ -59,7 +59,10 @@ class BottomActionPill extends StatelessWidget {
                 ? const WaterLoadingIndicator(size: 20)
                 : Text(
                     buttonText,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
                   ),
           ),
         ],

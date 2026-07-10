@@ -263,7 +263,7 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
 
           // Horizontal slot list
           SizedBox(
-            height: 225, // Increased height slightly to accommodate scrollbar
+            height: 235, // Increased height slightly to accommodate scrollbar
             child: Scrollbar(
               controller: _scrollController,
               interactive: true,
@@ -275,7 +275,7 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
                 physics: const ClampingScrollPhysics(),
                 scrollDirection: Axis.horizontal,
                 padding: const EdgeInsets.only(
-                  bottom: 12.0,
+                  bottom: 16.0,
                 ), // Padding for scrollbar
                 itemCount: slots.length,
                 itemBuilder: (context, index) {
@@ -284,6 +284,7 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
 
                   return Padding(
                     padding: EdgeInsets.only(
+                      bottom: 10,
                       left: index == 0 ? 16.0 : 2.0,
                       right: index == slots.length - 1 ? 16.0 : 2.0,
                     ),
@@ -350,7 +351,7 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
       onTap: onTap,
       child: SizedBox(
         width: 125,
-        height: 205,
+        height: 190,
         child: Card(
           color: Colors.white,
           elevation: isSelected ? 4 : 1,
@@ -429,7 +430,7 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
                       Text(
                         "${slot.quantity} ${product.localizedName(isAr)}",
                         style: const TextStyle(
-                          fontSize: 14,
+                          fontSize: 12,
                           fontWeight: FontWeight.bold,
                           color: Colors.black,
                         ),

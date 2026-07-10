@@ -20,6 +20,7 @@ import 'package:google_sign_in/google_sign_in.dart' as google_sign_in;
 import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:phone_numbers_parser/phone_numbers_parser.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -508,6 +509,46 @@ class _LoginState extends State<Login> {
                                         message: AppLocalizations.of(
                                           context,
                                         )!.enter_phone,
+                                        isError: true,
+                                      );
+                                      return;
+                                    }
+
+                                    if (!RegExp(
+                                      r'^\d+$',
+                                    ).hasMatch(_phoneController.text.trim())) {
+                                      CustomSnackbar.show(
+                                        context: context,
+                                        message: AppLocalizations.of(
+                                          context,
+                                        )!.invalid_phone_number,
+                                        isError: true,
+                                      );
+                                      return;
+                                    }
+                                    try {
+                                      final phone = PhoneNumber.parse(
+                                        '+${_selectedCountry.phoneCode}${_phoneController.text.trim()}',
+                                      );
+                                      if (!phone.isValid(
+                                            type: PhoneNumberType.mobile,
+                                          ) &&
+                                          !phone.isValid()) {
+                                        CustomSnackbar.show(
+                                          context: context,
+                                          message: AppLocalizations.of(
+                                            context,
+                                          )!.enter_valid_number_gc,
+                                          isError: true,
+                                        );
+                                        return;
+                                      }
+                                    } catch (e) {
+                                      CustomSnackbar.show(
+                                        context: context,
+                                        message: AppLocalizations.of(
+                                          context,
+                                        )!.invalid_phone_format,
                                         isError: true,
                                       );
                                       return;

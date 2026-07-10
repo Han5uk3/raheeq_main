@@ -77,6 +77,115 @@ class _OTPState extends State<OTP> {
     return "${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}";
   }
 
+  Future<void> _verifyOtp() async {
+    final otp = _pinController.text;
+    if (otp.length < 4) {
+      CustomSnackbar.show(
+        context: context,
+        message: AppLocalizations.of(context)!.enter_valid_otp,
+      );
+      return;
+    }
+
+    setState(() => _isVerifying = true);
+    try {
+      final fcmToken = await FirebaseMessaging.instance.getToken();
+
+      String? deviceId;
+      try {
+        final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
+        if (Platform.isIOS) {
+          final IosDeviceInfo iosInfo = await deviceInfo.iosInfo;
+          deviceId = iosInfo.identifierForVendor;
+        } else if (Platform.isAndroid) {
+          final AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
+          deviceId = androidInfo.id;
+        }
+      } catch (e) {
+        debugPrint('Failed to get device info: $e');
+      }
+
+      final response = await ApiService().verifyOtp(
+        countryCode: widget.countryCode,
+        phoneNumber: widget.phoneNumber,
+        otp: otp,
+        fcmToken: fcmToken,
+        deviceType: Platform.isIOS ? 'IOS' : 'ANDROID',
+        deviceId: deviceId ?? 'unknown_device_id',
+      );
+
+      if (!context.mounted) return;
+      setState(() => _isVerifying = false);
+
+      if (response.statusCode == 200 && response.data['success'] == true) {
+        final data = response.data['data'];
+        if (data['userExists'] == true) {
+          String successMessage = AppLocalizations.of(
+            context,
+          )!.login_successful;
+          if (response.data is Map && response.data['message'] != null) {
+            successMessage = response.data['message'];
+          }
+          CustomSnackbar.show(
+            bottomMargin: 130,
+            context: context,
+            message: successMessage,
+          );
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const HomeScreen()),
+            (route) => false,
+          );
+        } else {
+          final regToken = data['registrationToken'] ?? '';
+          await AuthStorage.saveRegistrationToken(regToken);
+
+          if (!context.mounted) return;
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => Registration(
+                phoneNumber: widget.phoneNumber,
+                countryCode: widget.countryCode,
+                registrationToken: regToken,
+              ),
+            ),
+          );
+        }
+      } else {
+        CustomSnackbar.show(
+          context: context,
+          message:
+              response.data['message'] ??
+              AppLocalizations.of(context)!.verification_failed,
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isVerifying = false);
+      }
+      if (!context.mounted) return;
+      String errorMessage = AppLocalizations.of(context)!.verification_failed;
+      if (e is DioException) {
+        if (e.response?.statusCode == 401) {
+          errorMessage = AppLocalizations.of(context)!.invalid_otp;
+        } else if (e.response?.data is Map &&
+            e.response?.data['message'] != null) {
+          errorMessage = e.response!.data['message'];
+        } else {
+          errorMessage = 'API Error: ${e.response?.statusCode}';
+        }
+      } else {
+        errorMessage = 'Error: $e';
+      }
+      CustomSnackbar.show(
+        context: context,
+        message: errorMessage,
+        isError: true,
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -242,6 +351,11 @@ class _OTPState extends State<OTP> {
                               length: 4,
                               controller: _pinController,
                               focusNode: _focusNode,
+                              onCompleted: (pin) {
+                                if (!_isVerifying) {
+                                  _verifyOtp();
+                                }
+                              },
                               cursor: Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
@@ -405,154 +519,7 @@ class _OTPState extends State<OTP> {
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: _isVerifying
-                                ? null
-                                : () async {
-                                    final otp = _pinController.text;
-                                    if (otp.length < 4) {
-                                      CustomSnackbar.show(
-                                        context: context,
-                                        message: AppLocalizations.of(
-                                          context,
-                                        )!.enter_valid_otp,
-                                      );
-                                      return;
-                                    }
-
-                                    setState(() => _isVerifying = true);
-                                    try {
-                                      final fcmToken = await FirebaseMessaging
-                                          .instance
-                                          .getToken();
-
-                                      String? deviceId;
-                                      try {
-                                        final DeviceInfoPlugin deviceInfo =
-                                            DeviceInfoPlugin();
-                                        if (Platform.isIOS) {
-                                          final IosDeviceInfo iosInfo =
-                                              await deviceInfo.iosInfo;
-                                          deviceId =
-                                              iosInfo.identifierForVendor;
-                                        } else if (Platform.isAndroid) {
-                                          final AndroidDeviceInfo androidInfo =
-                                              await deviceInfo.androidInfo;
-                                          deviceId = androidInfo.id;
-                                        }
-                                      } catch (e) {
-                                        debugPrint(
-                                          'Failed to get device info: $e',
-                                        );
-                                      }
-
-                                      final response = await ApiService()
-                                          .verifyOtp(
-                                            countryCode: widget.countryCode,
-                                            phoneNumber: widget.phoneNumber,
-                                            otp: otp,
-                                            fcmToken: fcmToken,
-                                            deviceType: Platform.isIOS
-                                                ? 'IOS'
-                                                : 'ANDROID',
-                                            deviceId:
-                                                deviceId ?? 'unknown_device_id',
-                                          );
-
-                                      if (!context.mounted) return;
-                                      setState(() => _isVerifying = false);
-
-                                      if (response.statusCode == 200 &&
-                                          response.data['success'] == true) {
-                                        final data = response.data['data'];
-                                        if (data['userExists'] == true) {
-                                          String successMessage =
-                                              AppLocalizations.of(
-                                                context,
-                                              )!.login_successful;
-                                          if (response.data is Map &&
-                                              response.data['message'] !=
-                                                  null) {
-                                            successMessage =
-                                                response.data['message'];
-                                          }
-                                          CustomSnackbar.show(
-                                            bottomMargin: 130,
-                                            context: context,
-                                            message: successMessage,
-                                          );
-                                          Navigator.pushAndRemoveUntil(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  const HomeScreen(),
-                                            ),
-                                            (route) => false,
-                                          );
-                                        } else {
-                                          final regToken =
-                                              data['registrationToken'] ?? '';
-                                          await AuthStorage.saveRegistrationToken(
-                                            regToken,
-                                          );
-
-                                          if (!context.mounted) return;
-                                          // User doesn't exist, go to registration
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  Registration(
-                                                    phoneNumber:
-                                                        widget.phoneNumber,
-                                                    countryCode:
-                                                        widget.countryCode,
-                                                    registrationToken: regToken,
-                                                  ),
-                                            ),
-                                          );
-                                        }
-                                      } else {
-                                        CustomSnackbar.show(
-                                          context: context,
-                                          message:
-                                              response.data['message'] ??
-                                              AppLocalizations.of(
-                                                context,
-                                              )!.verification_failed,
-                                        );
-                                      }
-                                    } catch (e) {
-                                      if (mounted) {
-                                        setState(() => _isVerifying = false);
-                                      }
-                                      if (!context.mounted) return;
-                                      String errorMessage = AppLocalizations.of(
-                                        context,
-                                      )!.verification_failed;
-                                      if (e is DioException) {
-                                        if (e.response?.statusCode == 401) {
-                                          errorMessage = AppLocalizations.of(
-                                            context,
-                                          )!.invalid_otp;
-                                        } else if (e.response?.data is Map &&
-                                            e.response?.data['message'] !=
-                                                null) {
-                                          errorMessage =
-                                              e.response!.data['message'];
-                                        } else {
-                                          errorMessage =
-                                              'API Error: ${e.response?.statusCode}';
-                                        }
-                                      } else {
-                                        errorMessage = 'Error: $e';
-                                      }
-                                      CustomSnackbar.show(
-                                        context: context,
-                                        message: errorMessage,
-                                        isError: true,
-                                      );
-                                    }
-                                  },
+                            onPressed: _isVerifying ? null : _verifyOtp,
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.buttonBlueDark,
                               foregroundColor: Colors.white,

@@ -114,6 +114,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       floatingActionButton: _buildFloatingBar(context, isAr),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       body: Stack(
         children: [
           // Background Gradient
@@ -566,9 +567,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
     final total = _totalAmount;
 
     return Container(
-      margin: const EdgeInsets.all(
-        16,
-      ).copyWith(bottom: MediaQuery.of(context).padding.bottom),
+      margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       decoration: BoxDecoration(
         color: Colors.white,

@@ -47,7 +47,10 @@ class HomeTab extends StatefulWidget {
 }
 
 class _HomeTabState extends State<HomeTab> {
-  final PageController _pageController = PageController(initialPage: 1000);
+  final PageController _pageController = PageController(
+    initialPage: 1000,
+    viewportFraction: 0.85,
+  );
   Timer? _timer;
 
   // Static cache to prevent reloading data every time tab is opened
@@ -343,12 +346,16 @@ class _HomeTabState extends State<HomeTab> {
           color: Colors
               .white, // Covers native window background under transparent gradient
           child: Container(
-            decoration: const BoxDecoration(
+            decoration: BoxDecoration(
+              // color: AppColors.buttonBlueDark,
               gradient: LinearGradient(
-                begin: AlignmentDirectional.centerStart,
-                end: AlignmentDirectional.centerEnd,
-                colors: [Color(0x4D91E3FE), Color(0xFF6EC4E0)],
+                colors: [AppColors.newBlue, Color.fromARGB(255, 25, 141, 195)],
               ),
+              // gradient: LinearGradient(
+              //   begin: AlignmentDirectional.centerStart,
+              //   end: AlignmentDirectional.centerEnd,
+              //   colors: [Color(0x4D91E3FE), Color(0xFF6EC4E0)],
+              // ),
             ),
             child: RefreshIndicator(
               onRefresh: _fetchHomeData,
@@ -374,7 +381,7 @@ class _HomeTabState extends State<HomeTab> {
                               Text(
                                 "${AppLocalizations.of(context)!.welcome}, ${AuthStorage.user?.fullName ?? "User"}",
                                 style: TextStyle(
-                                  color: Colors.black,
+                                  color: Colors.white,
                                   fontSize: 16,
                                   fontWeight: FontWeight.w400,
                                 ),
@@ -387,7 +394,8 @@ class _HomeTabState extends State<HomeTab> {
 
                     // Carousel Section
                     SizedBox(
-                      height: 180,
+                      height: 200,
+
                       child: _bannerData.isEmpty
                           ? Padding(
                               padding: const EdgeInsets.symmetric(
@@ -425,7 +433,7 @@ class _HomeTabState extends State<HomeTab> {
 
                                 return Padding(
                                   padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
+                                    horizontal: 8,
                                   ),
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(20),
@@ -477,8 +485,8 @@ class _HomeTabState extends State<HomeTab> {
                             width: isActive ? 32 : 12,
                             decoration: BoxDecoration(
                               color: isActive
-                                  ? AppColors.buttonBlueDark
-                                  : AppColors.buttonBlueDark.withAlpha(100),
+                                  ? AppColors.white
+                                  : Colors.white24,
                               borderRadius: BorderRadius.circular(3),
                               boxShadow: isActive
                                   ? [
@@ -510,7 +518,6 @@ class _HomeTabState extends State<HomeTab> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const SizedBox(height: 24),
                           // Campaigns Section (Dynamic Cards)
                           if (_campaigns.any((c) => c.products.isNotEmpty))
                             Padding(
@@ -586,6 +593,7 @@ class _HomeTabState extends State<HomeTab> {
                 ),
               ),
               buttonText: AppLocalizations.of(context)!.order_now,
+
               onButtonTap: () async {
                 final isEssential = _selectedItems.any(
                   (i) => i.category.slug == 'essential_supplies',
@@ -939,13 +947,8 @@ class _HomeTabState extends State<HomeTab> {
   Widget buildCampaignCard(BuildContext context, Campaign campaign, int index) {
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
     final title = campaign.localizedTitle(isAr);
-    final description = campaign.localizedDescription(isAr);
-    final imageUrl = campaign.image;
 
-    final bool isEven = index == 0 ? true : index % 2 == 0;
-    final primaryColor = isEven
-        ? const Color(0xFF3CAAD4)
-        : const Color(0xFF086091);
+    final imageUrl = campaign.image;
 
     return GestureDetector(
       onTap: () async {
@@ -976,159 +979,156 @@ class _HomeTabState extends State<HomeTab> {
         }
       },
       child: Container(
-        height: isEven ? 190 : 165,
+        height: 210,
         width: double.infinity,
-        margin: const EdgeInsetsDirectional.only(bottom: 16),
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(20),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.1),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: ClipRRect(
-          borderRadius: BorderRadius.circular(20),
-          child: Stack(
-            children: [
-              // Background image
-              Positioned.fill(
-                child: CachedNetworkImage(
-                  imageUrl: imageUrl,
-                  fit: BoxFit.cover,
-                  placeholder: (context, url) =>
-                      Container(color: primaryColor.withValues(alpha: 0.3)),
-                  errorWidget: (context, url, error) => Image.asset(
-                    'assets/masjid/masjid_al_haram.png',
-                    fit: BoxFit.cover,
+        margin: const EdgeInsetsDirectional.only(bottom: 0),
+        child: Stack(
+          clipBehavior: Clip.none,
+          children: [
+            // Dark blue background container — half the total height, aligned to bottom
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: 0,
+              height: 150,
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      AppColors.newBlue,
+
+                      Color.fromARGB(255, 25, 141, 195),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(20),
+                  image: const DecorationImage(
+                    image: AssetImage("assets/Groupbg.png"),
+                    fit: BoxFit.fill,
                   ),
                 ),
               ),
+            ),
+            Positioned(
+              left: 0,
+              top: 40,
 
-              // Subscribe badge (top-right)
-              // if (campaign.canSubscribe)
-              //   Positioned(
-              //     top: 12,
-              //     right: 12,
-              //     child: Container(
-              //       padding: const EdgeInsets.symmetric(
-              //         horizontal: 10,
-              //         vertical: 5,
-              //       ),
-              //       decoration: BoxDecoration(
-              //         color: Colors.white.withValues(alpha: 0.95),
-              //         borderRadius: BorderRadius.circular(20),
-              //       ),
-              //       child: Row(
-              //         mainAxisSize: MainAxisSize.min,
-              //         children: [
-              //           const Icon(
-              //             Icons.repeat_rounded,
-              //             size: 12,
-              //             color: AppColors.buttonBlueDark,
-              //           ),
-              //           const SizedBox(width: 4),
-              //           Text(
-              //             AppLocalizations.of(context)!.subscribe,
-              //             style: const TextStyle(
-              //               fontSize: 11,
-              //               fontWeight: FontWeight.w700,
-              //               color: AppColors.buttonBlueDark,
-              //             ),
-              //           ),
-              //         ],
-              //       ),
-              //     ),
-              //   ),
-              // Text content
-              Padding(
-                padding: const EdgeInsetsDirectional.only(
-                  start: 20,
-                  top: 25,
-                  end: 20,
-                  bottom: 25,
-                ),
-                child: LayoutBuilder(
-                  builder: (context, constraints) {
-                    return SizedBox(
-                      width: constraints.maxWidth * 0.58,
+              height: 150,
+              child: SizedBox(
+                height: 160,
+                width: 160,
+                child: Image.asset("assets/Group.png"),
+              ),
+            ),
+
+            Positioned(
+              right: -50,
+              top: 40,
+              height: 200,
+              width: 200,
+              child: SizedBox(child: Image.asset("assets/Group.png")),
+            ),
+            // Content row on top
+            Positioned.fill(
+              child: Row(
+                children: [
+                  // Left side: Title + Button
+                  Expanded(
+                    flex: 7,
+                    child: Padding(
+                      padding: const EdgeInsetsDirectional.only(
+                        start: 16,
+                        top: 85,
+                        bottom: 16,
+                      ),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
                             title,
-                            maxLines: isEven ? 2 : 1,
+                            maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                             style: const TextStyle(
                               color: Colors.white,
-                              fontSize: 18,
-                              fontWeight: FontWeight.w600,
+                              fontSize: 22,
+                              fontWeight: FontWeight.bold,
+                              height: 1.2,
                             ),
                           ),
-                          const SizedBox(height: 8),
-                          Text(
-                            description,
-                            maxLines: isEven ? 2 : 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
+                          const SizedBox(height: 12),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
+                            decoration: BoxDecoration(
                               color: Colors.white,
-                              fontSize: 13,
+                              borderRadius: BorderRadius.circular(30),
                             ),
-                          ),
-                          const Spacer(),
-                          Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              // Donate Now button
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 8,
-                                  vertical: 6,
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Text(
+                                  AppLocalizations.of(context)!.donate_now,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w600,
+                                    color: Color(0xFF1A385F),
+                                  ),
                                 ),
-                                decoration: BoxDecoration(
-                                  color: Colors.black.withValues(alpha: 0.2),
-                                  borderRadius: BorderRadius.circular(20),
+                                const SizedBox(width: 8),
+                                Container(
+                                  padding: const EdgeInsets.all(5),
+                                  decoration: const BoxDecoration(
+                                    color: Color(0xFF1A385F),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    forwardArrowIcon(context),
+                                    size: 12,
+                                    color: Colors.white,
+                                  ),
                                 ),
-                                child: Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    Text(
-                                      AppLocalizations.of(context)!.donate_now,
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 4),
-                                    Container(
-                                      padding: const EdgeInsets.all(4),
-                                      decoration: const BoxDecoration(
-                                        color: Colors.white,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Icon(
-                                        size: 12,
-                                        forwardArrowIcon(context),
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ],
                       ),
-                    );
-                  },
-                ),
+                    ),
+                  ),
+                  SizedBox(width: 16),
+                  // Right side: Image extends full height
+                  Expanded(
+                    flex: 9,
+                    child: Padding(
+                      padding: const EdgeInsetsDirectional.only(
+                        end: 16,
+                        top: 16,
+                        bottom: 16,
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(16),
+                        child: CachedNetworkImage(
+                          imageUrl: imageUrl,
+                          fit: BoxFit.cover,
+                          height: double.infinity,
+                          placeholder: (context, url) => Container(
+                            color: const Color(
+                              0xFF1A385F,
+                            ).withValues(alpha: 0.3),
+                          ),
+                          errorWidget: (context, url, error) => Image.asset(
+                            'assets/masjid/masjid_al_haram.png',
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
