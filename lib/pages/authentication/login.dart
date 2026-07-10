@@ -96,7 +96,7 @@ class _LoginState extends State<Login> {
     } catch (error) {
       log('Google Sign-In Error: $error');
       if (mounted) {
-        String errorMessage = 'Failed to sign in with Google';
+        String errorMessage = 'Failed to sign in with Google: $error';
         if (error.toString().toLowerCase().contains('cancel')) {
           errorMessage = 'Google sign in was cancelled';
         }
@@ -147,7 +147,7 @@ class _LoginState extends State<Login> {
     } catch (error) {
       log('Apple Sign-In Error: $error');
       if (mounted) {
-        String errorMessage = 'Failed to sign in with Apple';
+        String errorMessage = 'Failed to sign in with Apple: $error';
         if (error.toString().toLowerCase().contains('cancel')) {
           errorMessage = 'Apple sign in was cancelled';
         }

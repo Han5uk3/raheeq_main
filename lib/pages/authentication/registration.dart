@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:dio/dio.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:country_picker/country_picker.dart';
@@ -54,6 +55,18 @@ class _RegistrationState extends State<Registration> {
       GlobalKey<FormFieldState<String>>();
 
   String? _selectedGender;
+  File? _profileImage;
+
+  Future<void> _pickImage() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _profileImage = File(pickedFile.path);
+      });
+    }
+  }
+
   bool _isRegistering = false;
   Country _selectedCountry = Country(
     phoneCode: '966',
@@ -72,7 +85,8 @@ class _RegistrationState extends State<Registration> {
   void initState() {
     super.initState();
     if (widget.isSocialLogin) {
-      if (widget.firstName != null) _firstNameController.text = widget.firstName!;
+      if (widget.firstName != null)
+        _firstNameController.text = widget.firstName!;
       if (widget.lastName != null) _lastNameController.text = widget.lastName!;
       if (widget.email != null) _emailController.text = widget.email!;
     } else {
@@ -189,48 +203,64 @@ class _RegistrationState extends State<Registration> {
                           children: [
                             // Profile Picture Section
                             Center(
-                              child: Stack(
-                                children: [
-                                  Container(
-                                    decoration: BoxDecoration(
-                                      shape: BoxShape.circle,
-                                      border: Border.all(
-                                        color: AppColors.buttonBlueDark
-                                            .withValues(alpha: 0.1),
-                                        width: 4,
-                                      ),
-                                    ),
-                                    child: const CircleAvatar(
-                                      radius: 50,
-                                      backgroundColor: Color(0xFFF0F4F8),
-                                      child: Icon(
-                                        Icons.person,
-                                        size: 50,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                  ),
-                                  PositionedDirectional(
-                                    bottom: 0,
-                                    end: 0,
-                                    child: Container(
-                                      padding: const EdgeInsets.all(8),
+                              child: InkWell(
+                                onTap: _pickImage,
+                                child: Stack(
+                                  children: [
+                                    Container(
                                       decoration: BoxDecoration(
-                                        color: AppColors.buttonBlueDark,
                                         shape: BoxShape.circle,
                                         border: Border.all(
-                                          color: Colors.white,
-                                          width: 2,
+                                          color: AppColors.buttonBlueDark
+                                              .withValues(alpha: 0.1),
+                                          width: 4,
                                         ),
                                       ),
-                                      child: const Icon(
-                                        Icons.camera_alt,
-                                        color: Colors.white,
-                                        size: 16,
+                                      child: CircleAvatar(
+                                        radius: 50,
+                                        backgroundColor: const Color(
+                                          0xFFF0F4F8,
+                                        ),
+                                        backgroundImage: _profileImage != null
+                                            ? FileImage(_profileImage!)
+                                                  as ImageProvider
+                                            : null,
+                                        child: _profileImage == null
+                                            ? const Icon(
+                                                Icons.person,
+                                                size: 50,
+                                                color: Color.fromRGBO(
+                                                  158,
+                                                  158,
+                                                  158,
+                                                  1,
+                                                ),
+                                              )
+                                            : null,
                                       ),
                                     ),
-                                  ),
-                                ],
+                                    PositionedDirectional(
+                                      bottom: 0,
+                                      end: 0,
+                                      child: Container(
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.buttonBlueDark,
+                                          shape: BoxShape.circle,
+                                          border: Border.all(
+                                            color: Colors.white,
+                                            width: 2,
+                                          ),
+                                        ),
+                                        child: const Icon(
+                                          Icons.camera_alt,
+                                          color: Colors.white,
+                                          size: 16,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                             const SizedBox(height: 32),
@@ -267,20 +297,24 @@ class _RegistrationState extends State<Registration> {
                               enabled: !widget.isSocialLogin,
                             ),
                             const SizedBox(height: 16),
-                            widget.isSocialLogin ? _buildSocialPhoneInput() : _buildTextField(
-                              controller: _phoneController,
-                              label: AppLocalizations.of(context)!.phone_number,
-                              hint: AppLocalizations.of(
-                                context,
-                              )!.enter_phone_number_hint,
-                              icon: Icons.phone_outlined,
-                              enabled: false, // Pre-filled and locked
-                              isRtl:
-                                  Localizations.localeOf(
-                                    context,
-                                  ).languageCode ==
-                                  'ar',
-                            ),
+                            widget.isSocialLogin
+                                ? _buildSocialPhoneInput()
+                                : _buildTextField(
+                                    controller: _phoneController,
+                                    label: AppLocalizations.of(
+                                      context,
+                                    )!.phone_number,
+                                    hint: AppLocalizations.of(
+                                      context,
+                                    )!.enter_phone_number_hint,
+                                    icon: Icons.phone_outlined,
+                                    enabled: false, // Pre-filled and locked
+                                    isRtl:
+                                        Localizations.localeOf(
+                                          context,
+                                        ).languageCode ==
+                                        'ar',
+                                  ),
 
                             const SizedBox(height: 16),
                             _buildGenderDropdown(),
@@ -293,28 +327,44 @@ class _RegistrationState extends State<Registration> {
                                     : () async {
                                         if (_formKey.currentState!.validate()) {
                                           if (widget.isSocialLogin) {
-                                            if (_phoneController.text.trim().isEmpty) {
+                                            if (_phoneController.text
+                                                .trim()
+                                                .isEmpty) {
                                               CustomSnackbar.show(
                                                 context: context,
-                                                message: AppLocalizations.of(context)!.enter_phone,
+                                                message: AppLocalizations.of(
+                                                  context,
+                                                )!.enter_phone,
                                                 isError: true,
                                               );
                                               return;
                                             }
-                                            if (!RegExp(r'^\d+$').hasMatch(_phoneController.text.trim())) {
+                                            if (!RegExp(r'^\d+$').hasMatch(
+                                              _phoneController.text.trim(),
+                                            )) {
                                               CustomSnackbar.show(
                                                 context: context,
-                                                message: AppLocalizations.of(context)!.invalid_phone_number,
+                                                message: AppLocalizations.of(
+                                                  context,
+                                                )!.invalid_phone_number,
                                                 isError: true,
                                               );
                                               return;
                                             }
                                             try {
-                                              final phone = PhoneNumber.parse('+${_selectedCountry.phoneCode}${_phoneController.text.trim()}');
-                                              if (!phone.isValid(type: PhoneNumberType.mobile) && !phone.isValid()) {
+                                              final phone = PhoneNumber.parse(
+                                                '+${_selectedCountry.phoneCode}${_phoneController.text.trim()}',
+                                              );
+                                              if (!phone.isValid(
+                                                    type:
+                                                        PhoneNumberType.mobile,
+                                                  ) &&
+                                                  !phone.isValid()) {
                                                 CustomSnackbar.show(
                                                   context: context,
-                                                  message: AppLocalizations.of(context)!.enter_valid_number_gc,
+                                                  message: AppLocalizations.of(
+                                                    context,
+                                                  )!.enter_valid_number_gc,
                                                   isError: true,
                                                 );
                                                 return;
@@ -322,7 +372,9 @@ class _RegistrationState extends State<Registration> {
                                             } catch (e) {
                                               CustomSnackbar.show(
                                                 context: context,
-                                                message: AppLocalizations.of(context)!.invalid_phone_format,
+                                                message: AppLocalizations.of(
+                                                  context,
+                                                )!.invalid_phone_format,
                                                 isError: true,
                                               );
                                               return;
@@ -333,10 +385,21 @@ class _RegistrationState extends State<Registration> {
                                           try {
                                             final response = await ApiService()
                                                 .register(
-                                                  countryCode: widget.isSocialLogin ? '+${_selectedCountry.phoneCode}' : widget.countryCode,
-                                                  phoneNumber: widget.isSocialLogin 
-                                                      ? _phoneController.text.trim()
-                                                      : widget.phoneNumber.replaceAll(widget.countryCode, '').trim(), // Ensure pure phone number
+                                                  countryCode:
+                                                      widget.isSocialLogin
+                                                      ? '+${_selectedCountry.phoneCode}'
+                                                      : widget.countryCode,
+                                                  phoneNumber:
+                                                      widget.isSocialLogin
+                                                      ? _phoneController.text
+                                                            .trim()
+                                                      : widget.phoneNumber
+                                                            .replaceAll(
+                                                              widget
+                                                                  .countryCode,
+                                                              '',
+                                                            )
+                                                            .trim(), // Ensure pure phone number
                                                   email: _emailController.text
                                                       .trim(),
                                                   firstName:
@@ -366,6 +429,18 @@ class _RegistrationState extends State<Registration> {
                                                         201) &&
                                                 response.data['success'] ==
                                                     true) {
+                                              if (_profileImage != null) {
+                                                try {
+                                                  await ApiService()
+                                                      .updateProfile(
+                                                        profileImage:
+                                                            _profileImage!.path,
+                                                      );
+                                                } catch (e) {
+                                                  // Silent error on avatar upload failure
+                                                }
+                                              }
+                                              if (!mounted) return;
                                               Navigator.pushAndRemoveUntil(
                                                 context,
                                                 MaterialPageRoute(
@@ -518,7 +593,9 @@ class _RegistrationState extends State<Registration> {
           decoration: BoxDecoration(
             color: enabled ? Colors.white : Colors.grey[100],
             borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: hasError ? Colors.red : AppColors.indicatorGrey),
+            border: Border.all(
+              color: hasError ? Colors.red : AppColors.indicatorGrey,
+            ),
           ),
           child: TextFormField(
             key: fieldKey,
@@ -600,7 +677,9 @@ class _RegistrationState extends State<Registration> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: hasError ? Colors.red : AppColors.indicatorGrey),
+            border: Border.all(
+              color: hasError ? Colors.red : AppColors.indicatorGrey,
+            ),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButtonFormField<String>(
@@ -723,7 +802,8 @@ class _RegistrationState extends State<Registration> {
                           });
                         },
                         countryListTheme: CountryListThemeData(
-                          bottomSheetHeight: MediaQuery.of(context).size.height * 0.7,
+                          bottomSheetHeight:
+                              MediaQuery.of(context).size.height * 0.7,
                           borderRadius: const BorderRadius.only(
                             topLeft: Radius.circular(30),
                             topRight: Radius.circular(30),
@@ -733,15 +813,21 @@ class _RegistrationState extends State<Registration> {
                             prefixIcon: const Icon(Icons.search),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(15),
-                              borderSide: BorderSide(color: AppColors.buttonBlueDark),
+                              borderSide: BorderSide(
+                                color: AppColors.buttonBlueDark,
+                              ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(15),
-                              borderSide: BorderSide(color: AppColors.buttonBlueDark),
+                              borderSide: BorderSide(
+                                color: AppColors.buttonBlueDark,
+                              ),
                             ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(15),
-                              borderSide: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
+                              borderSide: BorderSide(
+                                color: Colors.grey.withValues(alpha: 0.2),
+                              ),
                             ),
                           ),
                         ),
@@ -778,11 +864,7 @@ class _RegistrationState extends State<Registration> {
                 ),
               ),
               const SizedBox(width: 12),
-              Container(
-                height: 24,
-                width: 1,
-                color: Colors.grey[300],
-              ),
+              Container(height: 24, width: 1, color: Colors.grey[300]),
               const SizedBox(width: 12),
               Expanded(
                 child: TextField(
@@ -792,7 +874,10 @@ class _RegistrationState extends State<Registration> {
                   inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                   decoration: InputDecoration(
                     hintText: AppLocalizations.of(context)!.enter_phone,
-                    hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
+                    hintStyle: const TextStyle(
+                      color: Colors.grey,
+                      fontSize: 14,
+                    ),
                     border: InputBorder.none,
                   ),
                   style: const TextStyle(fontSize: 14),
