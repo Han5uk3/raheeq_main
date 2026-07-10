@@ -291,8 +291,9 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
     ];
 
     return Card(
+      margin: EdgeInsets.all(0),
       color: Colors.white,
-      elevation: 1,
+      elevation: 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
         side: BorderSide(color: Colors.grey.shade200),
@@ -874,7 +875,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
       child: Scaffold(
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         floatingActionButton: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 0),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
           child: BottomActionPill(
             isLoading: _isProcessingPayment,
             subtitleWidget: Text(
@@ -920,64 +921,37 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                   ),
                   child: Padding(
                     padding: const EdgeInsetsDirectional.fromSTEB(
+                      16,
                       24,
-                      24,
-                      24,
+                      16,
                       120,
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Container(
-                        //   padding: const EdgeInsets.all(16.0),
-                        //   decoration: BoxDecoration(
-                        //     color: AppColors.buttonBlueDark,
-                        //     borderRadius: BorderRadius.circular(20),
-                        //   ),
-                        //   child: Row(
-                        //     children: [
-                        //       Container(
-                        //         padding: const EdgeInsets.all(12),
-                        //         decoration: BoxDecoration(
-                        //           color: Colors.white,
-                        //           borderRadius: BorderRadius.circular(16),
-                        //         ),
-                        //         child: Icon(
-                        //           widget.donationType.contains('Monthly') ||
-                        //                   widget.donationType.contains('شهري')
-                        //               ? Icons.autorenew
-                        //               : Icons.favorite,
-                        //           color: AppColors.buttonBlueDark,
-                        //         ),
-                        //       ),
-                        //       const SizedBox(width: 16),
-                        //       Expanded(
-                        //         child: Column(
-                        //           crossAxisAlignment: CrossAxisAlignment.start,
-                        //           children: [
-                        //             Text(
-                        //               AppLocalizations.of(context)!.donation_type,
-                        //               style: const TextStyle(
-                        //                 fontSize: 14,
-                        //                 color: Colors.grey,
-                        //               ),
-                        //             ),
-                        //             const SizedBox(height: 4),
-                        //             Text(
-                        //               widget.donationType,
-                        //               style: const TextStyle(
-                        //                 fontSize: 18,
-                        //                 fontWeight: FontWeight.bold,
-                        //                 color: AppColors.buttonBlueDark,
-                        //               ),
-                        //             ),
-                        //           ],
-                        //         ),
-                        //       ),
-                        //     ],
-                        //   ),
-                        // ),
-                        // const SizedBox(height: 24),
+                        Material(
+                          elevation: 2,
+                          borderRadius: BorderRadius.circular(16),
+                          child: SizedBox(
+                            height: 180,
+                            width: double.infinity,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(16),
+                              child: Image.asset(
+                                "assets/payment_banner.jpg.jpeg",
+                                fit: BoxFit.cover,
+                              ),
+
+                              //  CachedNetworkImage(
+                              //   imageUrl: widget.campaign.image,
+                              //   fit: BoxFit.cover,
+                              //   errorWidget: (context, url, error) =>
+                              //       Container(color: Colors.grey[200]),
+                              // ),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
                         _buildPaymentMethods(isAr),
                         const SizedBox(height: 16),
                         _buildGiftCardSection(isAr),
@@ -987,9 +961,11 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                           width: double.infinity,
                           child: Card(
                             color: Colors.white,
-                            elevation: 3,
+                            elevation: 2,
+                            margin: EdgeInsets.all(0),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius: BorderRadius.circular(16),
+                              side: BorderSide(color: Colors.grey.shade200),
                             ),
                             child: Padding(
                               padding: const EdgeInsets.all(16.0),
@@ -1201,9 +1177,11 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                           const SizedBox(height: 16),
                           Card(
                             color: Colors.white,
-                            elevation: 3,
+                            elevation: 2,
+                            margin: EdgeInsets.all(0),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(20),
+                              borderRadius: BorderRadius.circular(16),
+                              side: BorderSide(color: Colors.grey.shade200),
                             ),
                             child: Padding(
                               padding: const EdgeInsets.all(16.0),
@@ -1306,9 +1284,11 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                         const SizedBox(height: 16),
                         Card(
                           color: Colors.white,
-                          elevation: 3,
+                          elevation: 2,
+                          margin: EdgeInsets.all(0),
                           shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
+                            borderRadius: BorderRadius.circular(16),
+                            side: BorderSide(color: Colors.grey.shade200),
                           ),
                           child: Padding(
                             padding: const EdgeInsets.all(16.0),
@@ -1470,6 +1450,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
     return Card(
       color: Colors.white,
       elevation: 2,
+      margin: EdgeInsets.all(0),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
         side: BorderSide(color: Colors.grey.shade200),
@@ -2021,6 +2002,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
       child: Card(
         color: Colors.white,
         elevation: 2,
+        margin: EdgeInsets.all(0),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
           side: BorderSide(color: Colors.grey.shade200),

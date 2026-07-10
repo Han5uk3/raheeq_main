@@ -71,7 +71,16 @@ class _LoginState extends State<Login> {
           account.authentication;
       if (auth.idToken != null) {
         log('Google Sign-In ID Token retrieved successfully');
-        await _authenticateSocial('Google', auth.idToken!);
+        final names = account.displayName?.split(' ') ?? [];
+        final firstName = names.isNotEmpty ? names.first : null;
+        final lastName = names.length > 1 ? names.sublist(1).join(' ') : null;
+        await _authenticateSocial(
+          'Google',
+          auth.idToken!,
+          email: account.email,
+          firstName: firstName,
+          lastName: lastName,
+        );
       } else {
         log('Google Sign-In failed: idToken is null');
         if (mounted) {
@@ -116,7 +125,13 @@ class _LoginState extends State<Login> {
 
       if (credential.identityToken != null) {
         log('Apple Sign-In Identity Token retrieved successfully');
-        await _authenticateSocial('Apple', credential.identityToken!);
+        await _authenticateSocial(
+          'Apple',
+          credential.identityToken!,
+          email: credential.email,
+          firstName: credential.givenName,
+          lastName: credential.familyName,
+        );
       } else {
         log('Apple Sign-In failed: identityToken is null');
         if (mounted) {
@@ -153,7 +168,13 @@ class _LoginState extends State<Login> {
     }
   }
 
-  Future<void> _authenticateSocial(String provider, String idToken) async {
+  Future<void> _authenticateSocial(
+    String provider,
+    String idToken, {
+    String? email,
+    String? firstName,
+    String? lastName,
+  }) async {
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -220,6 +241,10 @@ class _LoginState extends State<Login> {
                 phoneNumber: '',
                 countryCode: '',
                 registrationToken: regToken,
+                isSocialLogin: true,
+                email: email,
+                firstName: firstName,
+                lastName: lastName,
               ),
             ),
           );

@@ -97,7 +97,7 @@ class _CitySelectorDialogState extends State<CitySelectorDialog> {
                   child: Text(
                     AppLocalizations.of(context)!.choose_cities,
                     style: const TextStyle(
-                      fontSize: 16,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -189,9 +189,7 @@ class _CitySelectorDialogState extends State<CitySelectorDialog> {
                     flex: 1,
                     child: OutlinedButton(
                       onPressed: () {
-                        setState(() {
-                          _selectedItemsList.clear();
-                        });
+                        Navigator.of(context).pop(<City>[]);
                       },
                       style: OutlinedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 14),

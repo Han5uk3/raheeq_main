@@ -2,6 +2,9 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:country_picker/country_picker.dart';
+import 'package:phone_numbers_parser/phone_numbers_parser.dart';
 import 'package:raheeq_main/common_widgets/language_switch.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/utils/colors.dart';
@@ -16,11 +19,20 @@ class Registration extends StatefulWidget {
   final String phoneNumber;
   final String countryCode;
   final String registrationToken;
+  final bool isSocialLogin;
+  final String? email;
+  final String? firstName;
+  final String? lastName;
+
   const Registration({
     super.key,
     required this.phoneNumber,
     required this.countryCode,
     required this.registrationToken,
+    this.isSocialLogin = false,
+    this.email,
+    this.firstName,
+    this.lastName,
   });
 
   @override
@@ -43,11 +55,29 @@ class _RegistrationState extends State<Registration> {
 
   String? _selectedGender;
   bool _isRegistering = false;
+  Country _selectedCountry = Country(
+    phoneCode: '966',
+    countryCode: 'SA',
+    e164Sc: 0,
+    geographic: true,
+    level: 1,
+    name: 'Saudi Arabia',
+    example: '501234567',
+    displayName: 'Saudi Arabia',
+    displayNameNoCountryCode: 'Saudi Arabia',
+    e164Key: '',
+  );
 
   @override
   void initState() {
     super.initState();
-    _phoneController.text = '${widget.countryCode}${widget.phoneNumber}';
+    if (widget.isSocialLogin) {
+      if (widget.firstName != null) _firstNameController.text = widget.firstName!;
+      if (widget.lastName != null) _lastNameController.text = widget.lastName!;
+      if (widget.email != null) _emailController.text = widget.email!;
+    } else {
+      _phoneController.text = '${widget.countryCode}${widget.phoneNumber}';
+    }
     // Initialize field keys for each controller
     _fieldKeys[_firstNameController] = GlobalKey<FormFieldState<String>>();
     _fieldKeys[_lastNameController] = GlobalKey<FormFieldState<String>>();
@@ -224,18 +254,20 @@ class _RegistrationState extends State<Registration> {
                             const SizedBox(height: 16),
                             _buildTextField(
                               controller: _emailController,
-                              label:
-                                  "${AppLocalizations.of(context)!.email_address} (${AppLocalizations.of(context)!.optional})",
+                              label: widget.isSocialLogin
+                                  ? AppLocalizations.of(context)!.email_address
+                                  : "${AppLocalizations.of(context)!.email_address} (${AppLocalizations.of(context)!.optional})",
                               hint: AppLocalizations.of(
                                 context,
                               )!.enter_email_optional_hint,
                               icon: Icons.email_outlined,
                               keyboardType: TextInputType.emailAddress,
                               isEmail: true,
-                              isOptional: true,
+                              isOptional: !widget.isSocialLogin,
+                              enabled: !widget.isSocialLogin,
                             ),
                             const SizedBox(height: 16),
-                            _buildTextField(
+                            widget.isSocialLogin ? _buildSocialPhoneInput() : _buildTextField(
                               controller: _phoneController,
                               label: AppLocalizations.of(context)!.phone_number,
                               hint: AppLocalizations.of(
@@ -260,19 +292,51 @@ class _RegistrationState extends State<Registration> {
                                     ? null
                                     : () async {
                                         if (_formKey.currentState!.validate()) {
+                                          if (widget.isSocialLogin) {
+                                            if (_phoneController.text.trim().isEmpty) {
+                                              CustomSnackbar.show(
+                                                context: context,
+                                                message: AppLocalizations.of(context)!.enter_phone,
+                                                isError: true,
+                                              );
+                                              return;
+                                            }
+                                            if (!RegExp(r'^\d+$').hasMatch(_phoneController.text.trim())) {
+                                              CustomSnackbar.show(
+                                                context: context,
+                                                message: AppLocalizations.of(context)!.invalid_phone_number,
+                                                isError: true,
+                                              );
+                                              return;
+                                            }
+                                            try {
+                                              final phone = PhoneNumber.parse('+${_selectedCountry.phoneCode}${_phoneController.text.trim()}');
+                                              if (!phone.isValid(type: PhoneNumberType.mobile) && !phone.isValid()) {
+                                                CustomSnackbar.show(
+                                                  context: context,
+                                                  message: AppLocalizations.of(context)!.enter_valid_number_gc,
+                                                  isError: true,
+                                                );
+                                                return;
+                                              }
+                                            } catch (e) {
+                                              CustomSnackbar.show(
+                                                context: context,
+                                                message: AppLocalizations.of(context)!.invalid_phone_format,
+                                                isError: true,
+                                              );
+                                              return;
+                                            }
+                                          }
+
                                           setState(() => _isRegistering = true);
                                           try {
                                             final response = await ApiService()
                                                 .register(
-                                                  countryCode:
-                                                      widget.countryCode,
-                                                  phoneNumber: widget
-                                                      .phoneNumber
-                                                      .replaceAll(
-                                                        widget.countryCode,
-                                                        '',
-                                                      )
-                                                      .trim(), // Ensure pure phone number
+                                                  countryCode: widget.isSocialLogin ? '+${_selectedCountry.phoneCode}' : widget.countryCode,
+                                                  phoneNumber: widget.isSocialLogin 
+                                                      ? _phoneController.text.trim()
+                                                      : widget.phoneNumber.replaceAll(widget.countryCode, '').trim(), // Ensure pure phone number
                                                   email: _emailController.text
                                                       .trim(),
                                                   firstName:
@@ -451,11 +515,10 @@ class _RegistrationState extends State<Registration> {
         ),
         const SizedBox(height: 8),
         Container(
-          padding: EdgeInsetsDirectional.only(bottom: hasError == true ? 8 : 0),
           decoration: BoxDecoration(
             color: enabled ? Colors.white : Colors.grey[100],
             borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: AppColors.indicatorGrey),
+            border: Border.all(color: hasError ? Colors.red : AppColors.indicatorGrey),
           ),
           child: TextFormField(
             key: fieldKey,
@@ -475,6 +538,7 @@ class _RegistrationState extends State<Registration> {
                 color: AppColors.buttonBlueDark.withValues(alpha: 0.7),
               ),
               border: InputBorder.none,
+              errorStyle: const TextStyle(height: 0, fontSize: 0),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
                 vertical: 12,
@@ -504,12 +568,22 @@ class _RegistrationState extends State<Registration> {
             },
           ),
         ),
+        if (hasError && fieldKey?.currentState?.errorText != null) ...[
+          const SizedBox(height: 4),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(
+              fieldKey!.currentState!.errorText!,
+              style: const TextStyle(color: Colors.red, fontSize: 12),
+            ),
+          ),
+        ],
       ],
     );
   }
 
   Widget _buildGenderDropdown() {
-    final hasError = _selectedGender == null;
+    final hasError = _genderFieldKey.currentState?.hasError == true;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -523,11 +597,10 @@ class _RegistrationState extends State<Registration> {
         ),
         const SizedBox(height: 8),
         Container(
-          padding: EdgeInsetsDirectional.only(bottom: hasError == true ? 8 : 0),
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: AppColors.indicatorGrey),
+            border: Border.all(color: hasError ? Colors.red : AppColors.indicatorGrey),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButtonFormField<String>(
@@ -580,6 +653,7 @@ class _RegistrationState extends State<Registration> {
                   color: AppColors.buttonBlueDark.withValues(alpha: 0.7),
                 ),
                 border: InputBorder.none,
+                errorStyle: const TextStyle(height: 0, fontSize: 0),
                 contentPadding: const EdgeInsets.symmetric(
                   horizontal: 16,
                   vertical: 12,
@@ -592,6 +666,139 @@ class _RegistrationState extends State<Registration> {
                   : null,
               key: _genderFieldKey,
             ),
+          ),
+        ),
+        if (hasError && _genderFieldKey.currentState?.errorText != null) ...[
+          const SizedBox(height: 4),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: Text(
+              _genderFieldKey.currentState!.errorText!,
+              style: const TextStyle(color: Colors.red, fontSize: 12),
+            ),
+          ),
+        ],
+      ],
+    );
+  }
+
+  Widget _buildSocialPhoneInput() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          AppLocalizations.of(context)!.phone_number,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: Colors.black87,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(15),
+            border: Border.all(color: AppColors.indicatorGrey),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Row(
+            children: [
+              Theme(
+                data: Theme.of(context).copyWith(
+                  textSelectionTheme: TextSelectionThemeData(
+                    cursorColor: AppColors.buttonBlueDark,
+                  ),
+                ),
+                child: Builder(
+                  builder: (context) => InkWell(
+                    onTap: () {
+                      showCountryPicker(
+                        favorite: ["SA", "AE", "KW", "BH", "QA", "OM", "SD"],
+                        context: context,
+                        showPhoneCode: true,
+                        onSelect: (Country country) {
+                          setState(() {
+                            _selectedCountry = country;
+                          });
+                        },
+                        countryListTheme: CountryListThemeData(
+                          bottomSheetHeight: MediaQuery.of(context).size.height * 0.7,
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(30),
+                            topRight: Radius.circular(30),
+                          ),
+                          inputDecoration: InputDecoration(
+                            hintText: AppLocalizations.of(context)!.search,
+                            prefixIcon: const Icon(Icons.search),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15),
+                              borderSide: BorderSide(color: AppColors.buttonBlueDark),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15),
+                              borderSide: BorderSide(color: AppColors.buttonBlueDark),
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(15),
+                              borderSide: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                    child: Row(
+                      children: [
+                        CircleAvatar(
+                          radius: 14,
+                          backgroundColor: Colors.grey[200],
+                          backgroundImage: NetworkImage(
+                            "https://flagcdn.com/w80/${_selectedCountry.countryCode.toLowerCase()}.png",
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Directionality(
+                          textDirection: TextDirection.ltr,
+                          child: Text(
+                            "+${_selectedCountry.phoneCode}",
+                            style: const TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        const Icon(
+                          Icons.keyboard_arrow_down,
+                          size: 18,
+                          color: Colors.grey,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Container(
+                height: 24,
+                width: 1,
+                color: Colors.grey[300],
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: TextField(
+                  cursorColor: AppColors.buttonBlueDark,
+                  controller: _phoneController,
+                  keyboardType: TextInputType.phone,
+                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  decoration: InputDecoration(
+                    hintText: AppLocalizations.of(context)!.enter_phone,
+                    hintStyle: const TextStyle(color: Colors.grey, fontSize: 14),
+                    border: InputBorder.none,
+                  ),
+                  style: const TextStyle(fontSize: 14),
+                ),
+              ),
+            ],
           ),
         ),
       ],

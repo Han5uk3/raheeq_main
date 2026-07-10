@@ -483,7 +483,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
           floatingActionButtonLocation:
               FloatingActionButtonLocation.centerFloat,
           floatingActionButton: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 0),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
             child: BottomActionPill(
               isLoading: _isProcessing,
               subtitleWidget: Column(

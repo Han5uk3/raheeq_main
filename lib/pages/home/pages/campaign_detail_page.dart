@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:raheeq_main/models/campaign.dart';
 import 'package:raheeq_main/models/product.dart';
 import 'package:raheeq_main/api/apis.dart';
@@ -167,31 +168,65 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                           topLeft: Radius.circular(30),
                           topRight: Radius.circular(30),
                         ),
-                        child: Padding(
-                          padding: const EdgeInsetsDirectional.only(
-                            start: 12,
-                            end: 12,
-                            top: 85, // 80 overlap + 24 extra space
-                            bottom:
-                                280, // extra space for bottom bar and keyboard
-                          ),
-                          child: _selectedProduct != null
-                              ? _buildQuantitySection(context, isAr)
-                              : Center(
-                                  child: Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 50,
+                        child: Column(
+                          children: [
+                            const SizedBox(
+                              height: 55,
+                            ), // Space for overlapping Horizontal Product List
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              child: Material(
+                                elevation: 2,
+                                borderRadius: BorderRadius.circular(16),
+                                child: SizedBox(
+                                  height: 180,
+                                  width: double.infinity,
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(16),
+                                    child: Image.asset(
+                                      "assets/campaign_banner.jpg.jpeg",
+                                      fit: BoxFit.cover,
                                     ),
-                                    child: Text(
-                                      AppLocalizations.of(
-                                        context,
-                                      )!.select_a_product_to_continue,
-                                      style: const TextStyle(
-                                        color: Colors.grey,
-                                      ),
-                                    ),
+
+                                    //  CachedNetworkImage(
+                                    //   imageUrl: widget.campaign.image,
+                                    //   fit: BoxFit.cover,
+                                    //   errorWidget: (context, url, error) =>
+                                    //       Container(color: Colors.grey[200]),
+                                    // ),
                                   ),
                                 ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsetsDirectional.only(
+                                start: 12,
+                                end: 12,
+                                top: 24, // spacing after banner
+                                bottom:
+                                    280, // extra space for bottom bar and keyboard
+                              ),
+                              child: _selectedProduct != null
+                                  ? _buildQuantitySection(context, isAr)
+                                  : Center(
+                                      child: Padding(
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 50,
+                                        ),
+                                        child: Text(
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.select_a_product_to_continue,
+                                          style: const TextStyle(
+                                            color: Colors.grey,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                            ),
+                          ],
                         ),
                       ),
                     ),
@@ -217,37 +252,38 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                           final itemWidth =
                               (screenWidth - totalTakenSpace) / visibleCount;
 
-                          return Container(
-                            margin: const EdgeInsets.symmetric(horizontal: 16),
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
+                          return Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 16),
+                            child: Material(
+                              elevation: 2,
                               borderRadius: BorderRadius.circular(24),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.08),
-                                  blurRadius: 16,
-                                  offset: const Offset(0, 8),
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 16,
                                 ),
-                              ],
-                            ),
-                            height: 160,
-                            child: ListView.separated(
-                              physics: const ClampingScrollPhysics(),
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(24),
+                                ),
+                                height: 130,
+                                child: ListView.separated(
+                                  physics: const ClampingScrollPhysics(),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 12,
+                                  ),
+                                  scrollDirection: Axis.horizontal,
+                                  itemCount: products.length,
+                                  separatorBuilder: (_, __) =>
+                                      const SizedBox(width: 12),
+                                  itemBuilder: (context, index) {
+                                    return _buildProductCard(
+                                      products[index],
+                                      isAr,
+                                      itemWidth,
+                                    );
+                                  },
+                                ),
                               ),
-                              scrollDirection: Axis.horizontal,
-                              itemCount: products.length,
-                              separatorBuilder: (_, __) =>
-                                  const SizedBox(width: 12),
-                              itemBuilder: (context, index) {
-                                return _buildProductCard(
-                                  products[index],
-                                  isAr,
-                                  itemWidth,
-                                );
-                              },
                             ),
                           );
                         },
@@ -287,7 +323,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                   ? Icons.beach_access_outlined
                   : Icons.water_drop_outlined,
               color: isSelected ? Colors.white : Colors.grey[400],
-              size: 32,
+              size: 18,
             ),
             const SizedBox(height: 8),
             Text(

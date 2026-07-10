@@ -501,11 +501,20 @@ class ApiService {
   }
 
   /// Get Mosques data
-  Future<Response> getMosques({int page = 1, int limit = 100}) async {
+  Future<Response> getMosques({
+    int page = 1,
+    int limit = 100,
+    double? latitude,
+    double? longitude,
+  }) async {
     try {
+      final queryParameters = <String, dynamic>{'page': page, 'limit': limit};
+      if (latitude != null) queryParameters['latitude'] = latitude;
+      if (longitude != null) queryParameters['longitude'] = longitude;
+
       final response = await _dio.get(
         '/mosques',
-        queryParameters: {'page': page, 'limit': limit},
+        queryParameters: queryParameters,
       );
       return response;
     } catch (e) {

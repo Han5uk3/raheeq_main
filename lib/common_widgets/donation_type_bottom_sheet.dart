@@ -135,23 +135,33 @@ class _DonationTypeBottomSheetState extends State<DonationTypeBottomSheet> {
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: Text(
-                      AppLocalizations.of(context)!.choose_donation_type,
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.black87,
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          AppLocalizations.of(context)!.choose_donation_type,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
+                        ),
+
+                        Text(
+                          AppLocalizations.of(
+                            context,
+                          )!.support_once_or_make_a_lasting_impact,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: Colors.grey[500],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
-              Text(
-                AppLocalizations.of(
-                  context,
-                )!.support_once_or_make_a_lasting_impact,
-                style: TextStyle(fontSize: 14, color: Colors.grey[500]),
-              ),
+
               const SizedBox(height: 32),
               Row(
                 children: [
@@ -174,7 +184,9 @@ class _DonationTypeBottomSheetState extends State<DonationTypeBottomSheet> {
                     child: _buildDonationOption(
                       isAr: isAr,
                       title: AppLocalizations.of(context)!.subscription,
-                      subtitle: AppLocalizations.of(context)!.recurring_donation,
+                      subtitle: AppLocalizations.of(
+                        context,
+                      )!.recurring_donation,
                       icon: Icons.sync,
                       isSelected: _selectedType == 'monthly',
                       onTap: () {

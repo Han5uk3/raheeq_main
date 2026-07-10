@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
+import 'package:raheeq_main/utils/rtl_helpers.dart';
 import '../../../utils/colors.dart';
 
 class OptionSelectorDialog extends StatefulWidget {
@@ -46,24 +47,36 @@ class _OptionSelectorDialogState extends State<OptionSelectorDialog> {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+                GestureDetector(
+                  onTap: () => Navigator.of(context).pop(),
+                  child: Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade100,
+                      shape: BoxShape.circle,
+                    ),
+                    child: Icon(
+                      backArrowIcon(context),
+                      size: 22,
+                      color: Colors.black87,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
                 Expanded(
                   child: Text(
-                    titleText,
                     textAlign: TextAlign.start,
+                    titleText,
                     style: const TextStyle(
-                      fontSize: 20,
+                      fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
-                GestureDetector(
-                  onTap: () => Navigator.of(context).pop(),
-                  child: const Icon(Icons.close, color: Colors.black),
-                ),
               ],
             ),
+
             const SizedBox(height: 24),
             Row(
               children: [

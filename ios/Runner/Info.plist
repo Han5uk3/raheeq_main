@@ -79,6 +79,10 @@
 	</array>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>This app uses your location to provide location-based services and features.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>This app needs access to location when in the background.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>This app needs access to location when open and in the background.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>This app uses your camera to capture photos and videos.</string>
 	<key>UIBackgroundModes</key>

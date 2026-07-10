@@ -40,6 +40,7 @@ dependencies:
   video_player: ^2.11.1
   url_launcher: ^6.3.2
   pinput: ^6.0.2
+  geolocator: ^14.0.2
 
 dev_dependencies:
   flutter_test:
@@ -55,7 +56,6 @@ flutter:
     - assets/
     - assets/onboarding/
     - assets/login/
-    - assets/masjid/
 
   fonts:
     - family: SF Pro

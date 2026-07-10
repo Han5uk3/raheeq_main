@@ -18,7 +18,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get available_colon => 'متاح :';
 
   @override
-  String get welcome => 'مرحباً';
+  String get welcome => 'أهلاً';
 
   @override
   String get onboard1_title => 'تبرع بهدف';
@@ -413,7 +413,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get donations_overview => 'نظرة عامة على التبرعات';
 
   @override
-  String get orphanages_helped => 'دور الأيتام التي تمت مساعدتها';
+  String get orphanages_helped => 'دور الأيتام المدعومة';
 
   @override
   String get sar => '⃁';

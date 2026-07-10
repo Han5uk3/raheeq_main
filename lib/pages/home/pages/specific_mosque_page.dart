@@ -7,6 +7,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:geolocator/geolocator.dart';
 import '../../../api/apis.dart';
 import '../../../models/mosque.dart';
 import '../../../models/meqat_mosque.dart';
@@ -100,7 +101,10 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
     await _fetchItems(isLoadMore: true);
   }
 
+  Position? _currentUserPosition;
+
   Future<void> _initData() async {
+    _currentUserPosition = await _getUserLocation();
     await _fetchFavorites();
     _fetchAllMapItems();
     await _fetchItems();
@@ -114,7 +118,12 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
       } else if (widget.slug == 'meqat_mosques') {
         response = await _apiService.getMiqatMosques(page: 1, limit: 1000);
       } else {
-        response = await _apiService.getMosques(page: 1, limit: 1000);
+        response = await _apiService.getMosques(
+          page: 1,
+          limit: 1000,
+          latitude: _currentUserPosition?.latitude,
+          longitude: _currentUserPosition?.longitude,
+        );
       }
 
       if (response.statusCode == 200 && response.data['success'] == true) {
@@ -256,6 +265,8 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
         response = await _apiService.getMosques(
           page: _currentPage,
           limit: 1000,
+          latitude: _currentUserPosition?.latitude,
+          longitude: _currentUserPosition?.longitude,
         );
       }
 
@@ -402,6 +413,42 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
         ],
       ),
     );
+  }
+
+  Future<Position?> _getUserLocation() async {
+    bool serviceEnabled;
+    LocationPermission permission;
+
+    serviceEnabled = await Geolocator.isLocationServiceEnabled();
+    if (!serviceEnabled) {
+      return null;
+    }
+
+    permission = await Geolocator.checkPermission();
+    if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+      if (permission == LocationPermission.denied) {
+        return null;
+      }
+    }
+
+    if (permission == LocationPermission.deniedForever) {
+      return null;
+    }
+
+    return await Geolocator.getCurrentPosition();
+  }
+
+  Future<void> _getUserLocationAndMoveCamera() async {
+    Position? position = await _getUserLocation();
+    if (position != null && _mapController != null) {
+      _mapController!.animateCamera(
+        CameraUpdate.newLatLngZoom(
+          LatLng(position.latitude, position.longitude),
+          12.0,
+        ),
+      );
+    }
   }
 
   Widget _buildDynamicHeader(bool isAr) {
@@ -750,11 +797,29 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
                   12.0,
                 ),
               );
+            } else {
+              _getUserLocationAndMoveCamera();
             }
           },
           myLocationEnabled: true,
-          myLocationButtonEnabled: true,
+          myLocationButtonEnabled:
+              false, // Disabled default to avoid overlap with our custom one
           zoomControlsEnabled: true,
+        ),
+        Positioned(
+          bottom: 24,
+          right: isAr ? null : 24,
+          left: isAr ? 24 : null,
+          child: FloatingActionButton(
+            heroTag: 'customMyLocationBtn',
+            backgroundColor: Colors.white,
+            mini: false,
+            onPressed: _getUserLocationAndMoveCamera,
+            child: const Icon(
+              Icons.my_location,
+              color: AppColors.buttonBlueDark,
+            ),
+          ),
         ),
       ],
     );

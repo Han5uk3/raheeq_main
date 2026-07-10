@@ -27,6 +27,7 @@ import 'package:raheeq_main/common_widgets/bottom_action_pill.dart';
 import 'package:raheeq_main/pages/order/order_details_page.dart';
 import 'package:raheeq_main/models/order_item.dart';
 import 'package:raheeq_main/pages/home/pages/impact_page.dart';
+import 'package:raheeq_main/pages/home/pages/notifications_page.dart';
 
 class HomeTab extends StatefulWidget {
   const HomeTab({super.key});
@@ -93,6 +94,7 @@ class _HomeTabState extends State<HomeTab> {
   }
 
   int _currentIndex = 0;
+  int _unreadNotificationsCount = 0;
 
   @override
   void initState() {
@@ -208,12 +210,30 @@ class _HomeTabState extends State<HomeTab> {
         }
       }();
 
+      final notificationsFuture = () async {
+        try {
+          final unreadRes = await ApiService().getUnreadNotificationsCount();
+          if (unreadRes.statusCode == 200 &&
+              unreadRes.data['success'] == true) {
+            final countData = unreadRes.data['data'];
+            if (countData != null && countData['count'] != null) {
+              _unreadNotificationsCount = countData['count'] as int;
+            } else if (countData is int) {
+              _unreadNotificationsCount = countData;
+            }
+          }
+        } catch (e) {
+          log('Error fetching unread notifications count: $e', name: 'HomeTab');
+        }
+      }();
+
       final homeFuture = ApiService().getHome();
 
       await Future.wait([
         profileFuture,
         citiesFuture,
         impactFuture,
+        notificationsFuture,
         homeFuture,
       ]);
 
@@ -368,23 +388,76 @@ class _HomeTabState extends State<HomeTab> {
                         16,
                         60,
                         16,
-                        20,
+                        8,
                       ),
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                "${AppLocalizations.of(context)!.welcome}, ${AuthStorage.user?.fullName ?? "User"}",
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w400,
+                          Text(
+                            "${AppLocalizations.of(context)!.welcome}, ${AuthStorage.user?.fullName ?? "User"}",
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 18,
+                              fontWeight: FontWeight.w400,
+                            ),
+                          ),
+
+                          InkWell(
+                            onTap: () async {
+                              await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) =>
+                                      const NotificationsPage(),
+                                ),
+                              );
+                              // Refresh notifications count when returning
+                              _fetchHomeData();
+                            },
+                            child: Material(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(8),
+                              child: SizedBox(
+                                height: 36,
+                                width: 36,
+                                child: Stack(
+                                  alignment: Alignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.notifications_outlined,
+                                      color: AppColors.buttonBlueDark,
+                                      size: 20,
+                                    ),
+                                    if (_unreadNotificationsCount > 0)
+                                      Positioned(
+                                        top: 0,
+                                        right: 0,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(2),
+                                          decoration: BoxDecoration(
+                                            color: Colors.red,
+                                            borderRadius: BorderRadius.circular(
+                                              20,
+                                            ),
+                                          ),
+                                          constraints: BoxConstraints(
+                                            minWidth: 16,
+                                            minHeight: 16,
+                                          ),
+                                          child: Text(
+                                            '$_unreadNotificationsCount',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 8,
+                                            ),
+                                            textAlign: TextAlign.center,
+                                          ),
+                                        ),
+                                      ),
+                                  ],
                                 ),
                               ),
-                            ],
+                            ),
                           ),
                         ],
                       ),
@@ -1196,9 +1269,14 @@ class _HomeTabState extends State<HomeTab> {
                               0xFF1A385F,
                             ).withValues(alpha: 0.3),
                           ),
-                          errorWidget: (context, url, error) => Image.asset(
-                            'assets/masjid/masjid_al_haram.png',
-                            fit: BoxFit.cover,
+                          errorWidget: (context, url, error) => Container(
+                            color: Colors.grey[200],
+                            child: const Center(
+                              child: Icon(
+                                Icons.error_outline,
+                                color: Colors.grey,
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -1222,7 +1300,7 @@ class _HomeTabState extends State<HomeTab> {
         Text(
           AppLocalizations.of(context)!.quick_actions,
           style: const TextStyle(
-            fontSize: 20,
+            fontSize: 18,
             fontWeight: FontWeight.bold,
             color: Colors.black87,
           ),
@@ -1393,7 +1471,7 @@ class _HomeTabState extends State<HomeTab> {
                     ),
                   );
 
-                  if (cities != null && cities.isNotEmpty) {
+                  if (cities != null) {
                     setState(() {
                       _selectedItems.removeWhere(
                         (item) => item.category.slug == slug,
