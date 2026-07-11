@@ -40,7 +40,9 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     HomeScreen.switchTabNotifier.addListener(_onSwitchTab);
+    _onSwitchTab(); // Process any pre-set tab value
     DeepLinkService().init();
+    DeepLinkService().processPendingDeepLink();
   }
 
   @override

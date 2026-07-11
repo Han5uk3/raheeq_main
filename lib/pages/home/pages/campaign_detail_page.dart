@@ -3,7 +3,6 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:raheeq_main/models/campaign.dart';
 import 'package:raheeq_main/models/product.dart';
 import 'package:raheeq_main/api/apis.dart';
@@ -173,33 +172,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                             const SizedBox(
                               height: 55,
                             ), // Space for overlapping Horizontal Product List
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
-                              child: Material(
-                                elevation: 2,
-                                borderRadius: BorderRadius.circular(16),
-                                child: SizedBox(
-                                  height: 180,
-                                  width: double.infinity,
-                                  child: ClipRRect(
-                                    borderRadius: BorderRadius.circular(16),
-                                    child: Image.asset(
-                                      "assets/campaign_banner.jpg.jpeg",
-                                      fit: BoxFit.cover,
-                                    ),
-
-                                    //  CachedNetworkImage(
-                                    //   imageUrl: widget.campaign.image,
-                                    //   fit: BoxFit.cover,
-                                    //   errorWidget: (context, url, error) =>
-                                    //       Container(color: Colors.grey[200]),
-                                    // ),
-                                  ),
-                                ),
-                              ),
-                            ),
+                            _buildCampaignBanner(_selectedProduct),
                             Padding(
                               padding: const EdgeInsetsDirectional.only(
                                 start: 12,
@@ -295,6 +268,39 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildCampaignBanner(Product? product) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: Material(
+        elevation: 2,
+        borderRadius: BorderRadius.circular(16),
+        child: SizedBox(
+          height: 230,
+          width: double.infinity,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(16),
+            child: Image.asset(
+              product?.serialNumber == 3
+                  ? "assets/campaign/meals_banner.jpg"
+                  : product?.serialNumber == 5
+                  ? "assets/campaign/umbrellas_banner.jpg"
+                  : "assets/campaign/cold_water_bottle_banner.jpg",
+
+              fit: BoxFit.cover,
+            ),
+
+            //  CachedNetworkImage(
+            //   imageUrl: widget.campaign.image,
+            //   fit: BoxFit.cover,
+            //   errorWidget: (context, url, error) =>
+            //       Container(color: Colors.grey[200]),
+            // ),
+          ),
+        ),
       ),
     );
   }

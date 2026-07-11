@@ -1453,4 +1453,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get profile_picture => 'Profile Picture';
+
+  @override
+  String get no_delivery_video_available =>
+      'No delivery video is available for this order yet.';
+
+  @override
+  String get ok => 'OK';
 }

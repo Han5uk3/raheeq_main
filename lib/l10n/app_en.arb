@@ -518,5 +518,7 @@
   "delivered_to": "Delivered To",
   "review": "Review",
   "coupon_not_applicable": "Coupon codes cannot be applied to this order",
-  "profile_picture": "Profile Picture"
+  "profile_picture": "Profile Picture",
+  "no_delivery_video_available": "No delivery video is available for this order yet.",
+  "ok": "OK"
 }

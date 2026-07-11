@@ -938,7 +938,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(16),
                               child: Image.asset(
-                                "assets/payment_banner.jpg.jpeg",
+                                "assets/payment_banner.jpeg",
                                 fit: BoxFit.cover,
                               ),
 

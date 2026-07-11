@@ -12,11 +12,13 @@ import 'package:shimmer/shimmer.dart';
 class TrackDonationPage extends StatefulWidget {
   final String orderId;
   final bool autoOpenProofs;
+  final bool autoPlayVideo;
 
   const TrackDonationPage({
-    super.key, 
+    super.key,
     required this.orderId,
     this.autoOpenProofs = false,
+    this.autoPlayVideo = false,
   });
 
   @override
@@ -47,8 +49,55 @@ class _TrackDonationPageState extends State<TrackDonationPage> {
           _order = OrderResponseModel.fromJson(response.data['data']);
           _isLoading = false;
         });
-        
-        if (widget.autoOpenProofs && _order?.deliveryProof != null && _order!.deliveryProof!.isNotEmpty) {
+
+        if (widget.autoPlayVideo &&
+            _order?.deliveryProof != null &&
+            _order!.deliveryProof!['deliveryVideo'] != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _showProofsBottomSheet(context, _order!.deliveryProof!);
+            Future.delayed(const Duration(milliseconds: 500), () {
+              if (mounted) {
+                _showVideoPreview(_order!.deliveryProof!['deliveryVideo']);
+              }
+            });
+          });
+        } else if (widget.autoPlayVideo) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            showDialog(
+              context: context,
+              builder: (_) => AlertDialog(
+                backgroundColor: Colors.white,
+                title: Row(
+                  children: [
+                    GestureDetector(
+                      onTap: () => Navigator.pop(context),
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.grey[200],
+                        ),
+                        child: const Icon(
+                          Icons.arrow_back,
+                          size: 20,
+                          color: Colors.black,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 16),
+                    Text(AppLocalizations.of(context)!.delivery_video),
+                  ],
+                ),
+                content: Text(
+                  AppLocalizations.of(context)!.no_delivery_video_available,
+                ),
+              ),
+            );
+          });
+        } else if (widget.autoOpenProofs &&
+            _order?.deliveryProof != null &&
+            _order!.deliveryProof!.isNotEmpty) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             _showProofsBottomSheet(context, _order!.deliveryProof!);
           });

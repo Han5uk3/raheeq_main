@@ -2877,6 +2877,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Profile Picture'**
   String get profile_picture;
+
+  /// No description provided for @no_delivery_video_available.
+  ///
+  /// In en, this message translates to:
+  /// **'No delivery video is available for this order yet.'**
+  String get no_delivery_video_available;
+
+  /// No description provided for @ok.
+  ///
+  /// In en, this message translates to:
+  /// **'OK'**
+  String get ok;
 }
 
 class _AppLocalizationsDelegate

@@ -15,6 +15,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:raheeq_main/services/notification_service.dart';
 import 'package:raheeq_main/storage/app_storage.dart';
 import 'package:raheeq_main/services/freshchat_service.dart';
+import 'package:raheeq_main/services/deep_link_service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
 
@@ -46,6 +47,7 @@ Future<void> _initDependencies() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   await Permission.notification.request();
+
 
   // Initialize notification service
   await NotificationService().init();
@@ -133,7 +135,10 @@ class MainApp extends StatelessWidget {
               return theme;
             }(),
             debugShowCheckedModeBanner: false,
-            home: const SplashScreen(),
+            initialRoute: '/',
+            routes: {
+              '/': (_) => const SplashScreen(),
+            },
           ),
         );
       },

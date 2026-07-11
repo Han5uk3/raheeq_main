@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
@@ -7,6 +8,7 @@ import 'package:raheeq_main/models/notification_model.dart';
 import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
+import 'package:raheeq_main/pages/order/booking_details_page.dart';
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
@@ -116,13 +118,20 @@ class _NotificationsPageState extends State<NotificationsPage> {
     }
 
     // Handle navigation based on data payload
-    // if (notification.data.containsKey('orderId') &&
-    //     notification.data['orderId'] != null) {
-    //   if (mounted) {
-    //     Navigator.popUntil(context, (route) => route.isFirst);
-    //     HomeScreen.switchTabNotifier.value = 1;
-    //   }
-    // }
+    final data = notification.data;
+    final orderId = data['orderid'] ?? data['orderId'] ?? data['order_id'];
+
+    if (orderId != null) {
+      if (mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                BookingDetailsPage(orderId: orderId.toString()),
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _clearAllNotifications() async {
@@ -386,6 +395,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
       color: notification.isRead ? Colors.white : const Color(0xFFF0F8FF),
       child: InkWell(
         onTap: () {
+          log('Notification Full Data: ${notification.toJson()}');
           _readNotification(notification);
         },
         child: Padding(

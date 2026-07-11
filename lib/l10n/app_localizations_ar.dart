@@ -1442,4 +1442,11 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get profile_picture => 'صورة الملف الشخصي';
+
+  @override
+  String get no_delivery_video_available =>
+      'لا يوجد فيديو توصيل متاح لهذا الطلب حتى الآن.';
+
+  @override
+  String get ok => 'حسناً';
 }
