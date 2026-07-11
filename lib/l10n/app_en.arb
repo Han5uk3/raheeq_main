@@ -477,6 +477,7 @@
   "tap_to_view": "Tap item to view media",
   "twice_a_week": "Twice a week",
   "status_active": "Active",
+  "reorder": "Reorder",
   "status_cancelled": "Cancelled",
   "status_expired": "Expired",
   "status_pending": "Pending",

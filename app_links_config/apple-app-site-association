@@ -1,0 +1,14 @@
+{
+  "applinks": {
+    "apps": [],
+    "details": [
+      {
+        "appID": "KA5W6UJ894.com.rahiq.app",
+        "paths": [
+          "/delivery-proof*",
+          "/reorder*"
+        ]
+      }
+    ]
+  }
+}

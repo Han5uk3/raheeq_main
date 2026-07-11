@@ -2632,6 +2632,12 @@ abstract class AppLocalizations {
   /// **'Active'**
   String get status_active;
 
+  /// No description provided for @reorder.
+  ///
+  /// In en, this message translates to:
+  /// **'Reorder'**
+  String get reorder;
+
   /// No description provided for @status_cancelled.
   ///
   /// In en, this message translates to:

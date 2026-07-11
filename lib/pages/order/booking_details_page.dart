@@ -8,6 +8,7 @@ import 'package:raheeq_main/models/order_response_model.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:raheeq_main/services/deep_link_service.dart';
 
 class BookingDetailsPage extends StatefulWidget {
   final String orderId;
@@ -594,6 +595,31 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                 icon: const Icon(Icons.receipt, color: Colors.white, size: 20),
                 label: Text(
                   AppLocalizations.of(context)!.view_invoice,
+                  style: const TextStyle(color: Colors.white, fontSize: 16),
+                ),
+              ),
+            ),
+            const SizedBox(height: 24),
+          ],
+
+          // Reorder Button for Completed Orders
+          if (order.status == 'COMPLETED') ...[
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.buttonBlueDark,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: const EdgeInsets.symmetric(vertical: 16),
+                ),
+                onPressed: () {
+                  DeepLinkService().handleReorder(order.id);
+                },
+                icon: const Icon(Icons.refresh, color: Colors.white, size: 20),
+                label: Text(
+                  AppLocalizations.of(context)!.reorder,
                   style: const TextStyle(color: Colors.white, fontSize: 16),
                 ),
               ),

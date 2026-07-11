@@ -1327,6 +1327,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get status_active => 'Active';
 
   @override
+  String get reorder => 'Reorder';
+
+  @override
   String get status_cancelled => 'Cancelled';
 
   @override

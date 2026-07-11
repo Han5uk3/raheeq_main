@@ -1317,6 +1317,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get status_active => 'نشط';
 
   @override
+  String get reorder => 'أعد الطلب';
+
+  @override
   String get status_cancelled => 'ملغى';
 
   @override

@@ -11,8 +11,13 @@ import 'package:shimmer/shimmer.dart';
 
 class TrackDonationPage extends StatefulWidget {
   final String orderId;
+  final bool autoOpenProofs;
 
-  const TrackDonationPage({super.key, required this.orderId});
+  const TrackDonationPage({
+    super.key, 
+    required this.orderId,
+    this.autoOpenProofs = false,
+  });
 
   @override
   State<TrackDonationPage> createState() => _TrackDonationPageState();
@@ -42,6 +47,12 @@ class _TrackDonationPageState extends State<TrackDonationPage> {
           _order = OrderResponseModel.fromJson(response.data['data']);
           _isLoading = false;
         });
+        
+        if (widget.autoOpenProofs && _order?.deliveryProof != null && _order!.deliveryProof!.isNotEmpty) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            _showProofsBottomSheet(context, _order!.deliveryProof!);
+          });
+        }
       } else {
         if (!mounted) return;
         setState(() {

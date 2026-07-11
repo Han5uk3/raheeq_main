@@ -643,6 +643,19 @@ class ApiService {
     }
   }
 
+  /// Create Reorder Checkout
+  Future<Response> createReorder(String subOrderId) async {
+    try {
+      final response = await _dio.post(
+        '/checkout/reorder',
+        data: {'subOrderId': subOrderId},
+      );
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
   /// Apply Coupon
   Future<Response> applyCoupon(String couponCode) async {
     try {
