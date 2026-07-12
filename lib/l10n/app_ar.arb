@@ -475,5 +475,7 @@
   "coupon_not_applicable": "لا يمكن تطبيق أكواد الخصم على هذا الطلب",
   "profile_picture": "صورة الملف الشخصي",
   "no_delivery_video_available": "لا يوجد فيديو توصيل متاح لهذا الطلب حتى الآن.",
-  "ok": "حسناً"
+  "ok": "حسناً",
+  "deliveredToDifferentLocation": "تم التسليم لمسجد آخر",
+  "reasonForDifferentLocation": "السبب"
 }

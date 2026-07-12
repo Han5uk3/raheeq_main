@@ -520,5 +520,7 @@
   "coupon_not_applicable": "Coupon codes cannot be applied to this order",
   "profile_picture": "Profile Picture",
   "no_delivery_video_available": "No delivery video is available for this order yet.",
-  "ok": "OK"
+  "ok": "OK",
+  "deliveredToDifferentLocation": "Delivered to a different location",
+  "reasonForDifferentLocation": "Reason"
 }

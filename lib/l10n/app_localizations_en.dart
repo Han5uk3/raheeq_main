@@ -1460,4 +1460,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ok => 'OK';
+
+  @override
+  String get deliveredToDifferentLocation =>
+      'Delivered to a different location';
+
+  @override
+  String get reasonForDifferentLocation => 'Reason';
 }

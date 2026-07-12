@@ -2889,6 +2889,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'OK'**
   String get ok;
+
+  /// No description provided for @deliveredToDifferentLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered to a different location'**
+  String get deliveredToDifferentLocation;
+
+  /// No description provided for @reasonForDifferentLocation.
+  ///
+  /// In en, this message translates to:
+  /// **'Reason'**
+  String get reasonForDifferentLocation;
 }
 
 class _AppLocalizationsDelegate

@@ -318,6 +318,47 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
             ),
           ],
 
+          if (order.deliveredToDifferentMosque == true) ...[
+            const SizedBox(height: 12),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: Colors.orange.shade50,
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(color: Colors.orange.shade200),
+              ),
+              child: Row(
+                children: [
+                  const Icon(Icons.info_outline, color: Colors.orange),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          AppLocalizations.of(context)!.deliveredToDifferentLocation,
+                          style: const TextStyle(
+                            color: Colors.orange,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        if (order.differentMosqueReason != null && order.differentMosqueReason!.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 4.0),
+                            child: Text(
+                              '${AppLocalizations.of(context)!.reasonForDifferentLocation}: ${order.differentMosqueReason}',
+                              style: TextStyle(color: Colors.orange.shade800, fontSize: 12),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+
           // Gift Card details
           if (order.giftCard != null) ...[
             Builder(

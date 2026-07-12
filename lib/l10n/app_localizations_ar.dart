@@ -1449,4 +1449,10 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get ok => 'حسناً';
+
+  @override
+  String get deliveredToDifferentLocation => 'تم التسليم لمسجد آخر';
+
+  @override
+  String get reasonForDifferentLocation => 'السبب';
 }

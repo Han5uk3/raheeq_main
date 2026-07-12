@@ -21,6 +21,8 @@ class OrderResponseModel {
   final Map<String, dynamic>? deliveredLocationDetails;
   final bool? isChillerAvailable;
   OrderReviewModel? review;
+  final bool? deliveredToDifferentMosque;
+  final String? differentMosqueReason;
 
   OrderResponseModel({
     required this.id,
@@ -44,6 +46,8 @@ class OrderResponseModel {
     this.deliveredLocationDetails,
     this.isChillerAvailable,
     this.review,
+    this.deliveredToDifferentMosque,
+    this.differentMosqueReason,
   });
 
   factory OrderResponseModel.fromJson(Map<String, dynamic> json) {
@@ -103,6 +107,8 @@ class OrderResponseModel {
       deliveredLocationDetails: json['deliveredLocationDetails'],
       isChillerAvailable: json['isChillerAvailable'],
       review: json['review'] != null ? OrderReviewModel.fromJson(json['review']) : null,
+      deliveredToDifferentMosque: json['deliveredToDifferentMosque'],
+      differentMosqueReason: json['differentMosqueReason'],
     );
   }
 }

@@ -112,6 +112,8 @@ class SubscriptionSubOrderModel {
   final SubscriptionTargetModel? target;
   final String? deliveryProof;
   final Map<String, dynamic>? giftCard;
+  final bool? deliveredToDifferentMosque;
+  final String? differentMosqueReason;
 
   SubscriptionSubOrderModel({
     required this.id,
@@ -122,6 +124,8 @@ class SubscriptionSubOrderModel {
     this.target,
     this.deliveryProof,
     this.giftCard,
+    this.deliveredToDifferentMosque,
+    this.differentMosqueReason,
   });
 
   factory SubscriptionSubOrderModel.fromJson(Map<String, dynamic> json) {
@@ -138,6 +142,8 @@ class SubscriptionSubOrderModel {
           : null,
       deliveryProof: json['deliveryProof'],
       giftCard: json['giftCard'],
+      deliveredToDifferentMosque: json['deliveredToDifferentMosque'],
+      differentMosqueReason: json['differentMosqueReason'],
     );
   }
 }
