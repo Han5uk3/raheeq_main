@@ -2901,6 +2901,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Reason'**
   String get reasonForDifferentLocation;
+
+  /// No description provided for @minimum_quantity_for_location_is.
+  ///
+  /// In en, this message translates to:
+  /// **'minimum quantity for one location is {min}'**
+  String minimum_quantity_for_location_is(String min);
 }
 
 class _AppLocalizationsDelegate

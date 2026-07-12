@@ -350,7 +350,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
 
   Widget _buildQuantitySection(BuildContext context, bool isAr) {
     final product = _selectedProduct!;
-    final presets = product.validQuantities;
+    final presets = product.presetQuantities.toList()..sort();
     final min = product.minQuantity;
 
     String itemName(int qty) {

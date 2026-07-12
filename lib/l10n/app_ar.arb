@@ -477,5 +477,6 @@
   "no_delivery_video_available": "لا يوجد فيديو توصيل متاح لهذا الطلب حتى الآن.",
   "ok": "حسناً",
   "deliveredToDifferentLocation": "تم التسليم لمسجد آخر",
-  "reasonForDifferentLocation": "السبب"
+  "reasonForDifferentLocation": "السبب",
+  "minimum_quantity_for_location_is": "الحد الأدنى للكمية للموقع الواحد هو {min}"
 }

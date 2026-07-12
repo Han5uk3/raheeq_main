@@ -12,7 +12,7 @@ import 'package:raheeq_main/utils/colors.dart';
 class _ProductSlot {
   final Product product;
   final bool isChiller;
-  final int quantity; // 1 for chiller, preset qty for cartons
+  final int quantity;
 
   const _ProductSlot({
     required this.product,
@@ -77,12 +77,16 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
   List<_ProductSlot> get _slots {
     final slots = <_ProductSlot>[];
 
-    // 1. Chiller first (always one card)
-    final chiller = widget.availableProducts
-        .where((p) => p.serialNumber == 2)
-        .firstOrNull;
-    if (chiller != null) {
-      slots.add(_ProductSlot(product: chiller, isChiller: true, quantity: 1));
+    // 1. Chiller first (One card per preset quantity)
+    final chillers = widget.availableProducts.where((p) => p.serialNumber == 2);
+
+    for (final chiller in chillers) {
+      final quantities = chiller.presetQuantities.toList()..sort();
+      for (final qty in quantities) {
+        slots.add(
+          _ProductSlot(product: chiller, isChiller: true, quantity: qty),
+        );
+      }
     }
 
     // 2. One card per preset quantity for every carton product
@@ -91,7 +95,7 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
     );
 
     for (final carton in cartons) {
-      final quantities = carton.validQuantities; // already sorted, min first
+      final quantities = carton.presetQuantities.toList()..sort();
       for (final qty in quantities) {
         slots.add(
           _ProductSlot(product: carton, isChiller: false, quantity: qty),
@@ -141,7 +145,10 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
         (s) => s.id == _selectedChillerSlotId,
       );
       selectedProducts.add(
-        SelectedProduct(product: selectedChiller.product, quantity: 1),
+        SelectedProduct(
+          product: selectedChiller.product,
+          quantity: selectedChiller.quantity,
+        ),
       );
     }
 

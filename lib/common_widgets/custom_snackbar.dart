@@ -11,7 +11,7 @@ class CustomSnackbar {
     required BuildContext context,
     required String message,
     bool isError = false,
-    Duration duration = const Duration(seconds: 3),
+    Duration duration = const Duration(milliseconds: 1800),
     double bottomMargin = 24,
   }) {
     // Hide any existing custom snackbar immediately

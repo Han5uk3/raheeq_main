@@ -1455,4 +1455,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get reasonForDifferentLocation => 'السبب';
+
+  @override
+  String minimum_quantity_for_location_is(String min) {
+    return 'الحد الأدنى للكمية للموقع الواحد هو $min';
+  }
 }

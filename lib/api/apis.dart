@@ -67,6 +67,19 @@ class ApiService {
           return handler.next(options);
         },
         onError: (DioException e, handler) async {
+          DioException customException = e;
+          if (e.response?.data is Map && e.response?.data['message'] != null) {
+            customException = ApiDioException(
+              requestOptions: e.requestOptions,
+              apiMessage: e.response!.data['message'].toString(),
+              response: e.response,
+              type: e.type,
+              error: e.error,
+              message: e.message,
+            );
+          }
+          e = customException;
+
           // Do not attempt token refresh or clear session for unauthenticated
           // auth endpoints (e.g. verify-otp, request-otp, register). These
           // endpoints can legitimately return 401 for bad credentials/otp
@@ -1088,5 +1101,23 @@ class ApiService {
     } catch (e) {
       rethrow;
     }
+  }
+}
+
+class ApiDioException extends DioException {
+  final String apiMessage;
+
+  ApiDioException({
+    required super.requestOptions,
+    required this.apiMessage,
+    super.response,
+    super.type,
+    super.error,
+    super.message,
+  });
+
+  @override
+  String toString() {
+    return apiMessage;
   }
 }

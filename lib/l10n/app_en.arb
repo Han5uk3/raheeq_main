@@ -522,5 +522,13 @@
   "no_delivery_video_available": "No delivery video is available for this order yet.",
   "ok": "OK",
   "deliveredToDifferentLocation": "Delivered to a different location",
-  "reasonForDifferentLocation": "Reason"
+  "reasonForDifferentLocation": "Reason",
+  "minimum_quantity_for_location_is": "minimum quantity for one location is {min}",
+  "@minimum_quantity_for_location_is": {
+    "placeholders": {
+      "min": {
+        "type": "String"
+      }
+    }
+  }
 }

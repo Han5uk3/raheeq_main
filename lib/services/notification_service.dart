@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/foundation.dart';
+import 'package:raheeq_main/pages/home/home_screen.dart';
+import 'package:raheeq_main/storage/auth_storage.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -102,14 +104,14 @@ class NotificationService {
     // Handle messages when app is opened from background
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
       debugPrint('A new onMessageOpenedApp event was published!');
-      _handleNotificationClick(message.data);
+      _handleNotificationClick(message.toMap());
     });
 
     // Check if app was opened from a terminated state
     RemoteMessage? initialMessage = await _firebaseMessaging
         .getInitialMessage();
     if (initialMessage != null) {
-      _handleNotificationClick(initialMessage.data);
+      _handleNotificationClick(initialMessage.toMap());
     }
 
     _isInitialized = true;
@@ -158,7 +160,7 @@ class NotificationService {
             presentSound: true,
           ),
         ),
-        payload: jsonEncode(message.data),
+        payload: jsonEncode(message.toMap()),
       );
     }
   }
@@ -176,7 +178,28 @@ class NotificationService {
   }
 
   void _handleNotificationClick(Map<String, dynamic> data) {
-    // Handle navigation or other logic based on notification data here
     debugPrint('Handling notification click with data: $data');
+
+    // The data payload from RemoteMessage.toMap() is under the 'data' key
+    final innerData = data['data'];
+
+    // Helper to handle the actual navigation
+    void handleNavigation(String? type) {
+      if (type == 'payment_approved') {
+        // 1 is the index for OrdersTab in HomeScreen
+        HomeScreen.switchTabNotifier.value = 1;
+        // Pop any opened pages to return to the root HomeScreen
+        AuthStorage.navigatorKey.currentState?.popUntil(
+          (route) => route.isFirst,
+        );
+      }
+    }
+
+    if (innerData != null && innerData is Map) {
+      handleNavigation(innerData['type']?.toString());
+    } else {
+      // Fallback in case `data` is already the inner payload
+      handleNavigation(data['type']?.toString());
+    }
   }
 }

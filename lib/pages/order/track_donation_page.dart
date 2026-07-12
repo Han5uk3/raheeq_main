@@ -114,9 +114,7 @@ class _TrackDonationPageState extends State<TrackDonationPage> {
     } catch (e) {
       if (!mounted) return;
       setState(() {
-        _errorMessage = AppLocalizations.of(
-          context,
-        )!.error_occurred_loading_order;
+        _errorMessage = e.toString();
         _isLoading = false;
       });
     }

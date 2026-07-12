@@ -69,7 +69,7 @@ class _SavedMosquesPageState extends State<SavedMosquesPage> {
     } catch (e) {
       setState(() {
         _isLoading = false;
-        _errorMessage = "An error occurred while loading saved mosques.";
+        _errorMessage = e.toString();
       });
     }
   }

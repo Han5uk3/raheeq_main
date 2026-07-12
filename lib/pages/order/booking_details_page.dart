@@ -52,7 +52,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
       }
     } catch (e) {
       setState(() {
-        _errorMessage = 'An error occurred while loading order details.';
+        _errorMessage = e.toString();
         _isLoading = false;
       });
     }

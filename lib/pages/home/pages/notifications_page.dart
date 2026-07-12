@@ -9,6 +9,8 @@ import 'package:intl/intl.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:raheeq_main/pages/order/booking_details_page.dart';
+import 'package:raheeq_main/pages/order/track_donation_page.dart';
+import 'package:raheeq_main/pages/home/home_screen.dart';
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
@@ -53,7 +55,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
       }
     } catch (e) {
       setState(() {
-        _errorMessage = 'An error occurred while loading notifications.';
+        _errorMessage = e.toString();
         _isLoading = false;
       });
     }
@@ -119,7 +121,31 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
     // Handle navigation based on data payload
     final data = notification.data;
+    final type = data['type'];
     final orderId = data['orderid'] ?? data['orderId'] ?? data['order_id'];
+
+    if (type == 'payment_approved') {
+      if (mounted) {
+        HomeScreen.switchTabNotifier.value = 1;
+        Navigator.of(context).popUntil((route) => route.isFirst);
+      }
+      return;
+    }
+
+    if (type?.toString().toLowerCase() == 'order_confirmed') {
+      final subOrderId =
+          data['subOrderId'] ?? data['suborderid'] ?? data['sub_order_id'];
+      if (subOrderId != null && mounted) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                TrackDonationPage(orderId: subOrderId.toString()),
+          ),
+        );
+        return;
+      }
+    }
 
     if (orderId != null) {
       if (mounted) {

@@ -345,7 +345,7 @@ class _HomeTabState extends State<HomeTab> {
     } catch (e) {
       setState(() {
         _isLoading = false;
-        _errorMessage = "An error occurred while connecting to the server";
+        _errorMessage = e.toString();
       });
     }
   }

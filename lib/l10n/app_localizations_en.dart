@@ -1467,4 +1467,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get reasonForDifferentLocation => 'Reason';
+
+  @override
+  String minimum_quantity_for_location_is(String min) {
+    return 'minimum quantity for one location is $min';
+  }
 }

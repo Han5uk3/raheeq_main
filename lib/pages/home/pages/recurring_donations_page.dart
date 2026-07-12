@@ -55,7 +55,7 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
       }
     } catch (e) {
       setState(() {
-        _errorMessage = 'An error occurred while loading subscriptions.';
+        _errorMessage = e.toString();
         _isLoading = false;
       });
     }

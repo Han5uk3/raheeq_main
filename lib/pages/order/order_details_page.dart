@@ -343,13 +343,23 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                                 ? 1.0
                                 : 0.45,
                             child: GestureDetector(
-                              onTap: sp.quantity > sp.product.minQuantity
-                                  ? () {
-                                      setState(() {
-                                        sp.quantity -= 1;
-                                      });
-                                    }
-                                  : null,
+                              onTap: () {
+                                if (sp.quantity > sp.product.minQuantity) {
+                                  setState(() {
+                                    sp.quantity -= 1;
+                                  });
+                                } else {
+                                  CustomSnackbar.show(
+                                    context: context,
+                                    message: AppLocalizations.of(context)!
+                                        .minimum_quantity_for_location_is(
+                                          sp.product.minQuantity.toString(),
+                                        ),
+                                    isError: true,
+                                    bottomMargin: 120,
+                                  );
+                                }
+                              },
                               child: Container(
                                 width: 30,
                                 height: 30,

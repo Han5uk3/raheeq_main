@@ -71,7 +71,7 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
       }
     } catch (e) {
       setState(() {
-        _errorMessage = 'An error occurred while loading details.';
+        _errorMessage = e.toString();
         _isLoading = false;
       });
     }

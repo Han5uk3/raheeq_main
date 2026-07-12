@@ -100,7 +100,7 @@ class _OrdersTabState extends State<OrdersTab>
       _processOrdersResponse(response);
     } catch (e) {
       setState(() {
-        _errorMessage = 'An error occurred while loading orders.';
+        _errorMessage = e.toString();
         _isLoading = false;
       });
     }
