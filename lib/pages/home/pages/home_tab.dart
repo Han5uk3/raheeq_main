@@ -1616,6 +1616,9 @@ class _HomeTabState extends State<HomeTab> {
                   );
                   if (mosques != null && mosques is List<Place>) {
                     setState(() {
+                      _selectedItems.removeWhere(
+                        (item) => item.category.slug == slug,
+                      );
                       for (final mosque in mosques) {
                         bool exists = _selectedItems.any((item) {
                           return item.optionType == 'specific' &&
