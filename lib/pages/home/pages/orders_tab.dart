@@ -7,12 +7,13 @@ import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/models/order_response_model.dart';
 import 'package:raheeq_main/pages/order/booking_details_page.dart';
-import 'package:raheeq_main/pages/order/track_donation_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:raheeq_main/pages/home/home_screen.dart';
+import 'package:raheeq_main/services/deep_link_service.dart';
+import 'package:video_player/video_player.dart';
 
 class OrdersTab extends StatefulWidget {
   const OrdersTab({super.key});
@@ -545,8 +546,6 @@ class _OrderCard extends StatefulWidget {
 }
 
 class _OrderCardState extends State<_OrderCard> {
-  bool _isExpanded = false;
-
   @override
   Widget build(BuildContext context) {
     final locale = Localizations.localeOf(context).languageCode;
@@ -608,6 +607,34 @@ class _OrderCardState extends State<_OrderCard> {
                     textDirection: TextDirection.ltr,
                     style: const TextStyle(color: Colors.grey, fontSize: 14),
                   ),
+                  if (widget.order.status == 'COMPLETED')
+                    SizedBox(
+                      height: 32,
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.buttonBlueDark,
+                          padding: const EdgeInsets.symmetric(horizontal: 12),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                        ),
+                        onPressed: () {
+                          DeepLinkService().handleReorder(widget.order.id);
+                        },
+                        icon: const Icon(
+                          Icons.refresh,
+                          color: Colors.white,
+                          size: 16,
+                        ),
+                        label: Text(
+                          AppLocalizations.of(context)!.reorder,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ),
                 ],
               ),
               const Divider(),
@@ -666,7 +693,6 @@ class _OrderCardState extends State<_OrderCard> {
                         const SizedBox(height: 4),
 
                         if (address.isNotEmpty) ...[
-                          const SizedBox(height: 4),
                           Text(
                             address,
                             style: const TextStyle(
@@ -676,8 +702,9 @@ class _OrderCardState extends State<_OrderCard> {
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
+                          const SizedBox(height: 4),
                         ],
-                        const SizedBox(height: 4),
+
                         Row(
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
@@ -725,176 +752,75 @@ class _OrderCardState extends State<_OrderCard> {
                   ),
                 ],
               ),
-              AnimatedSize(
-                duration: const Duration(milliseconds: 300),
-                alignment: Alignment.topCenter,
-                curve: Curves.easeInOut,
-                child: _isExpanded
-                    ? Column(
-                        children: [
-                          const SizedBox(height: 12),
-                          const Divider(),
-                          const SizedBox(height: 12),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                AppLocalizations.of(context)!.date,
-                                style: const TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 14,
-                                ),
-                              ),
-                              Text(
-                                formattedDate,
-                                style: const TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                AppLocalizations.of(context)!.time,
-                                style: const TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 14,
-                                ),
-                              ),
-                              Text(
-                                formattedTime,
-                                style: const TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 14,
-                                ),
-                              ),
-                            ],
-                          ),
-
-                          const SizedBox(height: 16),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColors.buttonBlueDark,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                  ),
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => TrackDonationPage(
-                                          orderId: widget.order.id,
-                                        ),
-                                      ),
-                                    );
-                                  },
-                                  child: Text(
-                                    AppLocalizations.of(
-                                      context,
-                                    )!.track_donation,
-                                    style: const TextStyle(color: Colors.white),
-                                  ),
-                                ),
-                              ),
-                              if (widget.order.invoiceUrl != null &&
-                                  widget.order.invoiceUrl!.isNotEmpty) ...[
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: OutlinedButton(
-                                    style: OutlinedButton.styleFrom(
-                                      side: const BorderSide(
-                                        color: AppColors.buttonBlueDark,
-                                      ),
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                    ),
-                                    onPressed: () async {
-                                      final url = Uri.parse(
-                                        widget.order.invoiceUrl!,
-                                      );
-                                      try {
-                                        await launchUrl(
-                                          url,
-                                          mode: LaunchMode.externalApplication,
-                                        );
-                                      } catch (e) {
-                                        if (mounted) {
-                                          CustomSnackbar.show(
-                                            context: context,
-                                            message: AppLocalizations.of(
-                                              context,
-                                            )!.could_not_open_invoice,
-                                          );
-                                        }
-                                      }
-                                    },
-                                    child: Text(
-                                      AppLocalizations.of(
-                                        context,
-                                      )!.view_receipt,
-                                      style: const TextStyle(
-                                        color: AppColors.buttonBlueDark,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ],
-                          ),
-                          const SizedBox(height: 12),
-                          GestureDetector(
-                            behavior: HitTestBehavior.opaque,
-                            onTap: () {
-                              setState(() {
-                                _isExpanded = false;
-                              });
-                            },
-                            child: const SizedBox(
-                              width: double.infinity,
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(vertical: 8.0),
-                                child: Icon(
-                                  Icons.keyboard_arrow_up,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
-                      )
-                    : GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () {
-                          setState(() {
-                            _isExpanded = true;
-                          });
-                        },
-                        child: const SizedBox(
-                          width: double.infinity,
-                          child: Column(
-                            children: [
-                              SizedBox(height: 4),
-                              Padding(
-                                padding: EdgeInsets.symmetric(vertical: 8.0),
-                                child: Icon(
-                                  Icons.keyboard_arrow_down,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
+              const SizedBox(height: 12),
+              const Divider(),
+              const SizedBox(height: 8),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    AppLocalizations.of(context)!.date,
+                    style: const TextStyle(color: Colors.grey, fontSize: 14),
+                  ),
+                  Text(
+                    formattedDate,
+                    style: const TextStyle(color: Colors.black, fontSize: 14),
+                  ),
+                ],
               ),
+              const SizedBox(height: 4),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    AppLocalizations.of(context)!.time,
+                    style: const TextStyle(color: Colors.grey, fontSize: 14),
+                  ),
+                  Text(
+                    formattedTime,
+                    style: const TextStyle(color: Colors.black, fontSize: 14),
+                  ),
+                ],
+              ),
+              if (widget.order.invoiceUrl != null &&
+                  widget.order.invoiceUrl!.isNotEmpty) ...[
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: OutlinedButton(
+                    style: OutlinedButton.styleFrom(
+                      side: const BorderSide(color: AppColors.buttonBlueDark),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                    ),
+                    onPressed: () async {
+                      final url = Uri.parse(widget.order.invoiceUrl!);
+                      try {
+                        await launchUrl(
+                          url,
+                          mode: LaunchMode.externalApplication,
+                        );
+                      } catch (e) {
+                        if (mounted) {
+                          CustomSnackbar.show(
+                            context: context,
+                            message: AppLocalizations.of(
+                              context,
+                            )!.could_not_open_invoice,
+                          );
+                        }
+                      }
+                    },
+                    child: Text(
+                      AppLocalizations.of(context)!.view_receipt,
+                      style: const TextStyle(color: AppColors.buttonBlueDark),
+                    ),
+                  ),
+                ),
+              ],
+
+              _buildDeliveryProofs(widget.order),
             ],
           ),
         ),
@@ -902,8 +828,231 @@ class _OrderCardState extends State<_OrderCard> {
     );
   }
 
+  Widget _buildDeliveryProofs(OrderResponseModel order) {
+    if (order.deliveryProof == null || order.deliveryProof!.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final proofs = order.deliveryProof!;
+    int count = 0;
+    if (proofs['mosqueFrontImage'] != null) count++;
+    if (proofs['mosqueInsideImage'] != null) count++;
+    if (proofs['packagesImage'] != null) count++;
+    if (proofs['deliveryVideo'] != null) count++;
+
+    if (count == 0) return const SizedBox.shrink();
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const SizedBox(height: 16),
+        Text(
+          AppLocalizations.of(context)!.proof_of_delivery,
+          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            if (proofs['mosqueFrontImage'] != null)
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: _buildSmallProofCard(
+                    AppLocalizations.of(context)!.mosque_front,
+                    proofs['mosqueFrontImage'],
+                    false,
+                  ),
+                ),
+              ),
+            if (proofs['mosqueInsideImage'] != null)
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: _buildSmallProofCard(
+                    AppLocalizations.of(context)!.mosque_inside,
+                    proofs['mosqueInsideImage'],
+                    false,
+                  ),
+                ),
+              ),
+            if (proofs['packagesImage'] != null)
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: _buildSmallProofCard(
+                    AppLocalizations.of(context)!.packages,
+                    proofs['packagesImage'],
+                    false,
+                  ),
+                ),
+              ),
+            if (proofs['deliveryVideo'] != null)
+              Expanded(
+                child: _buildSmallProofCard(
+                  AppLocalizations.of(context)!.delivery_video,
+                  proofs['deliveryVideo'],
+                  true,
+                ),
+              ),
+          ],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSmallProofCard(String title, String url, bool isVideo) {
+    return GestureDetector(
+      onTap: () {
+        if (isVideo) {
+          _showVideoPreview(url);
+        } else {
+          _showImagePreview(url);
+        }
+      },
+      child: Column(
+        children: [
+          AspectRatio(
+            aspectRatio: 1,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  if (!isVideo)
+                    CachedNetworkImage(
+                      imageUrl: url,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => Shimmer.fromColors(
+                        baseColor: Colors.grey[300]!,
+                        highlightColor: Colors.grey[100]!,
+                        child: Container(color: Colors.white),
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        color: Colors.grey[200],
+                        child: const Icon(
+                          Icons.broken_image,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    )
+                  else
+                    Container(
+                      color: Colors.black12,
+                      child: const Icon(
+                        Icons.videocam,
+                        size: 24,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  if (isVideo)
+                    const Center(
+                      child: CircleAvatar(
+                        radius: 12,
+                        backgroundColor: Colors.black54,
+                        child: Icon(
+                          Icons.play_arrow,
+                          color: Colors.white,
+                          size: 12,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            title,
+            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600),
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showImagePreview(String url) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: EdgeInsets.zero,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              InteractiveViewer(
+                child: CachedNetworkImage(imageUrl: url, fit: BoxFit.contain),
+              ),
+              PositionedDirectional(
+                top: 40,
+                start: 20,
+                child: GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.grey[200],
+                    ),
+                    child: const Icon(
+                      Icons.arrow_back,
+                      size: 20,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showVideoPreview(String url) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          backgroundColor: Colors.black,
+          insetPadding: EdgeInsets.zero,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              _VideoPlayerWidget(url: url),
+              PositionedDirectional(
+                top: 40,
+                start: 20,
+                child: GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.grey[200],
+                    ),
+                    child: const Icon(
+                      Icons.arrow_back,
+                      size: 20,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
   void _showRateOrderBottomSheet(BuildContext context, String orderId) {
-    int rating = 5;
+    int rating = 0;
     final TextEditingController reviewController = TextEditingController();
     bool isSubmitting = false;
 
@@ -1118,6 +1267,90 @@ class _OrderCardState extends State<_OrderCard> {
           },
         );
       },
+    );
+  }
+}
+
+class _VideoPlayerWidget extends StatefulWidget {
+  final String url;
+  const _VideoPlayerWidget({required this.url});
+
+  @override
+  State<_VideoPlayerWidget> createState() => _VideoPlayerWidgetState();
+}
+
+class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
+  late VideoPlayerController _controller;
+  bool _isError = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = VideoPlayerController.networkUrl(Uri.parse(widget.url))
+      ..initialize()
+          .then((_) {
+            setState(() {});
+            _controller.play();
+          })
+          .catchError((e) {
+            setState(() {
+              _isError = true;
+            });
+          });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isError) {
+      return const Center(
+        child: Text(
+          "Failed to load video",
+          style: TextStyle(color: Colors.white),
+        ),
+      );
+    }
+
+    if (!_controller.value.isInitialized) {
+      return Shimmer.fromColors(
+        baseColor: Colors.grey[300]!,
+        highlightColor: Colors.grey[100]!,
+        child: Container(color: Colors.white),
+      );
+    }
+
+    return Center(
+      child: AspectRatio(
+        aspectRatio: _controller.value.aspectRatio,
+        child: Stack(
+          alignment: Alignment.bottomCenter,
+          children: [
+            VideoPlayer(_controller),
+            VideoProgressIndicator(_controller, allowScrubbing: true),
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  _controller.value.isPlaying
+                      ? _controller.pause()
+                      : _controller.play();
+                });
+              },
+              child: Center(
+                child: Icon(
+                  _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
+                  color: Colors.white.withValues(alpha: 0.5),
+                  size: 50,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:app_links/app_links.dart';
 import 'package:raheeq_main/storage/auth_storage.dart';
 import 'package:raheeq_main/storage/app_storage.dart';
-import 'package:raheeq_main/pages/order/track_donation_page.dart';
+import 'package:raheeq_main/pages/order/booking_details_page.dart';
 import 'package:raheeq_main/pages/order/contribution_details_page.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/models/checkout.dart';
@@ -101,9 +101,8 @@ class DeepLinkService {
     );
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => TrackDonationPage(
+        builder: (_) => BookingDetailsPage(
           orderId: subOrderId,
-          autoOpenProofs: !autoPlayVideo,
           autoPlayVideo: autoPlayVideo,
         ),
       ),

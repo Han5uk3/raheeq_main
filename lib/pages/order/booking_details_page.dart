@@ -9,11 +9,18 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:raheeq_main/services/deep_link_service.dart';
+import 'package:intl/intl.dart' show DateFormat;
+import 'package:video_player/video_player.dart';
 
 class BookingDetailsPage extends StatefulWidget {
   final String orderId;
+  final bool autoPlayVideo;
 
-  const BookingDetailsPage({super.key, required this.orderId});
+  const BookingDetailsPage({
+    super.key,
+    required this.orderId,
+    this.autoPlayVideo = false,
+  });
 
   @override
   State<BookingDetailsPage> createState() => _BookingDetailsPageState();
@@ -43,6 +50,18 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
           _order = OrderResponseModel.fromJson(response.data['data']);
           _isLoading = false;
         });
+
+        if (widget.autoPlayVideo &&
+            _order?.deliveryProof != null &&
+            _order!.deliveryProof!['deliveryVideo'] != null) {
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            Future.delayed(const Duration(milliseconds: 500), () {
+              if (mounted) {
+                _showVideoPreview(_order!.deliveryProof!['deliveryVideo']);
+              }
+            });
+          });
+        }
       } else {
         setState(() {
           _errorMessage =
@@ -337,18 +356,24 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          AppLocalizations.of(context)!.deliveredToDifferentLocation,
+                          AppLocalizations.of(
+                            context,
+                          )!.deliveredToDifferentLocation,
                           style: const TextStyle(
                             color: Colors.orange,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
-                        if (order.differentMosqueReason != null && order.differentMosqueReason!.isNotEmpty)
+                        if (order.differentMosqueReason != null &&
+                            order.differentMosqueReason!.isNotEmpty)
                           Padding(
                             padding: const EdgeInsets.only(top: 4.0),
                             child: Text(
                               '${AppLocalizations.of(context)!.reasonForDifferentLocation}: ${order.differentMosqueReason}',
-                              style: TextStyle(color: Colors.orange.shade800, fontSize: 12),
+                              style: TextStyle(
+                                color: Colors.orange.shade800,
+                                fontSize: 12,
+                              ),
                             ),
                           ),
                       ],
@@ -516,6 +541,14 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
               ),
             ),
           ],
+
+          // Delivery Progress
+          _buildDeliveryProgressCard(order),
+          const SizedBox(height: 12),
+
+          // Delivery Proofs
+          _buildDeliveryProofs(order),
+          const SizedBox(height: 12),
 
           // Financials
           if (order.financials != null) ...[
@@ -722,6 +755,432 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildDeliveryProgressCard(OrderResponseModel order) {
+    final bool isOrderPlaced = true;
+    final bool isOutForDelivery =
+        order.driver != null ||
+        order.status == 'DISPATCHED' ||
+        order.status == 'OUT_FOR_DELIVERY' ||
+        order.status == 'DELIVERED';
+    final bool isDelivered =
+        order.status == 'CONFIRMED' || order.status == 'COMPLETED';
+
+    return _buildPremiumCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionHeader(
+            AppLocalizations.of(context)!.delivery_progress,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 24),
+          _buildTimelineItem(
+            title: AppLocalizations.of(context)!.order_placed,
+            date: order.createdAt,
+            isReached: isOrderPlaced,
+            isLast: false,
+            icon: Icons.receipt_long,
+          ),
+          _buildTimelineItem(
+            title: AppLocalizations.of(context)!.out_for_delivery,
+            date: order.assignedAt,
+            isReached: isOutForDelivery,
+            isLast: false,
+            icon: Icons.local_shipping,
+          ),
+          _buildTimelineItem(
+            title: AppLocalizations.of(context)!.delivery_completed,
+            date: order.completedAt,
+            isReached: isDelivered,
+            isLast: true,
+            icon: Icons.check_circle,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTimelineItem({
+    required String title,
+    DateTime? date,
+    required bool isReached,
+    required bool isLast,
+    required IconData icon,
+  }) {
+    final Color color = isReached
+        ? AppColors.buttonBlueDark
+        : Colors.grey[300]!;
+
+    String formattedDate = '';
+    if (date != null) {
+      final locale = Localizations.localeOf(context).languageCode;
+      formattedDate = DateFormat(
+        'MMM dd, yyyy - hh:mm a',
+        locale,
+      ).format(date.toLocal());
+    }
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Column(
+          children: [
+            Container(
+              width: 40,
+              height: 40,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: isReached ? color : Colors.grey[100],
+              ),
+              child: Icon(icon, color: Colors.white, size: 20),
+            ),
+            if (!isLast)
+              Container(
+                width: 2,
+                height: 50,
+                color: isReached ? AppColors.buttonBlueDark : Colors.grey[300],
+              ),
+          ],
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 10.0),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: isReached ? FontWeight.bold : FontWeight.normal,
+                    color: isReached ? Colors.black : Colors.grey,
+                  ),
+                ),
+                if (date != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4.0),
+                    child: Text(
+                      formattedDate,
+                      style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildDeliveryProofs(OrderResponseModel order) {
+    if (order.deliveryProof == null || order.deliveryProof!.isEmpty) {
+      return const SizedBox.shrink();
+    }
+
+    final proofs = order.deliveryProof!;
+    int count = 0;
+    if (proofs['mosqueFrontImage'] != null) count++;
+    if (proofs['mosqueInsideImage'] != null) count++;
+    if (proofs['packagesImage'] != null) count++;
+    if (proofs['deliveryVideo'] != null) count++;
+
+    if (count == 0) return const SizedBox.shrink();
+
+    return _buildPremiumCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionHeader(
+            AppLocalizations.of(context)!.proof_of_delivery,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              if (proofs['mosqueFrontImage'] != null)
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: _buildSmallProofCard(
+                      AppLocalizations.of(context)!.mosque_front,
+                      proofs['mosqueFrontImage'],
+                      false,
+                    ),
+                  ),
+                ),
+              if (proofs['mosqueInsideImage'] != null)
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: _buildSmallProofCard(
+                      AppLocalizations.of(context)!.mosque_inside,
+                      proofs['mosqueInsideImage'],
+                      false,
+                    ),
+                  ),
+                ),
+              if (proofs['packagesImage'] != null)
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.only(right: 8.0),
+                    child: _buildSmallProofCard(
+                      AppLocalizations.of(context)!.packages,
+                      proofs['packagesImage'],
+                      false,
+                    ),
+                  ),
+                ),
+              if (proofs['deliveryVideo'] != null)
+                Expanded(
+                  child: _buildSmallProofCard(
+                    AppLocalizations.of(context)!.delivery_video,
+                    proofs['deliveryVideo'],
+                    true,
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSmallProofCard(String title, String url, bool isVideo) {
+    return GestureDetector(
+      onTap: () {
+        if (isVideo) {
+          _showVideoPreview(url);
+        } else {
+          _showImagePreview(url);
+        }
+      },
+      child: Column(
+        children: [
+          AspectRatio(
+            aspectRatio: 1,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  if (!isVideo)
+                    CachedNetworkImage(
+                      imageUrl: url,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => Shimmer.fromColors(
+                        baseColor: Colors.grey[300]!,
+                        highlightColor: Colors.grey[100]!,
+                        child: Container(color: Colors.white),
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        color: Colors.grey[200],
+                        child: const Icon(
+                          Icons.broken_image,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    )
+                  else
+                    Container(
+                      color: Colors.black12,
+                      child: const Icon(
+                        Icons.videocam,
+                        size: 32,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  if (isVideo)
+                    const Center(
+                      child: CircleAvatar(
+                        radius: 16,
+                        backgroundColor: Colors.black54,
+                        child: Icon(
+                          Icons.play_arrow,
+                          color: Colors.white,
+                          size: 16,
+                        ),
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            title,
+            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600),
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showImagePreview(String url) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: EdgeInsets.zero,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              InteractiveViewer(
+                child: CachedNetworkImage(imageUrl: url, fit: BoxFit.contain),
+              ),
+              PositionedDirectional(
+                top: 40,
+                start: 20,
+                child: GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.grey[200],
+                    ),
+                    child: const Icon(
+                      Icons.arrow_back,
+                      size: 20,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _showVideoPreview(String url) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          backgroundColor: Colors.black,
+          insetPadding: EdgeInsets.zero,
+          child: Stack(
+            fit: StackFit.expand,
+            children: [
+              _VideoPlayerWidget(url: url),
+              PositionedDirectional(
+                top: 40,
+                start: 20,
+                child: GestureDetector(
+                  onTap: () => Navigator.pop(context),
+                  child: Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.grey[200],
+                    ),
+                    child: const Icon(
+                      Icons.arrow_back,
+                      size: 20,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _VideoPlayerWidget extends StatefulWidget {
+  final String url;
+  const _VideoPlayerWidget({required this.url});
+
+  @override
+  State<_VideoPlayerWidget> createState() => _VideoPlayerWidgetState();
+}
+
+class _VideoPlayerWidgetState extends State<_VideoPlayerWidget> {
+  late VideoPlayerController _controller;
+  bool _isError = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = VideoPlayerController.networkUrl(Uri.parse(widget.url))
+      ..initialize()
+          .then((_) {
+            setState(() {});
+            _controller.play();
+          })
+          .catchError((e) {
+            setState(() {
+              _isError = true;
+            });
+          });
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    if (_isError) {
+      return const Center(
+        child: Text(
+          "Failed to load video",
+          style: TextStyle(color: Colors.white),
+        ),
+      );
+    }
+
+    if (!_controller.value.isInitialized) {
+      return Shimmer.fromColors(
+        baseColor: Colors.grey[300]!,
+        highlightColor: Colors.grey[100]!,
+        child: Container(color: Colors.white),
+      );
+    }
+
+    return Center(
+      child: AspectRatio(
+        aspectRatio: _controller.value.aspectRatio,
+        child: Stack(
+          alignment: Alignment.bottomCenter,
+          children: [
+            VideoPlayer(_controller),
+            VideoProgressIndicator(_controller, allowScrubbing: true),
+            GestureDetector(
+              onTap: () {
+                setState(() {
+                  _controller.value.isPlaying
+                      ? _controller.pause()
+                      : _controller.play();
+                });
+              },
+              child: Center(
+                child: Icon(
+                  _controller.value.isPlaying ? Icons.pause : Icons.play_arrow,
+                  color: Colors.white.withValues(alpha: 0.5),
+                  size: 50,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
