@@ -464,8 +464,8 @@ class _HomeTabState extends State<HomeTab> {
                     ),
 
                     // Carousel Section
-                    AspectRatio(
-                      aspectRatio: 393 / 200,
+                    SizedBox(
+                      height: 190,
                       child: _bannerData.isEmpty
                           ? Padding(
                               padding: const EdgeInsets.symmetric(
@@ -508,6 +508,7 @@ class _HomeTabState extends State<HomeTab> {
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(20),
                                     child: CachedNetworkImage(
+                                      height: 180,
                                       imageUrl: bannerUrl,
                                       fit: BoxFit.cover,
                                       placeholder: (context, url) =>
@@ -691,9 +692,10 @@ class _HomeTabState extends State<HomeTab> {
                             specificData: mosque,
                           ),
                           selectedProducts: _selectedItems.map((item) {
+                            final product = item.specificData as Product;
                             return SelectedProduct(
-                              product: item.specificData as Product,
-                              quantity: 1,
+                              product: product,
+                              quantity: product.minQuantity,
                             );
                           }).toList(),
                         ),
@@ -1233,7 +1235,7 @@ class _HomeTabState extends State<HomeTab> {
         clipBehavior: Clip.none,
         child: Container(
           height: 210,
-          width: 360, // Fixed width for design baseline
+          width: 420, // Fixed width for design baseline
           margin: const EdgeInsetsDirectional.only(bottom: 0),
           child: Stack(
             clipBehavior: Clip.none,

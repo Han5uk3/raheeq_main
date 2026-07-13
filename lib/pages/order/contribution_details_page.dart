@@ -282,12 +282,13 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
         'icon': Icons.account_balance_wallet,
         'color': AppColors.headerlightblue,
       },
-      {
-        'id': 'IBAN',
-        'title': 'IBAN',
-        'icon': Icons.account_balance,
-        'color': AppColors.headerlightblue,
-      },
+      if (_checkoutData.subscription == null)
+        {
+          'id': 'IBAN',
+          'title': 'IBAN',
+          'icon': Icons.account_balance,
+          'color': AppColors.headerlightblue,
+        },
     ];
 
     return Card(
@@ -533,19 +534,42 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
               }
 
               if (verifyResponse.data['success'] == true) {
-                log(
-                  'Payment Flow: verifyPayment successful.',
-                  name: 'CheckoutFlow',
-                );
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => PaymentStatusPage(
-                      status: PaymentStatus.success,
-                      isAr: isAr,
+                final paymentData =
+                    verifyResponse.data['data'] ?? verifyResponse.data;
+                final paymentStatus = paymentData['paymentStatus'];
+
+                if (paymentStatus == 'PENDING') {
+                  log(
+                    'Payment Flow: verifyPayment returned PENDING.',
+                    name: 'CheckoutFlow',
+                  );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => PaymentStatusPage(
+                        status: PaymentStatus.failed,
+                        message: verifyResponse.data['message'] ??
+                            AppLocalizations.of(context)!.payment_failed,
+                        isAr: isAr,
+                        onRetry: () => Navigator.pop(context),
+                      ),
                     ),
-                  ),
-                );
+                  );
+                } else {
+                  log(
+                    'Payment Flow: verifyPayment successful.',
+                    name: 'CheckoutFlow',
+                  );
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => PaymentStatusPage(
+                        status: PaymentStatus.success,
+                        isAr: isAr,
+                      ),
+                    ),
+                  );
+                }
               } else {
                 log(
                   'Payment Flow: verifyPayment failed: ${verifyResponse.data['message']}',
@@ -611,17 +635,6 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                 _isProcessingPayment = false;
               });
             }
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => PaymentStatusPage(
-                  status: PaymentStatus.failed,
-                  message: AppLocalizations.of(context)!.payment_was_cancelled,
-                  isAr: isAr,
-                  onRetry: () => Navigator.pop(context),
-                ),
-              ),
-            );
           }
         }
 
