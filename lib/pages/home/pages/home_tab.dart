@@ -1228,161 +1228,165 @@ class _HomeTabState extends State<HomeTab> {
           );
         }
       },
-      child: Container(
-        height: 210,
-        width: double.infinity,
-        margin: const EdgeInsetsDirectional.only(bottom: 0),
-        child: Stack(
-          clipBehavior: Clip.none,
-          children: [
-            // Dark blue background container — half the total height, aligned to bottom
-            Positioned(
-              left: 0,
-              right: 0,
-              bottom: 0,
-              height: 150,
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      AppColors.buttonBlueDark,
-                      Color.fromARGB(255, 31, 163, 224),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(20),
-                  image: const DecorationImage(
-                    image: AssetImage("assets/Groupbg.png"),
-                    fit: BoxFit.fill,
+      child: FittedBox(
+        fit: BoxFit.fitWidth,
+        clipBehavior: Clip.none,
+        child: Container(
+          height: 210,
+          width: 360, // Fixed width for design baseline
+          margin: const EdgeInsetsDirectional.only(bottom: 0),
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              // Dark blue background container — half the total height, aligned to bottom
+              Positioned(
+                left: 0,
+                right: 0,
+                bottom: 0,
+                height: 150,
+                child: Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      colors: [
+                        AppColors.buttonBlueDark,
+                        Color.fromARGB(255, 31, 163, 224),
+                      ],
+                    ),
+                    borderRadius: BorderRadius.circular(20),
+                    image: const DecorationImage(
+                      image: AssetImage("assets/Groupbg.png"),
+                      fit: BoxFit.fill,
+                    ),
                   ),
                 ),
               ),
-            ),
-            Positioned(
-              left: 0,
-              top: 40,
+              Positioned(
+                left: 0,
+                top: 40,
 
-              height: 150,
-              child: SizedBox(
-                height: 160,
-                width: 160,
-                child: Image.asset("assets/Group.png"),
+                height: 150,
+                child: SizedBox(
+                  height: 160,
+                  width: 160,
+                  child: Image.asset("assets/Group.png"),
+                ),
               ),
-            ),
 
-            Positioned(
-              right: -50,
-              top: 40,
-              height: 200,
-              width: 200,
-              child: SizedBox(child: Image.asset("assets/Group.png")),
-            ),
-            // Content row on top
-            Positioned.fill(
-              child: Row(
-                children: [
-                  // Left side: Title + Button
-                  Expanded(
-                    flex: 7,
-                    child: Padding(
-                      padding: const EdgeInsetsDirectional.only(
-                        start: 16,
-                        top: 85,
-                        bottom: 16,
-                      ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(
-                            title,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 22,
-                              fontWeight: FontWeight.bold,
-                              height: 1.2,
+              Positioned(
+                right: -50,
+                top: 40,
+                height: 200,
+                width: 200,
+                child: SizedBox(child: Image.asset("assets/Group.png")),
+              ),
+              // Content row on top
+              Positioned.fill(
+                child: Row(
+                  children: [
+                    // Left side: Title + Button
+                    Expanded(
+                      flex: 7,
+                      child: Padding(
+                        padding: const EdgeInsetsDirectional.only(
+                          start: 16,
+                          top: 85,
+                          bottom: 16,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              title,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                height: 1.2,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 12),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  AppLocalizations.of(context)!.donate_now,
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.w600,
-                                    color: Color(0xFF1A385F),
+                            const SizedBox(height: 12),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                              child: Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text(
+                                    AppLocalizations.of(context)!.donate_now,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: Color(0xFF1A385F),
+                                    ),
                                   ),
-                                ),
-                                const SizedBox(width: 8),
-                                Container(
-                                  padding: const EdgeInsets.all(5),
-                                  decoration: const BoxDecoration(
-                                    color: Color(0xFF1A385F),
-                                    shape: BoxShape.circle,
+                                  const SizedBox(width: 8),
+                                  Container(
+                                    padding: const EdgeInsets.all(5),
+                                    decoration: const BoxDecoration(
+                                      color: Color(0xFF1A385F),
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Icon(
+                                      forwardArrowIcon(context),
+                                      size: 12,
+                                      color: Colors.white,
+                                    ),
                                   ),
-                                  child: Icon(
-                                    forwardArrowIcon(context),
-                                    size: 12,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  SizedBox(width: 16),
-                  // Right side: Image extends full height
-                  Expanded(
-                    flex: 9,
-                    child: Padding(
-                      padding: const EdgeInsetsDirectional.only(
-                        end: 16,
-                        top: 16,
-                        bottom: 16,
-                      ),
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(16),
-                        child: CachedNetworkImage(
-                          imageUrl: imageUrl,
-                          fit: BoxFit.cover,
-                          height: double.infinity,
-                          placeholder: (context, url) => Container(
-                            color: const Color(
-                              0xFF1A385F,
-                            ).withValues(alpha: 0.3),
-                          ),
-                          errorWidget: (context, url, error) => Container(
-                            color: Colors.grey[200],
-                            child: const Center(
-                              child: Icon(
-                                Icons.error_outline,
-                                color: Colors.grey,
+                    SizedBox(width: 16),
+                    // Right side: Image extends full height
+                    Expanded(
+                      flex: 9,
+                      child: Padding(
+                        padding: const EdgeInsetsDirectional.only(
+                          end: 16,
+                          top: 16,
+                          bottom: 16,
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(16),
+                          child: CachedNetworkImage(
+                            imageUrl: imageUrl,
+                            fit: BoxFit.cover,
+                            height: double.infinity,
+                            placeholder: (context, url) => Container(
+                              color: const Color(
+                                0xFF1A385F,
+                              ).withValues(alpha: 0.3),
+                            ),
+                            errorWidget: (context, url, error) => Container(
+                              color: Colors.grey[200],
+                              child: const Center(
+                                child: Icon(
+                                  Icons.error_outline,
+                                  color: Colors.grey,
+                                ),
                               ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -1424,7 +1428,8 @@ class _HomeTabState extends State<HomeTab> {
           ),
           itemBuilder: (context, index) {
             final category = _categories[index];
-            final label = category.localizedLabel(isAr);
+            String label = category.localizedLabel(isAr);
+
             String imageUrl = category.image.trim();
             final slug = category.slug;
 
