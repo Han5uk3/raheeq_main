@@ -464,9 +464,8 @@ class _HomeTabState extends State<HomeTab> {
                     ),
 
                     // Carousel Section
-                    SizedBox(
-                      height: 200,
-
+                    AspectRatio(
+                      aspectRatio: 393 / 200,
                       child: _bannerData.isEmpty
                           ? Padding(
                               padding: const EdgeInsets.symmetric(
