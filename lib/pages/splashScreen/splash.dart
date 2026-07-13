@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 import '../authentication/login.dart';
 import '../../storage/auth_storage.dart';
 import '../../pages/home/home_screen.dart';
@@ -14,8 +15,21 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     super.initState();
-    Future.delayed(const Duration(seconds: 5), () {
+    Future.delayed(const Duration(seconds: 5), () async {
+      final hasInternet =
+          await InternetConnectionChecker.instance.hasConnection;
+
       if (mounted) {
+        if (!hasInternet) {
+          await AuthStorage.clear();
+          if (mounted) {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => const Login()),
+            );
+          }
+          return;
+        }
+
         final hasSession = AuthStorage.accessToken != null;
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(

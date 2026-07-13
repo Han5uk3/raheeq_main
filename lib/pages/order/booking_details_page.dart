@@ -565,6 +565,33 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                     ),
                   ),
                   const SizedBox(height: 16),
+                  if (order.parentOrder?.paymentMethod != null &&
+                      order.parentOrder!.paymentMethod.isNotEmpty) ...[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          AppLocalizations.of(context)!.payment_method,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                        Text(
+                          _formatPaymentMethod(
+                            context,
+                            order.parentOrder!.paymentMethod,
+                          ),
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.black,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                  ],
                   _buildFinancialRow(
                     AppLocalizations.of(context)!.amount_value,
                     order.financials!.amount,
@@ -703,6 +730,26 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
         ],
       ),
     );
+  }
+
+  String _formatPaymentMethod(BuildContext context, String method) {
+    if (method.isEmpty) return '';
+    final loc = AppLocalizations.of(context)!;
+    switch (method.toUpperCase()) {
+      case 'CREDIT_CARD':
+      case 'MADA':
+        return loc.credit_card_mada;
+      case 'STC_PAY':
+        return loc.stc_pay;
+      case 'APPLE_PAY':
+        return loc.apple_pay;
+      case 'BANK_TRANSFER':
+      case 'IBAN':
+        return loc.iban_bank_transfer;
+      default:
+        final parts = method.split('_');
+        return parts.map((p) => p.isEmpty ? '' : '${p[0].toUpperCase()}${p.substring(1).toLowerCase()}').join(' ');
+    }
   }
 
   Widget _buildFinancialRow(

@@ -1460,4 +1460,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String minimum_quantity_for_location_is(String min) {
     return 'الحد الأدنى للكمية للموقع الواحد هو $min';
   }
+
+  @override
+  String get internet_error =>
+      'خطأ في الإنترنت. يرجى التحقق من اتصال الإنترنت الخاص بك';
 }

@@ -2,10 +2,14 @@ import 'package:dio/dio.dart';
 import 'dart:developer';
 import '../storage/auth_storage.dart';
 import 'package:raheeq_main/main.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:raheeq_main/l10n/app_localizations.dart';
+import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 
 class ApiService {
   static const String baseUrl = 'https://api-staging.suqyarahiq.com/api/v1';
   final Dio _dio;
+  static DateTime? _lastInternetErrorTime;
 
   ApiService()
     : _dio = Dio(
@@ -16,6 +20,62 @@ class ApiService {
           headers: {'Content-Type': 'application/json'},
         ),
       ) {
+    // ── Internet Connection Interceptor ──
+    _dio.interceptors.add(
+      InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          final hasInternet =
+              await InternetConnectionChecker.instance.hasConnection;
+          if (!hasInternet) {
+            final internetErrorStr = lookupAppLocalizations(
+              localeNotifier.value,
+            ).internet_error;
+
+            final currentContext = AuthStorage.navigatorKey.currentContext;
+            if (currentContext != null) {
+              final isGetRequest = options.method.toUpperCase() == 'GET';
+              final forceSnackbar = options.extra['show_snackbar'] == true;
+              final hideSnackbar = options.extra['hide_snackbar'] == true;
+
+              // Only show snackbar if it's not a GET request (which usually shows in page content),
+              // OR if it explicitly asks to show a snackbar.
+              if (!hideSnackbar && (!isGetRequest || forceSnackbar)) {
+                final now = DateTime.now();
+                if (_lastInternetErrorTime == null ||
+                    now.difference(_lastInternetErrorTime!) >
+                        const Duration(seconds: 3)) {
+                  _lastInternetErrorTime = now;
+
+                  // If we cannot pop, we are at the root route.
+                  // We also check if the user is logged in to ensure it's the HomeScreen with a bottom nav bar.
+                  final isRootRoute =
+                      !(AuthStorage.navigatorKey.currentState?.canPop() ??
+                          true);
+                  final isLoggedIn = AuthStorage.accessToken != null;
+
+                  CustomSnackbar.show(
+                    context: currentContext,
+                    message: internetErrorStr,
+                    isError: true,
+                    bottomMargin: (isRootRoute && isLoggedIn) ? 140 : 24,
+                  );
+                }
+              }
+            }
+
+            return handler.reject(
+              ApiDioException(
+                requestOptions: options,
+                apiMessage: internetErrorStr,
+                type: DioExceptionType.connectionError,
+              ),
+            );
+          }
+          return handler.next(options);
+        },
+      ),
+    );
+
     // ── Logging interceptor (added first so it fires before auth) ──
     _dio.interceptors.add(
       InterceptorsWrapper(
@@ -381,6 +441,7 @@ class ApiService {
       final response = await _dio.post(
         '/me/freshchat-token',
         data: {'freshchatUuid': freshchatUuid},
+        options: Options(extra: {'hide_snackbar': true}),
       );
       log(
         'API RESPONSE [${response.statusCode}]: ${response.data}',
@@ -407,6 +468,7 @@ class ApiService {
       final response = await _dio.post(
         '/me/freshchat-restore-id',
         data: {'restoreId': restoreId},
+        options: Options(extra: {'hide_snackbar': true}),
       );
       log(
         'API RESPONSE [${response.statusCode}]: ${response.data}',
@@ -536,9 +598,12 @@ class ApiService {
   }
 
   /// Get Cities data
-  Future<Response> getCities() async {
+  Future<Response> getCities({bool showSnackbar = false}) async {
     try {
-      final response = await _dio.get('/geography/cities');
+      final response = await _dio.get(
+        '/geography/cities',
+        options: Options(extra: {'show_snackbar': showSnackbar}),
+      );
       return response;
     } catch (e) {
       rethrow;
@@ -868,9 +933,14 @@ class ApiService {
   }
 
   /// Get Unread Notifications Count
-  Future<Response> getUnreadNotificationsCount() async {
+  Future<Response> getUnreadNotificationsCount({
+    bool showSnackbar = false,
+  }) async {
     try {
-      final response = await _dio.get('/notifications/unread-count');
+      final response = await _dio.get(
+        '/notifications/unread-count',
+        options: Options(extra: {'show_snackbar': showSnackbar}),
+      );
       return response;
     } catch (e) {
       rethrow;
@@ -1084,10 +1154,13 @@ class ApiService {
     }
   }
 
-  /// Get Impact Statistics
-  Future<Response> getImpact() async {
+  /// Get Impact data
+  Future<Response> getImpact({bool showSnackbar = false}) async {
     try {
-      final response = await _dio.get('/me/impact');
+      final response = await _dio.get(
+        '/me/impact',
+        options: Options(extra: {'show_snackbar': showSnackbar}),
+      );
       return response;
     } catch (e) {
       rethrow;

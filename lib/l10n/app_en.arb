@@ -530,5 +530,6 @@
         "type": "String"
       }
     }
-  }
+  },
+  "internet_error": "Internet error. Please check your internet connection"
 }

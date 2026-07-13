@@ -118,43 +118,32 @@ class _NotificationsPageState extends State<NotificationsPage> {
       }
     }
 
+    if (notification.category == 'MARKETING') {
+      return;
+    }
+
     // Handle navigation based on data payload
     final data = notification.data;
     final type = data['type'];
     final orderId = data['orderid'] ?? data['orderId'] ?? data['order_id'];
 
-    if (type == 'payment_approved') {
-      if (mounted) {
-        HomeScreen.switchTabNotifier.value = 1;
-        Navigator.of(context).popUntil((route) => route.isFirst);
-      }
-      return;
-    }
-
     if (type?.toString().toLowerCase() == 'order_confirmed') {
       final subOrderId =
           data['subOrderId'] ?? data['suborderid'] ?? data['sub_order_id'];
-      if (subOrderId != null && mounted) {
+      final targetOrderId = subOrderId ?? orderId;
+      if (targetOrderId != null && mounted) {
         Navigator.push(
           context,
           MaterialPageRoute(
             builder: (context) =>
-                BookingDetailsPage(orderId: subOrderId.toString()),
+                BookingDetailsPage(orderId: targetOrderId.toString()),
           ),
         );
-        return;
       }
-    }
-
-    if (orderId != null) {
+    } else {
       if (mounted) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) =>
-                BookingDetailsPage(orderId: orderId.toString()),
-          ),
-        );
+        HomeScreen.switchTabNotifier.value = 1;
+        Navigator.of(context).popUntil((route) => route.isFirst);
       }
     }
   }

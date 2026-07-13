@@ -633,7 +633,18 @@ class _LoginState extends State<Login> {
                                       String errorMessage = AppLocalizations.of(
                                         context,
                                       )!.failed_to_send_otp;
-                                      if (e is DioException) {
+                                      if (e is ApiDioException) {
+                                        if (e.type ==
+                                            DioExceptionType.connectionError) {
+                                          // Internet interceptor already showed a snackbar
+                                          return;
+                                        }
+                                        errorMessage = e.apiMessage;
+                                      } else if (e is DioException) {
+                                        if (e.type ==
+                                            DioExceptionType.connectionError) {
+                                          return;
+                                        }
                                         if (e.response?.statusCode == 429) {
                                           errorMessage = AppLocalizations.of(
                                             context,

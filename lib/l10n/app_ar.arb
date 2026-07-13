@@ -478,5 +478,6 @@
   "ok": "حسناً",
   "deliveredToDifferentLocation": "تم التسليم لمسجد آخر",
   "reasonForDifferentLocation": "السبب",
-  "minimum_quantity_for_location_is": "الحد الأدنى للكمية للموقع الواحد هو {min}"
+  "minimum_quantity_for_location_is": "الحد الأدنى للكمية للموقع الواحد هو {min}",
+  "internet_error": "خطأ في الإنترنت. يرجى التحقق من اتصال الإنترنت الخاص بك"
 }

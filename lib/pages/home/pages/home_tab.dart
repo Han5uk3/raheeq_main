@@ -50,7 +50,7 @@ class HomeTab extends StatefulWidget {
 class _HomeTabState extends State<HomeTab> {
   final PageController _pageController = PageController(
     initialPage: 1000,
-    viewportFraction: 0.85,
+    viewportFraction: 0.9,
   );
   Timer? _timer;
 
@@ -185,7 +185,7 @@ class _HomeTabState extends State<HomeTab> {
 
       final citiesFuture = () async {
         try {
-          final citiesResponse = await ApiService().getCities();
+          final citiesResponse = await ApiService().getCities(showSnackbar: true);
           if (citiesResponse.statusCode == 200 &&
               citiesResponse.data['success'] == true) {
             final List<dynamic> data = citiesResponse.data['data'] ?? [];
@@ -200,7 +200,7 @@ class _HomeTabState extends State<HomeTab> {
 
       final impactFuture = () async {
         try {
-          final impactRes = await ApiService().getImpact();
+          final impactRes = await ApiService().getImpact(showSnackbar: true);
           if (impactRes.statusCode == 200 &&
               impactRes.data['success'] == true) {
             _cachedImpactData = ImpactModel.fromJson(impactRes.data['data']);
@@ -212,7 +212,7 @@ class _HomeTabState extends State<HomeTab> {
 
       final notificationsFuture = () async {
         try {
-          final unreadRes = await ApiService().getUnreadNotificationsCount();
+          final unreadRes = await ApiService().getUnreadNotificationsCount(showSnackbar: true);
           if (unreadRes.statusCode == 200 &&
               unreadRes.data['success'] == true) {
             final countData = unreadRes.data['data'];

@@ -2907,6 +2907,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'minimum quantity for one location is {min}'**
   String minimum_quantity_for_location_is(String min);
+
+  /// No description provided for @internet_error.
+  ///
+  /// In en, this message translates to:
+  /// **'Internet error. Please check your internet connection'**
+  String get internet_error;
 }
 
 class _AppLocalizationsDelegate

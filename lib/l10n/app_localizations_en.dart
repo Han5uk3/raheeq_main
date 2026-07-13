@@ -1472,4 +1472,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String minimum_quantity_for_location_is(String min) {
     return 'minimum quantity for one location is $min';
   }
+
+  @override
+  String get internet_error =>
+      'Internet error. Please check your internet connection';
 }

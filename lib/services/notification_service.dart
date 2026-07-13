@@ -2,7 +2,9 @@ import 'dart:convert';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:raheeq_main/pages/home/home_screen.dart';
+import 'package:raheeq_main/pages/order/booking_details_page.dart';
 import 'package:raheeq_main/storage/auth_storage.dart';
 
 @pragma('vm:entry-point')
@@ -152,6 +154,8 @@ class NotificationService {
             channel.name,
             channelDescription: channel.description,
             icon: android.smallIcon ?? '@drawable/ic_notification',
+            importance: Importance.max,
+            priority: Priority.high,
             // other properties...
           ),
           iOS: const DarwinNotificationDetails(
@@ -184,7 +188,7 @@ class NotificationService {
     final innerData = data['data'];
 
     // Helper to handle the actual navigation
-    void handleNavigation(String? type) {
+    void handleNavigation(String? type, Map? payloadData) {
       if (type == 'payment_approved') {
         // 1 is the index for OrdersTab in HomeScreen
         HomeScreen.switchTabNotifier.value = 1;
@@ -192,14 +196,33 @@ class NotificationService {
         AuthStorage.navigatorKey.currentState?.popUntil(
           (route) => route.isFirst,
         );
+      } else if (type == 'order_confirmed') {
+        final subOrderId =
+            payloadData?['subOrderId'] ??
+            payloadData?['suborderid'] ??
+            payloadData?['sub_order_id'];
+        final targetOrderId =
+            subOrderId ??
+            payloadData?['orderid'] ??
+            payloadData?['orderId'] ??
+            payloadData?['order_id'];
+
+        if (targetOrderId != null) {
+          AuthStorage.navigatorKey.currentState?.push(
+            MaterialPageRoute(
+              builder: (context) =>
+                  BookingDetailsPage(orderId: targetOrderId.toString()),
+            ),
+          );
+        }
       }
     }
 
     if (innerData != null && innerData is Map) {
-      handleNavigation(innerData['type']?.toString());
+      handleNavigation(innerData['type']?.toString(), innerData);
     } else {
       // Fallback in case `data` is already the inner payload
-      handleNavigation(data['type']?.toString());
+      handleNavigation(data['type']?.toString(), data);
     }
   }
 }

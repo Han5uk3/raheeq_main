@@ -166,7 +166,15 @@ class _OTPState extends State<OTP> {
       }
       if (!context.mounted) return;
       String errorMessage = AppLocalizations.of(context)!.verification_failed;
-      if (e is DioException) {
+      if (e is ApiDioException) {
+        if (e.type == DioExceptionType.connectionError) {
+          return;
+        }
+        errorMessage = e.apiMessage;
+      } else if (e is DioException) {
+        if (e.type == DioExceptionType.connectionError) {
+          return;
+        }
         if (e.response?.statusCode == 401) {
           errorMessage = AppLocalizations.of(context)!.invalid_otp;
         } else if (e.response?.data is Map &&
@@ -476,7 +484,17 @@ class _OTPState extends State<OTP> {
                                       }
                                       String errorMessage =
                                           'Error: ${e.toString()}';
-                                      if (e is DioException) {
+                                      if (e is ApiDioException) {
+                                        if (e.type ==
+                                            DioExceptionType.connectionError) {
+                                          return;
+                                        }
+                                        errorMessage = e.apiMessage;
+                                      } else if (e is DioException) {
+                                        if (e.type ==
+                                            DioExceptionType.connectionError) {
+                                          return;
+                                        }
                                         if (e.response?.statusCode == 429) {
                                           errorMessage = AppLocalizations.of(
                                             context,
