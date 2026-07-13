@@ -278,9 +278,8 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
       child: Material(
         elevation: 2,
         borderRadius: BorderRadius.circular(16),
-        child: SizedBox(
-          height: 230,
-          width: double.infinity,
+        child: AspectRatio(
+          aspectRatio: 361 / 230,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(16),
             child: Image.asset(

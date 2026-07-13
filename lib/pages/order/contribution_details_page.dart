@@ -932,9 +932,8 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                         Material(
                           elevation: 2,
                           borderRadius: BorderRadius.circular(16),
-                          child: SizedBox(
-                            height: 180,
-                            width: double.infinity,
+                          child: AspectRatio(
+                            aspectRatio: 361 / 180,
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(16),
                               child: Image.asset(
