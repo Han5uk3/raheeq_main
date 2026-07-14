@@ -2656,6 +2656,12 @@ abstract class AppLocalizations {
   /// **'Pending'**
   String get status_pending;
 
+  /// No description provided for @status_completed.
+  ///
+  /// In en, this message translates to:
+  /// **'Completed'**
+  String get status_completed;
+
   /// No description provided for @view_invoice.
   ///
   /// In en, this message translates to:
@@ -2889,6 +2895,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'OK'**
   String get ok;
+
+  /// No description provided for @priceIncludesDistributionDeliveryAndDocumentation.
+  ///
+  /// In en, this message translates to:
+  /// **'Price includes distribution, delivery, and documention.'**
+  String get priceIncludesDistributionDeliveryAndDocumentation;
 
   /// No description provided for @deliveredToDifferentLocation.
   ///

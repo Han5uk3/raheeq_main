@@ -197,7 +197,12 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
 
   Widget _buildSubscriptionCard(SubscriptionModel subscription, bool isAr) {
     final bool isActive = subscription.status.toLowerCase() == 'active';
-    final Color statusColor = isActive ? Colors.green : Colors.red;
+    final bool isCancelled = subscription.status.toLowerCase() == 'cancelled';
+    final Color statusColor = isActive
+        ? Colors.green
+        : isCancelled
+        ? Colors.red
+        : AppColors.buttonBlueDark;
     final planName = isAr ? subscription.planNameAr : subscription.planName;
 
     return GestureDetector(
@@ -210,112 +215,119 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
           ),
         );
       },
-      child: Container(
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.grey.withValues(alpha: 0.2)),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            // Top Banner (now white background)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(16),
-                  topRight: Radius.circular(16),
+      child: Material(
+        elevation: 2,
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // Top Banner (now white background)
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
                 ),
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Row(
-                    children: [
-                      Container(
-                        width: 8,
-                        height: 8,
-                        decoration: BoxDecoration(
-                          color: statusColor,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        _localizeStatus(subscription.status, context),
-                        style: TextStyle(
-                          color: statusColor,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
-                        ),
-                      ),
-                    ],
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(16),
+                    topRight: Radius.circular(16),
                   ),
-                  Text(
-                    "${AppLocalizations.of(context)!.since}${DateFormat.yMMMd(Localizations.localeOf(context).languageCode).format(subscription.startDate)}",
-                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                  ),
-                ],
-              ),
-            ),
-
-            // Card Body
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Title
-                  Text(
-                    textDirection: TextDirection.ltr,
-                    "#${subscription.subscriptionNumber}",
-                    style: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.buttonBlueDark,
-                    ),
-                  ),
-                  const SizedBox(height: 4),
-
-                  // Location (Target Name)
-                  const SizedBox(height: 12),
-
-                  // Package Details Box
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(16),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFF5F7F8),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
                       children: [
-                        Text(
-                          planName,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.buttonBlueDark,
+                        Container(
+                          width: 8,
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: statusColor,
+                            shape: BoxShape.circle,
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        const SizedBox(width: 8),
                         Text(
-                          _localizeFrequency(subscription.frequency),
+                          _localizeStatus(subscription.status, context),
                           style: TextStyle(
-                            fontSize: 14,
-                            color: Colors.grey[600],
+                            color: statusColor,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 16,
                           ),
                         ),
                       ],
                     ),
-                  ),
-                ],
+                    Text(
+                      "${AppLocalizations.of(context)!.since}${DateFormat.yMMMd(Localizations.localeOf(context).languageCode).format(subscription.startDate)}",
+                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+
+              // Card Body
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Title
+                    Text(
+                      textDirection: TextDirection.ltr,
+                      "#${subscription.subscriptionNumber}",
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.buttonBlueDark,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+
+                    // Location (Target Name)
+                    const SizedBox(height: 12),
+
+                    // Package Details Box
+                    Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.all(16),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFFF5F7F8),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            planName,
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.buttonBlueDark,
+                            ),
+                          ),
+                          const SizedBox(height: 4),
+                          Text(
+                            _localizeFrequency(subscription.frequency),
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[600],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
@@ -350,6 +362,9 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
     }
     if (lowerStatus == 'pending') {
       return AppLocalizations.of(context)!.status_pending;
+    }
+    if (lowerStatus == 'completed') {
+      return AppLocalizations.of(context)!.status_completed;
     }
 
     return status.isNotEmpty

@@ -1339,6 +1339,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get status_pending => 'Pending';
 
   @override
+  String get status_completed => 'Completed';
+
+  @override
   String get view_invoice => 'View Invoice';
 
   @override
@@ -1460,6 +1463,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get ok => 'OK';
+
+  @override
+  String get priceIncludesDistributionDeliveryAndDocumentation =>
+      'Price includes distribution, delivery, and documention.';
 
   @override
   String get deliveredToDifferentLocation =>

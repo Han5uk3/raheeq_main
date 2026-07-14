@@ -1329,6 +1329,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get status_pending => 'قيد الانتظار';
 
   @override
+  String get status_completed => 'مكتمل';
+
+  @override
   String get view_invoice => 'عرض الفاتورة';
 
   @override
@@ -1449,6 +1452,10 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get ok => 'حسناً';
+
+  @override
+  String get priceIncludesDistributionDeliveryAndDocumentation =>
+      'السعر يشمل التوزيع والتسليم والتوثيق';
 
   @override
   String get deliveredToDifferentLocation => 'تم التسليم لمسجد آخر';

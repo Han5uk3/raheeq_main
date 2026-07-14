@@ -500,6 +500,47 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
 
         final theme = IOSThemeConfigurations();
         theme.logoImage = "assets/logo.png";
+
+        theme.backgroundColor = "000000";
+        theme.backgroundColorDark = "000000";
+
+        // Primary accent color (Grey)
+        theme.primaryColor = "444444";
+        theme.primaryColorDark = "444444";
+
+        // Secondary/Card container background color
+        theme.secondaryColor = "1E1E1E";
+        theme.secondaryColorDark = "1E1E1E";
+
+        // Text color in text fields (white)
+        theme.primaryFontColor = "FFFFFF";
+        theme.primaryFontColorDark = "FFFFFF";
+
+        // Label / helper text color (light gray)
+        theme.secondaryFontColor = "E0E0E0";
+        theme.secondaryFontColorDark = "E0E0E0";
+
+        // Button background and text color
+        theme.buttonColor = "444444";
+        theme.buttonColorDark = "444444";
+        theme.buttonFontColor = "FFFFFF";
+        theme.buttonFontColorDark = "FFFFFF";
+
+        // Navigation title color
+        theme.titleFontColor = "FFFFFF";
+        theme.titleFontColorDark = "FFFFFF";
+
+        // Borders/Stroke color and thickness
+        theme.strokeColor = "444444";
+        theme.strokeColorDark = "444444";
+        theme.strokeThinckness = 1;
+
+        // Text fields placeholder and background colors
+        theme.placeholderColor = "888888";
+        theme.placeholderColorDark = "888888";
+        theme.inputFieldBackgroundColor = "141313";
+        theme.inputFieldBackgroundColorDark = "141313";
+
         config.iOSThemeConfigurations = theme;
 
         void handlePaymentResult(dynamic event) async {
@@ -548,7 +589,8 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                     MaterialPageRoute(
                       builder: (_) => PaymentStatusPage(
                         status: PaymentStatus.failed,
-                        message: verifyResponse.data['message'] ??
+                        message:
+                            verifyResponse.data['message'] ??
                             AppLocalizations.of(context)!.payment_failed,
                         isAr: isAr,
                         onRetry: () => Navigator.pop(context),
@@ -946,7 +988,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                           elevation: 2,
                           borderRadius: BorderRadius.circular(16),
                           child: AspectRatio(
-                            aspectRatio: 361 / 180,
+                            aspectRatio: 400 / 200,
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(16),
                               child: Image.asset(

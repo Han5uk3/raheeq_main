@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:freshchat_sdk/freshchat_sdk.dart';
 import 'package:raheeq_main/common_widgets/custom_bottom_nav.dart';
@@ -144,6 +145,10 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
         onTap: (index) {
           if (index == 2) {
+            log(
+              "Attempting to open Freshchat conversations from bottom nav with tags: ['chat_with_us'] and title: 'Rahiq Support'",
+              name: "FreshchatService",
+            );
             Freshchat.showConversations(
               tags: const ["chat_with_us"],
               filteredViewTitle: "Rahiq Support",

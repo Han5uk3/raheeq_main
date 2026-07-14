@@ -64,7 +64,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
     for (var product in widget.campaign.products) {
       final qty = _selectedQuantities[product.id];
       if (qty != null && qty > 0) {
-        total += (product.price) * qty;
+        total += ((product.price) * qty) + product.deliveryFee;
       }
     }
     return total;
@@ -173,11 +173,53 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                               height: 55,
                             ), // Space for overlapping Horizontal Product List
                             _buildCampaignBanner(_selectedProduct),
+
+                            Container(
+                              width: double.infinity,
+                              margin: const EdgeInsetsDirectional.only(
+                                top: 16,
+                                start: 16,
+                                end: 16,
+                              ),
+                              padding: EdgeInsetsDirectional.only(
+                                start: 12,
+                                end: 12,
+                                top: 12,
+                                bottom: 12,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.buttonBlueDark,
+                                border: Border.all(
+                                  color: AppColors.buttonBlueDark,
+                                ),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.discount_outlined,
+                                    size: 16,
+                                    color: AppColors.white,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    AppLocalizations.of(
+                                      context,
+                                    )!.priceIncludesDistributionDeliveryAndDocumentation,
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                      color: AppColors.white,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                             Padding(
                               padding: const EdgeInsetsDirectional.only(
                                 start: 12,
                                 end: 12,
-                                top: 24, // spacing after banner
+                                top: 12, // spacing after banner
                                 bottom:
                                     280, // extra space for bottom bar and keyboard
                               ),
@@ -279,7 +321,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
         elevation: 2,
         borderRadius: BorderRadius.circular(16),
         child: AspectRatio(
-          aspectRatio: 361 / 230,
+          aspectRatio: 420 / 235,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(16),
             child: Image.asset(
@@ -405,7 +447,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
               itemCount: presets.length,
               itemBuilder: (context, index) {
                 final qty = presets[index];
-                final price = qty * (product.price);
+                final price = (qty * (product.price)) + product.deliveryFee;
                 return GestureDetector(
                   onTap: () => _selectQuantity(qty),
                   child: Container(

@@ -383,6 +383,9 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
               ),
             ),
           ],
+          // Delivery Proofs
+          _buildDeliveryProofs(order),
+          const SizedBox(height: 12),
 
           // Gift Card details
           if (order.giftCard != null) ...[
@@ -503,6 +506,9 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
           //   ),
           // ],
 
+          // Delivery Progress
+          _buildDeliveryProgressCard(order),
+          const SizedBox(height: 12),
           // Additional Order Details
           if (order.assignedAt != null ||
               order.confirmedAt != null ||
@@ -541,14 +547,6 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
               ),
             ),
           ],
-
-          // Delivery Progress
-          _buildDeliveryProgressCard(order),
-          const SizedBox(height: 12),
-
-          // Delivery Proofs
-          _buildDeliveryProofs(order),
-          const SizedBox(height: 12),
 
           // Financials
           if (order.financials != null) ...[
@@ -748,7 +746,13 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
         return loc.iban_bank_transfer;
       default:
         final parts = method.split('_');
-        return parts.map((p) => p.isEmpty ? '' : '${p[0].toUpperCase()}${p.substring(1).toLowerCase()}').join(' ');
+        return parts
+            .map(
+              (p) => p.isEmpty
+                  ? ''
+                  : '${p[0].toUpperCase()}${p.substring(1).toLowerCase()}',
+            )
+            .join(' ');
     }
   }
 
@@ -948,38 +952,30 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
           ),
           const SizedBox(height: 16),
           Row(
+            spacing: 8,
             children: [
               if (proofs['mosqueFrontImage'] != null)
                 Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
-                    child: _buildSmallProofCard(
-                      AppLocalizations.of(context)!.mosque_front,
-                      proofs['mosqueFrontImage'],
-                      false,
-                    ),
+                  child: _buildSmallProofCard(
+                    AppLocalizations.of(context)!.mosque_front,
+                    proofs['mosqueFrontImage'],
+                    false,
                   ),
                 ),
               if (proofs['mosqueInsideImage'] != null)
                 Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
-                    child: _buildSmallProofCard(
-                      AppLocalizations.of(context)!.mosque_inside,
-                      proofs['mosqueInsideImage'],
-                      false,
-                    ),
+                  child: _buildSmallProofCard(
+                    AppLocalizations.of(context)!.mosque_inside,
+                    proofs['mosqueInsideImage'],
+                    false,
                   ),
                 ),
               if (proofs['packagesImage'] != null)
                 Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
-                    child: _buildSmallProofCard(
-                      AppLocalizations.of(context)!.packages,
-                      proofs['packagesImage'],
-                      false,
-                    ),
+                  child: _buildSmallProofCard(
+                    AppLocalizations.of(context)!.packages,
+                    proofs['packagesImage'],
+                    false,
                   ),
                 ),
               if (proofs['deliveryVideo'] != null)

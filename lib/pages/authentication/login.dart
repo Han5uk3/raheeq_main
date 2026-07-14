@@ -324,7 +324,7 @@ class _LoginState extends State<Login> {
                       ),
                     ),
                     child: Image.asset(
-                      'assets/login/login.png',
+                      'assets/rahiq_login_2.png',
                       fit: BoxFit.contain,
                     ),
                   ),
@@ -765,7 +765,11 @@ class _LoginState extends State<Login> {
       width: double.infinity,
       child: ElevatedButton.icon(
         onPressed: onPressed,
-        icon: FaIcon(icon, size: 20, color: textColor),
+        icon: Transform.flip(
+          flipX: Directionality.of(context) == TextDirection.rtl ? true : false,
+
+          child: FaIcon(icon, size: 20, color: textColor),
+        ),
         label: Text(
           label,
           style: TextStyle(
