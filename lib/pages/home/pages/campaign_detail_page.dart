@@ -17,6 +17,8 @@ import 'package:raheeq_main/models/subscription_plan.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:dio/dio.dart';
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:shimmer/shimmer.dart';
 
 class CampaignDetailPage extends StatefulWidget {
   final Campaign campaign;
@@ -330,16 +332,18 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                   : product?.serialNumber == 5
                   ? "assets/campaign/umbrellas_banner.jpg"
                   : "assets/campaign/cold_water_bottle_banner.jpg",
-
               fit: BoxFit.cover,
+              frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
+                if (wasSynchronouslyLoaded || frame != null) {
+                  return child;
+                }
+                return Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Container(color: Colors.white),
+                );
+              },
             ),
-
-            //  CachedNetworkImage(
-            //   imageUrl: widget.campaign.image,
-            //   fit: BoxFit.cover,
-            //   errorWidget: (context, url, error) =>
-            //       Container(color: Colors.grey[200]),
-            // ),
           ),
         ),
       ),

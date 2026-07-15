@@ -505,11 +505,13 @@ class _HomeTabState extends State<HomeTab> {
                                       : const NeverScrollableScrollPhysics(),
                                   onPageChanged: (index) {
                                     setState(() {
-                                      _currentIndex = index % _bannerData.length;
+                                      _currentIndex =
+                                          index % _bannerData.length;
                                     });
                                   },
                                   itemBuilder: (context, index) {
-                                    final actualIndex = index % _bannerData.length;
+                                    final actualIndex =
+                                        index % _bannerData.length;
                                     final banner = _bannerData[actualIndex];
                                     final bannerUrl = banner.image;
                                     final bannerName = banner.name;
@@ -526,7 +528,8 @@ class _HomeTabState extends State<HomeTab> {
                                           placeholder: (context, url) =>
                                               Shimmer.fromColors(
                                                 baseColor: Colors.grey[300]!,
-                                                highlightColor: Colors.grey[100]!,
+                                                highlightColor:
+                                                    Colors.grey[100]!,
                                                 child: Container(
                                                   color: Colors.white,
                                                 ),
@@ -541,7 +544,8 @@ class _HomeTabState extends State<HomeTab> {
                                                     style: const TextStyle(
                                                       color: Colors.white,
                                                       fontSize: 20,
-                                                      fontWeight: FontWeight.bold,
+                                                      fontWeight:
+                                                          FontWeight.bold,
                                                     ),
                                                   ),
                                                 ),
@@ -1380,10 +1384,10 @@ class _HomeTabState extends State<HomeTab> {
                             imageUrl: imageUrl,
                             fit: BoxFit.cover,
                             height: double.infinity,
-                            placeholder: (context, url) => Container(
-                              color: const Color(
-                                0xFF1A385F,
-                              ).withValues(alpha: 0.3),
+                            placeholder: (context, url) => Shimmer.fromColors(
+                              baseColor: Colors.grey[300]!,
+                              highlightColor: Colors.grey[100]!,
+                              child: Container(color: Colors.white),
                             ),
                             errorWidget: (context, url, error) => Container(
                               color: Colors.grey[200],
