@@ -270,7 +270,7 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
 
           // Horizontal slot list
           SizedBox(
-            height: 235, // Increased height slightly to accommodate scrollbar
+            height: 260, // Increased height slightly to accommodate scrollbar
             child: Scrollbar(
               controller: _scrollController,
               interactive: true,
@@ -312,7 +312,7 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
 
           // Continue button
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 16),
+            padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
             child: SizedBox(
               width: double.infinity,
               height: 56,
@@ -361,7 +361,7 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
       onTap: onTap,
       child: SizedBox(
         width: 125,
-        height: 190,
+        height: 215,
         child: Card(
           color: Colors.white,
           elevation: isSelected ? 4 : 1,
