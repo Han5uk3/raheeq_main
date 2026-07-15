@@ -468,81 +468,91 @@ class _HomeTabState extends State<HomeTab> {
                     ),
 
                     // Carousel Section
-                    SizedBox(
-                      height: 190,
-                      child: _bannerData.isEmpty
-                          ? Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(20),
-                                child: Container(
-                                  color: AppColors.buttonBlueDark,
-                                  child: const Center(
-                                    child: Icon(
-                                      Icons.water_drop,
-                                      color: Colors.white,
-                                      size: 40,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            )
-                          : PageView.builder(
-                              controller: _pageController,
-                              physics: _bannerData.length > 1
-                                  ? null
-                                  : const NeverScrollableScrollPhysics(),
-                              onPageChanged: (index) {
-                                setState(() {
-                                  _currentIndex = index % _bannerData.length;
-                                });
-                              },
-                              itemBuilder: (context, index) {
-                                final actualIndex = index % _bannerData.length;
-                                final banner = _bannerData[actualIndex];
-                                final bannerUrl = banner.image;
-                                final bannerName = banner.name;
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        // The PageView viewportFraction is 0.9
+                        final pageItemWidth = constraints.maxWidth * 0.9;
+                        // The banner item has symmetric horizontal padding of 8 (16 total)
+                        final bannerWidth = pageItemWidth - 16;
+                        // The banner's original dimensions are 790x418
+                        final bannerHeight = bannerWidth * (418 / 790);
 
-                                return Padding(
+                        return SizedBox(
+                          height: bannerHeight,
+                          child: _bannerData.isEmpty
+                              ? Padding(
                                   padding: const EdgeInsets.symmetric(
-                                    horizontal: 8,
+                                    horizontal: 16,
                                   ),
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(20),
-                                    child: CachedNetworkImage(
-                                      height: 178,
-                                      imageUrl: bannerUrl,
-                                      fit: BoxFit.cover,
-                                      placeholder: (context, url) =>
-                                          Shimmer.fromColors(
-                                            baseColor: Colors.grey[300]!,
-                                            highlightColor: Colors.grey[100]!,
-                                            child: Container(
-                                              color: Colors.white,
-                                            ),
-                                          ),
-                                      errorWidget: (context, url, error) =>
-                                          Container(
-                                            color: AppColors.buttonBlueDark,
-                                            child: Center(
-                                              child: Text(
-                                                bannerName,
-                                                textAlign: TextAlign.center,
-                                                style: const TextStyle(
-                                                  color: Colors.white,
-                                                  fontSize: 20,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
+                                    child: Container(
+                                      color: AppColors.buttonBlueDark,
+                                      child: const Center(
+                                        child: Icon(
+                                          Icons.water_drop,
+                                          color: Colors.white,
+                                          size: 40,
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                );
-                              },
-                            ),
+                                )
+                              : PageView.builder(
+                                  controller: _pageController,
+                                  physics: _bannerData.length > 1
+                                      ? null
+                                      : const NeverScrollableScrollPhysics(),
+                                  onPageChanged: (index) {
+                                    setState(() {
+                                      _currentIndex = index % _bannerData.length;
+                                    });
+                                  },
+                                  itemBuilder: (context, index) {
+                                    final actualIndex = index % _bannerData.length;
+                                    final banner = _bannerData[actualIndex];
+                                    final bannerUrl = banner.image;
+                                    final bannerName = banner.name;
+
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                      ),
+                                      child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(20),
+                                        child: CachedNetworkImage(
+                                          imageUrl: bannerUrl,
+                                          fit: BoxFit.cover,
+                                          placeholder: (context, url) =>
+                                              Shimmer.fromColors(
+                                                baseColor: Colors.grey[300]!,
+                                                highlightColor: Colors.grey[100]!,
+                                                child: Container(
+                                                  color: Colors.white,
+                                                ),
+                                              ),
+                                          errorWidget: (context, url, error) =>
+                                              Container(
+                                                color: AppColors.buttonBlueDark,
+                                                child: Center(
+                                                  child: Text(
+                                                    bannerName,
+                                                    textAlign: TextAlign.center,
+                                                    style: const TextStyle(
+                                                      color: Colors.white,
+                                                      fontSize: 20,
+                                                      fontWeight: FontWeight.bold,
+                                                    ),
+                                                  ),
+                                                ),
+                                              ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
+                        );
+                      },
                     ),
 
                     const SizedBox(height: 16),
