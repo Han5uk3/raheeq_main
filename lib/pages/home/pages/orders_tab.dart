@@ -834,21 +834,50 @@ class _OrderCardState extends State<_OrderCard> {
     }
 
     final proofs = order.deliveryProof!;
-    int count = 0;
-    if (proofs['mosqueFrontImage'] != null &&
-        proofs['mosqueFrontImage'].toString().isNotEmpty)
-      count++;
-    if (proofs['mosqueInsideImage'] != null &&
-        proofs['mosqueInsideImage'].toString().isNotEmpty)
-      count++;
-    if (proofs['packagesImage'] != null &&
-        proofs['packagesImage'].toString().isNotEmpty)
-      count++;
-    if (proofs['deliveryVideo'] != null &&
-        proofs['deliveryVideo'].toString().isNotEmpty)
-      count++;
+    List<Widget> proofItems = [];
 
-    if (count == 0) return const SizedBox.shrink();
+    if (proofs['mosqueFrontImage'] != null &&
+        proofs['mosqueFrontImage'].toString().isNotEmpty) {
+      proofItems.add(
+        _buildSmallProofCard(
+          AppLocalizations.of(context)!.mosque_front,
+          proofs['mosqueFrontImage'],
+          false,
+        ),
+      );
+    }
+    if (proofs['mosqueInsideImage'] != null &&
+        proofs['mosqueInsideImage'].toString().isNotEmpty) {
+      proofItems.add(
+        _buildSmallProofCard(
+          AppLocalizations.of(context)!.mosque_inside,
+          proofs['mosqueInsideImage'],
+          false,
+        ),
+      );
+    }
+    if (proofs['packagesImage'] != null &&
+        proofs['packagesImage'].toString().isNotEmpty) {
+      proofItems.add(
+        _buildSmallProofCard(
+          AppLocalizations.of(context)!.packages,
+          proofs['packagesImage'],
+          false,
+        ),
+      );
+    }
+    if (proofs['deliveryVideo'] != null &&
+        proofs['deliveryVideo'].toString().isNotEmpty) {
+      proofItems.add(
+        _buildSmallProofCard(
+          AppLocalizations.of(context)!.delivery_video,
+          proofs['deliveryVideo'],
+          true,
+        ),
+      );
+    }
+
+    if (proofItems.isEmpty) return const SizedBox.shrink();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -860,53 +889,18 @@ class _OrderCardState extends State<_OrderCard> {
         ),
         const SizedBox(height: 12),
         Row(
-          children: [
-            if (proofs['mosqueFrontImage'] != null &&
-                proofs['mosqueFrontImage'].toString().isNotEmpty)
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: _buildSmallProofCard(
-                    AppLocalizations.of(context)!.mosque_front,
-                    proofs['mosqueFrontImage'],
-                    false,
-                  ),
-                ),
-              ),
-            if (proofs['mosqueInsideImage'] != null &&
-                proofs['mosqueInsideImage'].toString().isNotEmpty)
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: _buildSmallProofCard(
-                    AppLocalizations.of(context)!.mosque_inside,
-                    proofs['mosqueInsideImage'],
-                    false,
-                  ),
-                ),
-              ),
-            if (proofs['packagesImage'] != null &&
-                proofs['packagesImage'].toString().isNotEmpty)
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: _buildSmallProofCard(
-                    AppLocalizations.of(context)!.packages,
-                    proofs['packagesImage'],
-                    false,
-                  ),
-                ),
-              ),
-            if (proofs['deliveryVideo'] != null &&
-                proofs['deliveryVideo'].toString().isNotEmpty)
-              Expanded(
-                child: _buildSmallProofCard(
-                  AppLocalizations.of(context)!.delivery_video,
-                  proofs['deliveryVideo'],
-                  true,
-                ),
-              ),
-          ],
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: List.generate(7, (index) {
+            if (index.isOdd) {
+              return const SizedBox(width: 8.0);
+            }
+            int itemIndex = index ~/ 2;
+            if (itemIndex < proofItems.length) {
+              return Expanded(child: proofItems[itemIndex]);
+            } else {
+              return const Expanded(child: SizedBox.shrink());
+            }
+          }),
         ),
         const Divider(),
       ],

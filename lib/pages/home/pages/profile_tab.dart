@@ -609,10 +609,27 @@ class _ProfileTabState extends State<ProfileTab> {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    Text(
-                      _currentUser!.email,
-                      style: const TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
+                    _currentUser!.email == ""
+                        ? Text(
+                            textDirection: TextDirection.ltr,
+                            textAlign: TextAlign.start,
+                            _currentUser!.phoneNumber != ""
+                                ? "${_currentUser!.countryCode}${_currentUser!.phoneNumber}"
+                                : "",
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey,
+                            ),
+                          )
+                        : Text(
+                            textDirection: TextDirection.ltr,
+                            textAlign: TextAlign.start,
+                            _currentUser!.email,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey,
+                            ),
+                          ),
                   ],
                 ),
               ],

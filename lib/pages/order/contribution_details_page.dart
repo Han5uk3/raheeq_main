@@ -500,45 +500,12 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
 
         final theme = IOSThemeConfigurations();
         theme.logoImage = "assets/logo.png";
-        // theme.backgroundColor = "000000";
-        // theme.backgroundColorDark = "000000";
 
-        // // Primary accent color (Grey)
-        // theme.primaryColor = "444444";
-        // theme.primaryColorDark = "444444";
-
-        // // Secondary/Card container background color
         theme.secondaryColor = "1A6A8F";
         theme.secondaryColorDark = "1A6A8F";
 
-        // // Text color in text fields (white)
-        // theme.primaryFontColor = "FFFFFF";
-        // theme.primaryFontColorDark = "FFFFFF";
-
-        // // Label / helper text color (light gray)
-        // theme.secondaryFontColor = "E0E0E0";
-        // theme.secondaryFontColorDark = "E0E0E0";
-
-        // // Button background and text color
         theme.buttonColor = "1A6A8F";
         theme.buttonColorDark = "1A6A8F";
-        // theme.buttonFontColor = "FFFFFF";
-        // theme.buttonFontColorDark = "FFFFFF";
-
-        // // Navigation title color
-        // theme.titleFontColor = "FFFFFF";
-        // theme.titleFontColorDark = "FFFFFF";
-
-        // // Borders/Stroke color and thickness
-        // theme.strokeColor = "444444";
-        // theme.strokeColorDark = "444444";
-        // theme.strokeThinckness = 1;
-
-        // // Text fields placeholder and background colors
-        // theme.placeholderColor = "888888";
-        // theme.placeholderColorDark = "888888";
-        // theme.inputFieldBackgroundColor = "141313";
-        // theme.inputFieldBackgroundColorDark = "141313";
 
         config.iOSThemeConfigurations = theme;
 
