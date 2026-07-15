@@ -499,6 +499,47 @@ class _LoginState extends State<Login> {
                                     keyboardType: TextInputType.phone,
                                     inputFormatters: [
                                       FilteringTextInputFormatter.digitsOnly,
+                                      TextInputFormatter.withFunction((
+                                        oldValue,
+                                        newValue,
+                                      ) {
+                                        int maxLength = 15;
+                                        if (_selectedCountry.phoneCode ==
+                                            '966') {
+                                          if (newValue.text.startsWith('0')) {
+                                            maxLength = 10;
+                                          } else if (newValue.text.startsWith(
+                                            '5',
+                                          )) {
+                                            maxLength = 9;
+                                          } else {
+                                            maxLength = 10;
+                                          }
+                                        }
+                                        if (newValue.text.length > maxLength) {
+                                          if (oldValue.text.length <
+                                              maxLength) {
+                                            return TextEditingValue(
+                                              text: newValue.text.substring(
+                                                0,
+                                                maxLength,
+                                              ),
+                                              selection:
+                                                  TextSelection.collapsed(
+                                                    offset:
+                                                        newValue.selection.end >
+                                                            maxLength
+                                                        ? maxLength
+                                                        : newValue
+                                                              .selection
+                                                              .end,
+                                                  ),
+                                            );
+                                          }
+                                          return oldValue;
+                                        }
+                                        return newValue;
+                                      }),
                                     ],
                                     decoration: InputDecoration(
                                       hintText: AppLocalizations.of(
@@ -535,7 +576,9 @@ class _LoginState extends State<Login> {
                             onPressed: _isLoading
                                 ? null
                                 : () async {
-                                    if (_phoneController.text.trim().isEmpty) {
+                                    String phoneText = _phoneController.text
+                                        .trim();
+                                    if (phoneText.isEmpty) {
                                       CustomSnackbar.show(
                                         context: context,
                                         message: AppLocalizations.of(
@@ -546,9 +589,7 @@ class _LoginState extends State<Login> {
                                       return;
                                     }
 
-                                    if (!RegExp(
-                                      r'^\d+$',
-                                    ).hasMatch(_phoneController.text.trim())) {
+                                    if (!RegExp(r'^\d+$').hasMatch(phoneText)) {
                                       CustomSnackbar.show(
                                         context: context,
                                         message: AppLocalizations.of(
@@ -558,14 +599,30 @@ class _LoginState extends State<Login> {
                                       );
                                       return;
                                     }
-                                    try {
-                                      final phone = PhoneNumber.parse(
-                                        '+${_selectedCountry.phoneCode}${_phoneController.text.trim()}',
-                                      );
-                                      if (!phone.isValid(
-                                            type: PhoneNumberType.mobile,
-                                          ) &&
-                                          !phone.isValid()) {
+
+                                    if (_selectedCountry.phoneCode == '966') {
+                                      if (phoneText.startsWith('0') &&
+                                          phoneText.length != 10) {
+                                        CustomSnackbar.show(
+                                          context: context,
+                                          message: AppLocalizations.of(
+                                            context,
+                                          )!.enter_valid_number_gc,
+                                          isError: true,
+                                        );
+                                        return;
+                                      } else if (phoneText.startsWith('5') &&
+                                          phoneText.length != 9) {
+                                        CustomSnackbar.show(
+                                          context: context,
+                                          message: AppLocalizations.of(
+                                            context,
+                                          )!.enter_valid_number_gc,
+                                          isError: true,
+                                        );
+                                        return;
+                                      } else if (!phoneText.startsWith('0') &&
+                                          !phoneText.startsWith('5')) {
                                         CustomSnackbar.show(
                                           context: context,
                                           message: AppLocalizations.of(
@@ -575,22 +632,47 @@ class _LoginState extends State<Login> {
                                         );
                                         return;
                                       }
-                                    } catch (e) {
-                                      CustomSnackbar.show(
-                                        context: context,
-                                        message: AppLocalizations.of(
-                                          context,
-                                        )!.invalid_phone_format,
-                                        isError: true,
-                                      );
-                                      return;
+                                    } else {
+                                      try {
+                                        final phone = PhoneNumber.parse(
+                                          '+${_selectedCountry.phoneCode}$phoneText',
+                                        );
+                                        if (!phone.isValid(
+                                              type: PhoneNumberType.mobile,
+                                            ) &&
+                                            !phone.isValid()) {
+                                          CustomSnackbar.show(
+                                            context: context,
+                                            message: AppLocalizations.of(
+                                              context,
+                                            )!.enter_valid_number_gc,
+                                            isError: true,
+                                          );
+                                          return;
+                                        }
+                                      } catch (e) {
+                                        CustomSnackbar.show(
+                                          context: context,
+                                          message: AppLocalizations.of(
+                                            context,
+                                          )!.invalid_phone_format,
+                                          isError: true,
+                                        );
+                                        return;
+                                      }
+                                    }
+
+                                    String apiPhoneText = phoneText;
+                                    if (_selectedCountry.phoneCode == '966' &&
+                                        apiPhoneText.startsWith('0')) {
+                                      apiPhoneText = apiPhoneText.substring(1);
                                     }
 
                                     setState(() => _isLoading = true);
                                     try {
                                       final response = await ApiService()
                                           .requestOtp(
-                                            phoneNumber: _phoneController.text,
+                                            phoneNumber: apiPhoneText,
                                             countryCode:
                                                 '+${_selectedCountry.phoneCode}',
                                           );
@@ -607,8 +689,7 @@ class _LoginState extends State<Login> {
                                           context,
                                           MaterialPageRoute(
                                             builder: (context) => OTP(
-                                              phoneNumber:
-                                                  _phoneController.text,
+                                              phoneNumber: apiPhoneText,
                                               countryCode:
                                                   '+${_selectedCountry.phoneCode}',
                                               receivedOtp: receivedOtp,
@@ -724,7 +805,7 @@ class _LoginState extends State<Login> {
                         // Social Login Buttons
                         _buildSocialButton(
                           icon: FontAwesomeIcons.google,
-                          label: AppLocalizations.of(context)!.google_signin,
+                          label: "Sign in with Google",
                           onPressed: () => _handleSocialLogin('Google'),
                           backgroundColor: Colors.white,
                           textColor: Colors.black87,
@@ -734,7 +815,7 @@ class _LoginState extends State<Login> {
                           const SizedBox(height: 14),
                           _buildSocialButton(
                             icon: FontAwesomeIcons.apple,
-                            label: AppLocalizations.of(context)!.apple_signin,
+                            label: "Sign in with Apple",
                             onPressed: () => _handleSocialLogin('Apple'),
                             backgroundColor: Colors.black,
                             textColor: Colors.white,
@@ -761,33 +842,32 @@ class _LoginState extends State<Login> {
     required Color textColor,
     Color? borderColor,
   }) {
-    return SizedBox(
-      width: double.infinity,
-      child: ElevatedButton.icon(
-        onPressed: onPressed,
-        icon: Transform.flip(
-          flipX: Directionality.of(context) == TextDirection.rtl ? true : false,
-
-          child: FaIcon(icon, size: 20, color: textColor),
-        ),
-        label: Text(
-          label,
-          style: TextStyle(
-            color: textColor,
-            fontSize: 15,
-            fontWeight: FontWeight.w600,
+    return Directionality(
+      textDirection: TextDirection.ltr,
+      child: SizedBox(
+        width: double.infinity,
+        child: ElevatedButton.icon(
+          onPressed: onPressed,
+          icon: FaIcon(icon, size: 20, color: textColor),
+          label: Text(
+            label,
+            style: TextStyle(
+              color: textColor,
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+            ),
           ),
-        ),
-        style: ElevatedButton.styleFrom(
-          backgroundColor: backgroundColor,
-          foregroundColor: textColor,
-          elevation: 0,
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(35),
-            side: borderColor != null
-                ? BorderSide(color: borderColor)
-                : BorderSide.none,
+          style: ElevatedButton.styleFrom(
+            backgroundColor: backgroundColor,
+            foregroundColor: textColor,
+            elevation: 0,
+            padding: const EdgeInsets.symmetric(vertical: 16),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(35),
+              side: borderColor != null
+                  ? BorderSide(color: borderColor)
+                  : BorderSide.none,
+            ),
           ),
         ),
       ),

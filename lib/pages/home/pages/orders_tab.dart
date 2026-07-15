@@ -607,7 +607,7 @@ class _OrderCardState extends State<_OrderCard> {
                     textDirection: TextDirection.ltr,
                     style: const TextStyle(color: Colors.grey, fontSize: 14),
                   ),
-                  if (widget.order.status == 'COMPLETED')
+                  if (widget.order.status.toUpperCase() == 'COMPLETED')
                     SizedBox(
                       height: 32,
                       child: ElevatedButton.icon(
@@ -638,6 +638,7 @@ class _OrderCardState extends State<_OrderCard> {
                 ],
               ),
               const Divider(),
+
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -754,6 +755,7 @@ class _OrderCardState extends State<_OrderCard> {
               ),
               const SizedBox(height: 12),
               const Divider(),
+              _buildDeliveryProofs(widget.order),
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -819,8 +821,6 @@ class _OrderCardState extends State<_OrderCard> {
                   ),
                 ),
               ],
-
-              _buildDeliveryProofs(widget.order),
             ],
           ),
         ),
@@ -835,17 +835,25 @@ class _OrderCardState extends State<_OrderCard> {
 
     final proofs = order.deliveryProof!;
     int count = 0;
-    if (proofs['mosqueFrontImage'] != null) count++;
-    if (proofs['mosqueInsideImage'] != null) count++;
-    if (proofs['packagesImage'] != null) count++;
-    if (proofs['deliveryVideo'] != null) count++;
+    if (proofs['mosqueFrontImage'] != null &&
+        proofs['mosqueFrontImage'].toString().isNotEmpty)
+      count++;
+    if (proofs['mosqueInsideImage'] != null &&
+        proofs['mosqueInsideImage'].toString().isNotEmpty)
+      count++;
+    if (proofs['packagesImage'] != null &&
+        proofs['packagesImage'].toString().isNotEmpty)
+      count++;
+    if (proofs['deliveryVideo'] != null &&
+        proofs['deliveryVideo'].toString().isNotEmpty)
+      count++;
 
     if (count == 0) return const SizedBox.shrink();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 16),
+        const SizedBox(height: 8),
         Text(
           AppLocalizations.of(context)!.proof_of_delivery,
           style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
@@ -853,7 +861,8 @@ class _OrderCardState extends State<_OrderCard> {
         const SizedBox(height: 12),
         Row(
           children: [
-            if (proofs['mosqueFrontImage'] != null)
+            if (proofs['mosqueFrontImage'] != null &&
+                proofs['mosqueFrontImage'].toString().isNotEmpty)
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.only(right: 8.0),
@@ -864,7 +873,8 @@ class _OrderCardState extends State<_OrderCard> {
                   ),
                 ),
               ),
-            if (proofs['mosqueInsideImage'] != null)
+            if (proofs['mosqueInsideImage'] != null &&
+                proofs['mosqueInsideImage'].toString().isNotEmpty)
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.only(right: 8.0),
@@ -875,7 +885,8 @@ class _OrderCardState extends State<_OrderCard> {
                   ),
                 ),
               ),
-            if (proofs['packagesImage'] != null)
+            if (proofs['packagesImage'] != null &&
+                proofs['packagesImage'].toString().isNotEmpty)
               Expanded(
                 child: Padding(
                   padding: const EdgeInsets.only(right: 8.0),
@@ -886,7 +897,8 @@ class _OrderCardState extends State<_OrderCard> {
                   ),
                 ),
               ),
-            if (proofs['deliveryVideo'] != null)
+            if (proofs['deliveryVideo'] != null &&
+                proofs['deliveryVideo'].toString().isNotEmpty)
               Expanded(
                 child: _buildSmallProofCard(
                   AppLocalizations.of(context)!.delivery_video,
@@ -896,6 +908,7 @@ class _OrderCardState extends State<_OrderCard> {
               ),
           ],
         ),
+        const Divider(),
       ],
     );
   }

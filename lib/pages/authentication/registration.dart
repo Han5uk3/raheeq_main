@@ -327,9 +327,8 @@ class _RegistrationState extends State<Registration> {
                                     : () async {
                                         if (_formKey.currentState!.validate()) {
                                           if (widget.isSocialLogin) {
-                                            if (_phoneController.text
-                                                .trim()
-                                                .isEmpty) {
+                                            String phoneText = _phoneController.text.trim();
+                                            if (phoneText.isEmpty) {
                                               CustomSnackbar.show(
                                                 context: context,
                                                 message: AppLocalizations.of(
@@ -339,9 +338,7 @@ class _RegistrationState extends State<Registration> {
                                               );
                                               return;
                                             }
-                                            if (!RegExp(r'^\d+$').hasMatch(
-                                              _phoneController.text.trim(),
-                                            )) {
+                                            if (!RegExp(r'^\d+$').hasMatch(phoneText)) {
                                               CustomSnackbar.show(
                                                 context: context,
                                                 message: AppLocalizations.of(
@@ -351,15 +348,30 @@ class _RegistrationState extends State<Registration> {
                                               );
                                               return;
                                             }
-                                            try {
-                                              final phone = PhoneNumber.parse(
-                                                '+${_selectedCountry.phoneCode}${_phoneController.text.trim()}',
-                                              );
-                                              if (!phone.isValid(
-                                                    type:
-                                                        PhoneNumberType.mobile,
-                                                  ) &&
-                                                  !phone.isValid()) {
+
+                                            if (_selectedCountry.phoneCode == '966') {
+                                              if (phoneText.startsWith('0') &&
+                                                  phoneText.length != 10) {
+                                                CustomSnackbar.show(
+                                                  context: context,
+                                                  message: AppLocalizations.of(
+                                                    context,
+                                                  )!.enter_valid_number_gc,
+                                                  isError: true,
+                                                );
+                                                return;
+                                              } else if (phoneText.startsWith('5') &&
+                                                  phoneText.length != 9) {
+                                                CustomSnackbar.show(
+                                                  context: context,
+                                                  message: AppLocalizations.of(
+                                                    context,
+                                                  )!.enter_valid_number_gc,
+                                                  isError: true,
+                                                );
+                                                return;
+                                              } else if (!phoneText.startsWith('0') &&
+                                                  !phoneText.startsWith('5')) {
                                                 CustomSnackbar.show(
                                                   context: context,
                                                   message: AppLocalizations.of(
@@ -369,20 +381,44 @@ class _RegistrationState extends State<Registration> {
                                                 );
                                                 return;
                                               }
-                                            } catch (e) {
-                                              CustomSnackbar.show(
-                                                context: context,
-                                                message: AppLocalizations.of(
-                                                  context,
-                                                )!.invalid_phone_format,
-                                                isError: true,
-                                              );
-                                              return;
+                                            } else {
+                                              try {
+                                                final phone = PhoneNumber.parse(
+                                                  '+${_selectedCountry.phoneCode}$phoneText',
+                                                );
+                                                if (!phone.isValid(
+                                                      type: PhoneNumberType.mobile,
+                                                    ) &&
+                                                    !phone.isValid()) {
+                                                  CustomSnackbar.show(
+                                                    context: context,
+                                                    message: AppLocalizations.of(
+                                                      context,
+                                                    )!.enter_valid_number_gc,
+                                                    isError: true,
+                                                  );
+                                                  return;
+                                                }
+                                              } catch (e) {
+                                                CustomSnackbar.show(
+                                                  context: context,
+                                                  message: AppLocalizations.of(
+                                                    context,
+                                                  )!.invalid_phone_format,
+                                                  isError: true,
+                                                );
+                                                return;
+                                              }
                                             }
                                           }
 
                                           setState(() => _isRegistering = true);
                                           try {
+                                            String apiPhoneText = _phoneController.text.trim();
+                                            if (widget.isSocialLogin && _selectedCountry.phoneCode == '966' && apiPhoneText.startsWith('0')) {
+                                              apiPhoneText = apiPhoneText.substring(1);
+                                            }
+
                                             final response = await ApiService()
                                                 .register(
                                                   countryCode:
@@ -391,8 +427,7 @@ class _RegistrationState extends State<Registration> {
                                                       : widget.countryCode,
                                                   phoneNumber:
                                                       widget.isSocialLogin
-                                                      ? _phoneController.text
-                                                            .trim()
+                                                      ? apiPhoneText
                                                       : widget.phoneNumber
                                                             .replaceAll(
                                                               widget
@@ -871,7 +906,38 @@ class _RegistrationState extends State<Registration> {
                   cursorColor: AppColors.buttonBlueDark,
                   controller: _phoneController,
                   keyboardType: TextInputType.phone,
-                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                  inputFormatters: [
+                    FilteringTextInputFormatter.digitsOnly,
+                    TextInputFormatter.withFunction((
+                      oldValue,
+                      newValue,
+                    ) {
+                      int maxLength = 15;
+                      if (_selectedCountry.phoneCode == '966') {
+                        if (newValue.text.startsWith('0')) {
+                          maxLength = 10;
+                        } else if (newValue.text.startsWith('5')) {
+                          maxLength = 9;
+                        } else {
+                          maxLength = 10;
+                        }
+                      }
+                      if (newValue.text.length > maxLength) {
+                        if (oldValue.text.length < maxLength) {
+                          return TextEditingValue(
+                            text: newValue.text.substring(0, maxLength),
+                            selection: TextSelection.collapsed(
+                              offset: newValue.selection.end > maxLength
+                                  ? maxLength
+                                  : newValue.selection.end,
+                            ),
+                          );
+                        }
+                        return oldValue;
+                      }
+                      return newValue;
+                    }),
+                  ],
                   decoration: InputDecoration(
                     hintText: AppLocalizations.of(context)!.enter_phone,
                     hintStyle: const TextStyle(

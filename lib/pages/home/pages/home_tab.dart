@@ -185,7 +185,9 @@ class _HomeTabState extends State<HomeTab> {
 
       final citiesFuture = () async {
         try {
-          final citiesResponse = await ApiService().getCities(showSnackbar: true);
+          final citiesResponse = await ApiService().getCities(
+            showSnackbar: true,
+          );
           if (citiesResponse.statusCode == 200 &&
               citiesResponse.data['success'] == true) {
             final List<dynamic> data = citiesResponse.data['data'] ?? [];
@@ -212,7 +214,9 @@ class _HomeTabState extends State<HomeTab> {
 
       final notificationsFuture = () async {
         try {
-          final unreadRes = await ApiService().getUnreadNotificationsCount(showSnackbar: true);
+          final unreadRes = await ApiService().getUnreadNotificationsCount(
+            showSnackbar: true,
+          );
           if (unreadRes.statusCode == 200 &&
               unreadRes.data['success'] == true) {
             final countData = unreadRes.data['data'];
@@ -508,7 +512,7 @@ class _HomeTabState extends State<HomeTab> {
                                   child: ClipRRect(
                                     borderRadius: BorderRadius.circular(20),
                                     child: CachedNetworkImage(
-                                      height: 180,
+                                      height: 178,
                                       imageUrl: bannerUrl,
                                       fit: BoxFit.cover,
                                       placeholder: (context, url) =>

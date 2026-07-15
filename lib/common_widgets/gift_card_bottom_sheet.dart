@@ -3,6 +3,7 @@ import 'package:phone_numbers_parser/phone_numbers_parser.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:raheeq_main/models/checkout.dart';
 import 'package:raheeq_main/models/gift_card_template.dart';
 import 'package:raheeq_main/api/apis.dart';
@@ -114,12 +115,17 @@ class _GiftCardPageState extends State<GiftCardPage> {
 
     setState(() => _isApplying = true);
 
+    String apiPhoneText = _phoneController.text.trim();
+    if (_selectedCountry.phoneCode == '966' && apiPhoneText.startsWith('0')) {
+      apiPhoneText = apiPhoneText.substring(1);
+    }
+
     final payload = {
       "templateId": _selectedTemplate!.id,
       "senderName": _senderController.text.trim(),
       "receiverName": _receiverController.text.trim(),
       "receiverCountryCode": '+${_selectedCountry.phoneCode}',
-      "receiverWhatsapp": _phoneController.text.trim(),
+      "receiverWhatsapp": apiPhoneText,
     };
 
     try {
@@ -592,6 +598,35 @@ class _GiftCardPageState extends State<GiftCardPage> {
             controller: _phoneController,
             keyboardType: TextInputType.phone,
             autovalidateMode: AutovalidateMode.onUserInteraction,
+            inputFormatters: [
+              FilteringTextInputFormatter.digitsOnly,
+              TextInputFormatter.withFunction((oldValue, newValue) {
+                int maxLength = 15;
+                if (_selectedCountry.phoneCode == '966') {
+                  if (newValue.text.startsWith('0')) {
+                    maxLength = 10;
+                  } else if (newValue.text.startsWith('5')) {
+                    maxLength = 9;
+                  } else {
+                    maxLength = 10;
+                  }
+                }
+                if (newValue.text.length > maxLength) {
+                  if (oldValue.text.length < maxLength) {
+                    return TextEditingValue(
+                      text: newValue.text.substring(0, maxLength),
+                      selection: TextSelection.collapsed(
+                        offset: newValue.selection.end > maxLength
+                            ? maxLength
+                            : newValue.selection.end,
+                      ),
+                    );
+                  }
+                  return oldValue;
+                }
+                return newValue;
+              }),
+            ],
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
                 return AppLocalizations.of(context)!.phone_number_required;
@@ -599,16 +634,26 @@ class _GiftCardPageState extends State<GiftCardPage> {
               if (!RegExp(r'^\d+$').hasMatch(value.trim())) {
                 return AppLocalizations.of(context)!.invalid_phone_number;
               }
-              try {
-                final phone = PhoneNumber.parse(
-                  '+${_selectedCountry.phoneCode}${value.trim()}',
-                );
-                if (!phone.isValid(type: PhoneNumberType.mobile) &&
-                    !phone.isValid()) {
+              if (_selectedCountry.phoneCode == '966') {
+                if (value.startsWith('0') && value.length != 10) {
+                  return AppLocalizations.of(context)!.enter_valid_number_gc;
+                } else if (value.startsWith('5') && value.length != 9) {
+                  return AppLocalizations.of(context)!.enter_valid_number_gc;
+                } else if (!value.startsWith('0') && !value.startsWith('5')) {
                   return AppLocalizations.of(context)!.enter_valid_number_gc;
                 }
-              } catch (e) {
-                return AppLocalizations.of(context)!.invalid_phone_format;
+              } else {
+                try {
+                  final phone = PhoneNumber.parse(
+                    '+${_selectedCountry.phoneCode}${value.trim()}',
+                  );
+                  if (!phone.isValid(type: PhoneNumberType.mobile) &&
+                      !phone.isValid()) {
+                    return AppLocalizations.of(context)!.enter_valid_number_gc;
+                  }
+                } catch (e) {
+                  return AppLocalizations.of(context)!.invalid_phone_format;
+                }
               }
               return null;
             },

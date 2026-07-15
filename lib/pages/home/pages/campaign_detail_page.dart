@@ -207,7 +207,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                                       context,
                                     )!.priceIncludesDistributionDeliveryAndDocumentation,
                                     style: TextStyle(
-                                      fontSize: 12,
+                                      fontSize: 10,
                                       fontWeight: FontWeight.w700,
                                       color: AppColors.white,
                                     ),

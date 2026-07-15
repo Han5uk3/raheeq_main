@@ -295,11 +295,14 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
                       left: index == 0 ? 16.0 : 2.0,
                       right: index == slots.length - 1 ? 16.0 : 2.0,
                     ),
-                    child: _buildSlotCard(
-                      slot: slot,
-                      isSelected: isSelected,
-                      onTap: () => _toggleSlot(slot),
-                      isAr: isAr,
+                    child: Align(
+                      alignment: Alignment.topCenter,
+                      child: _buildSlotCard(
+                        slot: slot,
+                        isSelected: isSelected,
+                        onTap: () => _toggleSlot(slot),
+                        isAr: isAr,
+                      ),
                     ),
                   );
                 },

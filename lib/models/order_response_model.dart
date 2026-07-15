@@ -65,9 +65,9 @@ class OrderResponseModel {
                 : null),
       completedAt: json['completedAt'] != null
           ? DateTime.tryParse(json['completedAt'])
-          : (json['deliveryProof'] != null &&
-                    json['deliveryProof']['deliveredAt'] != null
-                ? DateTime.tryParse(json['deliveryProof']['deliveredAt'])
+          : ((json['deliveryProof'] ?? json['proofs']) != null &&
+                    (json['deliveryProof'] ?? json['proofs'])['deliveredAt'] != null
+                ? DateTime.tryParse((json['deliveryProof'] ?? json['proofs'])['deliveredAt'])
                 : null),
       confirmedAt: json['confirmedAt'] != null
           ? DateTime.tryParse(json['confirmedAt'])
@@ -90,7 +90,7 @@ class OrderResponseModel {
       totalAmount: (json['totalAmount'] ?? 0).toDouble(),
       locationDetails: json['locationDetails'],
       driver: json['driver'],
-      deliveryProof: json['deliveryProof'],
+      deliveryProof: json['deliveryProof'] ?? json['proofs'],
       giftCard: json['giftCard'],
       invoiceUrl:
           json['invoice'] ??
@@ -98,11 +98,15 @@ class OrderResponseModel {
           json['invoice_url'] ??
           json['invoicePdfUrl'] ??
           json['invoicePdf'] ??
+          json['invoice_link'] ??
+          json['invoiceLink'] ??
           (json['parentOrder'] != null
               ? (json['parentOrder']['invoicePdfUrl'] ??
                     json['parentOrder']['invoiceUrl'] ??
                     json['parentOrder']['invoice'] ??
-                    json['parentOrder']['invoice_url'])
+                    json['parentOrder']['invoice_url'] ??
+                    json['parentOrder']['invoice_link'] ??
+                    json['parentOrder']['invoiceLink'])
               : null),
       deliveredLocationDetails: json['deliveredLocationDetails'],
       isChillerAvailable: json['isChillerAvailable'],
