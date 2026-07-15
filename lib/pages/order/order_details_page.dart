@@ -218,12 +218,11 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
     }).toList();
 
     return ListView.separated(
-      physics: const ClampingScrollPhysics(),
       padding: const EdgeInsetsDirectional.only(
-        start: 24,
-        end: 24,
-        top: 24,
-        bottom: 120,
+        start: 16,
+        end: 16,
+        top: 16,
+        bottom: 140,
       ),
       itemCount: relevantStates.length,
       separatorBuilder: (_, __) => const SizedBox(height: 16),
@@ -325,6 +324,23 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                         ],
                       ),
                     ),
+                  ],
+                ),
+                SizedBox(height: 5),
+                Divider(),
+                SizedBox(height: 5),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      AppLocalizations.of(context)!.choose_quantity,
+                      style: TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.grey,
+                      ),
+                    ),
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 8,
@@ -366,7 +382,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                                 alignment: Alignment.center,
                                 decoration: BoxDecoration(
                                   color: sp.quantity > sp.product.minQuantity
-                                      ? Colors.white
+                                      ? AppColors.buttonBlueDark
                                       : Colors.grey[200],
                                   borderRadius: BorderRadius.circular(8),
                                 ),
@@ -374,7 +390,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                                   Icons.remove,
                                   size: 18,
                                   color: sp.quantity > sp.product.minQuantity
-                                      ? AppColors.buttonBlue
+                                      ? AppColors.white
                                       : Colors.grey,
                                 ),
                               ),
@@ -401,7 +417,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                               height: 30,
                               alignment: Alignment.center,
                               decoration: BoxDecoration(
-                                color: AppColors.buttonBlue,
+                                color: AppColors.buttonBlueDark,
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: const Icon(
@@ -418,6 +434,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                 ),
                 const SizedBox(height: 16),
                 TextFormField(
+                  cursorColor: AppColors.buttonBlueDark,
                   initialValue: sp.notes,
                   maxLines: 3,
                   onChanged: (val) {
@@ -546,76 +563,97 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                   ),
                 ),
                 SliverToBoxAdapter(
-                  child: Container(
-                    color: AppColors.buttonBlueDark,
-                    child: Container(
-                      decoration: const BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(30),
-                          topRight: Radius.circular(30),
+                  child: Stack(
+                    children: [
+                      Container(height: 50, color: AppColors.buttonBlueDark),
+                      Container(
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(30),
+                            topRight: Radius.circular(30),
+                          ),
                         ),
-                      ),
-                      child: Column(
-                        children: [
-                          const SizedBox(height: 16),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 24.0,
-                            ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(25),
-                              child: Container(
-                                height: 50,
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFFF0F4F8),
-                                  borderRadius: BorderRadius.circular(25),
-                                ),
-                                child: TabBar(
-                                  splashFactory: NoSplash.splashFactory,
-                                  isScrollable: _uniqueProducts.length > 3,
-                                  dividerColor: Colors.transparent,
-                                  labelColor: Colors.white,
-                                  unselectedLabelColor:
-                                      AppColors.buttonBlueDark,
-                                  indicatorSize: TabBarIndicatorSize.tab,
-                                  indicator: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(25),
-                                    color: AppColors.buttonBlueDark,
+                        child: Column(
+                          children: [
+                            const SizedBox(height: 16),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16.0,
+                              ),
+                              child: AspectRatio(
+                                aspectRatio: 790 / 418,
+                                child: Material(
+                                  elevation: 1,
+                                  borderRadius: BorderRadius.circular(16),
+                                  clipBehavior: Clip.antiAlias,
+                                  color: Colors.white,
+                                  child: Image.asset(
+                                    "assets/details_banner.jpeg",
+                                    fit: BoxFit.cover,
                                   ),
-                                  labelPadding: EdgeInsets.zero,
-                                  labelStyle: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 14,
-                                  ),
-                                  tabs: _uniqueProducts
-                                      .map(
-                                        (p) => Tab(
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 10,
-                                            ),
-                                            child: Text(
-                                              p.localizedName(isAr),
-                                              style: TextStyle(fontSize: 12),
-                                            ),
-                                          ),
-                                        ),
-                                      )
-                                      .toList(),
                                 ),
                               ),
                             ),
-                          ),
-                        ],
+                            const SizedBox(height: 16),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16.0,
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(25),
+                                child: Container(
+                                  height: 50,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(25),
+                                  ),
+                                  child: TabBar(
+                                    isScrollable: _uniqueProducts.length > 3,
+                                    dividerColor: Colors.transparent,
+                                    dividerHeight: 0,
+                                    labelColor: Colors.white,
+                                    unselectedLabelColor:
+                                        AppColors.buttonBlueDark,
+                                    indicatorSize: TabBarIndicatorSize.tab,
+                                    indicator: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(25),
+                                      color: AppColors.buttonBlueDark,
+                                    ),
+                                    labelPadding: EdgeInsets.zero,
+                                    labelStyle: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 14,
+                                    ),
+                                    tabs: _uniqueProducts
+                                        .map(
+                                          (p) => Tab(
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 0,
+                                                  ),
+                                              child: Text(
+                                                p.localizedName(isAr),
+                                                style: TextStyle(fontSize: 12),
+                                              ),
+                                            ),
+                                          ),
+                                        )
+                                        .toList(),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
               ];
             },
-            body: Container(
-              color: Colors.white,
+            body: SizedBox(
               child: TabBarView(
                 children: _uniqueProducts.map((product) {
                   return _buildProductTab(product, isAr);

@@ -482,6 +482,7 @@
   "status_expired": "Expired",
   "status_pending": "Pending",
   "status_completed": "Completed",
+  "choose_quantity": "Choose Quantity",
   "view_invoice": "View Invoice",
   "could_not_open_invoice": "Could not open invoice",
   "error_loading_order_details": "Failed to load order details",

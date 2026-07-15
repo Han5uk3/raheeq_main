@@ -2662,6 +2662,12 @@ abstract class AppLocalizations {
   /// **'Completed'**
   String get status_completed;
 
+  /// No description provided for @choose_quantity.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose Quantity'**
+  String get choose_quantity;
+
   /// No description provided for @view_invoice.
   ///
   /// In en, this message translates to:

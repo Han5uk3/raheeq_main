@@ -81,21 +81,21 @@ class _PaymentStatusPageState extends State<PaymentStatusPage>
             AppLocalizations.of(
               context,
             )!.an_error_occurred_while_processing_the_payment;
-        color = AppColors.buttonBlueDark;
-        lightColor = AppColors.buttonBlueDark.withValues(alpha: 0.1);
+        color = Colors.red;
+        lightColor = Colors.red.withValues(alpha: 0.1);
         fallbackIcon = Icons.error_outline;
         break;
       case PaymentStatus.pendingApproval:
         title = AppLocalizations.of(context)!.pending_approval;
         description = AppLocalizations.of(context)!.order_received_iban_message;
-        color = AppColors.buttonBlueDark;
-        lightColor = AppColors.buttonBlueDark.withValues(alpha: 0.1);
+        color = Colors.yellow.shade700;
+        lightColor = Colors.yellow.shade700.withValues(alpha: 0.1);
         fallbackIcon = Icons.access_time;
         break;
     }
 
     return Scaffold(
-      backgroundColor: AppColors.buttonBlueLight,
+      backgroundColor: AppColors.white,
       body: Stack(
         children: [
           // Background Gradient Element
@@ -243,6 +243,7 @@ class _PaymentStatusPageState extends State<PaymentStatusPage>
                                   const SizedBox(width: 16),
                                   Expanded(
                                     child: _buildPrimaryButton(
+                                      color: AppColors.buttonBlueDark,
                                       context,
                                       text: AppLocalizations.of(
                                         context,
@@ -323,8 +324,8 @@ class _PaymentStatusPageState extends State<PaymentStatusPage>
     return TextButton(
       onPressed: onPressed,
       style: TextButton.styleFrom(
-        backgroundColor: Colors.white,
-        foregroundColor: AppColors.buttonBlueDark,
+        backgroundColor: AppColors.buttonBlueDark,
+        foregroundColor: Colors.white,
         padding: const EdgeInsets.symmetric(vertical: 18),
         elevation: 0,
         shape: RoundedRectangleBorder(

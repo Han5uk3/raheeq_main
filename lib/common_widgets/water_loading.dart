@@ -80,20 +80,17 @@ class _WaterLoadingIndicatorState extends State<WaterLoadingIndicator>
         final Widget soundwave = SizedBox(
           width: innerSize,
           height: innerSize,
-          child: FittedBox(
-            fit: BoxFit.contain,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: List.generate(bars.length * 2 - 1, (index) {
-                // Alternate between bar widgets and spacing gaps
-                if (index.isEven) {
-                  return bars[index ~/ 2];
-                } else {
-                  return SizedBox(width: spacing);
-                }
-              }),
-            ),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: List.generate(bars.length * 2 - 1, (index) {
+              // Alternate between bar widgets and spacing gaps
+              if (index.isEven) {
+                return bars[index ~/ 2];
+              } else {
+                return SizedBox(width: spacing);
+              }
+            }),
           ),
         );
 

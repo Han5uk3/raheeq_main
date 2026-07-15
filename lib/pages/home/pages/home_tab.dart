@@ -648,11 +648,11 @@ class _HomeTabState extends State<HomeTab> {
                             child: buildYourImpactSection(context),
                           ),
                           const SizedBox(height: 24),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: buildBottomText(context),
-                          ),
-                          const SizedBox(height: 150),
+                          // Padding(
+                          //   padding: const EdgeInsets.symmetric(horizontal: 16),
+                          //   child: buildBottomText(context),
+                          // ),
+                          const SizedBox(height: 140),
                           if (_selectedItems.isNotEmpty) ...{
                             SizedBox(height: 80),
                           },
@@ -1721,7 +1721,7 @@ class _HomeTabState extends State<HomeTab> {
         ),
         const SizedBox(height: 16),
         SizedBox(
-          height: 330,
+          height: 215,
           child: ListView.builder(
             physics: const ClampingScrollPhysics(),
             padding: EdgeInsets.zero,
@@ -1736,7 +1736,6 @@ class _HomeTabState extends State<HomeTab> {
 
               final subtitle = product.localizedSubtitle(isAr);
               log("Subtitle for product ${product.id}: $subtitle");
-              final imageUrl = product.image;
               final price = product.price;
 
               final existingIndex = _selectedItems.indexWhere(
@@ -1791,137 +1790,186 @@ class _HomeTabState extends State<HomeTab> {
                   });
                 },
                 child: Container(
-                  width: 260,
+                  width: 125,
                   margin: EdgeInsetsDirectional.only(
                     start: index == 0 ? 16 : 8,
                     end: index == _essentialProducts.length - 1 ? 16 : 8,
                     bottom: 12,
+                    top: 4,
                   ),
-                  decoration: BoxDecoration(
-                    color: isSelected ? const Color(0xFFE8F4FA) : Colors.white,
-                    border: Border.all(
-                      color: isSelected
-                          ? AppColors.buttonBlue
-                          : const Color(0xffE2E2E2),
-                      width: isSelected ? 2 : 1,
-                    ),
-                    borderRadius: BorderRadius.circular(24),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.03),
-                        blurRadius: 6,
-                        offset: const Offset(0, 3),
+                  child: Stack(
+                    children: [
+                      Card(
+                        margin: EdgeInsets.all(0),
+                        color: Colors.white,
+                        elevation: isSelected ? 3 : 1,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                          side: BorderSide(
+                            color: isSelected
+                                ? AppColors.buttonBlue
+                                : Colors.transparent,
+                            width: 2,
+                          ),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Product image
+                            Container(
+                              padding: const EdgeInsets.all(8.0),
+                              width: double.infinity,
+                              height: 100,
+                              decoration: const BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.all(
+                                  Radius.circular(14),
+                                ),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: const BorderRadius.all(
+                                  Radius.circular(14),
+                                ),
+                                child: product.image.isNotEmpty
+                                    ? CachedNetworkImage(
+                                        imageUrl: product.image,
+                                        fit: BoxFit.cover,
+                                        placeholder: (context, url) =>
+                                            Shimmer.fromColors(
+                                              baseColor: Colors.grey[300]!,
+                                              highlightColor: Colors.grey[100]!,
+                                              child: Container(
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                        errorWidget: (context, url, error) =>
+                                            const Center(
+                                              child: Icon(
+                                                Icons.water_drop,
+                                                color: AppColors.buttonBlue,
+                                                size: 40,
+                                              ),
+                                            ),
+                                      )
+                                    : const Center(
+                                        child: Icon(
+                                          Icons.water_drop,
+                                          color: AppColors.buttonBlue,
+                                          size: 40,
+                                        ),
+                                      ),
+                              ),
+                            ),
+
+                            // Details
+                            Expanded(
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                  12,
+                                  8,
+                                  12,
+                                  12,
+                                ),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    // Subtitle row
+                                    Text(
+                                      subtitle,
+                                      style: const TextStyle(
+                                        fontSize: 10,
+                                        color: Colors.grey,
+                                      ),
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+
+                                    // Product name
+                                    Text(
+                                      name,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.black,
+                                      ),
+                                      maxLines: 2,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+
+                                    const Spacer(),
+                                    Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.starting_from,
+                                      style: const TextStyle(
+                                        fontSize: 10,
+                                        color: Colors.grey,
+                                      ),
+                                    ),
+                                    // Price
+                                    Text(
+                                      '\u202A${AppLocalizations.of(context)!.sar_currency} ${price.toStringAsFixed(0)}\u202C',
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.buttonBlueDark,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ],
-                  ),
-                  child: Padding(
-                    padding: const EdgeInsets.all(12),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (product.isHighNeed) ...[
-                          Container(
+                      if (product.isHighNeed)
+                        PositionedDirectional(
+                          top: 0,
+                          end: 0,
+                          child: Container(
                             padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 3,
+                              horizontal: 6,
+                              vertical: 6,
                             ),
                             decoration: BoxDecoration(
-                              color: const Color(
-                                0xff1A6A8F,
-                              ).withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(20),
+                              color: const Color(0xff1A6A8F),
+                              borderRadius: BorderRadius.only(
+                                topLeft:
+                                    Directionality.of(context) ==
+                                        TextDirection.ltr
+                                    ? Radius.circular(0)
+                                    : Radius.circular(12),
+                                bottomRight:
+                                    Directionality.of(context) ==
+                                        TextDirection.ltr
+                                    ? Radius.circular(0)
+                                    : Radius.circular(12),
+                                bottomLeft:
+                                    Directionality.of(context) ==
+                                        TextDirection.ltr
+                                    ? Radius.circular(12)
+                                    : Radius.circular(0),
+                                topRight:
+                                    Directionality.of(context) ==
+                                        TextDirection.ltr
+                                    ? Radius.circular(12)
+                                    : Radius.circular(0),
+                              ),
                             ),
                             child: Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
-                                Icon(
+                                const Icon(
                                   Icons.trending_up_outlined,
-                                  color: AppColors.buttonBlue,
-                                  size: 15,
-                                ),
-                                SizedBox(width: 4),
-                                Text(
-                                  AppLocalizations.of(context)!.high_need,
-                                  style: const TextStyle(
-                                    fontSize: 10,
-                                    fontWeight: FontWeight.w600,
-                                    color: AppColors.buttonBlue,
-                                  ),
+                                  color: AppColors.white,
+                                  size: 18,
                                 ),
                               ],
                             ),
                           ),
-                          const SizedBox(height: 6),
-                        ],
-                        Text(
-                          name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
                         ),
-                        const SizedBox(height: 2),
-                        Text(
-                          subtitle,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.black54,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Expanded(
-                          child: ClipRRect(
-                            borderRadius: BorderRadius.circular(16),
-                            child: CachedNetworkImage(
-                              imageUrl: imageUrl,
-                              fit: BoxFit.contain,
-                              placeholder: (context, url) => Shimmer.fromColors(
-                                baseColor: Colors.grey[300]!,
-                                highlightColor: Colors.grey[100]!,
-                                child: Container(color: Colors.white),
-                              ),
-                              errorWidget: (context, url, error) => const Icon(
-                                Icons.water_drop,
-                                size: 40,
-                                color: AppColors.buttonBlue,
-                              ),
-                            ),
-                          ),
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  AppLocalizations.of(context)!.starting_from,
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                                Text(
-                                  "\u202A${AppLocalizations.of(context)!.sar} $price\u202C",
-                                  style: const TextStyle(
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.buttonBlue,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                    ],
                   ),
                 ),
               );
@@ -1940,73 +1988,77 @@ class _HomeTabState extends State<HomeTab> {
           MaterialPageRoute(builder: (context) => const ImpactPage()),
         );
       },
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              AppColors.buttonBlueDark,
-              Color.fromARGB(255, 31, 163, 224),
-            ],
-            begin: AlignmentDirectional.centerStart,
-            end: AlignmentDirectional.centerEnd,
+      child: Material(
+        elevation: 1,
+        borderRadius: BorderRadius.all(Radius.circular(20)),
+        child: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16),
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              colors: [
+                AppColors.buttonBlueDark,
+                Color.fromARGB(255, 31, 163, 224),
+              ],
+              begin: AlignmentDirectional.centerStart,
+              end: AlignmentDirectional.centerEnd,
+            ),
+            borderRadius: BorderRadius.circular(20),
           ),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(
-          children: [
-            Container(
-              height: 48,
-              width: 48,
-              decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.2),
-                borderRadius: BorderRadius.circular(12),
+          child: Row(
+            children: [
+              Container(
+                height: 48,
+                width: 48,
+                decoration: BoxDecoration(
+                  color: Colors.white.withValues(alpha: 0.2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(
+                  Icons.water_drop,
+                  color: Colors.white,
+                  size: 24,
+                ),
               ),
-              child: const Icon(
-                Icons.water_drop,
-                color: Colors.white,
-                size: 24,
-              ),
-            ),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    AppLocalizations.of(context)!.donations_overview,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      AppLocalizations.of(context)!.donations_overview,
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    AppLocalizations.of(context)!.see_the_difference,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.white.withValues(alpha: 0.8),
+                    const SizedBox(height: 2),
+                    Text(
+                      AppLocalizations.of(context)!.see_the_difference,
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.white.withValues(alpha: 0.8),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            Container(
-              padding: const EdgeInsets.all(8),
-              decoration: const BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
+              Container(
+                padding: const EdgeInsets.all(8),
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(
+                  forwardArrowIcon(context),
+                  size: 14,
+                  color: AppColors.buttonBlueDark,
+                ),
               ),
-              child: Icon(
-                forwardArrowIcon(context),
-                size: 14,
-                color: AppColors.buttonBlueDark,
-              ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -2025,7 +2077,7 @@ class _HomeTabState extends State<HomeTab> {
       children: [
         Material(
           color: Colors.white,
-          elevation: 0.5,
+          elevation: isSelected ? 3 : 1,
           borderRadius: BorderRadius.circular(10),
           child: Container(
             decoration: BoxDecoration(
@@ -2224,61 +2276,66 @@ class _HomeTabState extends State<HomeTab> {
           itemCount: impactItems.length,
           itemBuilder: (context, index) {
             final item = impactItems[index];
-            return Container(
-              padding: const EdgeInsets.symmetric(horizontal: 12),
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  colors: [
-                    AppColors.buttonBlueDark,
-                    Color.fromARGB(255, 31, 163, 224),
-                  ],
-                  begin: AlignmentDirectional.centerStart,
-                  end: AlignmentDirectional.centerEnd,
+            return Material(
+              elevation: 1,
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+              child: Container(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      AppColors.buttonBlueDark,
+                      Color.fromARGB(255, 31, 163, 224),
+                    ],
+                    begin: AlignmentDirectional.centerStart,
+                    end: AlignmentDirectional.centerEnd,
+                  ),
+                  borderRadius: BorderRadius.circular(16),
                 ),
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.1),
-                      borderRadius: BorderRadius.circular(12),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.1),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: Icon(
+                        item['icon'] as IconData,
+                        color: Colors.white,
+                        size: 24,
+                      ),
                     ),
-                    child: Icon(
-                      item['icon'] as IconData,
-                      color: Colors.white,
-                      size: 24,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          '${item['count']}',
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            '${item['count']}',
+                            style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          item['title'] as String,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: Colors.white,
+                          const SizedBox(height: 2),
+                          Text(
+                            item['title'] as String,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.white,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             );
           },

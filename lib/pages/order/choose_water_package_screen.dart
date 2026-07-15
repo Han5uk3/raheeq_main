@@ -1,6 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:raheeq_main/common_widgets/water_loading.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/models/order_item.dart';
 import 'package:raheeq_main/models/product.dart';
@@ -390,11 +390,10 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
                       ? CachedNetworkImage(
                           imageUrl: product.image,
                           fit: BoxFit.cover,
-                          placeholder: (context, url) => Center(
-                            child: SizedBox(
-                              height: 20,
-                              child: WaterLoadingIndicator(),
-                            ),
+                          placeholder: (context, url) => Shimmer.fromColors(
+                            baseColor: Colors.grey[300]!,
+                            highlightColor: Colors.grey[100]!,
+                            child: Container(color: Colors.white),
                           ),
                           errorWidget: (context, url, error) => const Center(
                             child: Icon(

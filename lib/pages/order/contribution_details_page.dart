@@ -534,38 +534,16 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                 transactionId: txId,
               );
 
-              if (mounted) {
-                setState(() {
-                  _isProcessingPayment = false;
-                });
-              }
-
               if (verifyResponse.data['success'] == true) {
                 final paymentData =
                     verifyResponse.data['data'] ?? verifyResponse.data;
                 final paymentStatus = paymentData['paymentStatus'];
 
-                if (paymentStatus == 'PENDING') {
+                if (paymentStatus == 'COMPLETED' ||
+                    paymentStatus == 'PAID' ||
+                    paymentStatus == 'SUCCESS') {
                   log(
-                    'Payment Flow: verifyPayment returned PENDING.',
-                    name: 'CheckoutFlow',
-                  );
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => PaymentStatusPage(
-                        status: PaymentStatus.failed,
-                        message:
-                            verifyResponse.data['message'] ??
-                            AppLocalizations.of(context)!.payment_failed,
-                        isAr: isAr,
-                        onRetry: () => Navigator.pop(context),
-                      ),
-                    ),
-                  );
-                } else {
-                  log(
-                    'Payment Flow: verifyPayment successful.',
+                    'Payment Flow: verifyPayment successful. Status: $paymentStatus',
                     name: 'CheckoutFlow',
                   );
                   Navigator.pushReplacement(
@@ -577,13 +555,51 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                       ),
                     ),
                   );
+                } else if (paymentStatus == 'FAILED' ||
+                    paymentStatus == 'DECLINED' ||
+                    paymentStatus == 'CANCELLED' ||
+                    paymentStatus == 'PENDING') {
+                  log(
+                    'Payment Flow: verifyPayment failed. Status: $paymentStatus',
+                    name: 'CheckoutFlow',
+                  );
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => PaymentStatusPage(
+                        status: PaymentStatus.failed,
+                        message: AppLocalizations.of(context)!.payment_failed,
+                        isAr: isAr,
+                        onRetry: () => Navigator.pop(context),
+                      ),
+                    ),
+                  );
+                  if (mounted) {
+                    setState(() {
+                      _isProcessingPayment = false;
+                    });
+                  }
+                } else {
+                  log(
+                    'Payment Flow: verifyPayment returned pending/unknown status: $paymentStatus',
+                    name: 'CheckoutFlow',
+                  );
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => PaymentStatusPage(
+                        status: PaymentStatus.pendingApproval,
+                        isAr: isAr,
+                      ),
+                    ),
+                  );
                 }
               } else {
                 log(
                   'Payment Flow: verifyPayment failed: ${verifyResponse.data['message']}',
                   name: 'CheckoutFlow',
                 );
-                Navigator.push(
+                await Navigator.push(
                   context,
                   MaterialPageRoute(
                     builder: (_) => PaymentStatusPage(
@@ -594,18 +610,18 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                     ),
                   ),
                 );
+                if (mounted) {
+                  setState(() {
+                    _isProcessingPayment = false;
+                  });
+                }
               }
             } catch (e) {
-              if (mounted) {
-                setState(() {
-                  _isProcessingPayment = false;
-                });
-              }
               log(
                 'Payment Flow: verifyPayment API error: $e',
                 name: 'CheckoutFlow',
               );
-              Navigator.push(
+              await Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (_) => PaymentStatusPage(
@@ -618,6 +634,11 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                   ),
                 ),
               );
+              if (mounted) {
+                setState(() {
+                  _isProcessingPayment = false;
+                });
+              }
             }
           } else if (event["status"] == "error") {
             if (mounted) {
@@ -893,174 +914,406 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
 
     return AbsorbPointer(
       absorbing: _isProcessingPayment,
-      child: Scaffold(
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-        floatingActionButton: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-          child: BottomActionPill(
-            isLoading: _isProcessingPayment,
-            subtitleWidget: Text(
-              AppLocalizations.of(context)!.total_amount,
-              style: const TextStyle(fontSize: 14, color: Colors.white70),
-            ),
-            titleWidget: Text(
-              "\u202A${AppLocalizations.of(context)!.sar_currency} ${_checkoutData.finalTotal.toStringAsFixed(2)}\u202C",
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Colors.white,
-              ),
-            ),
-            buttonText: AppLocalizations.of(context)!.confirm_pay,
-            onButtonTap: () => _confirmAndPay(context, isAr),
-          ),
-        ),
-        body: CustomScrollView(
-          physics: ClampingScrollPhysics(),
-          slivers: [
-            SliverToBoxAdapter(
-              child: CustomAppBar(
-                hasBackgroundColor: true,
-                isStartAligned: true,
-                title: title,
-                subtitle: subtitle,
-                showBackButton: true,
-                onBackTap: () => Navigator.pop(context),
-              ),
-            ),
-            SliverToBoxAdapter(
-              child: Container(
-                color: AppColors.buttonBlueDark,
-                child: Container(
-                  width: double.infinity,
-                  decoration: const BoxDecoration(
+      child: Stack(
+        children: [
+          Scaffold(
+            floatingActionButtonLocation:
+                FloatingActionButtonLocation.centerFloat,
+            floatingActionButton: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+              child: BottomActionPill(
+                isLoading: _isProcessingPayment,
+                subtitleWidget: Text(
+                  AppLocalizations.of(context)!.total_amount,
+                  style: const TextStyle(fontSize: 14, color: Colors.white70),
+                ),
+                titleWidget: Text(
+                  "\u202A${AppLocalizations.of(context)!.sar_currency} ${_checkoutData.finalTotal.toStringAsFixed(2)}\u202C",
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
                     color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
                   ),
-                  child: Padding(
-                    padding: const EdgeInsetsDirectional.fromSTEB(
-                      16,
-                      24,
-                      16,
-                      120,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Material(
-                          elevation: 2,
-                          borderRadius: BorderRadius.circular(16),
-                          child: AspectRatio(
-                            aspectRatio: 400 / 200,
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(16),
-                              child: Image.asset(
-                                "assets/payment_banner.jpeg",
-                                fit: BoxFit.cover,
-                              ),
-
-                              //  CachedNetworkImage(
-                              //   imageUrl: widget.campaign.image,
-                              //   fit: BoxFit.cover,
-                              //   errorWidget: (context, url, error) =>
-                              //       Container(color: Colors.grey[200]),
-                              // ),
-                            ),
-                          ),
+                ),
+                buttonText: AppLocalizations.of(context)!.confirm_pay,
+                onButtonTap: () => _confirmAndPay(context, isAr),
+              ),
+            ),
+            body: CustomScrollView(
+              physics: ClampingScrollPhysics(),
+              slivers: [
+                SliverToBoxAdapter(
+                  child: CustomAppBar(
+                    hasBackgroundColor: true,
+                    isStartAligned: true,
+                    title: title,
+                    subtitle: subtitle,
+                    showBackButton: true,
+                    onBackTap: () => Navigator.pop(context),
+                  ),
+                ),
+                SliverToBoxAdapter(
+                  child: Container(
+                    color: AppColors.buttonBlueDark,
+                    child: Container(
+                      width: double.infinity,
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.only(
+                          topLeft: Radius.circular(30),
+                          topRight: Radius.circular(30),
                         ),
-                        const SizedBox(height: 16),
-                        _buildPaymentMethods(isAr),
-                        const SizedBox(height: 16),
-                        _buildGiftCardSection(isAr),
-
-                        const SizedBox(height: 16),
-                        SizedBox(
-                          width: double.infinity,
-                          child: Card(
-                            color: Colors.white,
-                            elevation: 2,
-                            margin: EdgeInsets.all(0),
-                            shape: RoundedRectangleBorder(
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsetsDirectional.fromSTEB(
+                          16,
+                          24,
+                          16,
+                          120,
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Material(
+                              elevation: 2,
                               borderRadius: BorderRadius.circular(16),
-                              side: BorderSide(color: Colors.grey.shade200),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    AppLocalizations.of(context)!.coupon_code,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+                              child: AspectRatio(
+                                aspectRatio: 400 / 200,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: Image.asset(
+                                    "assets/payment_banner.jpeg",
+                                    fit: BoxFit.cover,
                                   ),
-                                  const SizedBox(height: 8),
-                                  if (!canApplyCoupon)
-                                    Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 8.0,
-                                      ),
-                                      child: Text(
+
+                                  //  CachedNetworkImage(
+                                  //   imageUrl: widget.campaign.image,
+                                  //   fit: BoxFit.cover,
+                                  //   errorWidget: (context, url, error) =>
+                                  //       Container(color: Colors.grey[200]),
+                                  // ),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(height: 16),
+                            _buildPaymentMethods(isAr),
+                            const SizedBox(height: 16),
+                            _buildGiftCardSection(isAr),
+
+                            const SizedBox(height: 16),
+                            SizedBox(
+                              width: double.infinity,
+                              child: Card(
+                                color: Colors.white,
+                                elevation: 2,
+                                margin: EdgeInsets.all(0),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  side: BorderSide(color: Colors.grey.shade200),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
                                         AppLocalizations.of(
                                           context,
-                                        )!.coupon_not_applicable,
+                                        )!.coupon_code,
                                         style: const TextStyle(
-                                          color: Colors.red,
-                                          fontSize: 14,
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
                                         ),
                                       ),
-                                    )
-                                  else if (_checkoutData.couponCode != null &&
-                                      _checkoutData.couponCode!.isNotEmpty)
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 16,
-                                        vertical: 12,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: Colors.green.withValues(
-                                          alpha: 0.1,
-                                        ),
-                                        borderRadius: BorderRadius.circular(12),
-                                        border: Border.all(
-                                          color: Colors.green.withValues(
-                                            alpha: 0.3,
+                                      const SizedBox(height: 8),
+                                      if (!canApplyCoupon)
+                                        Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 8.0,
                                           ),
-                                        ),
-                                      ),
-                                      child: Row(
-                                        children: [
-                                          const Icon(
-                                            Icons.check_circle,
-                                            color: Colors.green,
+                                          child: Text(
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.coupon_not_applicable,
+                                            style: const TextStyle(
+                                              color: Colors.red,
+                                              fontSize: 14,
+                                            ),
                                           ),
-                                          const SizedBox(width: 8),
-                                          Expanded(
-                                            child: Text(
-                                              _checkoutData.couponCode!,
-                                              style: const TextStyle(
-                                                fontSize: 16,
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.green,
+                                        )
+                                      else if (_checkoutData.couponCode !=
+                                              null &&
+                                          _checkoutData.couponCode!.isNotEmpty)
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 16,
+                                            vertical: 12,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: Colors.green.withValues(
+                                              alpha: 0.1,
+                                            ),
+                                            borderRadius: BorderRadius.circular(
+                                              12,
+                                            ),
+                                            border: Border.all(
+                                              color: Colors.green.withValues(
+                                                alpha: 0.3,
                                               ),
                                             ),
                                           ),
+                                          child: Row(
+                                            children: [
+                                              const Icon(
+                                                Icons.check_circle,
+                                                color: Colors.green,
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Expanded(
+                                                child: Text(
+                                                  _checkoutData.couponCode!,
+                                                  style: const TextStyle(
+                                                    fontSize: 16,
+                                                    fontWeight: FontWeight.bold,
+                                                    color: Colors.green,
+                                                  ),
+                                                ),
+                                              ),
+                                              ElevatedButton(
+                                                onPressed: _isApplyingCoupon
+                                                    ? null
+                                                    : () => _removeCoupon(isAr),
+                                                style: ElevatedButton.styleFrom(
+                                                  backgroundColor: Colors.red,
+                                                  foregroundColor: Colors.white,
+                                                  padding:
+                                                      const EdgeInsets.symmetric(
+                                                        horizontal: 12,
+                                                        vertical: 6,
+                                                      ),
+                                                  minimumSize: Size.zero,
+                                                  tapTargetSize:
+                                                      MaterialTapTargetSize
+                                                          .shrinkWrap,
+                                                  shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          30,
+                                                        ),
+                                                  ),
+                                                  elevation: 0,
+                                                ),
+                                                child: _isApplyingCoupon
+                                                    ? const WaterLoadingIndicator(
+                                                        size: 16,
+                                                        waveColor1:
+                                                            Colors.white,
+                                                      )
+                                                    : Text(
+                                                        AppLocalizations.of(
+                                                          context,
+                                                        )!.remove,
+                                                        style: const TextStyle(
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
+                                                      ),
+                                              ),
+                                            ],
+                                          ),
+                                        )
+                                      else
+                                        Row(
+                                          children: [
+                                            Expanded(
+                                              child: Container(
+                                                decoration: BoxDecoration(
+                                                  color: const Color(
+                                                    0xFFF5F5F5,
+                                                  ),
+                                                  borderRadius:
+                                                      BorderRadius.circular(12),
+                                                ),
+                                                child: TextField(
+                                                  inputFormatters: [
+                                                    TextInputFormatter.withFunction(
+                                                      (oldValue, newValue) =>
+                                                          TextEditingValue(
+                                                            text: newValue.text
+                                                                .toUpperCase(),
+                                                            selection: newValue
+                                                                .selection,
+                                                          ),
+                                                    ),
+                                                  ],
+                                                  cursorColor:
+                                                      AppColors.buttonBlueDark,
+
+                                                  controller: _couponController,
+                                                  decoration: InputDecoration(
+                                                    border: InputBorder.none,
+                                                    isDense: true,
+                                                    contentPadding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 16,
+                                                          vertical: 8,
+                                                        ),
+                                                    hintText:
+                                                        AppLocalizations.of(
+                                                          context,
+                                                        )!.enter_coupon_code,
+                                                  ),
+                                                ),
+                                              ),
+                                            ),
+                                            const SizedBox(width: 12),
+                                            ValueListenableBuilder<
+                                              TextEditingValue
+                                            >(
+                                              valueListenable:
+                                                  _couponController,
+                                              builder: (context, value, child) {
+                                                final bool isEmpty = value.text
+                                                    .trim()
+                                                    .isEmpty;
+                                                return ElevatedButton(
+                                                  onPressed:
+                                                      (_isApplyingCoupon ||
+                                                          isEmpty)
+                                                      ? null
+                                                      : () =>
+                                                            _applyCoupon(isAr),
+                                                  style: ElevatedButton.styleFrom(
+                                                    backgroundColor: AppColors
+                                                        .buttonBlueDark,
+                                                    disabledBackgroundColor:
+                                                        Colors.grey.shade300,
+                                                    disabledForegroundColor:
+                                                        Colors.grey.shade600,
+                                                    foregroundColor:
+                                                        Colors.white,
+                                                    padding:
+                                                        const EdgeInsets.symmetric(
+                                                          horizontal: 16,
+                                                          vertical: 8,
+                                                        ),
+                                                    minimumSize: Size.zero,
+                                                    tapTargetSize:
+                                                        MaterialTapTargetSize
+                                                            .shrinkWrap,
+                                                    shape: RoundedRectangleBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            30,
+                                                          ),
+                                                    ),
+                                                    elevation: 0,
+                                                  ),
+                                                  child: _isApplyingCoupon
+                                                      ? const WaterLoadingIndicator(
+                                                          size: 16,
+                                                          waveColor1:
+                                                              Colors.white,
+                                                        )
+                                                      : Text(
+                                                          AppLocalizations.of(
+                                                            context,
+                                                          )!.apply,
+                                                          style:
+                                                              const TextStyle(
+                                                                fontWeight:
+                                                                    FontWeight
+                                                                        .bold,
+                                                              ),
+                                                        ),
+                                                );
+                                              },
+                                            ),
+                                          ],
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ),
+
+                            if (_checkoutData.walletBalance > 0) ...[
+                              const SizedBox(height: 16),
+                              Card(
+                                color: Colors.white,
+                                elevation: 2,
+                                margin: EdgeInsets.all(0),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  side: BorderSide(color: Colors.grey.shade200),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.use_wallet_balance,
+                                        style: const TextStyle(
+                                          fontSize: 16,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      SizedBox(height: 8),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.spaceBetween,
+                                        children: [
+                                          Expanded(
+                                            child: Row(
+                                              children: [
+                                                Icon(
+                                                  Icons
+                                                      .account_balance_wallet_outlined,
+                                                  color:
+                                                      AppColors.buttonBlueDark,
+                                                ),
+                                                const SizedBox(width: 8),
+                                                Expanded(
+                                                  child: Column(
+                                                    crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                    children: [
+                                                      Text(
+                                                        "${AppLocalizations.of(context)!.available_colon} \u202A${AppLocalizations.of(context)!.sar_currency} ${_checkoutData.walletBalance.toStringAsFixed(2)}\u202C",
+                                                        style: const TextStyle(
+                                                          fontSize: 14,
+                                                          color: Colors.black,
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
                                           ElevatedButton(
-                                            onPressed: _isApplyingCoupon
+                                            onPressed: _isTogglingWallet
                                                 ? null
-                                                : () => _removeCoupon(isAr),
+                                                : () => _toggleWallet(
+                                                    !_checkoutData.useWallet,
+                                                    isAr,
+                                                  ),
                                             style: ElevatedButton.styleFrom(
-                                              backgroundColor: Colors.red,
+                                              backgroundColor:
+                                                  _checkoutData.useWallet
+                                                  ? Colors.red
+                                                  : AppColors.buttonBlueDark,
                                               foregroundColor: Colors.white,
                                               padding:
                                                   const EdgeInsets.symmetric(
-                                                    horizontal: 12,
-                                                    vertical: 6,
+                                                    horizontal: 16,
+                                                    vertical: 8,
                                                   ),
                                               minimumSize: Size.zero,
                                               tapTargetSize:
@@ -1072,15 +1325,19 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                               ),
                                               elevation: 0,
                                             ),
-                                            child: _isApplyingCoupon
+                                            child: _isTogglingWallet
                                                 ? const WaterLoadingIndicator(
                                                     size: 16,
                                                     waveColor1: Colors.white,
                                                   )
                                                 : Text(
-                                                    AppLocalizations.of(
-                                                      context,
-                                                    )!.remove,
+                                                    _checkoutData.useWallet
+                                                        ? (AppLocalizations.of(
+                                                            context,
+                                                          )!.remove)
+                                                        : (AppLocalizations.of(
+                                                            context,
+                                                          )!.apply),
                                                     style: const TextStyle(
                                                       fontWeight:
                                                           FontWeight.bold,
@@ -1089,356 +1346,167 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                           ),
                                         ],
                                       ),
-                                    )
-                                  else
-                                    Row(
-                                      children: [
-                                        Expanded(
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              color: const Color(0xFFF5F5F5),
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                            ),
-                                            child: TextField(
-                                              inputFormatters: [
-                                                TextInputFormatter.withFunction(
-                                                  (oldValue, newValue) =>
-                                                      TextEditingValue(
-                                                        text: newValue.text
-                                                            .toUpperCase(),
-                                                        selection:
-                                                            newValue.selection,
-                                                      ),
-                                                ),
-                                              ],
-                                              cursorColor:
-                                                  AppColors.buttonBlueDark,
-
-                                              controller: _couponController,
-                                              decoration: InputDecoration(
-                                                border: InputBorder.none,
-                                                isDense: true,
-                                                contentPadding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 16,
-                                                      vertical: 8,
-                                                    ),
-                                                hintText: AppLocalizations.of(
-                                                  context,
-                                                )!.enter_coupon_code,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(width: 12),
-                                        ValueListenableBuilder<
-                                          TextEditingValue
-                                        >(
-                                          valueListenable: _couponController,
-                                          builder: (context, value, child) {
-                                            final bool isEmpty = value.text
-                                                .trim()
-                                                .isEmpty;
-                                            return ElevatedButton(
-                                              onPressed:
-                                                  (_isApplyingCoupon || isEmpty)
-                                                  ? null
-                                                  : () => _applyCoupon(isAr),
-                                              style: ElevatedButton.styleFrom(
-                                                backgroundColor:
-                                                    AppColors.buttonBlueDark,
-                                                disabledBackgroundColor:
-                                                    Colors.grey.shade300,
-                                                disabledForegroundColor:
-                                                    Colors.grey.shade600,
-                                                foregroundColor: Colors.white,
-                                                padding:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 16,
-                                                      vertical: 8,
-                                                    ),
-                                                minimumSize: Size.zero,
-                                                tapTargetSize:
-                                                    MaterialTapTargetSize
-                                                        .shrinkWrap,
-                                                shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(30),
-                                                ),
-                                                elevation: 0,
-                                              ),
-                                              child: _isApplyingCoupon
-                                                  ? const WaterLoadingIndicator(
-                                                      size: 16,
-                                                      waveColor1: Colors.white,
-                                                    )
-                                                  : Text(
-                                                      AppLocalizations.of(
-                                                        context,
-                                                      )!.apply,
-                                                      style: const TextStyle(
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                      ),
-                                                    ),
-                                            );
-                                          },
-                                        ),
-                                      ],
-                                    ),
-                                ],
-                              ),
-                            ),
-                          ),
-                        ),
-
-                        if (_checkoutData.walletBalance > 0) ...[
-                          const SizedBox(height: 16),
-                          Card(
-                            color: Colors.white,
-                            elevation: 2,
-                            margin: EdgeInsets.all(0),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(16),
-                              side: BorderSide(color: Colors.grey.shade200),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    AppLocalizations.of(
-                                      context,
-                                    )!.use_wallet_balance,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  SizedBox(height: 8),
-                                  Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Expanded(
-                                        child: Row(
-                                          children: [
-                                            Icon(
-                                              Icons
-                                                  .account_balance_wallet_outlined,
-                                              color: AppColors.buttonBlueDark,
-                                            ),
-                                            const SizedBox(width: 8),
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                children: [
-                                                  Text(
-                                                    "${AppLocalizations.of(context)!.available_colon} \u202A${AppLocalizations.of(context)!.sar_currency} ${_checkoutData.walletBalance.toStringAsFixed(2)}\u202C",
-                                                    style: const TextStyle(
-                                                      fontSize: 14,
-                                                      color: Colors.black,
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      ElevatedButton(
-                                        onPressed: _isTogglingWallet
-                                            ? null
-                                            : () => _toggleWallet(
-                                                !_checkoutData.useWallet,
-                                                isAr,
-                                              ),
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor:
-                                              _checkoutData.useWallet
-                                              ? Colors.red
-                                              : AppColors.buttonBlueDark,
-                                          foregroundColor: Colors.white,
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 16,
-                                            vertical: 8,
-                                          ),
-                                          minimumSize: Size.zero,
-                                          tapTargetSize:
-                                              MaterialTapTargetSize.shrinkWrap,
-                                          shape: RoundedRectangleBorder(
-                                            borderRadius: BorderRadius.circular(
-                                              30,
-                                            ),
-                                          ),
-                                          elevation: 0,
-                                        ),
-                                        child: _isTogglingWallet
-                                            ? const WaterLoadingIndicator(
-                                                size: 16,
-                                                waveColor1: Colors.white,
-                                              )
-                                            : Text(
-                                                _checkoutData.useWallet
-                                                    ? (AppLocalizations.of(
-                                                        context,
-                                                      )!.remove)
-                                                    : (AppLocalizations.of(
-                                                        context,
-                                                      )!.apply),
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                      ),
                                     ],
                                   ),
-                                ],
+                                ),
                               ),
-                            ),
-                          ),
-                        ],
-                        const SizedBox(height: 16),
-                        Card(
-                          color: Colors.white,
-                          elevation: 2,
-                          margin: EdgeInsets.all(0),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                            side: BorderSide(color: Colors.grey.shade200),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  AppLocalizations.of(
-                                    context,
-                                  )!.contribution_details,
-                                  style: const TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                const SizedBox(height: 8),
-                                ...aggregatedProducts.values.map((sp) {
-                                  return Padding(
-                                    padding: const EdgeInsetsDirectional.only(
-                                      bottom: 12.0,
-                                    ),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceBetween,
-                                      children: [
-                                        Expanded(
-                                          child: Text(
-                                            "${sp.quantity} ${sp.product.localizedName(isAr)}",
-                                            style: TextStyle(
-                                              fontSize: 15,
-                                              color: Colors.grey.shade600,
-                                            ),
-                                          ),
-                                        ),
-                                        Text(
-                                          "\u202A${AppLocalizations.of(context)!.sar_currency} ${(sp.product.price * sp.quantity).toStringAsFixed(2)}\u202C",
-                                          style: const TextStyle(
-                                            fontSize: 15,
-                                            fontWeight: FontWeight.w700,
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                }),
-                                _buildSubscriptionDetails(isAr),
-                                const Divider(height: 16),
-                                _buildPriceRow(
-                                  AppLocalizations.of(context)!.subtotal,
-                                  _checkoutData.subTotal,
-                                  isAr,
-                                ),
-                                if (_checkoutData.totalGiftCardFee > 0)
-                                  _buildPriceRow(
-                                    AppLocalizations.of(
-                                      context,
-                                    )!.gift_card_fees,
-                                    _checkoutData.totalGiftCardFee,
-                                    isAr,
-                                  ),
-                                if ((_checkoutData.totalDeliveryFee >= 0
-                                        ? _checkoutData.totalDeliveryFee
-                                        : widget
-                                              .checkoutData
-                                              .totalDeliveryFee) >
-                                    0)
-                                  _buildPriceRow(
-                                    AppLocalizations.of(context)!.delivery_fee,
-                                    _checkoutData.totalDeliveryFee > 0
-                                        ? _checkoutData.totalDeliveryFee
-                                        : widget.checkoutData.totalDeliveryFee,
-                                    isAr,
-                                    isFree: _checkoutData.isFreeDelivery,
-                                  ),
-                                if (_checkoutData.vatAmount > 0)
-                                  _buildPriceRow(
-                                    AppLocalizations.of(context)!.vat,
-                                    _checkoutData.vatAmount,
-                                    isAr,
-                                  ),
-                                if (_checkoutData.discountAmount > 0)
-                                  _buildPriceRow(
-                                    AppLocalizations.of(context)!.discount,
-                                    -_checkoutData.discountAmount,
-                                    isAr,
-                                  ),
-                                if (_checkoutData.walletAmountUsed > 0)
-                                  _buildPriceRow(
-                                    AppLocalizations.of(
-                                      context,
-                                    )!.wallet_applied,
-                                    -_checkoutData.walletAmountUsed,
-                                    isAr,
-                                  ),
-                                const Divider(height: 16),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                            ],
+                            const SizedBox(height: 16),
+                            Card(
+                              color: Colors.white,
+                              elevation: 2,
+                              margin: EdgeInsets.all(0),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                                side: BorderSide(color: Colors.grey.shade200),
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16.0),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Text(
                                       AppLocalizations.of(
                                         context,
-                                      )!.total_amount,
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    Text(
-                                      "\u202A${AppLocalizations.of(context)!.sar_currency} ${_checkoutData.finalTotal.toStringAsFixed(2)}\u202C",
+                                      )!.contribution_details,
                                       style: const TextStyle(
                                         fontSize: 16,
                                         fontWeight: FontWeight.bold,
-                                        color: AppColors.buttonBlueDark,
                                       ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    ...aggregatedProducts.values.map((sp) {
+                                      return Padding(
+                                        padding:
+                                            const EdgeInsetsDirectional.only(
+                                              bottom: 12.0,
+                                            ),
+                                        child: Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            Expanded(
+                                              child: Text(
+                                                "${sp.quantity} ${sp.product.localizedName(isAr)}",
+                                                style: TextStyle(
+                                                  fontSize: 15,
+                                                  color: Colors.grey.shade600,
+                                                ),
+                                              ),
+                                            ),
+                                            Text(
+                                              "\u202A${AppLocalizations.of(context)!.sar_currency} ${(sp.product.price * sp.quantity).toStringAsFixed(2)}\u202C",
+                                              style: const TextStyle(
+                                                fontSize: 15,
+                                                fontWeight: FontWeight.w700,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      );
+                                    }),
+                                    _buildSubscriptionDetails(isAr),
+                                    const Divider(height: 16),
+                                    _buildPriceRow(
+                                      AppLocalizations.of(context)!.subtotal,
+                                      _checkoutData.subTotal,
+                                      isAr,
+                                    ),
+                                    if (_checkoutData.totalGiftCardFee > 0)
+                                      _buildPriceRow(
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.gift_card_fees,
+                                        _checkoutData.totalGiftCardFee,
+                                        isAr,
+                                      ),
+                                    if ((_checkoutData.totalDeliveryFee >= 0
+                                            ? _checkoutData.totalDeliveryFee
+                                            : widget
+                                                  .checkoutData
+                                                  .totalDeliveryFee) >
+                                        0)
+                                      _buildPriceRow(
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.delivery_fee,
+                                        _checkoutData.totalDeliveryFee > 0
+                                            ? _checkoutData.totalDeliveryFee
+                                            : widget
+                                                  .checkoutData
+                                                  .totalDeliveryFee,
+                                        isAr,
+                                        isFree: _checkoutData.isFreeDelivery,
+                                      ),
+                                    if (_checkoutData.vatAmount > 0)
+                                      _buildPriceRow(
+                                        AppLocalizations.of(context)!.vat,
+                                        _checkoutData.vatAmount,
+                                        isAr,
+                                      ),
+                                    if (_checkoutData.discountAmount > 0)
+                                      _buildPriceRow(
+                                        AppLocalizations.of(context)!.discount,
+                                        -_checkoutData.discountAmount,
+                                        isAr,
+                                      ),
+                                    if (_checkoutData.walletAmountUsed > 0)
+                                      _buildPriceRow(
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.wallet_applied,
+                                        -_checkoutData.walletAmountUsed,
+                                        isAr,
+                                      ),
+                                    const Divider(height: 16),
+                                    Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text(
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.total_amount,
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                        Text(
+                                          "\u202A${AppLocalizations.of(context)!.sar_currency} ${_checkoutData.finalTotal.toStringAsFixed(2)}\u202C",
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.bold,
+                                            color: AppColors.buttonBlueDark,
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ],
                                 ),
-                              ],
+                              ),
                             ),
-                          ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if (_isProcessingPayment)
+            const Positioned.fill(
+              child: ColoredBox(
+                color: Colors.black26,
+                child: Center(
+                  child: WaterLoadingIndicator(
+                    waveColor1: AppColors.buttonBlueDark,
                   ),
                 ),
               ),
             ),
-          ],
-        ),
+        ],
       ),
     );
   }

@@ -434,7 +434,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get quick_actions => 'أعمال سريعة';
 
   @override
-  String get donate_now => 'تبرع الآن   ';
+  String get donate_now => 'اطلب الان';
 
   @override
   String get subscribe => 'اشتراك متاح';
@@ -1330,6 +1330,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get status_completed => 'مكتمل';
+
+  @override
+  String get choose_quantity => 'اختر الكمية';
 
   @override
   String get view_invoice => 'عرض الفاتورة';

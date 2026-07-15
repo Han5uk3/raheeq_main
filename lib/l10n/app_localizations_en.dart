@@ -1342,6 +1342,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get status_completed => 'Completed';
 
   @override
+  String get choose_quantity => 'Choose Quantity';
+
+  @override
   String get view_invoice => 'View Invoice';
 
   @override

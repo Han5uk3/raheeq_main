@@ -17,7 +17,6 @@ import 'package:raheeq_main/models/subscription_plan.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:dio/dio.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
 
 class CampaignDetailPage extends StatefulWidget {
@@ -66,7 +65,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
     for (var product in widget.campaign.products) {
       final qty = _selectedQuantities[product.id];
       if (qty != null && qty > 0) {
-        total += ((product.price) * qty) + product.deliveryFee;
+        total += (product.price) * qty;
       }
     }
     return total;
@@ -197,6 +196,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                                 borderRadius: BorderRadius.circular(12),
                               ),
                               child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
                                 children: [
                                   Icon(
                                     Icons.discount_outlined,
@@ -204,14 +204,19 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                                     color: AppColors.white,
                                   ),
                                   const SizedBox(width: 8),
-                                  Text(
-                                    AppLocalizations.of(
-                                      context,
-                                    )!.priceIncludesDistributionDeliveryAndDocumentation,
-                                    style: TextStyle(
-                                      fontSize: 10,
-                                      fontWeight: FontWeight.w700,
-                                      color: AppColors.white,
+                                  Expanded(
+                                    child: Text(
+                                      overflow: TextOverflow.ellipsis,
+                                      _selectedProduct?.localizedMessage(
+                                            isAr,
+                                          ) ??
+                                          "",
+                                      maxLines: 2,
+                                      style: TextStyle(
+                                        fontSize: 11,
+                                        fontWeight: FontWeight.w700,
+                                        color: AppColors.white,
+                                      ),
                                     ),
                                   ),
                                 ],
@@ -451,7 +456,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
               itemCount: presets.length,
               itemBuilder: (context, index) {
                 final qty = presets[index];
-                final price = (qty * (product.price)) + product.deliveryFee;
+                final price = qty * product.price;
                 return GestureDetector(
                   onTap: () => _selectQuantity(qty),
                   child: Container(
