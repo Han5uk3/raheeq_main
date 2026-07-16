@@ -115,8 +115,6 @@ class _OTPState extends State<OTP> {
       );
 
       if (!context.mounted) return;
-      setState(() => _isVerifying = false);
-
       if (response.statusCode == 200 && response.data['success'] == true) {
         final data = response.data['data'];
         if (data['userExists'] == true) {
@@ -141,7 +139,7 @@ class _OTPState extends State<OTP> {
           await AuthStorage.saveRegistrationToken(regToken);
 
           if (!context.mounted) return;
-          Navigator.push(
+          await Navigator.push(
             context,
             MaterialPageRoute(
               builder: (context) => Registration(
@@ -151,8 +149,10 @@ class _OTPState extends State<OTP> {
               ),
             ),
           );
+          if (mounted) setState(() => _isVerifying = false);
         }
       } else {
+        if (mounted) setState(() => _isVerifying = false);
         CustomSnackbar.show(
           context: context,
           message:

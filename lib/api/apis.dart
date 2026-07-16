@@ -5,6 +5,7 @@ import 'package:raheeq_main/main.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
+import 'package:raheeq_main/services/notification_service.dart';
 
 class ApiService {
   static const String baseUrl = 'https://api-staging.suqyarahiq.com/api/v1';
@@ -232,13 +233,15 @@ class ApiService {
   }) async {
     try {
       log('Verifying OTP for $countryCode $phoneNumber', name: 'AuthFlow');
+      fcmToken ??= await NotificationService().getToken();
       final data = {
         'countryCode': countryCode,
         'phoneNumber': phoneNumber,
         'otp': otp,
-        'fcmToken': ?fcmToken,
+        if (fcmToken != null && fcmToken.isNotEmpty) 'fcmToken': fcmToken,
         'deviceType': deviceType,
-        'deviceId': ?deviceId,
+        if (deviceId != null && deviceId.isNotEmpty) 'deviceId': deviceId,
+        'locale': localeNotifier.value.languageCode,
       };
 
       final response = await _dio.post('/auth/verify-otp', data: data);
@@ -280,6 +283,7 @@ class ApiService {
   }) async {
     try {
       log('Registering user: $phoneNumber', name: 'AuthFlow');
+      fcmToken ??= await NotificationService().getToken();
       final data = {
         'countryCode': countryCode,
         'phoneNumber': phoneNumber,
@@ -288,9 +292,10 @@ class ApiService {
         'lastName': lastName,
         'gender': gender,
         'deviceType': deviceType,
-        'fcmToken': ?fcmToken,
+        if (fcmToken != null && fcmToken.isNotEmpty) 'fcmToken': fcmToken,
         'registrationToken': registrationToken,
-        'deviceId': ?deviceId,
+        if (deviceId != null && deviceId.isNotEmpty) 'deviceId': deviceId,
+        'locale': localeNotifier.value.languageCode,
       };
 
       final response = await _dio.post('/auth/register', data: data);
@@ -323,11 +328,13 @@ class ApiService {
   }) async {
     try {
       log('Initiating Google Login', name: 'AuthFlow');
+      fcmToken ??= await NotificationService().getToken();
       final data = {
         'idToken': idToken,
         'deviceType': deviceType,
-        'fcmToken': ?fcmToken,
-        'deviceId': ?deviceId,
+        if (fcmToken != null && fcmToken.isNotEmpty) 'fcmToken': fcmToken,
+        if (deviceId != null && deviceId.isNotEmpty) 'deviceId': deviceId,
+        'locale': localeNotifier.value.languageCode,
       };
 
       final response = await _dio.post('/auth/google', data: data);
@@ -361,11 +368,13 @@ class ApiService {
   }) async {
     try {
       log('Initiating Apple Login', name: 'AuthFlow');
+      fcmToken ??= await NotificationService().getToken();
       final data = {
         'idToken': idToken,
         'deviceType': deviceType,
-        'fcmToken': ?fcmToken,
-        'deviceId': ?deviceId,
+        if (fcmToken != null && fcmToken.isNotEmpty) 'fcmToken': fcmToken,
+        if (deviceId != null && deviceId.isNotEmpty) 'deviceId': deviceId,
+        'locale': localeNotifier.value.languageCode,
       };
 
       final response = await _dio.post('/auth/apple', data: data);
@@ -420,6 +429,26 @@ class ApiService {
         return false;
       }
       rethrow;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Update User Locale
+  Future<Response> updateLocale({
+    required String locale,
+    String? fcmToken,
+  }) async {
+    try {
+      fcmToken ??= await NotificationService().getToken();
+      final response = await _dio.post(
+        '/me/locale',
+        data: {
+          'locale': locale,
+          if (fcmToken != null && fcmToken.isNotEmpty) 'fcmToken': fcmToken,
+        },
+      );
+      return response;
     } catch (e) {
       rethrow;
     }
@@ -586,9 +615,13 @@ class ApiService {
     String? fcmToken,
   }) async {
     try {
+      fcmToken ??= await NotificationService().getToken();
       final response = await _dio.post(
         '/auth/logout',
-        data: {'refreshToken': refreshToken, 'fcmToken': ?fcmToken},
+        data: {
+          'refreshToken': refreshToken,
+          if (fcmToken != null && fcmToken.isNotEmpty) 'fcmToken': fcmToken,
+        },
       );
       return response;
     } catch (e) {

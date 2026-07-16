@@ -340,7 +340,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                       "${AppLocalizations.of(context)!.choose_quantity} (${product.localizedName(isAr)})",
                       style: TextStyle(
                         fontSize: 14,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.normal,
                         color: AppColors.grey,
                       ),
                     ),
@@ -386,15 +386,13 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                                 decoration: BoxDecoration(
                                   color: sp.quantity > sp.product.minQuantity
                                       ? AppColors.buttonBlueDark
-                                      : Colors.grey[200],
+                                      : Colors.grey,
                                   borderRadius: BorderRadius.circular(8),
                                 ),
                                 child: Icon(
                                   Icons.remove,
                                   size: 18,
-                                  color: sp.quantity > sp.product.minQuantity
-                                      ? AppColors.white
-                                      : Colors.grey,
+                                  color: AppColors.white,
                                 ),
                               ),
                             ),

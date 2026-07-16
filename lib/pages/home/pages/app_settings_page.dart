@@ -5,6 +5,7 @@ import 'package:package_info_plus/package_info_plus.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:raheeq_main/main.dart';
 import 'package:raheeq_main/utils/colors.dart';
+import 'package:raheeq_main/api/apis.dart';
 
 class AppSettingsPage extends StatefulWidget {
   const AppSettingsPage({super.key});
@@ -261,6 +262,9 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       onTap: () async {
         localeNotifier.value = Locale(localeCode);
         await AppStorage.saveLocale(localeCode);
+        try {
+          await ApiService().updateLocale(locale: localeCode);
+        } catch (_) {}
         if (context.mounted) Navigator.pop(context);
       },
       child: Container(

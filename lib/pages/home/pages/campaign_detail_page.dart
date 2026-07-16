@@ -110,7 +110,6 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
   Widget build(BuildContext context) {
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
     final title = widget.campaign.localizedTitle(isAr);
-    final description = widget.campaign.localizedDescription(isAr);
     final products = widget.campaign.products;
 
     return Scaffold(
@@ -133,7 +132,6 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                 children: [
                   CustomAppBar(
                     title: title,
-
                     isStartAligned: true,
                     showBackButton: true,
                     hasBackgroundColor: true,
@@ -373,7 +371,9 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
         duration: const Duration(milliseconds: 200),
         width: width,
         decoration: BoxDecoration(
-          color: isSelected ? const Color(0xFF2381A6) : const Color(0xFFF5F5F5),
+          color: isSelected
+              ? AppColors.buttonBlueDark
+              : AppColors.buttonBlueLight,
           borderRadius: BorderRadius.circular(20),
         ),
         padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 8),
@@ -386,7 +386,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                   : product.serialNumber == 5
                   ? Icons.beach_access_outlined
                   : Icons.water_drop_outlined,
-              color: isSelected ? Colors.white : Colors.grey[400],
+              color: isSelected ? Colors.white : AppColors.buttonBlueDark,
               size: 18,
             ),
             const SizedBox(height: 8),
@@ -394,7 +394,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
               name,
               textAlign: TextAlign.center,
               style: TextStyle(
-                color: isSelected ? Colors.white : Colors.grey[600],
+                color: isSelected ? Colors.white : AppColors.buttonBlueDark,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
                 fontSize: 13,
                 height: 1.2,
@@ -437,14 +437,14 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
           children: [
             Row(
               children: [
-                const Icon(Icons.auto_awesome, color: Color(0xFF2381A6)),
+                const Icon(Icons.auto_awesome, color: AppColors.buttonBlueDark),
                 const SizedBox(width: 8),
                 Text(
                   AppLocalizations.of(context)!.select_your_impact,
                   style: const TextStyle(
                     fontSize: 20,
                     fontWeight: FontWeight.bold,
-                    color: Color(0xFF102840),
+                    color: AppColors.black,
                   ),
                 ),
               ],
@@ -481,15 +481,15 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                         color:
                             _selectedQuantities[product.id] == qty &&
                                 _isCustomMap[product.id] != true
-                            ? const Color(0xFF2381A6).withValues(alpha: 0.1)
-                            : const Color(0xFFF5F5F5),
+                            ? AppColors.buttonBlueDark
+                            : Colors.white,
                         borderRadius: BorderRadius.circular(12),
                         border: Border.all(
                           color:
                               _selectedQuantities[product.id] == qty &&
                                   _isCustomMap[product.id] != true
-                              ? const Color(0xFF2381A6)
-                              : Colors.transparent,
+                              ? AppColors.buttonBlueDark
+                              : Colors.white,
                           width: 2,
                         ),
                       ),
@@ -503,17 +503,25 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                           children: [
                             Text(
                               "$qty ${itemName(qty)}",
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 10,
-                                color: Colors.black87,
+                                color:
+                                    _selectedQuantities[product.id] == qty &&
+                                        _isCustomMap[product.id] != true
+                                    ? Colors.white
+                                    : AppColors.buttonBlueDark,
                               ),
                             ),
                             Text(
                               "\u202A${AppLocalizations.of(context)!.sar_currency} ${price.toStringAsFixed(price.truncateToDouble() == price ? 0 : 2)}\u202C",
-                              style: const TextStyle(
+                              style: TextStyle(
                                 fontSize: 12,
-                                color: Colors.grey,
+                                color:
+                                    _selectedQuantities[product.id] == qty &&
+                                        _isCustomMap[product.id] != true
+                                    ? Colors.white
+                                    : AppColors.buttonBlueDark,
                               ),
                             ),
                           ],
@@ -543,10 +551,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
               child: TextField(
                 scrollPadding: const EdgeInsets.only(bottom: 200),
                 cursorColor: AppColors.buttonBlueDark,
-                style: const TextStyle(
-                  color: AppColors.buttonBlueDark,
-                  fontSize: 12,
-                ),
+                style: const TextStyle(color: AppColors.black, fontSize: 14),
                 controller: _customController,
                 focusNode: _customFocusNode,
 
@@ -563,8 +568,8 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                     vertical: 18,
                   ),
                   hintStyle: TextStyle(
-                    color: AppColors.buttonBlueDark.withValues(alpha: 0.8),
-                    fontSize: 12,
+                    color: AppColors.black.withValues(alpha: 0.8),
+                    fontSize: 14,
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -630,13 +635,17 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                 icon: const Icon(Icons.note_add_outlined, size: 20),
                 label: Text(AppLocalizations.of(context)!.add_note),
                 style: TextButton.styleFrom(
-                  elevation: 3,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadiusGeometry.circular(12),
+                    side: BorderSide(color: AppColors.buttonBlueDark),
+                  ),
+                  elevation: 2,
                   backgroundColor: Colors.white,
                   foregroundColor: AppColors.buttonBlueDark,
                 ),
               ),
               secondChild: Material(
-                elevation: 2,
+                elevation: 0,
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
                 child: Container(
@@ -655,16 +664,20 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            "${AppLocalizations.of(context)!.note_prefix} ${product.localizedName(isAr)}",
-                            style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 15,
-                              color: Colors.black87,
+                          Expanded(
+                            child: Text(
+                              "${AppLocalizations.of(context)!.note_prefix} ${product.localizedName(isAr)}",
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                                fontSize: 15,
+                                color: Colors.black87,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
                           ),
                           IconButton(
-                            style: ButtonStyle(
+                            style: const ButtonStyle(
                               padding: WidgetStatePropertyAll(EdgeInsets.zero),
                             ),
                             onPressed: () {
@@ -681,55 +694,44 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                           ),
                         ],
                       ),
-                      Material(
-                        elevation: 2,
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        child: TextField(
-                          scrollPadding: const EdgeInsets.only(bottom: 200),
-                          cursorColor: AppColors.buttonBlueDark,
-                          style: const TextStyle(
-                            color: AppColors.buttonBlueDark,
-                            fontSize: 12,
+                      TextField(
+                        scrollPadding: const EdgeInsets.only(bottom: 200),
+                        cursorColor: AppColors.buttonBlueDark,
+                        style: const TextStyle(
+                          color: AppColors.black,
+                          fontSize: 14,
+                        ),
+                        controller: _noteController,
+                        focusNode: _noteFocusNode,
+                        maxLines: 3,
+                        onChanged: (val) {
+                          _productNotes[product.id] = val;
+                        },
+                        decoration: InputDecoration(
+                          hintStyle: TextStyle(
+                            color: AppColors.black.withValues(alpha: 0.8),
+                            fontSize: 14,
                           ),
-                          controller: _noteController,
-                          focusNode: _noteFocusNode,
-                          maxLines: 3,
-                          onChanged: (val) {
-                            _productNotes[product.id] = val;
-                          },
-                          decoration: InputDecoration(
-                            hintStyle: TextStyle(
-                              color: AppColors.buttonBlueDark.withValues(
-                                alpha: 0.8,
-                              ),
-                              fontSize: 12,
+                          hintText: AppLocalizations.of(
+                            context,
+                          )!.would_you_like_to_add_a_note_to_the_delivery_agent,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(
+                              color: AppColors.buttonBlueDark,
                             ),
-                            hintText: AppLocalizations.of(
-                              context,
-                            )!.would_you_like_to_add_a_note_to_the_delivery_agent,
-                            border: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(
-                                color: AppColors.buttonBlueDark,
-                              ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(
+                              color: AppColors.buttonBlueDark,
                             ),
-                            enabledBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(
-                                color: AppColors.buttonBlueDark,
-                              ),
-                            ),
-                            focusedBorder: OutlineInputBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(
-                                color: AppColors.buttonBlueDark,
-                                width: 1.5,
-                              ),
-                            ),
-                            contentPadding: const EdgeInsets.symmetric(
-                              horizontal: 20,
-                              vertical: 16,
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(
+                              color: AppColors.buttonBlueDark,
+                              width: 1.5,
                             ),
                           ),
                         ),

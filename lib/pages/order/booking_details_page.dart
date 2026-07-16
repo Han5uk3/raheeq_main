@@ -575,17 +575,43 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                             color: Colors.grey[700],
                           ),
                         ),
-                        Text(
-                          _formatPaymentMethod(
-                            context,
-                            order.parentOrder!.paymentMethod,
-                          ),
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w500,
-                            color: Colors.black,
-                          ),
+                        Row(
+                          children: [
+                            if (order.parentOrder!.paymentMethod ==
+                                "CREDIT_CARD") ...{
+                              SizedBox(
+                                height: 30,
+                                width: 30,
+                                child: Image.asset(
+                                  'assets/payment_method_icons/visa.png',
+                                  fit: BoxFit.contain,
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                            },
+                            SizedBox(
+                              height: 30,
+                              width: 30,
+                              child: Image.asset(
+                                _getPaymentMethodImage(
+                                  order.parentOrder!.paymentMethod,
+                                ),
+                                fit: BoxFit.contain,
+                              ),
+                            ),
+                          ],
                         ),
+                        // Text(
+                        //   _formatPaymentMethod(
+                        //     context,
+                        //     order.parentOrder!.paymentMethod,
+                        //   ),
+                        //   style: const TextStyle(
+                        //     fontSize: 14,
+                        //     fontWeight: FontWeight.w500,
+                        //     color: Colors.black,
+                        //   ),
+                        // ),
                       ],
                     ),
                     const SizedBox(height: 12),
@@ -763,29 +789,21 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
     );
   }
 
-  String _formatPaymentMethod(BuildContext context, String method) {
+  String _getPaymentMethodImage(String method) {
     if (method.isEmpty) return '';
-    final loc = AppLocalizations.of(context)!;
     switch (method.toUpperCase()) {
       case 'CREDIT_CARD':
       case 'MADA':
-        return loc.credit_card_mada;
+        return 'assets/payment_method_icons/mada.png';
       case 'STC_PAY':
-        return loc.stc_pay;
+        return 'assets/payment_method_icons/stc_pay.png';
       case 'APPLE_PAY':
-        return loc.apple_pay;
+        return 'assets/payment_method_icons/apple_pay.png';
       case 'BANK_TRANSFER':
       case 'IBAN':
-        return loc.iban_bank_transfer;
+        return 'assets/payment_method_icons/iban.png';
       default:
-        final parts = method.split('_');
-        return parts
-            .map(
-              (p) => p.isEmpty
-                  ? ''
-                  : '${p[0].toUpperCase()}${p.substring(1).toLowerCase()}',
-            )
-            .join(' ');
+        return 'assets/payment_method_icons/mada.png';
     }
   }
 

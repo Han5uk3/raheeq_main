@@ -233,44 +233,92 @@ class _SubscriptionDetailsBottomSheetState
           ),
         ),
         const SizedBox(height: 8),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            IconButton(
-              onPressed: () {
-                if (_months > 1) {
-                  setState(() {
-                    _months--;
-                  });
-                }
-              },
-              icon: const Icon(Icons.remove_circle_outline),
-              color: AppColors.buttonBlueDark,
-              iconSize: 28,
-            ),
-            const SizedBox(width: 24),
-            Text(
-              '$_months',
-              style: const TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
-                color: AppColors.buttonBlueDark,
+        Container(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 8,
+            vertical: 6,
+          ),
+          decoration: BoxDecoration(
+            color: const Color(0xFFF0F4F8),
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              AnimatedOpacity(
+                duration: const Duration(milliseconds: 200),
+                opacity: _months > 1 ? 1.0 : 0.45,
+                child: GestureDetector(
+                  onTap: () {
+                    if (_months > 1) {
+                      setState(() {
+                        _months -= 1;
+                      });
+                    }
+                  },
+                  child: Container(
+                    width: 30,
+                    height: 30,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: _months > 1
+                          ? AppColors.buttonBlueDark
+                          : Colors.grey,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(
+                      Icons.remove,
+                      size: 18,
+                      color: AppColors.white,
+                    ),
+                  ),
+                ),
               ),
-            ),
-            const SizedBox(width: 24),
-            IconButton(
-              onPressed: () {
-                if (_months < 12) {
-                  setState(() {
-                    _months++;
-                  });
-                }
-              },
-              icon: const Icon(Icons.add_circle_outline),
-              color: AppColors.buttonBlueDark,
-              iconSize: 28,
-            ),
-          ],
+              const SizedBox(width: 16),
+              SizedBox(
+                width: 20,
+                child: Text(
+                  "$_months",
+                  textAlign: TextAlign.center,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.buttonBlueDark,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              AnimatedOpacity(
+                duration: const Duration(milliseconds: 200),
+                opacity: _months < 12 ? 1.0 : 0.45,
+                child: GestureDetector(
+                  onTap: () {
+                    if (_months < 12) {
+                      setState(() {
+                        _months += 1;
+                      });
+                    }
+                  },
+                  child: Container(
+                    width: 30,
+                    height: 30,
+                    alignment: Alignment.center,
+                    decoration: BoxDecoration(
+                      color: _months < 12
+                          ? AppColors.buttonBlueDark
+                          : Colors.grey,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(
+                      Icons.add,
+                      size: 18,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ],
     );
@@ -327,10 +375,11 @@ class _SubscriptionDetailsBottomSheetState
                   }
                 });
               },
-              selectedColor: AppColors.buttonBlueDark.withValues(alpha: 0.2),
-              checkmarkColor: AppColors.buttonBlueDark,
+              selectedColor: AppColors.buttonBlueDark,
+              backgroundColor: Colors.white,
+              showCheckmark: false,
               labelStyle: TextStyle(
-                color: isSelected ? AppColors.buttonBlueDark : Colors.black87,
+                color: isSelected ? AppColors.white : AppColors.black,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
                 fontSize: 13,
               ),
@@ -461,7 +510,7 @@ class _SubscriptionDetailsBottomSheetState
                         },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.buttonBlueDark,
-                    disabledBackgroundColor: Colors.grey[300],
+                    disabledBackgroundColor: AppColors.buttonBlueDark,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(28),
                     ),
@@ -469,7 +518,7 @@ class _SubscriptionDetailsBottomSheetState
                   child: _isCreatingCheckout
                       ? const WaterLoadingIndicator(
                           size: 24,
-                          waveColor1: Colors.white,
+                          waveColor1: AppColors.white,
                         )
                       : Text(
                           AppLocalizations.of(context)!.continue_btn,

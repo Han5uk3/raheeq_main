@@ -18,6 +18,7 @@ import 'package:raheeq_main/pages/home/pages/customer_reviews_page.dart';
 import 'package:raheeq_main/pages/home/pages/my_chillers_page.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ProfileTab extends StatefulWidget {
   const ProfileTab({super.key});
@@ -50,24 +51,7 @@ class _ProfileTabState extends State<ProfileTab> {
     setState(() {
       _isLoading = true;
     });
-    try {
-      final response = await ApiService().getProfile(etag: _cachedProfileETag);
-      if (response.statusCode == 304) {
-        // Data unchanged
-      } else if (response.statusCode == 200 &&
-          response.data['success'] == true) {
-        final newEtag = response.headers.value('etag');
-        if (newEtag != null) _cachedProfileETag = newEtag;
 
-        if (mounted) {
-          setState(() {
-            _currentUser = AuthStorage.user;
-          });
-        }
-      }
-    } catch (e) {
-      // Fail silently
-    }
     try {
       final unreadRes = await ApiService().getUnreadNotificationsCount(
         etag: _cachedNotificationsETag,
@@ -327,20 +311,6 @@ class _ProfileTabState extends State<ProfileTab> {
                               );
                             },
                           ),
-                          // _buildMenuTile(
-                          //   icon: Icons.description_outlined,
-                          //   title: AppLocalizations.of(context)!.tax_receipts,
-                          //   onTap: () {
-                          //     CustomSnackbar.show(
-                          //       context: context,
-                          //       message: AppLocalizations.of(
-                          //         context,
-                          //       )!.feature_coming_soon,
-                          //       duration: Duration(seconds: 1),
-                          //       bottomMargin: 130,
-                          //     );
-                          //   },
-                          // ),
                         ],
                       ),
                       const SizedBox(height: 16),
@@ -360,20 +330,7 @@ class _ProfileTabState extends State<ProfileTab> {
                               );
                             },
                           ),
-                          // _buildMenuTile(
-                          //   icon: Icons.payment_outlined,
-                          //   title: AppLocalizations.of(context)!.payment_methods,
-                          //   onTap: () {
-                          //     CustomSnackbar.show(
-                          //       context: context,
-                          //       message: AppLocalizations.of(
-                          //         context,
-                          //       )!.redirecting_payment_methods,
-                          //       duration: Duration(seconds: 1),
-                          //       bottomMargin: 130,
-                          //     );
-                          //   },
-                          // ),
+
                           _buildMenuTile(
                             icon: Icons.kitchen_outlined,
                             title: AppLocalizations.of(context)!.my_chillers,
@@ -417,19 +374,47 @@ class _ProfileTabState extends State<ProfileTab> {
                             },
                           ),
                           _buildMenuTile(
-                            icon: Icons.shield_outlined,
+                            icon: Icons.file_copy_outlined,
                             title: AppLocalizations.of(
                               context,
                             )!.terms_conditions,
-                            onTap: () {
-                              CustomSnackbar.show(
-                                context: context,
-                                message: AppLocalizations.of(
-                                  context,
-                                )!.redirecting_terms,
-                                duration: Duration(seconds: 1),
-                                bottomMargin: 130,
+                            onTap: () async {
+                              final url = Uri.parse(
+                                "https://suqyarahiq.com/terms-and-conditions.html",
                               );
+                              if (await canLaunchUrl(url)) {
+                                await launchUrl(
+                                  url,
+                                  mode: LaunchMode.externalApplication,
+                                );
+                              } else {
+                                // Show error toast
+                                CustomSnackbar.show(
+                                  context: context,
+                                  message: "couldnot launch url",
+                                );
+                              }
+                            },
+                          ),
+                          _buildMenuTile(
+                            icon: Icons.policy_outlined,
+                            title: AppLocalizations.of(context)!.privacy_policy,
+                            onTap: () async {
+                              final url = Uri.parse(
+                                "https://suqyarahiq.com/privacy-policy.html",
+                              );
+                              if (await canLaunchUrl(url)) {
+                                await launchUrl(
+                                  url,
+                                  mode: LaunchMode.externalApplication,
+                                );
+                              } else {
+                                // Show error toast
+                                CustomSnackbar.show(
+                                  context: context,
+                                  message: "couldnot launch url",
+                                );
+                              }
                             },
                           ),
                           _buildMenuTile(

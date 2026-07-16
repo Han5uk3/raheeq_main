@@ -20,7 +20,7 @@ class DonationTypeBottomSheet extends StatefulWidget {
 }
 
 class _DonationTypeBottomSheetState extends State<DonationTypeBottomSheet> {
-  String _selectedType = 'one_time';
+  String _selectedType = "";
 
   Widget _buildDonationOption({
     required bool isAr,
@@ -40,15 +40,15 @@ class _DonationTypeBottomSheetState extends State<DonationTypeBottomSheet> {
             padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 8),
             decoration: BoxDecoration(
               color: isSelected
-                  ? const Color(0xFF389BB8)
-                  : const Color(0xFFF5F7FA),
+                  ? AppColors.buttonBlueDark
+                  : AppColors.buttonBlueLight,
               borderRadius: BorderRadius.circular(20),
             ),
             child: Column(
               children: [
                 Icon(
                   icon,
-                  color: isSelected ? Colors.white : const Color(0xFF389BB8),
+                  color: isSelected ? Colors.white : AppColors.buttonBlueDark,
                   size: 36,
                 ),
                 const SizedBox(height: 16),
@@ -65,7 +65,7 @@ class _DonationTypeBottomSheetState extends State<DonationTypeBottomSheet> {
                   subtitle,
                   textAlign: TextAlign.center,
                   style: TextStyle(
-                    color: isSelected ? Colors.white70 : Colors.grey[500],
+                    color: isSelected ? Colors.white : Colors.grey[500],
                     fontSize: 13,
                   ),
                 ),
@@ -81,7 +81,7 @@ class _DonationTypeBottomSheetState extends State<DonationTypeBottomSheet> {
                 width: 24,
                 height: 24,
                 decoration: BoxDecoration(
-                  color: const Color(0xFF389BB8),
+                  color: AppColors.buttonBlueDark,
                   shape: BoxShape.circle,
                   border: Border.all(color: Colors.white, width: 4),
                 ),
@@ -178,6 +178,10 @@ class _DonationTypeBottomSheetState extends State<DonationTypeBottomSheet> {
                         setState(() {
                           _selectedType = 'one_time';
                         });
+                        FocusManager.instance.primaryFocus?.unfocus();
+                        SystemChannels.textInput.invokeMethod('TextInput.hide');
+                        Navigator.pop(context);
+                        widget.onOneTimeSelected();
                       },
                     ),
                   ),
@@ -195,41 +199,14 @@ class _DonationTypeBottomSheetState extends State<DonationTypeBottomSheet> {
                         setState(() {
                           _selectedType = 'monthly';
                         });
+                        FocusManager.instance.primaryFocus?.unfocus();
+                        SystemChannels.textInput.invokeMethod('TextInput.hide');
+                        Navigator.pop(context);
+                        widget.onMonthlySelected();
                       },
                     ),
                   ),
                 ],
-              ),
-              const SizedBox(height: 32),
-              SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: () {
-                    FocusManager.instance.primaryFocus?.unfocus();
-                    SystemChannels.textInput.invokeMethod('TextInput.hide');
-                    Navigator.pop(context);
-                    if (_selectedType == 'one_time') {
-                      widget.onOneTimeSelected();
-                    } else {
-                      widget.onMonthlySelected();
-                    }
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF196482),
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(28),
-                    ),
-                  ),
-                  child: Text(
-                    AppLocalizations.of(context)!.continue_btn,
-                    style: const TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
               ),
             ],
           ),

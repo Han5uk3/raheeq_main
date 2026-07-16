@@ -125,8 +125,8 @@ class MainApp extends StatelessWidget {
               var theme = ThemeData(
                 fontFamily: GoogleFonts.manrope().fontFamily,
                 fontFamilyFallback: const ['SaudiRiyal', 'SF Pro'],
-                appBarTheme: const AppBarTheme(
-                  backgroundColor: Color(0xFF1A6A8F),
+                appBarTheme: AppBarTheme(
+                  backgroundColor: AppColors.buttonBlueDark,
                   foregroundColor: Colors.white,
                   elevation: 0,
                 ),

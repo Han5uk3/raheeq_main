@@ -398,6 +398,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
   Widget _buildNotificationItem(NotificationModel notification) {
     final locale = Localizations.localeOf(context).languageCode;
+    final isAr = locale == 'ar';
     final dateFormat = DateFormat('MMM dd, yyyy - hh:mm a', locale);
     final formattedDate = dateFormat.format(notification.createdAt.toLocal());
 
@@ -437,7 +438,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
                       children: [
                         Expanded(
                           child: Text(
-                            notification.title,
+                            (isAr && notification.titleAr != null)
+                                ? notification.titleAr!
+                                : notification.title,
                             style: TextStyle(
                               fontSize: 16,
                               fontWeight: notification.isRead
@@ -460,7 +463,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
                     ),
                     const SizedBox(height: 6),
                     Text(
-                      notification.body,
+                      (isAr && notification.bodyAr != null)
+                          ? notification.bodyAr!
+                          : notification.body,
                       style: TextStyle(
                         fontSize: 14,
                         color: notification.isRead

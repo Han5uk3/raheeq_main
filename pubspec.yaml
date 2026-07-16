@@ -43,6 +43,7 @@ dependencies:
   geolocator: ^14.0.2
   app_links: ^7.0.0
   internet_connection_checker: ^3.0.1
+  
 
 dev_dependencies:
   flutter_test:
@@ -60,6 +61,7 @@ flutter:
     - assets/payment_method_icons/
     - assets/login/
     - assets/others/
+    - assets/splash/
 
   fonts:
     - family: SF Pro

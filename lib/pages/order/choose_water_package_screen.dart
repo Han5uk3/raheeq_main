@@ -67,6 +67,29 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
   final ScrollController _scrollController = ScrollController();
 
   @override
+  void initState() {
+    super.initState();
+    _autoSelectFirstCarton();
+  }
+
+  void _autoSelectFirstCarton() {
+    final cartons = widget.availableProducts.where(
+      (p) => p.serialNumber == 1 || p.serialNumber == 4,
+    );
+
+    for (final carton in cartons) {
+      final quantities = carton.presetQuantities
+          .where((q) => q >= carton.minQuantity)
+          .toList()
+        ..sort();
+      if (quantities.isNotEmpty) {
+        _selectedCartonSlotId = '${carton.id}_${quantities.first}';
+        break;
+      }
+    }
+  }
+
+  @override
   void dispose() {
     _scrollController.dispose();
     super.dispose();
@@ -81,7 +104,10 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
     final chillers = widget.availableProducts.where((p) => p.serialNumber == 2);
 
     for (final chiller in chillers) {
-      final quantities = chiller.presetQuantities.toList()..sort();
+      final quantities = chiller.presetQuantities
+          .where((q) => q >= chiller.minQuantity)
+          .toList()
+        ..sort();
       for (final qty in quantities) {
         slots.add(
           _ProductSlot(product: chiller, isChiller: true, quantity: qty),
@@ -95,7 +121,10 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
     );
 
     for (final carton in cartons) {
-      final quantities = carton.presetQuantities.toList()..sort();
+      final quantities = carton.presetQuantities
+          .where((q) => q >= carton.minQuantity)
+          .toList()
+        ..sort();
       for (final qty in quantities) {
         slots.add(
           _ProductSlot(product: carton, isChiller: false, quantity: qty),

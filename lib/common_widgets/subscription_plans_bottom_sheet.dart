@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:raheeq_main/api/apis.dart';
-import 'package:raheeq_main/common_widgets/water_loading.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/models/subscription_plan.dart';
 import 'package:raheeq_main/utils/colors.dart';
@@ -85,7 +85,7 @@ class _SubscriptionPlansBottomSheetState
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.all(24.0),
+                padding: const EdgeInsets.all(16.0),
                 child: Row(
                   children: [
                     GestureDetector(
@@ -143,19 +143,37 @@ class _SubscriptionPlansBottomSheetState
 
               if (_isLoadingPlans)
                 Flexible(
-                  child: Padding(
-                    padding: const EdgeInsets.all(40.0),
-                    child: Center(
-                      child: SizedBox(
-                        height: 50,
-                        child: WaterLoadingIndicator(),
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.only(
+                      bottom: 8,
+                      top: 0,
+                      left: 16,
+                      right: 16,
+                    ),
+                    child: Column(
+                      children: List.generate(
+                        4,
+                        (index) => Padding(
+                          padding: const EdgeInsets.only(bottom: 12.0),
+                          child: Shimmer.fromColors(
+                            baseColor: Colors.grey[300]!,
+                            highlightColor: Colors.grey[100]!,
+                            child: Container(
+                              height: 70,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     ),
                   ),
                 )
               else if (_error != null)
                 Padding(
-                  padding: const EdgeInsets.all(24.0),
+                  padding: const EdgeInsets.all(16.0),
                   child: Center(
                     child: Text(
                       _error!,
@@ -166,7 +184,7 @@ class _SubscriptionPlansBottomSheetState
               else if (_plans.isEmpty)
                 Flexible(
                   child: Padding(
-                    padding: const EdgeInsets.all(24.0),
+                    padding: const EdgeInsets.all(16.0),
                     child: Center(
                       child: Text(
                         AppLocalizations.of(
@@ -179,7 +197,7 @@ class _SubscriptionPlansBottomSheetState
               else
                 Flexible(
                   child: SingleChildScrollView(
-                    padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                    padding: const EdgeInsets.symmetric(horizontal: 16.0),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: [
@@ -198,100 +216,103 @@ class _SubscriptionPlansBottomSheetState
                                 setState(() {
                                   _selectedPlan = plan;
                                 });
+                                FocusManager.instance.primaryFocus?.unfocus();
+                                SystemChannels.textInput.invokeMethod(
+                                  'TextInput.hide',
+                                );
+                                Navigator.pop(context);
+                                widget.onPlanSelected(plan);
                               },
-                              child: Container(
-                                padding: const EdgeInsets.all(12),
-                                decoration: BoxDecoration(
-                                  color: isSelected
-                                      ? const Color(0xFFF0F7FB)
-                                      : Colors.white,
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(
+                              child: Material(
+                                color: Colors.white,
+                                elevation: 2,
+                                borderRadius: BorderRadius.circular(16),
+                                child: Container(
+                                  padding: const EdgeInsets.all(12),
+                                  decoration: BoxDecoration(
                                     color: isSelected
-                                        ? AppColors.buttonBlueDark
-                                        : Colors.grey[200]!,
-                                    width: isSelected ? 2 : 1,
+                                        ? const Color(0xFFF0F7FB)
+                                        : Colors.white,
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(
+                                      color: isSelected
+                                          ? AppColors.buttonBlueDark
+                                          : Colors.grey[200]!,
+                                      width: 1,
+                                    ),
                                   ),
-                                  boxShadow: isSelected
-                                      ? [
-                                          BoxShadow(
-                                            color: AppColors.buttonBlueDark
-                                                .withValues(alpha: 0.1),
-                                            blurRadius: 10,
-                                            offset: const Offset(0, 4),
-                                          ),
-                                        ]
-                                      : [],
-                                ),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    if (plan.image != null &&
-                                        plan.image!.isNotEmpty)
-                                      CachedNetworkImage(
-                                        imageUrl: plan.image!,
-                                        width: 30,
-                                        height: 30,
-                                        fit: BoxFit.contain,
-                                        placeholder: (context, url) =>
-                                            const SizedBox(
-                                              width: 30,
-                                              height: 30,
-                                              child: Center(
-                                                child: WaterLoadingIndicator(
-                                                  size: 20,
+                                  child: Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.center,
+                                    children: [
+                                      if (plan.image != null &&
+                                          plan.image!.isNotEmpty)
+                                        CachedNetworkImage(
+                                          imageUrl: plan.image!,
+                                          width: 30,
+                                          height: 30,
+                                          fit: BoxFit.contain,
+                                          placeholder: (context, url) =>
+                                              Shimmer.fromColors(
+                                                baseColor: Colors.grey[300]!,
+                                                highlightColor:
+                                                    Colors.grey[100]!,
+                                                child: Container(
+                                                  width: 30,
+                                                  height: 30,
+                                                  color: Colors.white,
                                                 ),
                                               ),
+                                          errorWidget: (context, url, error) =>
+                                              const SizedBox(
+                                                width: 80,
+                                                height: 80,
+                                              ),
+                                        )
+                                      else
+                                        const SizedBox(width: 80, height: 80),
+                                      const SizedBox(width: 8),
+                                      Expanded(
+                                        child: Column(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              plan.localizedName(isAr),
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: const TextStyle(
+                                                fontSize: 14,
+                                                fontWeight: FontWeight.bold,
+                                                color: AppColors.buttonBlueDark,
+                                                height: 1.2,
+                                              ),
                                             ),
-                                        errorWidget: (context, url, error) =>
-                                            const SizedBox(
-                                              width: 80,
-                                              height: 80,
+                                            const SizedBox(height: 4),
+                                            Text(
+                                              plan.localizedDescription(isAr),
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                color: Colors.grey[600],
+                                              ),
                                             ),
-                                      )
-                                    else
-                                      const SizedBox(width: 80, height: 80),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Column(
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            plan.localizedName(isAr),
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: const TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.bold,
-                                              color: AppColors.buttonBlueDark,
-                                              height: 1.2,
-                                            ),
-                                          ),
-                                          const SizedBox(height: 4),
-                                          Text(
-                                            plan.localizedDescription(isAr),
-                                            maxLines: 2,
-                                            overflow: TextOverflow.ellipsis,
-                                            style: TextStyle(
-                                              fontSize: 12,
-                                              color: Colors.grey[600],
-                                            ),
-                                          ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                    if (isSelected) ...[
-                                      const SizedBox(width: 4),
-                                      const Icon(
-                                        Icons.check_circle,
-                                        color: AppColors.buttonBlueDark,
-                                        size: 20,
-                                      ),
+                                      if (isSelected) ...[
+                                        const SizedBox(width: 4),
+                                        const Icon(
+                                          Icons.check_circle,
+                                          color: AppColors.buttonBlueDark,
+                                          size: 20,
+                                        ),
+                                      ],
                                     ],
-                                  ],
+                                  ),
                                 ),
                               ),
                             );
@@ -299,44 +320,6 @@ class _SubscriptionPlansBottomSheetState
                         ),
                         const SizedBox(height: 32),
                       ],
-                    ),
-                  ),
-                ),
-
-              if (!_isLoadingPlans &&
-                  _plans.isNotEmpty &&
-                  _selectedPlan != null)
-                Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: SizedBox(
-                    width: double.infinity,
-                    height: 56,
-                    child: ElevatedButton(
-                      onPressed: _selectedPlan == null
-                          ? null
-                          : () {
-                              FocusManager.instance.primaryFocus?.unfocus();
-                              SystemChannels.textInput.invokeMethod(
-                                'TextInput.hide',
-                              );
-                              Navigator.pop(context);
-                              widget.onPlanSelected(_selectedPlan!);
-                            },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.buttonBlueDark,
-                        disabledBackgroundColor: Colors.grey[300],
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(28),
-                        ),
-                      ),
-                      child: Text(
-                        AppLocalizations.of(context)!.continue_btn,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      ),
                     ),
                   ),
                 ),

@@ -1,7 +1,9 @@
 class NotificationModel {
   final String id;
   final String title;
+  final String? titleAr;
   final String body;
+  final String? bodyAr;
   final String category;
   final String? userId;
   final String? driverId;
@@ -13,7 +15,9 @@ class NotificationModel {
   NotificationModel({
     required this.id,
     required this.title,
+    this.titleAr,
     required this.body,
+    this.bodyAr,
     required this.category,
     this.userId,
     this.driverId,
@@ -27,7 +31,9 @@ class NotificationModel {
     return NotificationModel(
       id: json['id'] ?? '',
       title: json['title'] ?? '',
+      titleAr: json['titleAr'],
       body: json['body'] ?? '',
+      bodyAr: json['bodyAr'],
       category: json['category'] ?? '',
       userId: json['userId'],
       driverId: json['driverId'],
@@ -44,7 +50,9 @@ class NotificationModel {
     return {
       'id': id,
       'title': title,
+      'titleAr': titleAr,
       'body': body,
+      'bodyAr': bodyAr,
       'category': category,
       'userId': userId,
       'driverId': driverId,

@@ -214,15 +214,17 @@ class _GiftCardPageState extends State<GiftCardPage> {
                               left: 16,
                               right: 16,
                             ),
-                            child: Shimmer.fromColors(
-                              baseColor: Colors.grey[300]!,
-                              highlightColor: Colors.grey[100]!,
-                              child: Container(
-                                height: 291,
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(12),
+                            child: AspectRatio(
+                              aspectRatio: 406 / 324,
+                              child: Shimmer.fromColors(
+                                baseColor: Colors.grey[300]!,
+                                highlightColor: Colors.grey[100]!,
+                                child: Container(
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
                                 ),
                               ),
                             ),
@@ -237,40 +239,46 @@ class _GiftCardPageState extends State<GiftCardPage> {
                             ),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(12),
-                              child: SizedBox(
-                                height: 291,
-                                width: double.infinity,
-                                child: GestureDetector(
-                                  onTap: () => _showImageDialog(
-                                    context,
-                                    _selectedTemplate!.image,
-                                  ),
-                                  child: CachedNetworkImage(
-                                    imageUrl: _selectedTemplate!.image,
-                                    width: double.infinity,
-                                    placeholder: (context, url) =>
-                                        Shimmer.fromColors(
-                                          baseColor: Colors.grey[300]!,
-                                          highlightColor: Colors.grey[100]!,
-                                          child: Container(
-                                            height: 300,
-                                            width: double.infinity,
-                                            color: Colors.white,
+                              child: Material(
+                                elevation: 4,
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12),
+                                child: AspectRatio(
+                                  aspectRatio: 406 / 324,
+                                  child: GestureDetector(
+                                    onTap: () => _showImageDialog(
+                                      context,
+                                      _selectedTemplate!.image,
+                                    ),
+                                    child: CachedNetworkImage(
+                                      imageUrl: _selectedTemplate!.image,
+                                      width: double.infinity,
+                                      height: double.infinity,
+                                      placeholder: (context, url) =>
+                                          Shimmer.fromColors(
+                                            baseColor: Colors.grey[300]!,
+                                            highlightColor: Colors.grey[100]!,
+                                            child: Container(
+                                              width: double.infinity,
+                                              height: double.infinity,
+                                              color: Colors.white,
+                                            ),
                                           ),
-                                        ),
-                                    fit: BoxFit.contain,
-                                    errorWidget: (context, error, stackTrace) =>
-                                        Container(
-                                          height: 300,
-                                          width: double.infinity,
-                                          color: Colors.grey[200],
-                                          alignment: Alignment.center,
-                                          child: const Icon(
-                                            Icons.broken_image,
-                                            size: 50,
-                                            color: Colors.grey,
-                                          ),
-                                        ),
+                                      fit: BoxFit.contain,
+                                      errorWidget:
+                                          (context, error, stackTrace) =>
+                                              Container(
+                                                width: double.infinity,
+                                                height: double.infinity,
+                                                color: Colors.grey[200],
+                                                alignment: Alignment.center,
+                                                child: const Icon(
+                                                  Icons.broken_image,
+                                                  size: 50,
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                    ),
                                   ),
                                 ),
                               ),
@@ -408,7 +416,7 @@ class _GiftCardPageState extends State<GiftCardPage> {
     return TextFormField(
       controller: controller,
       cursorColor: AppColors.buttonBlueDark,
-      style: const TextStyle(color: AppColors.buttonBlueDark, fontSize: 12),
+      style: const TextStyle(color: AppColors.black, fontSize: 12),
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
           return AppLocalizations.of(context)!.field_is_required;
@@ -417,11 +425,10 @@ class _GiftCardPageState extends State<GiftCardPage> {
       },
       decoration: InputDecoration(
         hintStyle: TextStyle(
-          color: AppColors.buttonBlueDark.withValues(alpha: 0.8),
-          fontSize: 12,
+          color: AppColors.black.withValues(alpha: 0.8),
+          fontSize: 14,
         ),
-        filled: true,
-        fillColor: const Color(0xFFF5F5F5),
+
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
           borderSide: const BorderSide(color: AppColors.buttonBlueDark),
@@ -458,7 +465,7 @@ class _GiftCardPageState extends State<GiftCardPage> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       decoration: BoxDecoration(
-        color: const Color(0xFFF5F5F5),
+        color: Colors.white,
         borderRadius: BorderRadius.circular(12),
         border: _selectedItem != null
             ? Border.all(color: AppColors.buttonBlueDark)
@@ -533,13 +540,20 @@ class _GiftCardPageState extends State<GiftCardPage> {
                       _selectedCountry = country;
                     });
                   },
+
                   countryListTheme: CountryListThemeData(
+                    textStyle: const TextStyle(color: AppColors.black),
+                    searchTextStyle: const TextStyle(color: AppColors.black),
                     bottomSheetHeight: MediaQuery.of(context).size.height * 0.6,
                     borderRadius: const BorderRadius.only(
                       topLeft: Radius.circular(14),
                       topRight: Radius.circular(14),
                     ),
                     inputDecoration: InputDecoration(
+                      prefixIconColor: AppColors.buttonBlueDark,
+                      hintStyle: TextStyle(
+                        color: AppColors.black.withValues(alpha: 0.8),
+                      ),
                       hintText: AppLocalizations.of(context)!.search,
                       prefixIcon: const Icon(Icons.search),
                       enabledBorder: OutlineInputBorder(
@@ -561,20 +575,21 @@ class _GiftCardPageState extends State<GiftCardPage> {
               child: Container(
                 padding: const EdgeInsets.symmetric(
                   horizontal: 12,
-                  vertical: 12,
+                  vertical: 5,
                 ),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF5F5F5),
+                  color: Colors.white,
                   borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: AppColors.buttonBlueDark),
                 ),
                 child: Row(
                   children: [
                     ClipRRect(
-                      borderRadius: BorderRadius.circular(4),
+                      borderRadius: BorderRadius.circular(60),
                       child: Image.network(
                         "https://flagcdn.com/w80/${_selectedCountry.countryCode.toLowerCase()}.png",
-                        width: 16,
-                        height: 16,
+                        width: 36,
+                        height: 36,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) =>
                             const Icon(Icons.flag, size: 20),
@@ -588,10 +603,11 @@ class _GiftCardPageState extends State<GiftCardPage> {
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.w600,
+                          color: AppColors.black,
                         ),
                       ),
                     ),
-                    const Icon(Icons.arrow_drop_down, color: Colors.grey),
+                    const Icon(Icons.arrow_drop_down, color: AppColors.black),
                   ],
                 ),
               ),
@@ -605,10 +621,7 @@ class _GiftCardPageState extends State<GiftCardPage> {
             controller: _phoneController,
             keyboardType: TextInputType.phone,
             autovalidateMode: AutovalidateMode.onUserInteraction,
-            style: const TextStyle(
-              color: AppColors.buttonBlueDark,
-              fontSize: 12,
-            ),
+            style: const TextStyle(color: AppColors.black, fontSize: 14),
             inputFormatters: [
               FilteringTextInputFormatter.digitsOnly,
               TextInputFormatter.withFunction((oldValue, newValue) {
@@ -670,11 +683,10 @@ class _GiftCardPageState extends State<GiftCardPage> {
             },
             decoration: InputDecoration(
               hintStyle: TextStyle(
-                color: AppColors.buttonBlueDark.withValues(alpha: 0.8),
-                fontSize: 12,
+                color: AppColors.black.withValues(alpha: 0.8),
+                fontSize: 14,
               ),
-              filled: true,
-              fillColor: const Color(0xFFF5F5F5),
+
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(color: AppColors.buttonBlueDark),
@@ -727,7 +739,7 @@ class _GiftCardPageState extends State<GiftCardPage> {
                   height: 35,
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(20),
+                    borderRadius: BorderRadius.circular(8),
                   ),
                 ),
               ),
@@ -753,19 +765,16 @@ class _GiftCardPageState extends State<GiftCardPage> {
             return Padding(
               padding: const EdgeInsets.only(right: 8.0),
               child: ChoiceChip(
+                elevation: 2,
                 label: Text(name),
                 selected: isSelected,
                 selectedColor: AppColors.buttonBlueDark,
                 backgroundColor: isSelected
                     ? AppColors.buttonBlueDark
-                    : Colors.grey.shade100,
+                    : AppColors.white,
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
-                  side: BorderSide(
-                    color: isSelected
-                        ? AppColors.buttonBlueDark
-                        : Colors.grey.shade300,
-                  ),
+                  borderRadius: BorderRadius.circular(8),
+                  side: BorderSide(color: AppColors.buttonBlueDark),
                 ),
                 showCheckmark: false,
                 labelStyle: TextStyle(

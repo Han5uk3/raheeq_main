@@ -12,7 +12,6 @@ import 'package:flutter_paytabs_bridge/PaymentSdkTokeniseType.dart';
 import 'package:flutter_paytabs_bridge/PaymentSdkApms.dart';
 import 'package:raheeq_main/pages/order/payment_status_page.dart';
 import 'package:raheeq_main/pages/order/choose_iban_account_bottom_sheet.dart';
-// import 'package:intl/intl.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/models/order_item.dart';
 import 'package:raheeq_main/models/checkout.dart';
@@ -265,29 +264,26 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
     final methods = [
       {
         'id': 'CREDIT_CARD',
-        'title': AppLocalizations.of(context)!.credit_card_mada,
-        'icon': Icons.credit_card,
-        'color': AppColors.headerlightblue,
+        'hasTwoIcons': true,
+        'icon': "assets/payment_method_icons/visa.png",
+        'icon2': "assets/payment_method_icons/mada.png",
       },
       if (Platform.isIOS)
         {
           'id': 'APPLE_PAY',
-          'title': AppLocalizations.of(context)!.apple_pay,
-          'icon': Icons.apple,
-          'color': AppColors.black,
+          'hasTwoIcons': false,
+          'icon': "assets/payment_method_icons/apple_pay.png",
         },
       {
         'id': 'STC_PAY',
-        'title': AppLocalizations.of(context)!.stc_pay,
-        'icon': Icons.account_balance_wallet,
-        'color': AppColors.headerlightblue,
+        'hasTwoIcons': false,
+        'icon': "assets/payment_method_icons/stc_pay.png",
       },
       if (_checkoutData.subscription == null)
         {
           'id': 'IBAN',
-          'title': 'IBAN',
-          'icon': Icons.account_balance,
-          'color': AppColors.headerlightblue,
+          'hasTwoIcons': false,
+          'icon': "assets/payment_method_icons/iban.png",
         },
     ];
 
@@ -312,49 +308,56 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
             ...methods.expand((method) {
               final isSelected = _selectedPaymentMethod == method['id'];
               return [
-                RadioListTile<String>(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(
-                      color: isSelected
-                          ? AppColors.buttonBlueDark
-                          : AppColors.headerlightblue,
+                Directionality(
+                  textDirection: TextDirection.ltr,
+                  child: RadioListTile<String>(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      side: BorderSide(
+                        color: isSelected
+                            ? AppColors.buttonBlueDark
+                            : AppColors.grey,
+                      ),
                     ),
-                  ),
-                  contentPadding: EdgeInsetsDirectional.only(start: 8),
-                  value: method['id'] as String,
-                  groupValue: _selectedPaymentMethod,
-                  onChanged: (value) {
-                    if (value != null) {
-                      setState(() {
-                        _selectedPaymentMethod = value;
-                      });
-                    }
-                  },
-                  title: Text(
-                    method['title'] as String,
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: isSelected
-                          ? FontWeight.bold
-                          : FontWeight.normal,
+                    contentPadding: EdgeInsetsDirectional.only(start: 8),
+                    value: method['id'] as String,
+                    groupValue: _selectedPaymentMethod,
+                    onChanged: (value) {
+                      if (value != null) {
+                        setState(() {
+                          _selectedPaymentMethod = value;
+                        });
+                      }
+                    },
+
+                    title: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Image.asset(
+                          method['icon'] as String,
+                          height: 16,
+                          fit: BoxFit.contain,
+                        ),
+                        if (method['hasTwoIcons'] == true) ...{
+                          const SizedBox(width: 8),
+                          Image.asset(
+                            method['icon2'] as String,
+                            height: 16,
+                            fit: BoxFit.contain,
+                          ),
+                        },
+                      ],
                     ),
+                    controlAffinity: ListTileControlAffinity.trailing,
+                    fillColor: WidgetStateProperty.resolveWith<Color>((
+                      Set<WidgetState> states,
+                    ) {
+                      if (states.contains(WidgetState.selected)) {
+                        return AppColors.buttonBlueDark;
+                      }
+                      return AppColors.grey;
+                    }),
                   ),
-                  secondary: Icon(
-                    method['icon'] as IconData,
-                    color: isSelected
-                        ? AppColors.buttonBlueDark
-                        : method['color'] as Color,
-                  ),
-                  controlAffinity: ListTileControlAffinity.trailing,
-                  fillColor: WidgetStateProperty.resolveWith<Color>((
-                    Set<WidgetState> states,
-                  ) {
-                    if (states.contains(WidgetState.selected)) {
-                      return AppColors.buttonBlueDark;
-                    }
-                    return AppColors.headerlightblue;
-                  }),
                 ),
                 if (method['id'] != methods.last['id'])
                   const SizedBox(height: 12),
@@ -1126,13 +1129,13 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                         )
                                       else
                                         Row(
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Expanded(
                                               child: Container(
                                                 decoration: BoxDecoration(
-                                                  color: const Color(
-                                                    0xFFF5F5F5,
-                                                  ),
+                                                  color: Colors.white,
                                                   borderRadius:
                                                       BorderRadius.circular(12),
                                                 ),
@@ -1154,12 +1157,11 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                                   controller: _couponController,
                                                   decoration: InputDecoration(
                                                     hintStyle: TextStyle(
-                                                      color: AppColors
-                                                          .buttonBlueDark
+                                                      color: AppColors.black
                                                           .withValues(
                                                             alpha: 0.8,
                                                           ),
-                                                      fontSize: 12,
+                                                      fontSize: 14,
                                                     ),
                                                     border: OutlineInputBorder(
                                                       borderRadius:
@@ -1195,12 +1197,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                                             width: 1.5,
                                                           ),
                                                     ),
-                                                    isDense: true,
-                                                    contentPadding:
-                                                        const EdgeInsets.symmetric(
-                                                          horizontal: 16,
-                                                          vertical: 8,
-                                                        ),
+
                                                     hintText:
                                                         AppLocalizations.of(
                                                           context,
@@ -1209,7 +1206,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                                   style: const TextStyle(
                                                     color: AppColors
                                                         .buttonBlueDark,
-                                                    fontSize: 12,
+                                                    fontSize: 14,
                                                   ),
                                                 ),
                                               ),
@@ -1235,15 +1232,16 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                                     backgroundColor: AppColors
                                                         .buttonBlueDark,
                                                     disabledBackgroundColor:
-                                                        Colors.grey.shade300,
+                                                        AppColors
+                                                            .buttonBlueDark,
                                                     disabledForegroundColor:
-                                                        Colors.grey.shade600,
+                                                        Colors.white,
                                                     foregroundColor:
                                                         Colors.white,
                                                     padding:
                                                         const EdgeInsets.symmetric(
-                                                          horizontal: 16,
-                                                          vertical: 8,
+                                                          horizontal: 24,
+                                                          vertical: 16.5,
                                                         ),
                                                     minimumSize: Size.zero,
                                                     tapTargetSize:
@@ -1252,7 +1250,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                                     shape: RoundedRectangleBorder(
                                                       borderRadius:
                                                           BorderRadius.circular(
-                                                            30,
+                                                            12,
                                                           ),
                                                     ),
                                                     elevation: 0,
@@ -1269,6 +1267,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                                           )!.apply,
                                                           style:
                                                               const TextStyle(
+                                                                fontSize: 14,
                                                                 fontWeight:
                                                                     FontWeight
                                                                         .bold,

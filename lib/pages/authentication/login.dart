@@ -683,14 +683,13 @@ class _LoginState extends State<Login> {
                                           );
 
                                       if (!context.mounted) return;
-                                      setState(() => _isLoading = false);
 
                                       if (response.statusCode == 200 &&
                                           response.data['success'] == true) {
                                         final receivedOtp = response
                                             .data['data']?['otp']
                                             ?.toString();
-                                        Navigator.push(
+                                        await Navigator.push(
                                           context,
                                           MaterialPageRoute(
                                             builder: (context) => OTP(
@@ -701,7 +700,13 @@ class _LoginState extends State<Login> {
                                             ),
                                           ),
                                         );
+                                        if (mounted) {
+                                          setState(() => _isLoading = false);
+                                        }
                                       } else {
+                                        if (mounted) {
+                                          setState(() => _isLoading = false);
+                                        }
                                         CustomSnackbar.show(
                                           context: context,
                                           message:
