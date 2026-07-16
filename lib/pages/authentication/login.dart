@@ -545,13 +545,30 @@ class _LoginState extends State<Login> {
                                       hintText: AppLocalizations.of(
                                         context,
                                       )!.enter_phone,
-                                      hintStyle: const TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 14,
+                                      hintStyle: TextStyle(
+                                        color: AppColors.buttonBlueDark.withValues(alpha: 0.8),
+                                        fontSize: 12,
                                       ),
-                                      border: InputBorder.none,
+                                      border: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: const BorderSide(color: AppColors.buttonBlueDark),
+                                      ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: const BorderSide(color: AppColors.buttonBlueDark),
+                                      ),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                        borderSide: const BorderSide(
+                                          color: AppColors.buttonBlue,
+                                          width: 1.5,
+                                        ),
+                                      ),
                                     ),
-                                    style: const TextStyle(fontSize: 14),
+                                    style: const TextStyle(
+                                      color: AppColors.buttonBlueDark,
+                                      fontSize: 12,
+                                    ),
                                   ),
                                 ),
                               ],

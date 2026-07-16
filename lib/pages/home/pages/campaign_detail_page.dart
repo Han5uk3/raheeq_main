@@ -1,3 +1,4 @@
+import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'dart:developer';
 
@@ -9,7 +10,6 @@ import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/models/checkout.dart';
 import 'package:raheeq_main/pages/order/contribution_details_page.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
-import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/common_widgets/donation_type_bottom_sheet.dart';
 import 'package:raheeq_main/common_widgets/subscription_plans_bottom_sheet.dart';
 import 'package:raheeq_main/common_widgets/subscription_details_bottom_sheet.dart';
@@ -38,6 +38,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
   Map<String, bool> _isNoteRevealed = {};
   final TextEditingController _noteController = TextEditingController();
   final FocusNode _noteFocusNode = FocusNode();
+  bool _isLoading = false;
 
   bool get _hasAnySelection => _selectedQuantities.values.any((qty) => qty > 0);
 
@@ -60,16 +61,16 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
     super.dispose();
   }
 
-  double get _totalAmount {
-    double total = 0;
-    for (var product in widget.campaign.products) {
-      final qty = _selectedQuantities[product.id];
-      if (qty != null && qty > 0) {
-        total += (product.price) * qty;
-      }
-    }
-    return total;
-  }
+  // double get _totalAmount {
+  //   double total = 0;
+  //   for (var product in widget.campaign.products) {
+  //     final qty = _selectedQuantities[product.id];
+  //     if (qty != null && qty > 0) {
+  //       total += (product.price) * qty;
+  //     }
+  //   }
+  //   return total;
+  // }
 
   void _selectProduct(Product product) {
     if (_selectedProduct?.id == product.id) return;
@@ -123,197 +124,204 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
             decoration: const BoxDecoration(color: AppColors.buttonBlueDark),
           ),
 
-          SingleChildScrollView(
-            physics: const ClampingScrollPhysics(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                CustomAppBar(
-                  title: title,
-                  subtitle: description,
-                  isStartAligned: true,
-                  showBackButton: true,
-                  hasBackgroundColor: true,
-                ),
+          AbsorbPointer(
+            absorbing: _isLoading,
+            child: SingleChildScrollView(
+              physics: const ClampingScrollPhysics(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CustomAppBar(
+                    title: title,
 
-                // Stack for List and Quantity Container to create floating effect
-                Stack(
-                  clipBehavior: Clip.none,
-                  children: [
-                    // Quantity Selection Container (Background in Stack)
-                    Container(
-                      margin: const EdgeInsets.only(
-                        top: 100,
-                      ), // Start lower so list overlaps it
-                      width: double.infinity,
-                      constraints: BoxConstraints(
-                        minHeight: MediaQuery.of(context).size.height - 300,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(30),
-                          topRight: Radius.circular(30),
+                    isStartAligned: true,
+                    showBackButton: true,
+                    hasBackgroundColor: true,
+                  ),
+
+                  // Stack for List and Quantity Container to create floating effect
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      // Quantity Selection Container (Background in Stack)
+                      Container(
+                        margin: const EdgeInsets.only(
+                          top: 100,
+                        ), // Start lower so list overlaps it
+                        width: double.infinity,
+                        constraints: BoxConstraints(
+                          minHeight: MediaQuery.of(context).size.height - 300,
                         ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.05),
-                            blurRadius: 10,
-                            offset: const Offset(0, -4),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(30),
+                            topRight: Radius.circular(30),
                           ),
-                        ],
-                      ),
-                      child: ClipRRect(
-                        borderRadius: const BorderRadius.only(
-                          topLeft: Radius.circular(30),
-                          topRight: Radius.circular(30),
-                        ),
-                        child: Column(
-                          children: [
-                            const SizedBox(
-                              height: 55,
-                            ), // Space for overlapping Horizontal Product List
-                            _buildCampaignBanner(_selectedProduct),
-
-                            Container(
-                              width: double.infinity,
-                              margin: const EdgeInsetsDirectional.only(
-                                top: 16,
-                                start: 16,
-                                end: 16,
-                              ),
-                              padding: EdgeInsetsDirectional.only(
-                                start: 12,
-                                end: 12,
-                                top: 12,
-                                bottom: 12,
-                              ),
-                              decoration: BoxDecoration(
-                                color: AppColors.buttonBlueDark,
-                                border: Border.all(
-                                  color: AppColors.buttonBlueDark,
-                                ),
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                    Icons.discount_outlined,
-                                    size: 16,
-                                    color: AppColors.white,
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      overflow: TextOverflow.ellipsis,
-                                      _selectedProduct?.localizedMessage(
-                                            isAr,
-                                          ) ??
-                                          "",
-                                      maxLines: 2,
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w700,
-                                        color: AppColors.white,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsetsDirectional.only(
-                                start: 12,
-                                end: 12,
-                                top: 12, // spacing after banner
-                                bottom:
-                                    280, // extra space for bottom bar and keyboard
-                              ),
-                              child: _selectedProduct != null
-                                  ? _buildQuantitySection(context, isAr)
-                                  : Center(
-                                      child: Padding(
-                                        padding: const EdgeInsets.symmetric(
-                                          vertical: 50,
-                                        ),
-                                        child: Text(
-                                          AppLocalizations.of(
-                                            context,
-                                          )!.select_a_product_to_continue,
-                                          style: const TextStyle(
-                                            color: Colors.grey,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, -4),
                             ),
                           ],
                         ),
-                      ),
-                    ),
+                        child: ClipRRect(
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(30),
+                            topRight: Radius.circular(30),
+                          ),
+                          child: Column(
+                            children: [
+                              const SizedBox(
+                                height: 55,
+                              ), // Space for overlapping Horizontal Product List
+                              _buildCampaignBanner(_selectedProduct),
 
-                    // Horizontal Product List inside a white container (Foreground in Stack)
-                    Positioned(
-                      top: 0,
-                      left: 0,
-                      right: 0,
-                      child: Builder(
-                        builder: (context) {
-                          final screenWidth = MediaQuery.of(context).size.width;
-
-                          int visibleCount = products.length;
-                          if (visibleCount == 0) visibleCount = 1;
-                          if (visibleCount > 3) visibleCount = 3;
-
-                          final spacing = 12.0 * (visibleCount - 1);
-                          final totalTakenSpace =
-                              32.0 +
-                              24.0 +
-                              spacing; // Container margin (16*2) + ListView padding (12*2) + Spacing
-                          final itemWidth =
-                              (screenWidth - totalTakenSpace) / visibleCount;
-
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Material(
-                              elevation: 2,
-                              borderRadius: BorderRadius.circular(24),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  vertical: 16,
+                              Container(
+                                width: double.infinity,
+                                margin: const EdgeInsetsDirectional.only(
+                                  top: 16,
+                                  start: 16,
+                                  end: 16,
+                                ),
+                                padding: EdgeInsetsDirectional.only(
+                                  start: 12,
+                                  end: 12,
+                                  top: 12,
+                                  bottom: 12,
                                 ),
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(24),
-                                ),
-                                height: 130,
-                                child: ListView.separated(
-                                  physics: const ClampingScrollPhysics(),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 12,
+                                  color: AppColors.buttonBlueDark,
+                                  border: Border.all(
+                                    color: AppColors.buttonBlueDark,
                                   ),
-                                  scrollDirection: Axis.horizontal,
-                                  itemCount: products.length,
-                                  separatorBuilder: (_, __) =>
-                                      const SizedBox(width: 12),
-                                  itemBuilder: (context, index) {
-                                    return _buildProductCard(
-                                      products[index],
-                                      isAr,
-                                      itemWidth,
-                                    );
-                                  },
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.discount_outlined,
+                                      size: 16,
+                                      color: AppColors.white,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        overflow: TextOverflow.ellipsis,
+                                        _selectedProduct?.localizedMessage(
+                                              isAr,
+                                            ) ??
+                                            "",
+                                        maxLines: 2,
+                                        style: TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.w700,
+                                          color: AppColors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ),
-                          );
-                        },
+                              Padding(
+                                padding: const EdgeInsetsDirectional.only(
+                                  start: 12,
+                                  end: 12,
+                                  top: 12, // spacing after banner
+                                  bottom:
+                                      280, // extra space for bottom bar and keyboard
+                                ),
+                                child: _selectedProduct != null
+                                    ? _buildQuantitySection(context, isAr)
+                                    : Center(
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 50,
+                                          ),
+                                          child: Text(
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.select_a_product_to_continue,
+                                            style: const TextStyle(
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+
+                      // Horizontal Product List inside a white container (Foreground in Stack)
+                      Positioned(
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        child: Builder(
+                          builder: (context) {
+                            final screenWidth = MediaQuery.of(
+                              context,
+                            ).size.width;
+
+                            int visibleCount = products.length;
+                            if (visibleCount == 0) visibleCount = 1;
+                            if (visibleCount > 3) visibleCount = 3;
+
+                            final spacing = 12.0 * (visibleCount - 1);
+                            final totalTakenSpace =
+                                32.0 +
+                                24.0 +
+                                spacing; // Container margin (16*2) + ListView padding (12*2) + Spacing
+                            final itemWidth =
+                                (screenWidth - totalTakenSpace) / visibleCount;
+
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              child: Material(
+                                elevation: 2,
+                                borderRadius: BorderRadius.circular(24),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(24),
+                                  ),
+                                  height: 130,
+                                  child: ListView.separated(
+                                    physics: const ClampingScrollPhysics(),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                    ),
+                                    scrollDirection: Axis.horizontal,
+                                    itemCount: products.length,
+                                    separatorBuilder: (_, __) =>
+                                        const SizedBox(width: 12),
+                                    itemBuilder: (context, index) {
+                                      return _buildProductCard(
+                                        products[index],
+                                        isAr,
+                                        itemWidth,
+                                      );
+                                    },
+                                  ),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ],
@@ -459,47 +467,57 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                 final price = qty * product.price;
                 return GestureDetector(
                   onTap: () => _selectQuantity(qty),
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color:
-                          _selectedQuantities[product.id] == qty &&
-                              _isCustomMap[product.id] != true
-                          ? const Color(0xFF2381A6).withValues(alpha: 0.1)
-                          : const Color(0xFFF5F5F5),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
+                  child: Material(
+                    color: Colors.white,
+                    elevation:
+                        _selectedQuantities[product.id] == qty &&
+                            _isCustomMap[product.id] != true
+                        ? 5
+                        : 2,
+                    borderRadius: BorderRadius.circular(12),
+
+                    child: Container(
+                      decoration: BoxDecoration(
                         color:
                             _selectedQuantities[product.id] == qty &&
                                 _isCustomMap[product.id] != true
-                            ? const Color(0xFF2381A6)
-                            : Colors.transparent,
-                        width: 2,
+                            ? const Color(0xFF2381A6).withValues(alpha: 0.1)
+                            : const Color(0xFFF5F5F5),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color:
+                              _selectedQuantities[product.id] == qty &&
+                                  _isCustomMap[product.id] != true
+                              ? const Color(0xFF2381A6)
+                              : Colors.transparent,
+                          width: 2,
+                        ),
                       ),
-                    ),
-                    padding: EdgeInsetsDirectional.only(start: 8, end: 8),
-                    child: FittedBox(
-                      fit: BoxFit.scaleDown,
-                      alignment: AlignmentDirectional.centerStart,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            "$qty ${itemName(qty)}",
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 10,
-                              color: Colors.black87,
+                      padding: EdgeInsetsDirectional.only(start: 8, end: 8),
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: AlignmentDirectional.centerStart,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "$qty ${itemName(qty)}",
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 10,
+                                color: Colors.black87,
+                              ),
                             ),
-                          ),
-                          Text(
-                            "\u202A${AppLocalizations.of(context)!.sar_currency} ${price.toStringAsFixed(price.truncateToDouble() == price ? 0 : 2)}\u202C",
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey,
+                            Text(
+                              "\u202A${AppLocalizations.of(context)!.sar_currency} ${price.toStringAsFixed(price.truncateToDouble() == price ? 0 : 2)}\u202C",
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -517,24 +535,69 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
               ),
             ),
             const SizedBox(height: 16),
-            Container(
-              decoration: BoxDecoration(
-                color: const Color(0xFFF5F5F5),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: Colors.grey, width: 1.5),
-              ),
+            Material(
+              elevation: 2,
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(16),
+
               child: TextField(
                 scrollPadding: const EdgeInsets.only(bottom: 200),
                 cursorColor: AppColors.buttonBlueDark,
+                style: const TextStyle(
+                  color: AppColors.buttonBlueDark,
+                  fontSize: 12,
+                ),
                 controller: _customController,
                 focusNode: _customFocusNode,
+
+                decoration: InputDecoration(
+                  suffixText: itemName(2),
+                  suffixStyle: const TextStyle(
+                    color: AppColors.buttonBlueDark,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  hintText: AppLocalizations.of(context)!.enter_quantity,
+
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 18,
+                  ),
+                  hintStyle: TextStyle(
+                    color: AppColors.buttonBlueDark.withValues(alpha: 0.8),
+                    fontSize: 12,
+                  ),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(
+                      color: AppColors.buttonBlueDark,
+                    ),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(
+                      color: AppColors.buttonBlueDark,
+                    ),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(
+                      color: AppColors.buttonBlue,
+                      width: 1.5,
+                    ),
+                  ),
+                ),
 
                 keyboardType: TextInputType.number,
                 inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                 onTap: () {
                   setState(() {
                     _isCustomMap[product.id] = true;
-                    _selectedQuantities.remove(product.id);
+                    final parsed = int.tryParse(_customController.text);
+                    if (parsed != null && parsed >= min) {
+                      _selectedQuantities[product.id] = parsed;
+                    } else {
+                      _selectedQuantities.remove(product.id);
+                    }
                   });
                 },
                 onChanged: (val) {
@@ -549,25 +612,15 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                     });
                   }
                 },
-                decoration: InputDecoration(
-                  suffixText: itemName(2),
-                  suffixStyle: const TextStyle(
-                    color: Colors.black,
-                    fontWeight: FontWeight.w500,
-                  ),
-                  hintText: AppLocalizations.of(context)!.enter_quantity,
-                  hintStyle: TextStyle(color: Colors.grey[400]),
-                  border: InputBorder.none,
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 18,
-                  ),
-                ),
               ),
             ),
             const SizedBox(height: 16),
-            if (_isNoteRevealed[product.id] != true)
-              ElevatedButton.icon(
+            AnimatedCrossFade(
+              duration: const Duration(milliseconds: 300),
+              crossFadeState: _isNoteRevealed[product.id] != true
+                  ? CrossFadeState.showFirst
+                  : CrossFadeState.showSecond,
+              firstChild: ElevatedButton.icon(
                 onPressed: () {
                   setState(() {
                     _isNoteRevealed[product.id] = true;
@@ -579,78 +632,113 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                 style: TextButton.styleFrom(
                   elevation: 3,
                   backgroundColor: Colors.white,
-                  foregroundColor: const Color(0xFF2381A6),
-                ),
-              )
-            else
-              Container(
-                padding: const EdgeInsetsDirectional.only(
-                  bottom: 16,
-                  end: 16,
-                  start: 16,
-                ),
-                decoration: BoxDecoration(
-                  color: const Color(0xFFF5F5F5),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(color: Colors.transparent, width: 1.5),
-                ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "${AppLocalizations.of(context)!.note_prefix} ${product.localizedName(isAr)}",
-                          style: TextStyle(
-                            fontWeight: FontWeight.w600,
-                            fontSize: 15,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        IconButton(
-                          style: ButtonStyle(
-                            padding: WidgetStatePropertyAll(EdgeInsets.zero),
-                          ),
-                          onPressed: () {
-                            setState(() {
-                              _isNoteRevealed[product.id] = false;
-                              _noteController.clear();
-                              _productNotes.remove(product.id);
-                            });
-                          },
-                          icon: const Icon(Icons.close, color: Colors.grey),
-                        ),
-                      ],
-                    ),
-                    Container(
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF5F5F5),
-                        borderRadius: BorderRadius.circular(16),
-                        border: Border.all(color: Colors.grey, width: 1.5),
-                      ),
-                      child: TextField(
-                        scrollPadding: const EdgeInsets.only(bottom: 200),
-                        cursorColor: Colors.grey,
-                        controller: _noteController,
-                        focusNode: _noteFocusNode,
-                        maxLines: 3,
-                        onChanged: (val) {
-                          _productNotes[product.id] = val;
-                        },
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 16,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                  foregroundColor: AppColors.buttonBlueDark,
                 ),
               ),
+              secondChild: Material(
+                elevation: 2,
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                child: Container(
+                  padding: const EdgeInsetsDirectional.only(
+                    bottom: 16,
+                    end: 16,
+                    start: 16,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            "${AppLocalizations.of(context)!.note_prefix} ${product.localizedName(isAr)}",
+                            style: TextStyle(
+                              fontWeight: FontWeight.w600,
+                              fontSize: 15,
+                              color: Colors.black87,
+                            ),
+                          ),
+                          IconButton(
+                            style: ButtonStyle(
+                              padding: WidgetStatePropertyAll(EdgeInsets.zero),
+                            ),
+                            onPressed: () {
+                              setState(() {
+                                _isNoteRevealed[product.id] = false;
+                                _noteController.clear();
+                                _productNotes.remove(product.id);
+                              });
+                            },
+                            icon: const Icon(
+                              Icons.close,
+                              color: AppColors.buttonBlueDark,
+                            ),
+                          ),
+                        ],
+                      ),
+                      Material(
+                        elevation: 2,
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12),
+                        child: TextField(
+                          scrollPadding: const EdgeInsets.only(bottom: 200),
+                          cursorColor: AppColors.buttonBlueDark,
+                          style: const TextStyle(
+                            color: AppColors.buttonBlueDark,
+                            fontSize: 12,
+                          ),
+                          controller: _noteController,
+                          focusNode: _noteFocusNode,
+                          maxLines: 3,
+                          onChanged: (val) {
+                            _productNotes[product.id] = val;
+                          },
+                          decoration: InputDecoration(
+                            hintStyle: TextStyle(
+                              color: AppColors.buttonBlueDark.withValues(
+                                alpha: 0.8,
+                              ),
+                              fontSize: 12,
+                            ),
+                            hintText: AppLocalizations.of(
+                              context,
+                            )!.would_you_like_to_add_a_note_to_the_delivery_agent,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(
+                                color: AppColors.buttonBlueDark,
+                              ),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(
+                                color: AppColors.buttonBlueDark,
+                              ),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                              borderSide: const BorderSide(
+                                color: AppColors.buttonBlue,
+                                width: 1.5,
+                              ),
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 16,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),
@@ -658,13 +746,19 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
   }
 
   Widget _buildFloatingBar(BuildContext context, bool isAr) {
-    final total = _totalAmount;
+    double total = 0;
+    _selectedQuantities.forEach((productId, qty) {
+      final product = widget.campaign.products.firstWhere(
+        (p) => p.id == productId,
+      );
+      total += qty * product.price;
+    });
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16),
       padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       decoration: BoxDecoration(
-        color: AppColors.buttonBlue,
+        color: AppColors.buttonBlueDark,
         borderRadius: BorderRadius.circular(40),
         border: Border.all(color: Colors.grey[200]!),
         boxShadow: [
@@ -702,53 +796,68 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
             ],
           ),
           ElevatedButton(
-            onPressed: () {
-              FocusManager.instance.primaryFocus?.unfocus();
-              if (_hasAnySelection) {
-                if (widget.campaign.canSubscribe) {
-                  _showDonationTypeDialog(context, isAr);
-                } else {
-                  _processOneTimeCheckout(context, isAr);
-                }
-              } else {
-                final min = _selectedProduct?.minQuantity ?? 1;
-                final customText = _customController.text;
-                final parsed = int.tryParse(customText);
+            onPressed: _isLoading
+                ? null
+                : () {
+                    FocusManager.instance.primaryFocus?.unfocus();
+                    if (_hasAnySelection) {
+                      if (widget.campaign.canSubscribe) {
+                        _showDonationTypeDialog(context, isAr);
+                      } else {
+                        _processOneTimeCheckout(context, isAr);
+                      }
+                    } else {
+                      final min = _selectedProduct?.minQuantity ?? 1;
+                      final customText = _customController.text;
+                      final parsed = int.tryParse(customText);
 
-                if (_isCustomMap[_selectedProduct?.id] == true &&
-                    customText.isNotEmpty &&
-                    parsed != null &&
-                    parsed < min) {
-                  CustomSnackbar.show(
-                    context: context,
-                    message: AppLocalizations.of(
-                      context,
-                    )!.minimum_quantity_is(min.toString()),
-                    isError: true,
-                  );
-                } else {
-                  CustomSnackbar.show(
-                    context: context,
-                    message: AppLocalizations.of(
-                      context,
-                    )!.select_a_product_to_continue,
-                    isError: true,
-                  );
-                }
-              }
-            },
+                      if (_isCustomMap[_selectedProduct?.id] == true &&
+                          customText.isNotEmpty &&
+                          parsed != null &&
+                          parsed < min) {
+                        CustomSnackbar.show(
+                          context: context,
+                          message: AppLocalizations.of(
+                            context,
+                          )!.minimum_quantity_is(min.toString()),
+                          isError: true,
+                        );
+                      } else {
+                        CustomSnackbar.show(
+                          context: context,
+                          message: AppLocalizations.of(
+                            context,
+                          )!.select_a_product_to_continue,
+                          isError: true,
+                        );
+                      }
+                    }
+                  },
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.white,
+              disabledBackgroundColor: Colors.grey[300],
               foregroundColor: Colors.black,
               padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(30),
               ),
             ),
-            child: Text(
-              AppLocalizations.of(context)!.continue_btn,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
+            child: _isLoading
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: WaterLoadingIndicator(
+                      waveColor1: AppColors.buttonBlueDark,
+                    ),
+                  )
+                : Text(
+                    AppLocalizations.of(context)!.continue_btn,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.buttonBlueDark,
+                    ),
+                  ),
           ),
         ],
       ),
@@ -824,13 +933,9 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
   Future<void> _processOneTimeCheckout(BuildContext context, bool isAr) async {
     final items = _prepareCheckoutItems();
 
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (BuildContext loadingCtx) {
-        return const Center(child: WaterLoadingIndicator());
-      },
-    );
+    setState(() {
+      _isLoading = true;
+    });
 
     try {
       final apiService = ApiService();
@@ -843,9 +948,10 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
       final checkoutDataMap = response.data['data'];
       final checkoutData = Checkout.fromJson(checkoutDataMap);
 
-      Navigator.pop(context); // Close loading dialog
-
       if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (_) => ContributionDetailsPage(
@@ -857,7 +963,11 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
         );
       }
     } catch (e) {
-      Navigator.pop(context); // Close loading dialog
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
       log('Error creating checkout: $e', error: e);
       if (mounted) {
         String errorMessage = AppLocalizations.of(

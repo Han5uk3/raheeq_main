@@ -109,7 +109,9 @@ class CustomBottomNavBar extends StatelessWidget {
                   Text(
                     item.label,
                     style: TextStyle(
-                      fontSize: 12,
+                      fontSize: Directionality.of(context) == TextDirection.rtl
+                          ? 13
+                          : 12,
                       fontWeight: isSelected
                           ? FontWeight.w600
                           : FontWeight.w500,

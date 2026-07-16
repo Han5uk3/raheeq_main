@@ -119,7 +119,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get saved_mosques => 'Saved Mosques';
 
   @override
-  String get recurring_donations => 'Recurring Donations';
+  String get recurring_donations => 'Recurring Orders';
 
   @override
   String get tax_receipts => 'Tax Receipts';
@@ -244,7 +244,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get track_your_donations => 'Track your donations';
+  String get track_your_donations => 'Track your Orders';
 
   @override
   String get manage_account_settings => 'Manage your account settings';
@@ -296,9 +296,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get redirecting_terms => 'Redirecting to Terms and Conditions...';
 
   @override
-  String get donations_label => 'Donations';
-
-  @override
   String get mosques_label => 'Mosques';
 
   @override
@@ -336,7 +333,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get monthly => 'Monthly';
 
   @override
-  String get single_donation => 'Single donation';
+  String get single_donation => 'Single order';
 
   @override
   String get one_time => 'One-Time';
@@ -346,7 +343,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Support once or make a lasting impact';
 
   @override
-  String get choose_donation_type => 'Choose donation type';
+  String get choose_donation_type => 'Choose order destination';
 
   @override
   String get payable_amount => 'Payable Amount';
@@ -362,7 +359,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Or enter custom quantity (min. \$min)';
 
   @override
-  String get select_your_impact => 'Select Your Impact';
+  String get select_your_impact => 'Make An Impact That Lasts';
 
   @override
   String get select_a_product_to_continue => 'Select a product to continue';
@@ -405,13 +402,13 @@ class AppLocalizationsEn extends AppLocalizations {
       'View status and delivery details.';
 
   @override
-  String get recent_donations => 'Recent Donations';
+  String get recent_donations => 'Recent Orders';
 
   @override
   String get products_overview => 'Products Overview';
 
   @override
-  String get donations_overview => 'Donations Overview';
+  String get donations_overview => 'Orders Overview';
 
   @override
   String get orphanages_helped => 'Orphanages Helped';
@@ -430,7 +427,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get choose_your_cause_and_make_an_impact =>
-      'Choose your cause and make an impact';
+      'Choose the destination you want to deliver to :';
 
   @override
   String get quick_actions => 'Quick Actions';
@@ -569,7 +566,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get clear_selection => 'Clear Selection';
 
   @override
-  String get choose_donation_type_108 => 'Choose donation type';
+  String get choose_donation_type_108 => 'Choose type of order';
 
   @override
   String get specific => 'Specific';
@@ -585,7 +582,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Select the water package that suits you';
 
   @override
-  String get choose_water_package => 'Choose Water Package';
+  String get choose_water_package => 'Choose what the mosque needs';
 
   @override
   String get free => 'Free';
@@ -631,7 +628,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Do you want to give a gift to someone close to you?';
 
   @override
-  String get donation_type => 'Donation Type';
+  String get donation_type => 'Order Type';
 
   @override
   String get final_review_and_payment => 'Final review and payment';
@@ -807,7 +804,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get payment_failed => 'Payment Failed';
 
   @override
-  String get thank_you_for_your_donation => 'Thank you for your donation.';
+  String get thank_you_for_your_donation => 'Thank you for your order.';
 
   @override
   String get payment_successful => 'Payment Successful!';
@@ -885,7 +882,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get select_date => 'Select Date';
 
   @override
-  String get recurring_donation => 'Recurring Donation';
+  String get recurring_donation => 'Recurring Order';
 
   @override
   String get too_many_attempts => 'Too many attempts. Please try again later.';
@@ -1033,7 +1030,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get see_the_difference => 'See the difference you\'ve made';
 
   @override
-  String get total_donations => 'Total Donations';
+  String get total_donations => 'Total Orders';
 
   @override
   String get products_donated => 'Products Donated';
@@ -1051,7 +1048,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get items_donated => 'items donated';
 
   @override
-  String get current_donation_streak => 'Current donation streak 🔥';
+  String get current_donation_streak => 'Current order streak 🔥';
 
   @override
   String get no_impact_data_found => 'No impact data found';
@@ -1152,7 +1149,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get view_receipt => 'View Receipt';
 
   @override
-  String get one_time_donation => 'One-time Donation';
+  String get one_time_donation => 'One-time Order';
 
   @override
   String get error_occurred_try_again => 'Error occurred. Try again';
@@ -1303,7 +1300,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get how_was_your_experience => 'How was your experience?';
 
   @override
-  String get track_donation => 'Track Donation';
+  String get track_donation => 'Track Order';
 
   @override
   String get since => 'Since ';
@@ -1324,7 +1321,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get twice_a_week => 'Twice a week';
 
   @override
+  String get account => 'Account';
+
+  @override
   String get status_active => 'Active';
+
+  @override
+  String get mosques => 'mosques';
 
   @override
   String get reorder => 'Reorder';

@@ -36,7 +36,8 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       leadingWidget = _buildBackButton(context);
     }
 
-    final hasSubtitle = subtitle != null && subtitle!.isNotEmpty;
+    final hasSubtitle =
+        subtitle != null && subtitle!.isNotEmpty && subtitle != " ";
 
     return AppBar(
       toolbarHeight: height,

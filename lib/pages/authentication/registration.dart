@@ -639,17 +639,37 @@ class _RegistrationState extends State<Registration> {
             controller: controller,
             enabled: enabled,
             keyboardType: keyboardType,
-            style: const TextStyle(fontSize: 14),
+            style: const TextStyle(
+              color: AppColors.buttonBlueDark,
+              fontSize: 12,
+            ),
             textDirection: isRtl ? TextDirection.ltr : null,
             decoration: InputDecoration(
               hintText: hint,
-              hintStyle: TextStyle(color: Colors.grey[400], fontSize: 13),
+              hintStyle: TextStyle(
+                color: AppColors.buttonBlueDark.withValues(alpha: 0.8),
+                fontSize: 12,
+              ),
               prefixIcon: Icon(
                 icon,
                 size: 20,
                 color: AppColors.buttonBlueDark.withValues(alpha: 0.7),
               ),
-              border: InputBorder.none,
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppColors.buttonBlueDark),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppColors.buttonBlueDark),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(
+                  color: AppColors.buttonBlue,
+                  width: 1.5,
+                ),
+              ),
               errorStyle: const TextStyle(height: 0, fontSize: 0),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
@@ -940,13 +960,30 @@ class _RegistrationState extends State<Registration> {
                   ],
                   decoration: InputDecoration(
                     hintText: AppLocalizations.of(context)!.enter_phone,
-                    hintStyle: const TextStyle(
-                      color: Colors.grey,
-                      fontSize: 14,
+                    hintStyle: TextStyle(
+                      color: AppColors.buttonBlueDark.withValues(alpha: 0.8),
+                      fontSize: 12,
                     ),
-                    border: InputBorder.none,
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppColors.buttonBlueDark),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(color: AppColors.buttonBlueDark),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(
+                        color: AppColors.buttonBlue,
+                        width: 1.5,
+                      ),
+                    ),
                   ),
-                  style: const TextStyle(fontSize: 14),
+                  style: const TextStyle(
+                    color: AppColors.buttonBlueDark,
+                    fontSize: 12,
+                  ),
                 ),
               ),
             ],

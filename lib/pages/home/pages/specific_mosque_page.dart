@@ -462,7 +462,7 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
         ),
         child: TextField(
           cursorColor: AppColors.buttonBlueDark,
-
+          style: const TextStyle(color: AppColors.buttonBlueDark, fontSize: 12),
           controller: _searchController,
           decoration: InputDecoration(
             hintText: widget.slug == 'orphanages'
@@ -470,9 +470,26 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
                 : widget.slug == 'meqat_mosques'
                 ? (AppLocalizations.of(context)!.search_meqat_mosques)
                 : (AppLocalizations.of(context)!.search_mosques),
-            hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
+            hintStyle: TextStyle(
+              color: AppColors.buttonBlueDark.withValues(alpha: 0.8),
+              fontSize: 12,
+            ),
             prefixIcon: const Icon(Icons.search, color: Colors.grey),
-            border: InputBorder.none,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppColors.buttonBlueDark),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppColors.buttonBlueDark),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(
+                color: AppColors.buttonBlue,
+                width: 1.5,
+              ),
+            ),
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,
               vertical: 14,

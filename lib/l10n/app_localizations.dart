@@ -311,7 +311,7 @@ abstract class AppLocalizations {
   /// No description provided for @recurring_donations.
   ///
   /// In en, this message translates to:
-  /// **'Recurring Donations'**
+  /// **'Recurring Orders'**
   String get recurring_donations;
 
   /// No description provided for @tax_receipts.
@@ -539,7 +539,7 @@ abstract class AppLocalizations {
   /// No description provided for @track_your_donations.
   ///
   /// In en, this message translates to:
-  /// **'Track your donations'**
+  /// **'Track your Orders'**
   String get track_your_donations;
 
   /// No description provided for @manage_account_settings.
@@ -638,12 +638,6 @@ abstract class AppLocalizations {
   /// **'Redirecting to Terms and Conditions...'**
   String get redirecting_terms;
 
-  /// No description provided for @donations_label.
-  ///
-  /// In en, this message translates to:
-  /// **'Donations'**
-  String get donations_label;
-
   /// No description provided for @mosques_label.
   ///
   /// In en, this message translates to:
@@ -719,7 +713,7 @@ abstract class AppLocalizations {
   /// No description provided for @single_donation.
   ///
   /// In en, this message translates to:
-  /// **'Single donation'**
+  /// **'Single order'**
   String get single_donation;
 
   /// No description provided for @one_time.
@@ -737,7 +731,7 @@ abstract class AppLocalizations {
   /// No description provided for @choose_donation_type.
   ///
   /// In en, this message translates to:
-  /// **'Choose donation type'**
+  /// **'Choose order destination'**
   String get choose_donation_type;
 
   /// No description provided for @payable_amount.
@@ -767,7 +761,7 @@ abstract class AppLocalizations {
   /// No description provided for @select_your_impact.
   ///
   /// In en, this message translates to:
-  /// **'Select Your Impact'**
+  /// **'Make An Impact That Lasts'**
   String get select_your_impact;
 
   /// No description provided for @select_a_product_to_continue.
@@ -851,7 +845,7 @@ abstract class AppLocalizations {
   /// No description provided for @recent_donations.
   ///
   /// In en, this message translates to:
-  /// **'Recent Donations'**
+  /// **'Recent Orders'**
   String get recent_donations;
 
   /// No description provided for @products_overview.
@@ -863,7 +857,7 @@ abstract class AppLocalizations {
   /// No description provided for @donations_overview.
   ///
   /// In en, this message translates to:
-  /// **'Donations Overview'**
+  /// **'Orders Overview'**
   String get donations_overview;
 
   /// No description provided for @orphanages_helped.
@@ -899,7 +893,7 @@ abstract class AppLocalizations {
   /// No description provided for @choose_your_cause_and_make_an_impact.
   ///
   /// In en, this message translates to:
-  /// **'Choose your cause and make an impact'**
+  /// **'Choose the destination you want to deliver to :'**
   String get choose_your_cause_and_make_an_impact;
 
   /// No description provided for @quick_actions.
@@ -1170,7 +1164,7 @@ abstract class AppLocalizations {
   /// No description provided for @choose_donation_type_108.
   ///
   /// In en, this message translates to:
-  /// **'Choose donation type'**
+  /// **'Choose type of order'**
   String get choose_donation_type_108;
 
   /// No description provided for @specific.
@@ -1200,7 +1194,7 @@ abstract class AppLocalizations {
   /// No description provided for @choose_water_package.
   ///
   /// In en, this message translates to:
-  /// **'Choose Water Package'**
+  /// **'Choose what the mosque needs'**
   String get choose_water_package;
 
   /// No description provided for @free.
@@ -1290,7 +1284,7 @@ abstract class AppLocalizations {
   /// No description provided for @donation_type.
   ///
   /// In en, this message translates to:
-  /// **'Donation Type'**
+  /// **'Order Type'**
   String get donation_type;
 
   /// No description provided for @final_review_and_payment.
@@ -1627,7 +1621,7 @@ abstract class AppLocalizations {
   /// No description provided for @thank_you_for_your_donation.
   ///
   /// In en, this message translates to:
-  /// **'Thank you for your donation.'**
+  /// **'Thank you for your order.'**
   String get thank_you_for_your_donation;
 
   /// No description provided for @payment_successful.
@@ -1777,7 +1771,7 @@ abstract class AppLocalizations {
   /// No description provided for @recurring_donation.
   ///
   /// In en, this message translates to:
-  /// **'Recurring Donation'**
+  /// **'Recurring Order'**
   String get recurring_donation;
 
   /// No description provided for @too_many_attempts.
@@ -2059,7 +2053,7 @@ abstract class AppLocalizations {
   /// No description provided for @total_donations.
   ///
   /// In en, this message translates to:
-  /// **'Total Donations'**
+  /// **'Total Orders'**
   String get total_donations;
 
   /// No description provided for @products_donated.
@@ -2095,7 +2089,7 @@ abstract class AppLocalizations {
   /// No description provided for @current_donation_streak.
   ///
   /// In en, this message translates to:
-  /// **'Current donation streak 🔥'**
+  /// **'Current order streak 🔥'**
   String get current_donation_streak;
 
   /// No description provided for @no_impact_data_found.
@@ -2293,7 +2287,7 @@ abstract class AppLocalizations {
   /// No description provided for @one_time_donation.
   ///
   /// In en, this message translates to:
-  /// **'One-time Donation'**
+  /// **'One-time Order'**
   String get one_time_donation;
 
   /// No description provided for @error_occurred_try_again.
@@ -2587,7 +2581,7 @@ abstract class AppLocalizations {
   /// No description provided for @track_donation.
   ///
   /// In en, this message translates to:
-  /// **'Track Donation'**
+  /// **'Track Order'**
   String get track_donation;
 
   /// No description provided for @since.
@@ -2626,11 +2620,23 @@ abstract class AppLocalizations {
   /// **'Twice a week'**
   String get twice_a_week;
 
+  /// No description provided for @account.
+  ///
+  /// In en, this message translates to:
+  /// **'Account'**
+  String get account;
+
   /// No description provided for @status_active.
   ///
   /// In en, this message translates to:
   /// **'Active'**
   String get status_active;
+
+  /// No description provided for @mosques.
+  ///
+  /// In en, this message translates to:
+  /// **'mosques'**
+  String get mosques;
 
   /// No description provided for @reorder.
   ///

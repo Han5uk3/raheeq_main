@@ -6,6 +6,7 @@ import 'package:raheeq_main/models/chiller_model.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'dart:developer';
 import 'package:shimmer/shimmer.dart';
+import 'package:raheeq_main/pages/home/home_screen.dart';
 
 class MyChillersPage extends StatefulWidget {
   const MyChillersPage({super.key});
@@ -160,12 +161,43 @@ class _MyChillersPageState extends State<MyChillersPage> {
                       : _chillers.isEmpty
                       ? Center(
                           key: const ValueKey('empty'),
-                          child: Text(
-                            AppLocalizations.of(context)!.no_chillers_found,
-                            style: const TextStyle(
-                              color: Colors.grey,
-                              fontSize: 16,
-                            ),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                AppLocalizations.of(context)!.no_chillers_found,
+                                style: const TextStyle(
+                                  color: Colors.grey,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.buttonBlueDark,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 24,
+                                    vertical: 12,
+                                  ),
+                                ),
+                                onPressed: () {
+                                  Navigator.of(
+                                    context,
+                                  ).popUntil((route) => route.isFirst);
+                                  HomeScreen.switchTabNotifier.value = 0;
+                                },
+                                child: Text(
+                                  AppLocalizations.of(context)!.order_now,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
                         )
                       : ListView.builder(

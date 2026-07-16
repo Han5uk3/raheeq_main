@@ -408,6 +408,7 @@ class _GiftCardPageState extends State<GiftCardPage> {
     return TextFormField(
       controller: controller,
       cursorColor: AppColors.buttonBlueDark,
+      style: const TextStyle(color: AppColors.buttonBlueDark, fontSize: 12),
       validator: (value) {
         if (value == null || value.trim().isEmpty) {
           return AppLocalizations.of(context)!.field_is_required;
@@ -415,19 +416,23 @@ class _GiftCardPageState extends State<GiftCardPage> {
         return null;
       },
       decoration: InputDecoration(
+        hintStyle: TextStyle(
+          color: AppColors.buttonBlueDark.withValues(alpha: 0.8),
+          fontSize: 12,
+        ),
         filled: true,
         fillColor: const Color(0xFFF5F5F5),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
+          borderSide: const BorderSide(color: AppColors.buttonBlueDark),
         ),
         enabledBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
+          borderSide: const BorderSide(color: AppColors.buttonBlueDark),
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.buttonBlueDark),
+          borderSide: const BorderSide(color: AppColors.buttonBlue, width: 1.5),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -442,7 +447,6 @@ class _GiftCardPageState extends State<GiftCardPage> {
           vertical: 12,
         ),
         hintText: hint,
-        hintStyle: TextStyle(color: Colors.grey.shade500),
       ),
     );
   }
@@ -598,6 +602,10 @@ class _GiftCardPageState extends State<GiftCardPage> {
             controller: _phoneController,
             keyboardType: TextInputType.phone,
             autovalidateMode: AutovalidateMode.onUserInteraction,
+            style: const TextStyle(
+              color: AppColors.buttonBlueDark,
+              fontSize: 12,
+            ),
             inputFormatters: [
               FilteringTextInputFormatter.digitsOnly,
               TextInputFormatter.withFunction((oldValue, newValue) {
@@ -658,19 +666,26 @@ class _GiftCardPageState extends State<GiftCardPage> {
               return null;
             },
             decoration: InputDecoration(
+              hintStyle: TextStyle(
+                color: AppColors.buttonBlueDark.withValues(alpha: 0.8),
+                fontSize: 12,
+              ),
               filled: true,
               fillColor: const Color(0xFFF5F5F5),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
+                borderSide: const BorderSide(color: AppColors.buttonBlueDark),
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
+                borderSide: const BorderSide(color: AppColors.buttonBlueDark),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.buttonBlueDark),
+                borderSide: const BorderSide(
+                  color: AppColors.buttonBlue,
+                  width: 1.5,
+                ),
               ),
               errorBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -685,7 +700,6 @@ class _GiftCardPageState extends State<GiftCardPage> {
                 vertical: 12,
               ),
               hintText: AppLocalizations.of(context)!.phone_number_hint,
-              hintStyle: TextStyle(color: Colors.grey.shade500),
             ),
           ),
         ),

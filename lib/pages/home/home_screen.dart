@@ -1,8 +1,8 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:freshchat_sdk/freshchat_sdk.dart';
 import 'package:raheeq_main/common_widgets/custom_bottom_nav.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
+import 'package:raheeq_main/services/freshchat_service.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/pages/home/pages/home_tab.dart';
 import 'package:raheeq_main/pages/home/pages/profile_tab.dart';
@@ -69,7 +69,7 @@ class _HomeScreenState extends State<HomeScreen> {
       case 2:
         return AppLocalizations.of(context)!.contact_us;
       case 3:
-        return AppLocalizations.of(context)!.profile;
+        return AppLocalizations.of(context)!.account;
       default:
         return AppLocalizations.of(context)!.raheeq;
     }
@@ -140,7 +140,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
           CustomBottomNavItem(
             icon: Icons.person_outline,
-            label: AppLocalizations.of(context)!.profile,
+            label: AppLocalizations.of(context)!.account,
           ),
         ],
         onTap: (index) {
@@ -149,7 +149,8 @@ class _HomeScreenState extends State<HomeScreen> {
               "Attempting to open Freshchat conversations from bottom nav with tags: ['chat_with_us'] and title: 'Rahiq Support'",
               name: "FreshchatService",
             );
-            Freshchat.showConversations(
+            FreshchatService.showConversations(
+              context,
               tags: const ["chat_with_us"],
               filteredViewTitle: "Rahiq Support",
             );

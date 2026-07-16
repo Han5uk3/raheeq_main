@@ -3,6 +3,7 @@ import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'dart:developer';
 import 'package:raheeq_main/utils/formatters.dart';
 
+import 'dart:convert';
 import 'dart:async';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -63,6 +64,13 @@ class _HomeTabState extends State<HomeTab> {
   static List<Product> _cachedEssentialProducts = [];
   static List<City> _cachedCities = [];
   static ImpactModel? _cachedImpactData;
+  static String? _cachedHomeDataJson;
+  static String? _cachedHomeETag;
+  static String? _cachedProfileETag;
+  static String? _cachedCitiesETag;
+  static String? _cachedImpactETag;
+  static String? _cachedNotificationsETag;
+  static int _cachedUnreadCount = 0;
 
   // Queue for items added from external pages (e.g., Saved Mosques)
   static final List<SelectedCategoryItem> _pendingItems = [];
@@ -99,6 +107,7 @@ class _HomeTabState extends State<HomeTab> {
   @override
   void initState() {
     super.initState();
+    _unreadNotificationsCount = _cachedUnreadCount;
     if (_hasLoadedOnce) {
       _bannerData = _cachedBannerData;
       _campaigns = _cachedCampaigns;
@@ -179,7 +188,18 @@ class _HomeTabState extends State<HomeTab> {
       // Run independent API calls concurrently to reduce load time
       final profileFuture = () async {
         try {
-          await ApiService().getProfile();
+          final profileResponse = await ApiService().getProfile(
+            etag: _cachedProfileETag,
+          );
+          if (profileResponse.statusCode == 304) {
+            log(
+              'Profile data unchanged (304). Using cached ETag.',
+              name: 'HomeTab',
+            );
+          } else if (profileResponse.statusCode == 200) {
+            final newEtag = profileResponse.headers.value('etag');
+            if (newEtag != null) _cachedProfileETag = newEtag;
+          }
         } catch (_) {}
       }();
 
@@ -187,9 +207,20 @@ class _HomeTabState extends State<HomeTab> {
         try {
           final citiesResponse = await ApiService().getCities(
             showSnackbar: true,
+            etag: _cachedCitiesETag,
           );
+          if (citiesResponse.statusCode == 304) {
+            log(
+              'Cities data unchanged (304). Using cached ETag.',
+              name: 'HomeTab',
+            );
+            return;
+          }
           if (citiesResponse.statusCode == 200 &&
               citiesResponse.data['success'] == true) {
+            final newEtag = citiesResponse.headers.value('etag');
+            if (newEtag != null) _cachedCitiesETag = newEtag;
+
             final List<dynamic> data = citiesResponse.data['data'] ?? [];
             _cachedCities = data
                 .map((e) => City.fromJson(e as Map<String, dynamic>))
@@ -202,9 +233,22 @@ class _HomeTabState extends State<HomeTab> {
 
       final impactFuture = () async {
         try {
-          final impactRes = await ApiService().getImpact(showSnackbar: true);
+          final impactRes = await ApiService().getImpact(
+            showSnackbar: true,
+            etag: _cachedImpactETag,
+          );
+          if (impactRes.statusCode == 304) {
+            log(
+              'Impact data unchanged (304). Using cached ETag.',
+              name: 'HomeTab',
+            );
+            return;
+          }
           if (impactRes.statusCode == 200 &&
               impactRes.data['success'] == true) {
+            final newEtag = impactRes.headers.value('etag');
+            if (newEtag != null) _cachedImpactETag = newEtag;
+
             _cachedImpactData = ImpactModel.fromJson(impactRes.data['data']);
           }
         } catch (e) {
@@ -216,14 +260,29 @@ class _HomeTabState extends State<HomeTab> {
         try {
           final unreadRes = await ApiService().getUnreadNotificationsCount(
             showSnackbar: true,
+            etag: _cachedNotificationsETag,
           );
+          if (unreadRes.statusCode == 304) {
+            log('Unread notifications unchanged (304).', name: 'HomeTab');
+            if (mounted) {
+              setState(() {
+                _unreadNotificationsCount = _cachedUnreadCount;
+              });
+            }
+            return;
+          }
           if (unreadRes.statusCode == 200 &&
               unreadRes.data['success'] == true) {
+            final newEtag = unreadRes.headers.value('etag');
+            if (newEtag != null) _cachedNotificationsETag = newEtag;
+
             final countData = unreadRes.data['data'];
             if (countData != null && countData['count'] != null) {
-              _unreadNotificationsCount = countData['count'] as int;
+              _cachedUnreadCount = countData['count'] as int;
+              _unreadNotificationsCount = _cachedUnreadCount;
             } else if (countData is int) {
-              _unreadNotificationsCount = countData;
+              _cachedUnreadCount = countData;
+              _unreadNotificationsCount = _cachedUnreadCount;
             }
           }
         } catch (e) {
@@ -231,7 +290,7 @@ class _HomeTabState extends State<HomeTab> {
         }
       }();
 
-      final homeFuture = ApiService().getHome();
+      final homeFuture = ApiService().getHome(etag: _cachedHomeETag);
 
       await Future.wait([
         profileFuture,
@@ -242,8 +301,42 @@ class _HomeTabState extends State<HomeTab> {
       ]);
 
       final response = await homeFuture;
+
+      if (response.statusCode == 304) {
+        log(
+          'API returned 304 Not Modified. Using cached ETag data.',
+          name: 'HomeTab',
+        );
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+        return;
+      }
+
       if (response.statusCode == 200 && response.data['success'] == true) {
-        final data = response.data['data'] as Map<String, dynamic>;
+        final newEtag = response.headers.value('etag');
+        if (newEtag != null) {
+          _cachedHomeETag = newEtag;
+        }
+
+        final rawData = response.data['data'];
+        final currentJson = jsonEncode(rawData);
+
+        if (_hasLoadedOnce && currentJson == _cachedHomeDataJson) {
+          log('Home data unchanged. Skipping rebuild.', name: 'HomeTab');
+          if (mounted) {
+            setState(() {
+              _isLoading = false;
+            });
+          }
+          return;
+        }
+
+        _cachedHomeDataJson = currentJson;
+        final data = rawData as Map<String, dynamic>;
+
         final banners = ((data['banners'] as List<dynamic>?) ?? [])
             .map((b) => BannerData.fromJson(b as Map<String, dynamic>))
             .toList();
@@ -620,11 +713,25 @@ class _HomeTabState extends State<HomeTab> {
                                     .asMap()
                                     .entries
                                     .map((entry) {
-                                      return buildCampaignCard(
-                                        context,
-                                        entry.value,
-                                        entry.key,
-                                      );
+                                      if ((entry.value.description == " ") &&
+                                          (entry.value.descriptionAr == " ")) {
+                                        return buildCampaignCard(
+                                          context,
+                                          entry.value,
+                                          entry.key,
+                                        );
+                                      } else {
+                                        return Padding(
+                                          padding: const EdgeInsets.only(
+                                            top: 16,
+                                          ),
+                                          child: buildOldCampaignCard(
+                                            context,
+                                            entry.value,
+                                            entry.key,
+                                          ),
+                                        );
+                                      }
                                     })
                                     .toList(),
                               ),
@@ -688,37 +795,28 @@ class _HomeTabState extends State<HomeTab> {
                   (i) => i.category.slug == 'essential_supplies',
                 );
                 if (isEssential) {
-                  final mosques = await Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (_) => SpecificMosquePage(
-                        slug: 'mosques',
-                        initialSelections: const [],
-                        title: AppLocalizations.of(context)!.choose_mosques,
-                      ),
-                    ),
-                  );
-                  if (mosques != null &&
-                      mosques is List<Place> &&
-                      mosques.isNotEmpty) {
-                    final orderStates = <OrderCategoryState>[];
-                    for (final mosque in mosques) {
+                  final orderStates = <OrderCategoryState>[];
+                  for (final item in _selectedItems) {
+                    if (item.specificData is EssentialSelection) {
+                      final selection = item.specificData as EssentialSelection;
                       orderStates.add(
                         OrderCategoryState(
                           categoryItem: SelectedCategoryItem(
-                            category: _essentialCategory,
-                            optionType: 'specific',
-                            specificData: mosque,
+                            category: item.category,
+                            optionType: item.optionType,
+                            specificData: selection.place,
                           ),
-                          selectedProducts: _selectedItems.map((item) {
-                            final product = item.specificData as Product;
-                            return SelectedProduct(
-                              product: product,
-                              quantity: product.minQuantity,
-                            );
-                          }).toList(),
+                          selectedProducts: [
+                            SelectedProduct(
+                              product: selection.product,
+                              quantity: selection.product.minQuantity,
+                            ),
+                          ],
                         ),
                       );
                     }
+                  }
+                  if (orderStates.isNotEmpty) {
                     Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (_) =>
@@ -1263,7 +1361,7 @@ class _HomeTabState extends State<HomeTab> {
                 left: 0,
                 right: 0,
                 bottom: 0,
-                height: 150,
+                height: 160,
                 child: Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -1309,7 +1407,7 @@ class _HomeTabState extends State<HomeTab> {
                       child: Padding(
                         padding: const EdgeInsetsDirectional.only(
                           start: 16,
-                          top: 85,
+                          top: 65,
                           bottom: 16,
                         ),
                         child: Column(
@@ -1412,6 +1510,226 @@ class _HomeTabState extends State<HomeTab> {
     );
   }
 
+  Widget buildOldCampaignCard(
+    BuildContext context,
+    Campaign campaign,
+    int index,
+  ) {
+    final isAr = Localizations.localeOf(context).languageCode == 'ar';
+    final title = campaign.localizedTitle(isAr);
+    final description = campaign.localizedDescription(isAr);
+
+    final imageUrl = campaign.image;
+
+    return GestureDetector(
+      onTap: () async {
+        if (_selectedItems.isNotEmpty) {
+          final shouldProceed = await _showClearBasketDialog(
+            context,
+            title,
+            isAr,
+          );
+          if (shouldProceed) {
+            setState(() {
+              _selectedItems.clear();
+            });
+            if (context.mounted) {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => CampaignDetailPage(campaign: campaign),
+                ),
+              );
+            }
+          }
+        } else {
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (_) => CampaignDetailPage(campaign: campaign),
+            ),
+          );
+        }
+      },
+      child: FittedBox(
+        fit: BoxFit.fitWidth,
+        clipBehavior: Clip.none,
+        child: Material(
+          elevation: 3,
+          borderRadius: BorderRadius.circular(20),
+          color: Colors.white,
+          child: Container(
+            height: 228,
+            width: 420, // Fixed width for design baseline
+            margin: const EdgeInsetsDirectional.only(bottom: 0),
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                // Dark blue background container — half the total height, aligned to bottom
+                Positioned(
+                  left: 0,
+                  right: 0,
+                  bottom: 0,
+                  top: 0,
+                  child: Stack(
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          image: DecorationImage(
+                            matchTextDirection: true,
+                            fit: BoxFit.cover,
+                            image: CachedNetworkImageProvider(imageUrl),
+                          ),
+                        ),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin:
+                                Directionality.of(context) == TextDirection.rtl
+                                ? Alignment.centerRight
+                                : Alignment.centerLeft,
+                            end: Directionality.of(context) == TextDirection.rtl
+                                ? Alignment.centerLeft
+                                : Alignment.centerRight,
+                            stops: [0.25, 1.0],
+                            colors: [
+                              AppColors.buttonBlueDark.withValues(alpha: 0.9),
+                              Colors.transparent,
+                            ],
+                          ),
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+
+                // Content row on top
+                Positioned.fill(
+                  child: Row(
+                    children: [
+                      // Left side: Title + Button
+                      Expanded(
+                        flex: 7,
+                        child: Padding(
+                          padding: const EdgeInsetsDirectional.only(
+                            start: 16,
+                            top: 28,
+                            bottom: 16,
+                            end: 16,
+                          ),
+                          child: Column(
+                            spacing: 8,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Column(
+                                spacing: 8,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        flex: 8,
+                                        child: Text(
+                                          title,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontSize: 25,
+                                            fontWeight: FontWeight.bold,
+                                            height: 1.2,
+                                          ),
+                                        ),
+                                      ),
+
+                                      Expanded(flex: 8, child: SizedBox()),
+                                    ],
+                                  ),
+
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        flex: 7,
+                                        child: Text(
+                                          description,
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                          style: TextStyle(
+                                            color: Colors.white.withValues(
+                                              alpha: 0.9,
+                                            ),
+                                            fontSize: 14,
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(flex: 2, child: SizedBox()),
+                                    ],
+                                  ),
+                                ],
+                              ),
+
+                              Material(
+                                elevation: 2,
+                                borderRadius: BorderRadius.circular(30),
+                                color: Colors.white,
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 8,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.donate_now,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.buttonBlueDark,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 8),
+                                      Container(
+                                        padding: const EdgeInsets.all(5),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.buttonBlueDark,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Icon(
+                                          forwardArrowIcon(context),
+                                          size: 12,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   Widget buildQuickServicesSection(BuildContext context) {
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
 
@@ -1419,19 +1737,11 @@ class _HomeTabState extends State<HomeTab> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          AppLocalizations.of(context)!.quick_actions,
-          style: const TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
-          ),
-        ),
-        Text(
           AppLocalizations.of(context)!.choose_your_cause_and_make_an_impact,
           style: const TextStyle(
             fontSize: 14,
-            fontWeight: FontWeight.w500,
-            color: Colors.grey,
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
           ),
         ),
         const SizedBox(height: 16),
@@ -1730,19 +2040,17 @@ class _HomeTabState extends State<HomeTab> {
             itemBuilder: (context, index) {
               final product = _essentialProducts[index];
               final name = product.localizedName(isAr);
-              log(
-                "Product ${product.id} - $name, isHighNeed: ${product.isHighNeed}",
-              );
 
               final subtitle = product.localizedSubtitle(isAr);
-              log("Subtitle for product ${product.id}: $subtitle");
+
               final price = product.price;
 
               final existingIndex = _selectedItems.indexWhere(
                 (item) =>
                     item.category.slug == 'essential_supplies' &&
-                    item.specificData is Product &&
-                    (item.specificData as Product).id == product.id,
+                    item.specificData is EssentialSelection &&
+                    (item.specificData as EssentialSelection).product.id ==
+                        product.id,
               );
               final isSelected = existingIndex != -1;
 
@@ -1750,7 +2058,15 @@ class _HomeTabState extends State<HomeTab> {
                 onTap: () async {
                   if (isSelected) {
                     setState(() {
-                      _selectedItems.removeAt(existingIndex);
+                      _selectedItems.removeWhere(
+                        (item) =>
+                            item.category.slug == 'essential_supplies' &&
+                            item.specificData is EssentialSelection &&
+                            (item.specificData as EssentialSelection)
+                                    .product
+                                    .id ==
+                                product.id,
+                      );
                     });
                     return;
                   }
@@ -1764,30 +2080,61 @@ class _HomeTabState extends State<HomeTab> {
                       name,
                       isAr,
                     );
-                    if (shouldProceed) {
-                      setState(() {
-                        _selectedItems.clear();
-                        _selectedItems.add(
-                          SelectedCategoryItem(
-                            category: _essentialCategory,
-                            optionType: 'essential',
-                            specificData: product,
-                          ),
-                        );
-                      });
+                    if (!shouldProceed) {
+                      return;
                     }
-                    return;
+                    setState(() {
+                      _selectedItems.clear();
+                    });
                   }
 
-                  setState(() {
-                    _selectedItems.add(
-                      SelectedCategoryItem(
-                        category: _essentialCategory,
-                        optionType: 'essential',
-                        specificData: product,
+                  final result = await showDialog<String>(
+                    context: context,
+                    builder: (_) => OptionSelectorDialog(
+                      title: AppLocalizations.of(context)!.mosques,
+                      showClearOption: false,
+                    ),
+                  );
+
+                  if (result == 'most_in_need') {
+                    setState(() {
+                      _selectedItems.add(
+                        SelectedCategoryItem(
+                          category: _essentialCategory,
+                          optionType: 'most_in_need',
+                          specificData: EssentialSelection(product: product),
+                        ),
+                      );
+                    });
+                  } else if (result == 'specific') {
+                    final specificItems = await Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (_) => SpecificMosquePage(
+                          slug: 'mosques_in_need',
+                          initialSelections: const [],
+                          title: name,
+                        ),
                       ),
                     );
-                  });
+                    if (specificItems != null &&
+                        specificItems is List<Place> &&
+                        specificItems.isNotEmpty) {
+                      setState(() {
+                        for (final specificItem in specificItems) {
+                          _selectedItems.add(
+                            SelectedCategoryItem(
+                              category: _essentialCategory,
+                              optionType: 'specific',
+                              specificData: EssentialSelection(
+                                product: product,
+                                place: specificItem,
+                              ),
+                            ),
+                          );
+                        }
+                      });
+                    }
+                  }
                 },
                 child: Container(
                   width: 125,
@@ -1797,179 +2144,118 @@ class _HomeTabState extends State<HomeTab> {
                     bottom: 12,
                     top: 4,
                   ),
-                  child: Stack(
-                    children: [
-                      Card(
-                        margin: EdgeInsets.all(0),
-                        color: Colors.white,
-                        elevation: isSelected ? 3 : 1,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                          side: BorderSide(
-                            color: isSelected
-                                ? AppColors.buttonBlue
-                                : Colors.transparent,
-                            width: 2,
+                  child: Card(
+                    margin: EdgeInsets.all(0),
+                    color: Colors.white,
+                    elevation: isSelected ? 3 : 1,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                      side: BorderSide(
+                        color: isSelected
+                            ? AppColors.buttonBlue
+                            : Colors.transparent,
+                        width: 2,
+                      ),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Product image
+                        Container(
+                          padding: const EdgeInsets.all(8.0),
+                          width: double.infinity,
+                          height: 100,
+                          decoration: const BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.all(Radius.circular(14)),
+                          ),
+                          child: ClipRRect(
+                            borderRadius: const BorderRadius.all(
+                              Radius.circular(14),
+                            ),
+                            child: product.image.isNotEmpty
+                                ? CachedNetworkImage(
+                                    imageUrl: product.image,
+                                    fit: BoxFit.cover,
+                                    placeholder: (context, url) =>
+                                        Shimmer.fromColors(
+                                          baseColor: Colors.grey[300]!,
+                                          highlightColor: Colors.grey[100]!,
+                                          child: Container(color: Colors.white),
+                                        ),
+                                    errorWidget: (context, url, error) =>
+                                        const Center(
+                                          child: Icon(
+                                            Icons.water_drop,
+                                            color: AppColors.buttonBlue,
+                                            size: 40,
+                                          ),
+                                        ),
+                                  )
+                                : const Center(
+                                    child: Icon(
+                                      Icons.water_drop,
+                                      color: AppColors.buttonBlue,
+                                      size: 40,
+                                    ),
+                                  ),
                           ),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            // Product image
-                            Container(
-                              padding: const EdgeInsets.all(8.0),
-                              width: double.infinity,
-                              height: 100,
-                              decoration: const BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.all(
-                                  Radius.circular(14),
-                                ),
-                              ),
-                              child: ClipRRect(
-                                borderRadius: const BorderRadius.all(
-                                  Radius.circular(14),
-                                ),
-                                child: product.image.isNotEmpty
-                                    ? CachedNetworkImage(
-                                        imageUrl: product.image,
-                                        fit: BoxFit.cover,
-                                        placeholder: (context, url) =>
-                                            Shimmer.fromColors(
-                                              baseColor: Colors.grey[300]!,
-                                              highlightColor: Colors.grey[100]!,
-                                              child: Container(
-                                                color: Colors.white,
-                                              ),
-                                            ),
-                                        errorWidget: (context, url, error) =>
-                                            const Center(
-                                              child: Icon(
-                                                Icons.water_drop,
-                                                color: AppColors.buttonBlue,
-                                                size: 40,
-                                              ),
-                                            ),
-                                      )
-                                    : const Center(
-                                        child: Icon(
-                                          Icons.water_drop,
-                                          color: AppColors.buttonBlue,
-                                          size: 40,
-                                        ),
-                                      ),
-                              ),
-                            ),
 
-                            // Details
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.fromLTRB(
-                                  12,
-                                  8,
-                                  12,
-                                  12,
-                                ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    // Subtitle row
-                                    Text(
-                                      subtitle,
-                                      style: const TextStyle(
-                                        fontSize: 10,
-                                        color: Colors.grey,
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-
-                                    // Product name
-                                    Text(
-                                      name,
-                                      style: const TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black,
-                                      ),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-
-                                    const Spacer(),
-                                    Text(
-                                      AppLocalizations.of(
-                                        context,
-                                      )!.starting_from,
-                                      style: const TextStyle(
-                                        fontSize: 10,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                                    // Price
-                                    Text(
-                                      '\u202A${AppLocalizations.of(context)!.sar_currency} ${price.toStringAsFixed(0)}\u202C',
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                        color: AppColors.buttonBlueDark,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      if (product.isHighNeed)
-                        PositionedDirectional(
-                          top: 0,
-                          end: 0,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 6,
-                            ),
-                            decoration: BoxDecoration(
-                              color: const Color(0xff1A6A8F),
-                              borderRadius: BorderRadius.only(
-                                topLeft:
-                                    Directionality.of(context) ==
-                                        TextDirection.ltr
-                                    ? Radius.circular(0)
-                                    : Radius.circular(12),
-                                bottomRight:
-                                    Directionality.of(context) ==
-                                        TextDirection.ltr
-                                    ? Radius.circular(0)
-                                    : Radius.circular(12),
-                                bottomLeft:
-                                    Directionality.of(context) ==
-                                        TextDirection.ltr
-                                    ? Radius.circular(12)
-                                    : Radius.circular(0),
-                                topRight:
-                                    Directionality.of(context) ==
-                                        TextDirection.ltr
-                                    ? Radius.circular(12)
-                                    : Radius.circular(0),
-                              ),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
+                        // Details
+                        Expanded(
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const Icon(
-                                  Icons.trending_up_outlined,
-                                  color: AppColors.white,
-                                  size: 18,
+                                // Subtitle row
+                                Text(
+                                  subtitle,
+                                  style: const TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.grey,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+
+                                // Product name
+                                Text(
+                                  name,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+
+                                const Spacer(),
+                                Text(
+                                  AppLocalizations.of(context)!.starting_from,
+                                  style: const TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                                // Price
+                                Text(
+                                  '\u202A${AppLocalizations.of(context)!.sar_currency} ${price.toStringAsFixed(0)}\u202C',
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.buttonBlueDark,
+                                  ),
                                 ),
                               ],
                             ),
                           ),
                         ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               );

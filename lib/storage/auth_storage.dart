@@ -60,6 +60,14 @@ class AuthStorage {
   static String? get accessToken => _box.get(accessTokenKey);
   static String? get refreshToken => _box.get(refreshTokenKey);
 
+  static const String freshchatTokenKey = "freshchatToken";
+
+  static Future<void> saveFreshchatToken(String token) async {
+    await _box.put(freshchatTokenKey, token);
+  }
+
+  static String? get freshchatToken => _box.get(freshchatTokenKey);
+
   static User? get user {
     final raw = _box.get(userDataKey);
     if (raw == null) return null;

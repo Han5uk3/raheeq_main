@@ -139,7 +139,9 @@ class _DonationTypeBottomSheetState extends State<DonationTypeBottomSheet> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          AppLocalizations.of(context)!.choose_donation_type,
+                          AppLocalizations.of(
+                            context,
+                          )!.choose_donation_type_108,
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,

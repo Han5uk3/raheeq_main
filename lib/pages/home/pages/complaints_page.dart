@@ -430,6 +430,10 @@ class _ComplaintsPageState extends State<ComplaintsPage> {
                       const SizedBox(height: 12),
                       TextField(
                         cursorColor: AppColors.buttonBlueDark,
+                        style: const TextStyle(
+                          color: AppColors.buttonBlueDark,
+                          fontSize: 12,
+                        ),
                         controller: _complaintOtherController,
                         onChanged: (value) {
                           if (_complaintError && value.trim().isNotEmpty) {
@@ -442,22 +446,23 @@ class _ComplaintsPageState extends State<ComplaintsPage> {
                               ? loc.field_required
                               : null,
                           hintText: loc.enter_complaint_hint,
+                          hintStyle: TextStyle(
+                            color: AppColors.buttonBlueDark.withValues(alpha: 0.8),
+                            fontSize: 12,
+                          ),
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
-                            borderSide: const BorderSide(
-                              color: Color(0xFFEAEFF2),
-                            ),
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: AppColors.buttonBlueDark),
                           ),
                           enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
-                            borderSide: const BorderSide(
-                              color: Color(0xFFEAEFF2),
-                            ),
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(color: AppColors.buttonBlueDark),
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(16),
+                            borderRadius: BorderRadius.circular(12),
                             borderSide: const BorderSide(
                               color: AppColors.buttonBlue,
+                              width: 1.5,
                             ),
                           ),
                         ),

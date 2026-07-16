@@ -11,3 +11,10 @@ class SelectedCategoryItem {
     this.specificData,
   });
 }
+
+class EssentialSelection {
+  final dynamic product; // using dynamic to avoid importing Product if not needed, but better to import it
+  final dynamic place;
+
+  EssentialSelection({required this.product, this.place});
+}

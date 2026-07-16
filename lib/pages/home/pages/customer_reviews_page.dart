@@ -70,7 +70,10 @@ class _CustomerReviewsPageState extends State<CustomerReviewsPage> {
     final productName = review.product?.localizedName(isAr) ?? '';
     final productImage = review.product?.image;
     final dateStr = review.createdAt != null
-        ? DateFormat('dd MMM yyyy').format(review.createdAt!)
+        ? DateFormat(
+            'dd MMM yyyy',
+            isAr ? 'ar' : 'en',
+          ).format(review.createdAt!)
         : '';
 
     return Card(

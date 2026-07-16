@@ -1,7 +1,10 @@
+import 'dart:convert';
 import 'dart:developer';
 
+import 'package:flutter/material.dart';
 import 'package:freshchat_sdk/freshchat_sdk.dart';
 import 'package:freshchat_sdk/freshchat_user.dart';
+import 'package:raheeq_main/storage/auth_storage.dart';
 import '../api/apis.dart';
 import '../models/user.dart';
 
@@ -54,68 +57,97 @@ class FreshchatService {
     });
   }
 
+  static bool _isTokenExpired(String? token) {
+    if (token == null || token.isEmpty) return true;
+    try {
+      final parts = token.split('.');
+      if (parts.length != 3) return true;
+      String payload = parts[1];
+      while (payload.length % 4 != 0) {
+        payload += '=';
+      }
+      final decoded = utf8.decode(base64Url.decode(payload));
+      final Map<String, dynamic> payloadMap = jsonDecode(decoded);
+      if (payloadMap.containsKey('exp')) {
+        // give it a 5-minute buffer
+        final exp = (payloadMap['exp'] * 1000) - 300000;
+        return DateTime.now().millisecondsSinceEpoch > exp;
+      }
+    } catch (e) {
+      return true;
+    }
+    return true;
+  }
+
+  static Future<void> refreshTokenIfNeeded() async {
+    final user = AuthStorage.user;
+    if (user == null) return;
+
+    final currentToken = AuthStorage.freshchatToken;
+    if (!_isTokenExpired(currentToken)) {
+      log(
+        "Freshchat token is still valid. Skipping refresh.",
+        name: "FreshchatService",
+      );
+      return;
+    }
+
+    try {
+      final freshchatUuid = await Freshchat.getFreshchatUserId;
+      if (freshchatUuid.isNotEmpty) {
+        log(
+          "Generating Freshchat Token from backend...",
+          name: "FreshchatService",
+        );
+        final response = await ApiService().generateFreshchatToken(
+          freshchatUuid,
+        );
+        if (response.statusCode == 200 && response.data['success'] == true) {
+          final token = response.data['data']['token'];
+          if (token != null) {
+            await AuthStorage.saveFreshchatToken(token);
+            Freshchat.setUserWithIdToken(token);
+            log(
+              "User ID token refreshed successfully.",
+              name: "FreshchatService",
+            );
+          }
+        }
+      }
+    } catch (e) {
+      log(
+        "Failed to refresh Freshchat token: $e",
+        name: "FreshchatService",
+        error: e,
+      );
+    }
+  }
+
+  static Future<void> showConversations(
+    BuildContext context, {
+    List<String> tags = const [],
+    String? filteredViewTitle,
+  }) async {
+    await refreshTokenIfNeeded();
+    Freshchat.showConversations(
+      tags: tags,
+      filteredViewTitle: filteredViewTitle,
+    );
+  }
+
   static Future<void> identifyUser(User user) async {
     log(
       "Starting identifyUser flow for user: ${user.id}, existing restoreId: ${user.freshchatRestoreId}",
       name: "FreshchatService",
     );
     try {
-      // 1. Get the Freshchat UUID
-      final freshchatUuid = await Freshchat.getFreshchatUserId;
+      final restoreId = user.freshchatRestoreId ?? "";
       log(
-        "Fetched Freshchat UUID from SDK: $freshchatUuid",
+        "Identifying user in SDK with externalId: ${user.id} and restoreId: $restoreId",
         name: "FreshchatService",
       );
+      Freshchat.identifyUser(externalId: user.id, restoreId: restoreId);
 
-      if (freshchatUuid.isNotEmpty) {
-        log(
-          "Generating Freshchat Token from backend...",
-          name: "FreshchatService",
-        );
-        // 2. Generate the Freshchat signed JWT token from the backend
-        final response = await ApiService().generateFreshchatToken(
-          freshchatUuid,
-        );
-        if (response.statusCode == 200 && response.data['success'] == true) {
-          final token = response.data['data']['token'];
-          log(
-            "Successfully retrieved JWT Token from backend.",
-            name: "FreshchatService",
-          );
-
-          if (token != null) {
-            // 3. Identify user with the SDK, passing the restore ID if available
-            final restoreId = user.freshchatRestoreId ?? "";
-            log(
-              "Identifying user in SDK with externalId: ${user.id} and restoreId: $restoreId",
-              name: "FreshchatService",
-            );
-            Freshchat.identifyUser(externalId: user.id, restoreId: restoreId);
-
-            // 4. Set the user identity using the signed JWT token
-            log("Setting user ID token in SDK...", name: "FreshchatService");
-            Freshchat.setUserWithIdToken(token);
-            log("User ID token set successfully.", name: "FreshchatService");
-          } else {
-            log(
-              "JWT token from backend is null. Skipping identifyUser and setUserWithIdToken.",
-              name: "FreshchatService",
-            );
-          }
-        } else {
-          log(
-            "Failed to generate JWT token. Response: ${response.data}",
-            name: "FreshchatService",
-          );
-        }
-      } else {
-        log(
-          "Freshchat UUID is null or empty. Skipping token generation.",
-          name: "FreshchatService",
-        );
-      }
-
-      // 5. Update user profile details
       log(
         "Updating Freshchat user profile details for user: ${user.email}...",
         name: "FreshchatService",

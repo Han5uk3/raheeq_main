@@ -349,17 +349,33 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
           ),
           child: TextFormField(
             cursorColor: AppColors.buttonBlueDark,
-
             controller: controller,
             enabled: enabled,
-            style: TextStyle(
-              fontSize: 14,
-              color: enabled ? Colors.black87 : Colors.grey[600],
+            style: const TextStyle(
+              color: AppColors.buttonBlueDark,
+              fontSize: 12,
             ),
             decoration: InputDecoration(
               hintText: hint,
-              hintStyle: TextStyle(color: Colors.grey[400], fontSize: 13),
-              border: InputBorder.none,
+              hintStyle: TextStyle(
+                color: AppColors.buttonBlueDark.withValues(alpha: 0.8),
+                fontSize: 12,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppColors.buttonBlueDark),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppColors.buttonBlueDark),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(
+                  color: AppColors.buttonBlue,
+                  width: 1.5,
+                ),
+              ),
               contentPadding: const EdgeInsets.symmetric(
                 horizontal: 16,
                 vertical: 12,

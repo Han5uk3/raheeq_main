@@ -26,6 +26,10 @@ class ProfileTab extends StatefulWidget {
 }
 
 class _ProfileTabState extends State<ProfileTab> {
+  static String? _cachedProfileETag;
+  static String? _cachedNotificationsETag;
+  static int _cachedUnreadCount = 0;
+
   bool _isLoading = false;
   bool _isSaving = false; // Used for logout loading state
   User? _currentUser;
@@ -35,6 +39,7 @@ class _ProfileTabState extends State<ProfileTab> {
   void initState() {
     super.initState();
     _currentUser = AuthStorage.user;
+    _unreadNotificationsCount = _cachedUnreadCount;
 
     // Refresh user profile silently on load to match production APIs
     _refreshProfile();
@@ -45,8 +50,13 @@ class _ProfileTabState extends State<ProfileTab> {
       _isLoading = true;
     });
     try {
-      final response = await ApiService().getProfile();
-      if (response.statusCode == 200 && response.data['success'] == true) {
+      final response = await ApiService().getProfile(etag: _cachedProfileETag);
+      if (response.statusCode == 304) {
+        // Data unchanged
+      } else if (response.statusCode == 200 && response.data['success'] == true) {
+        final newEtag = response.headers.value('etag');
+        if (newEtag != null) _cachedProfileETag = newEtag;
+
         if (mounted) {
           setState(() {
             _currentUser = AuthStorage.user;
@@ -57,19 +67,31 @@ class _ProfileTabState extends State<ProfileTab> {
       // Fail silently
     }
     try {
-      final unreadRes = await ApiService().getUnreadNotificationsCount();
-      if (unreadRes.statusCode == 200 && unreadRes.data['success'] == true) {
+      final unreadRes = await ApiService().getUnreadNotificationsCount(etag: _cachedNotificationsETag);
+      if (unreadRes.statusCode == 304) {
+        // Data unchanged, keep cached count
+        if (mounted) {
+          setState(() {
+            _unreadNotificationsCount = _cachedUnreadCount;
+          });
+        }
+      } else if (unreadRes.statusCode == 200 && unreadRes.data['success'] == true) {
+        final newEtag = unreadRes.headers.value('etag');
+        if (newEtag != null) _cachedNotificationsETag = newEtag;
+
         final countData = unreadRes.data['data'];
         if (countData != null && countData['count'] != null) {
+          _cachedUnreadCount = countData['count'] as int;
           if (mounted) {
             setState(() {
-              _unreadNotificationsCount = countData['count'] as int;
+              _unreadNotificationsCount = _cachedUnreadCount;
             });
           }
         } else if (countData is int) {
+          _cachedUnreadCount = countData;
           if (mounted) {
             setState(() {
-              _unreadNotificationsCount = countData;
+              _unreadNotificationsCount = _cachedUnreadCount;
             });
           }
         }
@@ -517,7 +539,12 @@ class _ProfileTabState extends State<ProfileTab> {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
             child: Text(
               title,
-              style: const TextStyle(color: AppColors.black, fontSize: 16),
+              style: TextStyle(
+                color: AppColors.black,
+                fontSize: Directionality.of(context) == TextDirection.rtl
+                    ? 15
+                    : 14,
+              ),
             ),
           ),
           const Divider(color: Color(0xFFEAEFF2), height: 1),
@@ -609,8 +636,17 @@ class _ProfileTabState extends State<ProfileTab> {
                       ),
                     ),
                     const SizedBox(height: 4),
-                    _currentUser!.email == ""
+                    _currentUser!.phoneNumber == ""
                         ? Text(
+                            textDirection: TextDirection.ltr,
+                            textAlign: TextAlign.start,
+                            _currentUser!.email,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey,
+                            ),
+                          )
+                        : Text(
                             textDirection: TextDirection.ltr,
                             textAlign: TextAlign.start,
                             _currentUser!.phoneNumber != ""
@@ -620,38 +656,11 @@ class _ProfileTabState extends State<ProfileTab> {
                               fontSize: 12,
                               color: Colors.grey,
                             ),
-                          )
-                        : Text(
-                            textDirection: TextDirection.ltr,
-                            textAlign: TextAlign.start,
-                            _currentUser!.email,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Colors.grey,
-                            ),
                           ),
                   ],
                 ),
               ],
             ),
-            // const SizedBox(height: 16),
-            // Row(
-            //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            //   children: [
-            //     _buildInfoCardItem(
-            //       "24",
-            //       AppLocalizations.of(context)!.donations_label,
-            //     ),
-            //     _buildInfoCardItem(
-            //       "8",
-            //       AppLocalizations.of(context)!.mosques_label,
-            //     ),
-            //     _buildInfoCardItem(
-            //       "2.4K",
-            //       AppLocalizations.of(context)!.people_label,
-            //     ),
-            //   ],
-            // ),
           ],
         ),
       ),
@@ -717,7 +726,7 @@ class _ProfileTabState extends State<ProfileTab> {
                     Text(
                       title,
                       style: TextStyle(
-                        fontSize: 14,
+                        fontSize: isRtl(context) ? 15 : 14,
                         color: Colors.black,
                         fontWeight: FontWeight.w400,
                       ),

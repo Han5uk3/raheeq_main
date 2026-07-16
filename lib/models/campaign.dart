@@ -33,7 +33,11 @@ class Campaign {
       descriptionAr: json['descriptionAr'] as String? ?? '',
       image: json['image'] as String? ?? '',
       canSubscribe: json['canSubscribe'] == true,
-      order: (json['order'] as num?)?.toInt() ?? 0,
+      order: json['order'] != null
+          ? (json['order'] is num
+              ? (json['order'] as num).toInt()
+              : int.tryParse(json['order'].toString()) ?? 0)
+          : 0,
       products:
           rawProducts
               ?.map((p) => Product.fromJson(p as Map<String, dynamic>))

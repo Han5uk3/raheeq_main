@@ -1152,7 +1152,49 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
 
                                                   controller: _couponController,
                                                   decoration: InputDecoration(
-                                                    border: InputBorder.none,
+                                                    hintStyle: TextStyle(
+                                                      color: AppColors
+                                                          .buttonBlueDark
+                                                          .withValues(
+                                                            alpha: 0.8,
+                                                          ),
+                                                      fontSize: 12,
+                                                    ),
+                                                    border: OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            12,
+                                                          ),
+                                                      borderSide:
+                                                          const BorderSide(
+                                                            color: AppColors
+                                                                .buttonBlueDark,
+                                                          ),
+                                                    ),
+                                                    enabledBorder: OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            12,
+                                                          ),
+                                                      borderSide:
+                                                          const BorderSide(
+                                                            color: AppColors
+                                                                .buttonBlueDark,
+                                                          ),
+                                                    ),
+                                                    focusedBorder:
+                                                        OutlineInputBorder(
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                12,
+                                                              ),
+                                                          borderSide:
+                                                              const BorderSide(
+                                                                color: AppColors
+                                                                    .buttonBlue,
+                                                                width: 1.5,
+                                                              ),
+                                                        ),
                                                     isDense: true,
                                                     contentPadding:
                                                         const EdgeInsets.symmetric(
@@ -1163,6 +1205,11 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                                         AppLocalizations.of(
                                                           context,
                                                         )!.enter_coupon_code,
+                                                  ),
+                                                  style: const TextStyle(
+                                                    color: AppColors
+                                                        .buttonBlueDark,
+                                                    fontSize: 12,
                                                   ),
                                                 ),
                                               ),

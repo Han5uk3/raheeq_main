@@ -61,7 +61,7 @@ class BottomActionPill extends StatelessWidget {
                     buttonText,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: Colors.black,
+                      color: AppColors.buttonBlueDark,
                     ),
                   ),
           ),

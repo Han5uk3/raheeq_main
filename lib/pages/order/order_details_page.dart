@@ -132,6 +132,9 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
           final specificData = state.categoryItem.specificData;
           if (optionType == 'most_in_need' && specificData is City) {
             item['cityId'] = specificData.id;
+          } else if (slug == 'essential_supplies' &&
+              optionType == 'most_in_need') {
+            item['categorySlug'] = 'mosques_in_need';
           } else {
             item['categorySlug'] = slug;
           }
@@ -334,7 +337,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Text(
-                      AppLocalizations.of(context)!.choose_quantity,
+                      "${AppLocalizations.of(context)!.choose_quantity} (${product.localizedName(isAr)})",
                       style: TextStyle(
                         fontSize: 14,
                         fontWeight: FontWeight.bold,
@@ -398,7 +401,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                           ),
                           const SizedBox(width: 8),
                           Text(
-                            "${sp.quantity}x",
+                            "${sp.quantity}",
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
@@ -440,24 +443,33 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                   onChanged: (val) {
                     sp.notes = val;
                   },
+                  style: TextStyle(
+                    color: AppColors.buttonBlueDark,
+                    fontSize: 12,
+                  ),
                   decoration: InputDecoration(
                     hintText: AppLocalizations.of(
                       context,
                     )!.would_you_like_to_add_a_note_to_the_delivery_agent,
-                    hintStyle: TextStyle(color: Colors.grey[400], fontSize: 13),
-                    filled: true,
-                    fillColor: Colors.grey[50],
+                    hintStyle: TextStyle(
+                      color: AppColors.buttonBlueDark.withValues(alpha: 0.8),
+                      fontSize: 12,
+                    ),
+
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.grey[300]!),
+                      borderSide: BorderSide(color: AppColors.buttonBlueDark),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: Colors.grey[300]!),
+                      borderSide: BorderSide(color: AppColors.buttonBlueDark),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.buttonBlue),
+                      borderSide: const BorderSide(
+                        color: AppColors.buttonBlue,
+                        width: 1.5,
+                      ),
                     ),
                   ),
                 ),
@@ -536,6 +548,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                 ),
               ),
               buttonText: AppLocalizations.of(context)!.continue_btn,
+
               onButtonTap: () {
                 FocusManager.instance.primaryFocus?.unfocus();
                 final hasChiller = _uniqueProducts.any(
@@ -605,10 +618,13 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                                 child: Container(
                                   height: 50,
                                   decoration: BoxDecoration(
-                                    color: Colors.white,
+                                    color: const Color(0xFFE5E9EC),
                                     borderRadius: BorderRadius.circular(25),
                                   ),
                                   child: TabBar(
+                                    splashBorderRadius: BorderRadius.circular(
+                                      25,
+                                    ),
                                     isScrollable: _uniqueProducts.length > 3,
                                     dividerColor: Colors.transparent,
                                     dividerHeight: 0,

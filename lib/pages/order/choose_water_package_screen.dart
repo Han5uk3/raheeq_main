@@ -195,7 +195,6 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
   Widget build(BuildContext context) {
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
     final title = AppLocalizations.of(context)!.choose_water_package;
-    final subtitle = AppLocalizations.of(context)!.choose_water_package_desc;
 
     final slots = _slots;
 
@@ -256,10 +255,6 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
                         color: Colors.black,
                       ),
                     ),
-                    Text(
-                      subtitle,
-                      style: const TextStyle(fontSize: 12, color: Colors.grey),
-                    ),
                   ],
                 ),
               ],
@@ -290,10 +285,10 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
                   final isSelected = _isSlotSelected(slot);
 
                   return Padding(
-                    padding: EdgeInsets.only(
+                    padding: EdgeInsetsDirectional.only(
                       bottom: 10,
-                      left: index == 0 ? 16.0 : 2.0,
-                      right: index == slots.length - 1 ? 16.0 : 2.0,
+                      start: index == 0 ? 16.0 : 2.0,
+                      end: index == slots.length - 1 ? 16.0 : 2.0,
                     ),
                     child: Align(
                       alignment: Alignment.topCenter,

@@ -4,7 +4,7 @@ import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
-import 'package:freshchat_sdk/freshchat_sdk.dart';
+import 'package:raheeq_main/services/freshchat_service.dart';
 import 'package:raheeq_main/pages/home/pages/suggestions_page.dart';
 import 'package:raheeq_main/pages/home/pages/complaints_page.dart';
 
@@ -130,7 +130,8 @@ class _ContactUsPageState extends State<ContactUsPage> {
                             "Attempting to open Freshchat conversations with tags: ['chat_with_us'] and title: 'Rahiq Support'",
                             name: "FreshchatService",
                           );
-                          Freshchat.showConversations(
+                          FreshchatService.showConversations(
+                            context,
                             tags: const ["chat_with_us"],
                             filteredViewTitle: "Rahiq Support",
                           );

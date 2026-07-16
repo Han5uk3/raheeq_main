@@ -255,13 +255,32 @@ class _ProductSelectionPageState extends State<ProductSelectionPage> {
               const SizedBox(height: 16),
               TextField(
                 cursorColor: AppColors.buttonBlueDark,
-
+                style: const TextStyle(
+                  color: AppColors.buttonBlueDark,
+                  fontSize: 12,
+                ),
                 controller: TextEditingController(text: notes)
                   ..selection = TextSelection.collapsed(offset: notes.length),
                 decoration: InputDecoration(
                   labelText: AppLocalizations.of(context)!.notes_optional,
+                  hintStyle: TextStyle(
+                    color: AppColors.buttonBlueDark.withValues(alpha: 0.8),
+                    fontSize: 12,
+                  ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.buttonBlueDark),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.buttonBlueDark),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(
+                      color: AppColors.buttonBlue,
+                      width: 1.5,
+                    ),
                   ),
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 16,
@@ -288,11 +307,33 @@ class _ProductSelectionPageState extends State<ProductSelectionPage> {
           title: Text(AppLocalizations.of(context)!.enter_quantity_204),
           content: TextField(
             cursorColor: AppColors.buttonBlueDark,
-
+            style: const TextStyle(
+              color: AppColors.buttonBlueDark,
+              fontSize: 12,
+            ),
             controller: controller,
             keyboardType: TextInputType.number,
             decoration: InputDecoration(
               hintText: AppLocalizations.of(context)!.example_quantity,
+              hintStyle: TextStyle(
+                color: AppColors.buttonBlueDark.withValues(alpha: 0.8),
+                fontSize: 12,
+              ),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppColors.buttonBlueDark),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: AppColors.buttonBlueDark),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(
+                  color: AppColors.buttonBlue,
+                  width: 1.5,
+                ),
+              ),
             ),
           ),
           actions: [

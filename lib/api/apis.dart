@@ -416,9 +416,15 @@ class ApiService {
   }
 
   /// Get current user profile data
-  Future<Response> getProfile() async {
+  Future<Response> getProfile({String? etag}) async {
     try {
-      final response = await _dio.get('/me');
+      final options = Options(
+        validateStatus: (status) => status != null && status < 400,
+      );
+      if (etag != null && etag.isNotEmpty) {
+        options.headers = {'If-None-Match': etag};
+      }
+      final response = await _dio.get('/me', options: options);
 
       if (response.statusCode == 200 && response.data['success'] == true) {
         final resData = response.data['data'];
@@ -486,9 +492,15 @@ class ApiService {
   }
 
   /// Get Home page data
-  Future<Response> getHome() async {
+  Future<Response> getHome({String? etag}) async {
     try {
-      final response = await _dio.get('/home');
+      final options = Options(
+        validateStatus: (status) => status != null && status < 400,
+      );
+      if (etag != null && etag.isNotEmpty) {
+        options.headers = {'If-None-Match': etag};
+      }
+      final response = await _dio.get('/home', options: options);
       return response;
     } catch (e) {
       rethrow;
@@ -598,11 +610,18 @@ class ApiService {
   }
 
   /// Get Cities data
-  Future<Response> getCities({bool showSnackbar = false}) async {
+  Future<Response> getCities({bool showSnackbar = false, String? etag}) async {
     try {
+      final options = Options(
+        extra: {'show_snackbar': showSnackbar},
+        validateStatus: (status) => status != null && status < 400,
+      );
+      if (etag != null && etag.isNotEmpty) {
+        options.headers = {'If-None-Match': etag};
+      }
       final response = await _dio.get(
         '/geography/cities',
-        options: Options(extra: {'show_snackbar': showSnackbar}),
+        options: options,
       );
       return response;
     } catch (e) {
@@ -935,11 +954,19 @@ class ApiService {
   /// Get Unread Notifications Count
   Future<Response> getUnreadNotificationsCount({
     bool showSnackbar = false,
+    String? etag,
   }) async {
     try {
+      final options = Options(
+        extra: {'show_snackbar': showSnackbar},
+        validateStatus: (status) => status != null && status < 400,
+      );
+      if (etag != null && etag.isNotEmpty) {
+        options.headers = {'If-None-Match': etag};
+      }
       final response = await _dio.get(
         '/notifications/unread-count',
-        options: Options(extra: {'show_snackbar': showSnackbar}),
+        options: options,
       );
       return response;
     } catch (e) {
@@ -1155,11 +1182,18 @@ class ApiService {
   }
 
   /// Get Impact data
-  Future<Response> getImpact({bool showSnackbar = false}) async {
+  Future<Response> getImpact({bool showSnackbar = false, String? etag}) async {
     try {
+      final options = Options(
+        extra: {'show_snackbar': showSnackbar},
+        validateStatus: (status) => status != null && status < 400,
+      );
+      if (etag != null && etag.isNotEmpty) {
+        options.headers = {'If-None-Match': etag};
+      }
       final response = await _dio.get(
         '/me/impact',
-        options: Options(extra: {'show_snackbar': showSnackbar}),
+        options: options,
       );
       return response;
     } catch (e) {

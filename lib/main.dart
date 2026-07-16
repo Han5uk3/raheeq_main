@@ -18,6 +18,7 @@ import 'package:raheeq_main/services/freshchat_service.dart';
 import 'package:raheeq_main/services/deep_link_service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:raheeq_main/utils/colors.dart';
 
 final ValueNotifier<Locale> localeNotifier = ValueNotifier(const Locale('en'));
 
@@ -47,7 +48,6 @@ Future<void> _initDependencies() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   await Permission.notification.request();
-
 
   // Initialize notification service
   await NotificationService().init();
@@ -130,15 +130,18 @@ class MainApp extends StatelessWidget {
                   foregroundColor: Colors.white,
                   elevation: 0,
                 ),
+                textSelectionTheme: TextSelectionThemeData(
+                  cursorColor: AppColors.buttonBlueDark,
+                  selectionHandleColor: AppColors.buttonBlueDark,
+                  selectionColor: AppColors.buttonBlueDark.withOpacity(0.3),
+                ),
                 useMaterial3: true,
               );
               return theme;
             }(),
             debugShowCheckedModeBanner: false,
             initialRoute: '/',
-            routes: {
-              '/': (_) => const SplashScreen(),
-            },
+            routes: {'/': (_) => const SplashScreen()},
           ),
         );
       },

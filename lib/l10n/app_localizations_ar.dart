@@ -296,9 +296,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get redirecting_terms => 'جارٍ التحويل إلى الشروط والأحكام...';
 
   @override
-  String get donations_label => 'التبرعات';
-
-  @override
   String get mosques_label => 'المساجد';
 
   @override
@@ -346,7 +343,7 @@ class AppLocalizationsAr extends AppLocalizations {
       'ادعم مرة واحدة أو اصنع أثراً مستداماً';
 
   @override
-  String get choose_donation_type => 'اختر نوع التبرع';
+  String get choose_donation_type => 'اختر وجهة الطلب';
 
   @override
   String get payable_amount => 'المبلغ المستحق';
@@ -362,7 +359,7 @@ class AppLocalizationsAr extends AppLocalizations {
       'أو أدخل كمية مخصصة (الأدنى. \$min)';
 
   @override
-  String get select_your_impact => 'اختر تأثيرك';
+  String get select_your_impact => 'ساهم بأثرٍ يبقى';
 
   @override
   String get select_a_product_to_continue => 'اختر منتجاً للمتابعة';
@@ -428,7 +425,8 @@ class AppLocalizationsAr extends AppLocalizations {
   String get essential_mosque_supplies => 'مستلزمات المساجد الأساسية';
 
   @override
-  String get choose_your_cause_and_make_an_impact => 'اختر قضيتك واصنع فرقاً';
+  String get choose_your_cause_and_make_an_impact =>
+      'حدد الجهة التي ترغب في إيصال الماء إليها :';
 
   @override
   String get quick_actions => 'أعمال سريعة';
@@ -567,7 +565,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get clear_selection => 'إزالة التحديد';
 
   @override
-  String get choose_donation_type_108 => 'اختر نوع التبرع';
+  String get choose_donation_type_108 => 'اختر نوع الطلب';
 
   @override
   String get specific => 'تحديد';
@@ -583,7 +581,7 @@ class AppLocalizationsAr extends AppLocalizations {
       'اختر باقة المياه التي تناسبك';
 
   @override
-  String get choose_water_package => 'اختر باقة المياه';
+  String get choose_water_package => 'اختر مايحتاجه المسجد';
 
   @override
   String get free => 'مجانًا';
@@ -1314,7 +1312,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get twice_a_week => 'مرتين في الأسبوع';
 
   @override
+  String get account => 'الحساب';
+
+  @override
   String get status_active => 'نشط';
+
+  @override
+  String get mosques => 'المساجد';
 
   @override
   String get reorder => 'أعد الطلب';
