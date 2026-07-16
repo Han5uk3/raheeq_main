@@ -161,7 +161,7 @@ class _CustomerReviewsPageState extends State<CustomerReviewsPage> {
                           fit: BoxFit.contain,
                           errorWidget: (context, url, error) => const Icon(
                             Icons.water_drop,
-                            color: AppColors.buttonBlue,
+                            color: AppColors.buttonBlueDark,
                           ),
                         ),
                       ),
@@ -192,64 +192,64 @@ class _CustomerReviewsPageState extends State<CustomerReviewsPage> {
     final title = AppLocalizations.of(context)!.customer_reviews;
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(
-            child: CustomAppBar(
-              hasBackgroundColor: true,
-              isStartAligned: true,
-              title: title,
-              showBackButton: true,
-              onBackTap: () => Navigator.pop(context),
-            ),
+      backgroundColor: AppColors.buttonBlueDark,
+      body: Column(
+        children: [
+          CustomAppBar(
+            hasBackgroundColor: true,
+            isStartAligned: true,
+            title: title,
+            showBackButton: true,
+            onBackTap: () => Navigator.pop(context),
           ),
-          SliverFillRemaining(
-            hasScrollBody: true,
-            child: Container(
-              color: AppColors.buttonBlueDark,
+          Expanded(
+            child: Transform.translate(
+              offset: const Offset(0, -1),
               child: Container(
-                decoration: const BoxDecoration(
-                  color: Color(0xFFF8FAFB),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(30),
+                color: AppColors.buttonBlueDark,
+                child: Container(
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFF8FAFB),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30),
+                    ),
                   ),
-                ),
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 500),
-                  layoutBuilder: (currentChild, previousChildren) {
-                    return Stack(
-                      alignment: Alignment.topCenter,
-                      children: <Widget>[...previousChildren, ?currentChild],
-                    );
-                  },
-                  child: _isLoading
-                      ? _buildShimmerLoading()
-                      : _reviews.isEmpty
-                      ? Center(
-                          key: const ValueKey('empty'),
-                          child: Text(
-                            AppLocalizations.of(context)!.no_reviews_found,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey,
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 500),
+                    layoutBuilder: (currentChild, previousChildren) {
+                      return Stack(
+                        alignment: Alignment.topCenter,
+                        children: <Widget>[...previousChildren, ?currentChild],
+                      );
+                    },
+                    child: _isLoading
+                        ? _buildShimmerLoading()
+                        : _reviews.isEmpty
+                        ? Center(
+                            key: const ValueKey('empty'),
+                            child: Text(
+                              AppLocalizations.of(context)!.no_reviews_found,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey,
+                              ),
                             ),
+                          )
+                        : ListView.builder(
+                            key: const ValueKey('content'),
+                            physics: const ClampingScrollPhysics(),
+                            padding: const EdgeInsets.all(24),
+                            itemCount: _reviews.length,
+                            itemBuilder: (context, index) {
+                              return _buildReviewCard(
+                                context,
+                                _reviews[index],
+                                isAr,
+                              );
+                            },
                           ),
-                        )
-                      : ListView.builder(
-                          key: const ValueKey('content'),
-                          physics: const ClampingScrollPhysics(),
-                          padding: const EdgeInsets.all(24),
-                          itemCount: _reviews.length,
-                          itemBuilder: (context, index) {
-                            return _buildReviewCard(
-                              context,
-                              _reviews[index],
-                              isAr,
-                            );
-                          },
-                        ),
+                  ),
                 ),
               ),
             ),

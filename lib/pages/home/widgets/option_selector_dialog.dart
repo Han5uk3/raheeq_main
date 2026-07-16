@@ -35,7 +35,6 @@ class _OptionSelectorDialogState extends State<OptionSelectorDialog> {
     final mostNeedyLabel = AppLocalizations.of(context)!.most_needy;
     final specificLabel = AppLocalizations.of(context)!.specific_donation;
     final titleText = AppLocalizations.of(context)!.choose_donation_type;
-    final continueText = AppLocalizations.of(context)!.continue_btn;
 
     return Dialog(
       backgroundColor: Colors.white,
@@ -103,79 +102,22 @@ class _OptionSelectorDialogState extends State<OptionSelectorDialog> {
                 ),
               ],
             ),
-            const SizedBox(height: 24),
-
             if (widget.showClearOption) ...[
-              Row(
-                children: [
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).pop('clear');
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.redAccent,
-                        foregroundColor: Colors.white,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                      ),
-                      child: Text(
-                        AppLocalizations.of(context)!.clear_all,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: ElevatedButton(
-                      onPressed: _selectedOption == null
-                          ? null
-                          : () {
-                              Navigator.of(context).pop(_selectedOption);
-                            },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: AppColors.buttonBlueDark,
-                        foregroundColor: Colors.white,
-                        disabledBackgroundColor: Colors.grey.shade300,
-                        padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(30),
-                        ),
-                      ),
-                      child: Text(
-                        continueText,
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ] else ...[
+              const SizedBox(height: 24),
               ElevatedButton(
-                onPressed: _selectedOption == null
-                    ? null
-                    : () {
-                        Navigator.of(context).pop(_selectedOption);
-                      },
+                onPressed: () {
+                  Navigator.of(context).pop('clear');
+                },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.buttonBlueDark,
+                  backgroundColor: Colors.redAccent,
                   foregroundColor: Colors.white,
-                  disabledBackgroundColor: Colors.grey.shade300,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),
                 ),
                 child: Text(
-                  continueText,
+                  AppLocalizations.of(context)!.clear_all,
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
@@ -199,9 +141,7 @@ class _OptionSelectorDialogState extends State<OptionSelectorDialog> {
   }) {
     return GestureDetector(
       onTap: () {
-        setState(() {
-          _selectedOption = id;
-        });
+        Navigator.of(context).pop(id);
       },
       child: Stack(
         clipBehavior: Clip.none,

@@ -123,96 +123,98 @@ class _MyChillersPageState extends State<MyChillersPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: CustomScrollView(
-        slivers: [
-          SliverToBoxAdapter(
-            child: CustomAppBar(
-              hasBackgroundColor: true,
-              isStartAligned: true,
-              title: AppLocalizations.of(context)!.my_chillers,
-              subtitle: AppLocalizations.of(context)!.my_chillers_subtitle,
-              showBackButton: true,
-              onBackTap: () => Navigator.pop(context),
-            ),
+      backgroundColor: AppColors.buttonBlueDark,
+      body: Column(
+        children: [
+          CustomAppBar(
+            hasBackgroundColor: true,
+            isStartAligned: true,
+            title: AppLocalizations.of(context)!.my_chillers,
+            subtitle: AppLocalizations.of(context)!.my_chillers_subtitle,
+            showBackButton: true,
+            onBackTap: () => Navigator.pop(context),
           ),
-          SliverFillRemaining(
-            hasScrollBody: true,
-            child: Container(
-              color: AppColors.buttonBlueDark,
+          Expanded(
+            child: Transform.translate(
+              offset: const Offset(0, -1),
               child: Container(
-                decoration: const BoxDecoration(
-                  color: Color(0xFFF8FAFB),
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(30),
+                color: AppColors.buttonBlueDark,
+                child: Container(
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFF8FAFB),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30),
+                    ),
                   ),
-                ),
-                child: AnimatedSwitcher(
-                  duration: const Duration(milliseconds: 500),
-                  layoutBuilder: (currentChild, previousChildren) {
-                    return Stack(
-                      alignment: Alignment.topCenter,
-                      children: <Widget>[...previousChildren, ?currentChild],
-                    );
-                  },
-                  child: _isLoading
-                      ? _buildShimmerLoading()
-                      : _chillers.isEmpty
-                      ? Center(
-                          key: const ValueKey('empty'),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                AppLocalizations.of(context)!.no_chillers_found,
-                                style: const TextStyle(
-                                  color: Colors.grey,
-                                  fontSize: 16,
-                                ),
-                              ),
-                              const SizedBox(height: 16),
-                              ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.buttonBlueDark,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(20),
-                                  ),
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 24,
-                                    vertical: 12,
-                                  ),
-                                ),
-                                onPressed: () {
-                                  Navigator.of(
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 500),
+                    layoutBuilder: (currentChild, previousChildren) {
+                      return Stack(
+                        alignment: Alignment.topCenter,
+                        children: <Widget>[...previousChildren, ?currentChild],
+                      );
+                    },
+                    child: _isLoading
+                        ? _buildShimmerLoading()
+                        : _chillers.isEmpty
+                        ? Center(
+                            key: const ValueKey('empty'),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  AppLocalizations.of(
                                     context,
-                                  ).popUntil((route) => route.isFirst);
-                                  HomeScreen.switchTabNotifier.value = 0;
-                                },
-                                child: Text(
-                                  AppLocalizations.of(context)!.order_now,
+                                  )!.no_chillers_found,
                                   style: const TextStyle(
-                                    color: Colors.white,
-                                    fontWeight: FontWeight.bold,
+                                    color: Colors.grey,
+                                    fontSize: 16,
                                   ),
                                 ),
-                              ),
-                            ],
+                                const SizedBox(height: 16),
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.buttonBlueDark,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(20),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 24,
+                                      vertical: 12,
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    Navigator.of(
+                                      context,
+                                    ).popUntil((route) => route.isFirst);
+                                    HomeScreen.switchTabNotifier.value = 0;
+                                  },
+                                  child: Text(
+                                    AppLocalizations.of(context)!.order_now,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          )
+                        : ListView.builder(
+                            key: const ValueKey('content'),
+                            physics: const ClampingScrollPhysics(),
+                            padding: const EdgeInsets.all(24),
+                            itemCount: _chillers.length,
+                            itemBuilder: (context, index) {
+                              final chiller = _chillers[index];
+                              return Padding(
+                                padding: const EdgeInsets.only(bottom: 16),
+                                child: _buildChillerItem(chiller),
+                              );
+                            },
                           ),
-                        )
-                      : ListView.builder(
-                          key: const ValueKey('content'),
-                          physics: const ClampingScrollPhysics(),
-                          padding: const EdgeInsets.all(24),
-                          itemCount: _chillers.length,
-                          itemBuilder: (context, index) {
-                            final chiller = _chillers[index];
-                            return Padding(
-                              padding: const EdgeInsets.only(bottom: 16),
-                              child: _buildChillerItem(chiller),
-                            );
-                          },
-                        ),
+                  ),
                 ),
               ),
             ),

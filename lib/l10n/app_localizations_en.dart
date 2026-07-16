@@ -392,6 +392,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get we => 'We';
 
   @override
+  String get kilometer => 'Km';
+
+  @override
+  String get meter => 'm';
+
+  @override
   String get coming_soon => 'Coming Soon...';
 
   @override
@@ -426,14 +432,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get essential_mosque_supplies => 'Essential Mosque Supplies';
 
   @override
-  String get choose_your_cause_and_make_an_impact =>
-      'Choose the destination you want to deliver to :';
+  String get choose_where_to_give_and_create_a_lasting_impact =>
+      'Choose where to give and create a lasting impact.';
 
   @override
-  String get quick_actions => 'Quick Actions';
+  String get giving_opportunities => 'Giving Opportunities';
 
   @override
-  String get donate_now => 'Donate Now   ';
+  String get donate_now => 'Donate Now';
 
   @override
   String get subscribe => 'Subscribe';
@@ -1427,6 +1433,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get failed_to_submit_review => 'Failed to submit review';
 
   @override
+  String get failed_to_load_orders_page => 'Failed to load orders page';
+
+  @override
   String get no_chillers_found => 'No chillers found';
 
   @override
@@ -1489,4 +1498,12 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get internet_error =>
       'Internet error. Please check your internet connection';
+
+  @override
+  String distanceAway(String distance) {
+    return '$distance km away from you';
+  }
+
+  @override
+  String get product => 'Product';
 }

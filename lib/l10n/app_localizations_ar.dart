@@ -51,7 +51,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get start_donating => 'ابدأ التبرع';
 
   @override
-  String get new_to_donate => 'جديد في التبرع؟';
+  String get new_to_donate => 'جديد في الطلب؟';
 
   @override
   String get terms_agree_prefix => 'بالمتابعة، فإنك توافق على ';
@@ -119,7 +119,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get saved_mosques => 'المساجد المحفوظة';
 
   @override
-  String get recurring_donations => 'التبرعات المتكررة';
+  String get recurring_donations => 'الطلبات المتكررة';
 
   @override
   String get tax_receipts => 'الإيصالات الضريبية';
@@ -244,7 +244,7 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
-  String get track_your_donations => 'تتبع تبرعاتك';
+  String get track_your_donations => 'تتبع طلباتك';
 
   @override
   String get manage_account_settings => 'إدارة إعدادات حسابك';
@@ -333,7 +333,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get monthly => 'شهري';
 
   @override
-  String get single_donation => 'تبرع لمرة واحدة';
+  String get single_donation => 'طلب لمرة واحدة';
 
   @override
   String get one_time => 'مرة واحدة';
@@ -392,6 +392,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get we => 'نعمل على تجهيز إحصائيات تأثيرك.';
 
   @override
+  String get kilometer => 'كيلومتر';
+
+  @override
+  String get meter => 'متر';
+
+  @override
   String get coming_soon => 'قريباً...';
 
   @override
@@ -401,13 +407,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get view_status_and_delivery_details => 'عرض الحالة وتفاصيل التسليم.';
 
   @override
-  String get recent_donations => 'التبرعات الأخيرة';
+  String get recent_donations => 'الطلبات الأخيرة';
 
   @override
   String get products_overview => 'نظرة عامة على المنتجات';
 
   @override
-  String get donations_overview => 'نظرة عامة على التبرعات';
+  String get donations_overview => 'نظرة عامة على الطلبات';
 
   @override
   String get orphanages_helped => 'دور الأيتام المدعومة';
@@ -425,11 +431,11 @@ class AppLocalizationsAr extends AppLocalizations {
   String get essential_mosque_supplies => 'مستلزمات المساجد الأساسية';
 
   @override
-  String get choose_your_cause_and_make_an_impact =>
-      'حدد الجهة التي ترغب في إيصال الماء إليها :';
+  String get choose_where_to_give_and_create_a_lasting_impact =>
+      'اختر وجهة عطائك واصنع أثراً يدوم';
 
   @override
-  String get quick_actions => 'أعمال سريعة';
+  String get giving_opportunities => 'فرص العطاء';
 
   @override
   String get donate_now => 'اطلب الان';
@@ -627,7 +633,7 @@ class AppLocalizationsAr extends AppLocalizations {
       'هل ترغب في إهداء شخص قريب منك؟';
 
   @override
-  String get donation_type => 'نوع التبرع';
+  String get donation_type => 'نوع الطلب';
 
   @override
   String get final_review_and_payment => 'مراجعة نهائية ودفع';
@@ -802,7 +808,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get thank_you_for_your_donation =>
-      'شكراً لتبرعك. جعله الله في ميزان حسناتك.';
+      'شكراً لطلبك. جعله الله في ميزان حسناتك.';
 
   @override
   String get payment_successful => 'تم الدفع بنجاح!';
@@ -878,7 +884,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get select_date => 'اختر التاريخ';
 
   @override
-  String get recurring_donation => 'تبرع شهري متكرر';
+  String get recurring_donation => 'طلب شهري متكرر';
 
   @override
   String get too_many_attempts =>
@@ -1023,10 +1029,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get see_the_difference => 'شاهد الفرق الذي صنعته';
 
   @override
-  String get total_donations => 'إجمالي التبرعات';
+  String get total_donations => 'إجمالي الطلبات';
 
   @override
-  String get products_donated => 'المنتجات المتبرع بها';
+  String get products_donated => ' المنتجات المدعومة ';
 
   @override
   String get total_given => 'إجمالي المبالغ';
@@ -1038,10 +1044,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String get view_all => 'عرض الكل';
 
   @override
-  String get items_donated => 'منتج تم التبرع به';
+  String get items_donated => 'منتج تم الطلب به';
 
   @override
-  String get current_donation_streak => 'سلسلة التبرعات الحالية 🔥';
+  String get current_donation_streak => 'سلسلة الطلبات الحالية 🔥';
 
   @override
   String get no_impact_data_found => 'لا توجد بيانات للأثر';
@@ -1142,7 +1148,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get view_receipt => 'عرض الإيصال';
 
   @override
-  String get one_time_donation => 'تبرع لمرة واحدة';
+  String get one_time_donation => 'طلب لمرة واحدة';
 
   @override
   String get error_occurred_try_again => 'حدث خطأ. حاول مرة أخرى';
@@ -1291,7 +1297,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get how_was_your_experience => 'كيف كانت تجربتك؟';
 
   @override
-  String get track_donation => 'تتبع التبرع';
+  String get track_donation => 'تتبع الطلب';
 
   @override
   String get since => 'منذ ';
@@ -1418,6 +1424,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get failed_to_submit_review => 'فشل في إرسال التقييم';
 
   @override
+  String get failed_to_load_orders_page => 'فشل في تحميل صفحة الطلبات.';
+
+  @override
   String get no_chillers_found => 'لم يتم العثور على مبردات';
 
   @override
@@ -1478,4 +1487,12 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get internet_error =>
       'خطأ في الإنترنت. يرجى التحقق من اتصال الإنترنت الخاص بك';
+
+  @override
+  String distanceAway(String distance) {
+    return 'يبعد عنك $distance كم';
+  }
+
+  @override
+  String get product => 'المنتج';
 }

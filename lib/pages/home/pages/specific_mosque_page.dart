@@ -1,13 +1,14 @@
 import 'dart:developer';
 
+import 'package:raheeq_main/pages/home/widgets/mosque_card.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:raheeq_main/storage/app_storage.dart';
 import '../../../api/apis.dart';
 import '../../../models/mosque.dart';
 import '../../../models/meqat_mosque.dart';
@@ -121,8 +122,9 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
         response = await _apiService.getMosques(
           page: 1,
           limit: 1000,
-          latitude: _currentUserPosition?.latitude,
-          longitude: _currentUserPosition?.longitude,
+          latitude: _currentUserPosition?.latitude ?? AppStorage.userLatitude,
+          longitude:
+              _currentUserPosition?.longitude ?? AppStorage.userLongitude,
         );
       }
 
@@ -265,8 +267,9 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
         response = await _apiService.getMosques(
           page: _currentPage,
           limit: 1000,
-          latitude: _currentUserPosition?.latitude,
-          longitude: _currentUserPosition?.longitude,
+          latitude: _currentUserPosition?.latitude ?? AppStorage.userLatitude,
+          longitude:
+              _currentUserPosition?.longitude ?? AppStorage.userLongitude,
         );
       }
 
@@ -356,7 +359,7 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
     }
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.buttonBlueDark,
       body: Column(
         children: [
           CustomAppBar(
@@ -368,45 +371,81 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
             onBackTap: () => Navigator.pop(context),
           ),
           Expanded(
-            child: Column(
-              children: [
-                Container(
-                  color: AppColors.buttonBlueDark,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(30),
-                        topRight: Radius.circular(30),
-                      ),
-                    ),
-                    child: Padding(
+            child: Container(
+              color: AppColors.buttonBlueDark,
+              child: Material(
+                color: Colors.white,
+                borderRadius: const BorderRadius.only(
+                  topLeft: Radius.circular(30),
+                  topRight: Radius.circular(30),
+                ),
+                clipBehavior: Clip.antiAlias,
+                child: Column(
+                  children: [
+                    Padding(
                       padding: const EdgeInsets.all(16),
                       child: _buildDynamicHeader(isAr),
                     ),
-                  ),
-                ),
-                TabBar(
-                  controller: _tabController,
-                  labelColor: AppColors.buttonBlueDark,
-                  unselectedLabelColor: Colors.grey,
-                  indicatorColor: AppColors.buttonBlueDark,
-                  indicatorSize: TabBarIndicatorSize.label,
-                  tabs: [
-                    Tab(text: listTabText),
-                    Tab(text: AppLocalizations.of(context)!.choose_from_map),
+                    Padding(
+                      padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
+                      child: Material(
+                        color: const Color(0xFFE5E9EC),
+                        borderRadius: BorderRadius.circular(25),
+                        clipBehavior: Clip.antiAlias,
+                        child: SizedBox(
+                          height: 50,
+                          child: TabBar(
+                            splashFactory: NoSplash.splashFactory,
+                            overlayColor: WidgetStateProperty.all(
+                              Colors.transparent,
+                            ),
+                            dividerHeight: 0,
+                            dividerColor: Colors.transparent,
+                            controller: _tabController,
+                            labelColor: Colors.white,
+                            unselectedLabelColor: AppColors.buttonBlueDark,
+                            indicatorSize: TabBarIndicatorSize.tab,
+                            indicator: BoxDecoration(
+                              borderRadius: BorderRadius.circular(25),
+                              color: AppColors.buttonBlueDark,
+                            ),
+                            labelStyle: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                            ),
+                            tabs: [
+                              Tab(text: listTabText),
+                              Tab(
+                                text: AppLocalizations.of(
+                                  context,
+                                )!.choose_from_map,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    Expanded(
+                      child: _isLoading
+                          ? _buildShimmerLoading()
+                          : Stack(
+                              children: [
+                                // The Map is always mounted and rendered underneath to prevent PlatformView from clearing its buffers
+                                _buildMapTab(isAr),
+                                // The List tab is overlaid on top of the Map when active, with an opaque background
+                                if (_tabController.index == 0)
+                                  Container(
+                                    color: Colors.white,
+                                    width: double.infinity,
+                                    height: double.infinity,
+                                    child: _buildListTab(isAr),
+                                  ),
+                              ],
+                            ),
+                    ),
                   ],
                 ),
-                Expanded(
-                  child: _isLoading
-                      ? _buildShimmerLoading()
-                      : TabBarView(
-                          controller: _tabController,
-                          physics: const NeverScrollableScrollPhysics(),
-                          children: [_buildListTab(isAr), _buildMapTab(isAr)],
-                        ),
-                ),
-              ],
+              ),
             ),
           ),
           if (_selectedItemsList.isNotEmpty) _buildBottomBar(isAr),
@@ -436,7 +475,9 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
       return null;
     }
 
-    return await Geolocator.getCurrentPosition();
+    final position = await Geolocator.getCurrentPosition();
+    await AppStorage.saveUserLocation(position.latitude, position.longitude);
+    return position;
   }
 
   Future<void> _getUserLocationAndMoveCamera() async {
@@ -453,16 +494,11 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
 
   Widget _buildDynamicHeader(bool isAr) {
     if (_tabController.index == 0) {
-      return Container(
+      return SizedBox(
         height: 50,
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(15),
-          border: Border.all(color: AppColors.indicatorGrey),
-        ),
         child: TextField(
           cursorColor: AppColors.buttonBlueDark,
-          style: const TextStyle(color: AppColors.buttonBlueDark, fontSize: 12),
+          style: const TextStyle(color: AppColors.buttonBlueDark, fontSize: 14),
           controller: _searchController,
           decoration: InputDecoration(
             hintText: widget.slug == 'orphanages'
@@ -472,47 +508,51 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
                 : (AppLocalizations.of(context)!.search_mosques),
             hintStyle: TextStyle(
               color: AppColors.buttonBlueDark.withValues(alpha: 0.8),
-              fontSize: 12,
+              fontSize: 14,
             ),
-            prefixIcon: const Icon(Icons.search, color: Colors.grey),
+            prefixIcon: const Icon(
+              Icons.search,
+              color: AppColors.buttonBlueDark,
+            ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
               borderSide: const BorderSide(color: AppColors.buttonBlueDark),
             ),
             enabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
               borderSide: const BorderSide(color: AppColors.buttonBlueDark),
             ),
             focusedBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(16),
               borderSide: const BorderSide(
-                color: AppColors.buttonBlue,
+                color: AppColors.buttonBlueDark,
                 width: 1.5,
               ),
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              horizontal: 16,
-              vertical: 14,
             ),
           ),
         ),
       );
     } else {
       return Container(
+        height: 50,
         padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(15),
-          border: Border.all(color: AppColors.indicatorGrey),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: AppColors.buttonBlueDark),
         ),
         child: DropdownButtonHideUnderline(
           child: DropdownButton<Map<String, dynamic>>(
             isExpanded: true,
             dropdownColor: Colors.white,
-            borderRadius: BorderRadius.circular(15),
+            borderRadius: BorderRadius.circular(16),
+            icon: const Icon(
+              Icons.arrow_drop_down,
+              color: AppColors.buttonBlueDark,
+            ),
             hint: Text(
               AppLocalizations.of(context)!.select_city,
-              style: TextStyle(color: Colors.grey[400], fontSize: 14),
+              style: TextStyle(color: AppColors.buttonBlueDark, fontSize: 14),
             ),
             value: _selectedCity,
             items: _cityFilters.map((city) {
@@ -520,7 +560,10 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
                 value: city,
                 child: Text(
                   isAr ? city['nameAr'] : city['name'],
-                  style: const TextStyle(fontSize: 14),
+                  style: TextStyle(
+                    color: AppColors.buttonBlueDark,
+                    fontSize: 14,
+                  ),
                 ),
               );
             }).toList(),
@@ -558,17 +601,15 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
     return ListView.separated(
       controller: _scrollController,
       physics: const ClampingScrollPhysics(),
-      padding: const EdgeInsets.all(16),
-      itemCount: _filteredItems.length + (_isLoadingMore ? 1 : 0),
-      separatorBuilder: (context, index) =>
-          const Divider(height: 16, color: Colors.transparent),
+      padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+      itemCount: _filteredItems.length + (_isLoadingMore ? 3 : 0),
+      separatorBuilder: (context, index) => const SizedBox(height: 4),
       itemBuilder: (context, index) {
-        if (index == _filteredItems.length) {
-          return const Center(
-            child: Padding(
-              padding: EdgeInsets.all(8.0),
-              child: WaterLoadingIndicator(size: 30),
-            ),
+        if (index >= _filteredItems.length) {
+          return Shimmer.fromColors(
+            baseColor: Colors.grey[300]!,
+            highlightColor: Colors.grey[100]!,
+            child: _buildShimmerItem(),
           );
         }
         final item = _filteredItems[index];
@@ -582,186 +623,28 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
         }
 
         final isSelected = _selectedItemsList.any((m) => m.id == item.id);
-        return Stack(
-          children: [
-            Card(
-              clipBehavior: Clip.antiAlias,
-              color: isSelected ? const Color(0xFFE8F4FA) : Colors.white,
-              elevation: isSelected ? 5 : 3,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
-                side: BorderSide(
-                  color: isSelected ? AppColors.buttonBlue : Colors.transparent,
-                  width: 2,
-                ),
-              ),
-              child: InkWell(
-                onTap: () {
-                  setState(() {
-                    if (_selectedItemsList.any((m) => m.id == item.id)) {
-                      _selectedItemsList.removeWhere((m) => m.id == item.id);
-                    } else {
-                      _selectedItemsList.add(item);
-                    }
-                  });
-                },
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Top Image edge to edge
-                    if (item.image != null && item.image!.isNotEmpty)
-                      CachedNetworkImage(
-                        imageUrl: item.image!,
-                        height: 140,
-                        fit: BoxFit.cover,
-                        placeholder: (context, url) => Container(
-                          height: 140,
-                          color: Colors.grey[200],
-                          child: const Center(
-                            child: WaterLoadingIndicator(size: 30),
-                          ),
-                        ),
-                        errorWidget: (context, url, error) => Container(
-                          height: 140,
-                          color: Colors.grey[100],
-                          child: Icon(
-                            widget.slug == 'orphanages'
-                                ? Icons.home
-                                : Icons.mosque,
-                            size: 40,
-                            color: Colors.grey[400],
-                          ),
-                        ),
-                      )
-                    else
-                      Container(
-                        height: 140,
-                        color: Colors.grey[100],
-                        child: Icon(
-                          widget.slug == 'orphanages'
-                              ? Icons.home
-                              : Icons.mosque,
-                          size: 40,
-                          color: Colors.grey[400],
-                        ),
-                      ),
 
-                    // Content below image
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Expanded(
-                                child: Text(
-                                  item.localizedName(isAr),
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 18,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-                              ),
-                              if (widget.slug != 'orphanages')
-                                InkWell(
-                                  onTap: () => _toggleFavorite(item.id),
-                                  radius: 100,
-                                  child: Material(
-                                    shape: CircleBorder(),
-                                    color: Colors.white,
-                                    elevation: 3,
-                                    child: Padding(
-                                      padding: const EdgeInsets.all(8.0),
-                                      child: Icon(
-                                        _favoriteMosqueIds.contains(item.id)
-                                            ? Icons.favorite
-                                            : Icons.favorite_border,
-                                        color:
-                                            _favoriteMosqueIds.contains(item.id)
-                                            ? Colors.redAccent
-                                            : Colors.grey,
-                                        size: 18,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                            ],
-                          ),
-                          const SizedBox(height: 4),
-                          if (item.address.isNotEmpty)
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.center,
-
-                              children: [
-                                Icon(
-                                  Icons.location_on_outlined,
-                                  color: Colors.black,
-                                ),
-                                const SizedBox(width: 4),
-                                Expanded(
-                                  child: Text(
-                                    item.address,
-                                    maxLines: 2,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      color: Colors.grey[600],
-                                      fontSize: 12,
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            if (isHighNeed)
-              Positioned(
-                top: 15,
-                right: isAr ? null : 10,
-                left: isAr ? 10 : null,
-                child: Container(
-                  margin: const EdgeInsetsDirectional.only(start: 8, end: 8),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: AppColors.buttonBlue.withValues(alpha: .2),
-                    borderRadius: BorderRadius.circular(30),
-                    border: Border.all(color: Colors.transparent),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Icon(
-                        Icons.trending_up_outlined,
-                        color: AppColors.buttonBlue,
-                        size: 14,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        AppLocalizations.of(context)!.high_need,
-                        style: const TextStyle(
-                          color: AppColors.buttonBlue,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-          ],
+        return mosqueCard(
+          context: context,
+          isSelected: isSelected,
+          item: item,
+          slug: widget.slug,
+          onTapCard: () {
+            setState(() {
+              if (_selectedItemsList.any((m) => m.id == item.id)) {
+                _selectedItemsList.removeWhere((m) => m.id == item.id);
+              } else {
+                _selectedItemsList.add(item);
+              }
+            });
+          },
+          isAr: isAr,
+          isHighNeed: isHighNeed,
+          toggleFavorite: () => _toggleFavorite(item.id),
+          favoriteMosqueIds: _favoriteMosqueIds,
+          currentLat: _currentUserPosition?.latitude ?? AppStorage.userLatitude,
+          currentLong:
+              _currentUserPosition?.longitude ?? AppStorage.userLongitude,
         );
       },
     );
@@ -800,8 +683,15 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
     return Stack(
       children: [
         GoogleMap(
-          initialCameraPosition: const CameraPosition(
-            target: LatLng(24.7136, 46.6753),
+          initialCameraPosition: CameraPosition(
+            target: LatLng(
+              _currentUserPosition?.latitude ??
+                  AppStorage.userLatitude ??
+                  24.7136,
+              _currentUserPosition?.longitude ??
+                  AppStorage.userLongitude ??
+                  46.6753,
+            ),
             zoom: 12,
           ),
           markers: markers,
@@ -874,9 +764,9 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
                     vertical: 8,
                   ),
                   decoration: BoxDecoration(
-                    color: AppColors.buttonBlue.withValues(alpha: 0.1),
+                    color: AppColors.buttonBlueDark.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: AppColors.buttonBlue),
+                    border: Border.all(color: AppColors.buttonBlueDark),
                   ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
@@ -957,6 +847,67 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
     );
   }
 
+  Widget _buildShimmerItem() {
+    return Card(
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      color: Colors.white,
+      child: Row(
+        children: [
+          Padding(
+            padding: const EdgeInsetsDirectional.all(12),
+            child: SizedBox(
+              height: 73,
+              width: 80,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(width: 120, height: 16, color: Colors.white),
+                    if (widget.slug != 'orphanages')
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 16.0),
+                        child: Icon(
+                          Icons.favorite,
+                          color: Colors.white,
+                          size: 24,
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    const Icon(
+                      Icons.location_on,
+                      size: 12,
+                      color: Colors.white,
+                    ),
+                    const SizedBox(width: 4),
+                    Container(width: 80, height: 12, color: Colors.white),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildShimmerLoading() {
     return Shimmer.fromColors(
       key: const ValueKey('loader'),
@@ -966,67 +917,10 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
         padding: const EdgeInsets.all(16),
-        itemCount: 5,
-        separatorBuilder: (context, index) =>
-            const Divider(height: 16, color: Colors.transparent),
+        itemCount: 8,
+        separatorBuilder: (context, index) => const SizedBox(height: 4),
         itemBuilder: (context, index) {
-          return Card(
-            clipBehavior: Clip.antiAlias,
-            color: Colors.white,
-            elevation: 3,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(20),
-              side: const BorderSide(color: Colors.transparent, width: 2),
-            ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Container(height: 140, color: Colors.white),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Container(
-                              width: 150,
-                              height: 18,
-                              color: Colors.white,
-                            ),
-                            const SizedBox(height: 4),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Icon(
-                                  Icons.location_on_outlined,
-                                  color: Colors.white,
-                                  size: 16,
-                                ),
-                                const SizedBox(width: 4),
-                                Expanded(
-                                  child: Container(
-                                    width: double.infinity,
-                                    height: 12,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                      if (widget.slug != 'orphanages')
-                        const Icon(Icons.favorite, color: Colors.white),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          );
+          return _buildShimmerItem();
         },
       ),
     );

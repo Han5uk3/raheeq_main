@@ -372,7 +372,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(
-                  color: AppColors.buttonBlue,
+                  color: AppColors.buttonBlueDark,
                   width: 1.5,
                 ),
               ),

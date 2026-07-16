@@ -165,7 +165,7 @@ class _ProductSelectionPageState extends State<ProductSelectionPage> {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(20),
         side: BorderSide(
-          color: currentQty > 0 ? AppColors.buttonBlue : Colors.transparent,
+          color: currentQty > 0 ? AppColors.buttonBlueDark : Colors.transparent,
           width: 2,
         ),
       ),
@@ -236,7 +236,7 @@ class _ProductSelectionPageState extends State<ProductSelectionPage> {
                         _updateQuantity(product, 0);
                       }
                     },
-                    selectedColor: AppColors.buttonBlue,
+                    selectedColor: AppColors.buttonBlueDark,
                     labelStyle: TextStyle(
                       color: currentQty == qty ? Colors.white : Colors.black,
                       fontWeight: FontWeight.bold,
@@ -269,16 +269,20 @@ class _ProductSelectionPageState extends State<ProductSelectionPage> {
                   ),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.buttonBlueDark),
+                    borderSide: const BorderSide(
+                      color: AppColors.buttonBlueDark,
+                    ),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(color: AppColors.buttonBlueDark),
+                    borderSide: const BorderSide(
+                      color: AppColors.buttonBlueDark,
+                    ),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: const BorderSide(
-                      color: AppColors.buttonBlue,
+                      color: AppColors.buttonBlueDark,
                       width: 1.5,
                     ),
                   ),
@@ -330,7 +334,7 @@ class _ProductSelectionPageState extends State<ProductSelectionPage> {
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(
-                  color: AppColors.buttonBlue,
+                  color: AppColors.buttonBlueDark,
                   width: 1.5,
                 ),
               ),

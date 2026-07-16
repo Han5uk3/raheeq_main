@@ -323,7 +323,7 @@ class _OTPState extends State<OTP> {
                               color: AppColors.buttonBlueLight,
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(
-                                color: AppColors.buttonBlue.withValues(
+                                color: AppColors.buttonBlueDark.withValues(
                                   alpha: 0.3,
                                 ),
                               ),

@@ -48,7 +48,7 @@ class _SplashScreenState extends State<SplashScreen> {
       backgroundColor: AppColors.steelBlue,
       body: Center(
         child: Image.asset(
-          'assets/Raheeq_LOGO_transparent.apng',
+          'assets/splash/splash_animation.apng',
           width: MediaQuery.of(context).size.width,
           fit: BoxFit.contain,
         ),

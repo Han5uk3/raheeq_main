@@ -163,7 +163,7 @@ class _OrdersTabState extends State<OrdersTab>
     final tabController = _tabController;
     return RefreshIndicator(
       onRefresh: _fetchOrders,
-      color: AppColors.buttonBlue,
+      color: AppColors.buttonBlueDark,
       child: SingleChildScrollView(
         controller: _scrollController,
         physics: const AlwaysScrollableScrollPhysics(),
@@ -177,18 +177,22 @@ class _OrdersTabState extends State<OrdersTab>
               centerTitle: true,
             ),
             Container(
-              decoration: BoxDecoration(color: AppColors.buttonBlueDark),
+              decoration: BoxDecoration(
+                color: AppColors.buttonBlueDark,
+                border: Border.all(color: AppColors.buttonBlueDark, width: 0),
+              ),
               child: Container(
                 width: double.infinity,
                 constraints: BoxConstraints(
                   minHeight: MediaQuery.of(context).size.height - 100,
                 ),
-                decoration: const BoxDecoration(
-                  color: Color(0xFFF8FAFB),
-                  borderRadius: BorderRadius.only(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFB),
+                  borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(30),
                     topRight: Radius.circular(30),
                   ),
+                  border: Border.all(style: BorderStyle.none, width: 0),
                 ),
                 child: Column(
                   children: [
@@ -445,23 +449,49 @@ class _OrdersTabState extends State<OrdersTab>
     }
 
     if (_errorMessage != null) {
-      return Padding(
+      final availableHeight = MediaQuery.of(context).size.height - 377;
+      return Container(
         key: const ValueKey('error'),
-        padding: const EdgeInsets.only(top: 32.0),
-        child: Center(
+        height: availableHeight > 200 ? availableHeight : 200,
+        alignment: Alignment.center,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               const Icon(
-                Icons.error_outline,
+                Icons.error_outline_rounded,
                 color: Colors.redAccent,
-                size: 48,
+                size: 60,
               ),
               const SizedBox(height: 16),
-              Text(_errorMessage!, style: const TextStyle(color: Colors.grey)),
-              TextButton(
+              Text(
+                AppLocalizations.of(context)!.failed_to_load_orders_page,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                _errorMessage ?? '',
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 14, color: Colors.black54),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton.icon(
                 onPressed: _fetchOrders,
-                child: Text(AppLocalizations.of(context)!.retry),
+                icon: const Icon(Icons.refresh),
+                label: Text(AppLocalizations.of(context)!.retry),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.buttonBlueDark,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
               ),
             ],
           ),
@@ -712,7 +742,7 @@ class _OrderCardState extends State<_OrderCard> {
                             Text(
                               totalCost,
                               style: const TextStyle(
-                                color: AppColors.buttonBlue,
+                                color: AppColors.buttonBlueDark,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
                               ),
@@ -1173,21 +1203,27 @@ class _OrderCardState extends State<_OrderCard> {
                               context,
                             )!.write_review,
                             hintStyle: TextStyle(
-                              color: AppColors.buttonBlueDark.withValues(alpha: 0.8),
+                              color: AppColors.buttonBlueDark.withValues(
+                                alpha: 0.8,
+                              ),
                               fontSize: 12,
                             ),
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(color: AppColors.buttonBlueDark),
+                              borderSide: const BorderSide(
+                                color: AppColors.buttonBlueDark,
+                              ),
                             ),
                             enabledBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
-                              borderSide: const BorderSide(color: AppColors.buttonBlueDark),
+                              borderSide: const BorderSide(
+                                color: AppColors.buttonBlueDark,
+                              ),
                             ),
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: const BorderSide(
-                                color: AppColors.buttonBlue,
+                                color: AppColors.buttonBlueDark,
                                 width: 1.5,
                               ),
                             ),

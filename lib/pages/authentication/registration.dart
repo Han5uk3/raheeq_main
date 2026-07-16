@@ -327,7 +327,9 @@ class _RegistrationState extends State<Registration> {
                                     : () async {
                                         if (_formKey.currentState!.validate()) {
                                           if (widget.isSocialLogin) {
-                                            String phoneText = _phoneController.text.trim();
+                                            String phoneText = _phoneController
+                                                .text
+                                                .trim();
                                             if (phoneText.isEmpty) {
                                               CustomSnackbar.show(
                                                 context: context,
@@ -338,7 +340,9 @@ class _RegistrationState extends State<Registration> {
                                               );
                                               return;
                                             }
-                                            if (!RegExp(r'^\d+$').hasMatch(phoneText)) {
+                                            if (!RegExp(
+                                              r'^\d+$',
+                                            ).hasMatch(phoneText)) {
                                               CustomSnackbar.show(
                                                 context: context,
                                                 message: AppLocalizations.of(
@@ -349,7 +353,8 @@ class _RegistrationState extends State<Registration> {
                                               return;
                                             }
 
-                                            if (_selectedCountry.phoneCode == '966') {
+                                            if (_selectedCountry.phoneCode ==
+                                                '966') {
                                               if (phoneText.startsWith('0') &&
                                                   phoneText.length != 10) {
                                                 CustomSnackbar.show(
@@ -360,7 +365,9 @@ class _RegistrationState extends State<Registration> {
                                                   isError: true,
                                                 );
                                                 return;
-                                              } else if (phoneText.startsWith('5') &&
+                                              } else if (phoneText.startsWith(
+                                                    '5',
+                                                  ) &&
                                                   phoneText.length != 9) {
                                                 CustomSnackbar.show(
                                                   context: context,
@@ -370,7 +377,9 @@ class _RegistrationState extends State<Registration> {
                                                   isError: true,
                                                 );
                                                 return;
-                                              } else if (!phoneText.startsWith('0') &&
+                                              } else if (!phoneText.startsWith(
+                                                    '0',
+                                                  ) &&
                                                   !phoneText.startsWith('5')) {
                                                 CustomSnackbar.show(
                                                   context: context,
@@ -387,7 +396,8 @@ class _RegistrationState extends State<Registration> {
                                                   '+${_selectedCountry.phoneCode}$phoneText',
                                                 );
                                                 if (!phone.isValid(
-                                                      type: PhoneNumberType.mobile,
+                                                      type: PhoneNumberType
+                                                          .mobile,
                                                     ) &&
                                                     !phone.isValid()) {
                                                   CustomSnackbar.show(
@@ -414,9 +424,14 @@ class _RegistrationState extends State<Registration> {
 
                                           setState(() => _isRegistering = true);
                                           try {
-                                            String apiPhoneText = _phoneController.text.trim();
-                                            if (widget.isSocialLogin && _selectedCountry.phoneCode == '966' && apiPhoneText.startsWith('0')) {
-                                              apiPhoneText = apiPhoneText.substring(1);
+                                            String apiPhoneText =
+                                                _phoneController.text.trim();
+                                            if (widget.isSocialLogin &&
+                                                _selectedCountry.phoneCode ==
+                                                    '966' &&
+                                                apiPhoneText.startsWith('0')) {
+                                              apiPhoneText = apiPhoneText
+                                                  .substring(1);
                                             }
 
                                             final response = await ApiService()
@@ -666,7 +681,7 @@ class _RegistrationState extends State<Registration> {
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(
-                  color: AppColors.buttonBlue,
+                  color: AppColors.buttonBlueDark,
                   width: 1.5,
                 ),
               ),
@@ -928,10 +943,7 @@ class _RegistrationState extends State<Registration> {
                   keyboardType: TextInputType.phone,
                   inputFormatters: [
                     FilteringTextInputFormatter.digitsOnly,
-                    TextInputFormatter.withFunction((
-                      oldValue,
-                      newValue,
-                    ) {
+                    TextInputFormatter.withFunction((oldValue, newValue) {
                       int maxLength = 15;
                       if (_selectedCountry.phoneCode == '966') {
                         if (newValue.text.startsWith('0')) {
@@ -966,16 +978,20 @@ class _RegistrationState extends State<Registration> {
                     ),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.buttonBlueDark),
+                      borderSide: const BorderSide(
+                        color: AppColors.buttonBlueDark,
+                      ),
                     ),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(color: AppColors.buttonBlueDark),
+                      borderSide: const BorderSide(
+                        color: AppColors.buttonBlueDark,
+                      ),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: const BorderSide(
-                        color: AppColors.buttonBlue,
+                        color: AppColors.buttonBlueDark,
                         width: 1.5,
                       ),
                     ),

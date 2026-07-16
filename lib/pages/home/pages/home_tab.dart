@@ -464,7 +464,6 @@ class _HomeTabState extends State<HomeTab> {
               .white, // Covers native window background under transparent gradient
           child: Container(
             decoration: BoxDecoration(
-              // color: AppColors.buttonBlueDark,
               gradient: LinearGradient(
                 colors: [
                   AppColors.buttonBlueDark,
@@ -1179,7 +1178,7 @@ class _HomeTabState extends State<HomeTab> {
                 icon: const Icon(Icons.refresh),
                 label: Text(AppLocalizations.of(context)!.retry),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.buttonBlue,
+                  backgroundColor: AppColors.buttonBlueDark,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),
@@ -1372,7 +1371,7 @@ class _HomeTabState extends State<HomeTab> {
                     ),
                     borderRadius: BorderRadius.circular(20),
                     image: const DecorationImage(
-                      image: AssetImage("assets/Groupbg.png"),
+                      image: AssetImage("assets/others/Groupbg.png"),
                       fit: BoxFit.fill,
                     ),
                   ),
@@ -1386,7 +1385,7 @@ class _HomeTabState extends State<HomeTab> {
                 child: SizedBox(
                   height: 160,
                   width: 160,
-                  child: Image.asset("assets/Group.png"),
+                  child: Image.asset("assets/others/Group.png"),
                 ),
               ),
 
@@ -1395,7 +1394,7 @@ class _HomeTabState extends State<HomeTab> {
                 top: 40,
                 height: 200,
                 width: 200,
-                child: SizedBox(child: Image.asset("assets/Group.png")),
+                child: SizedBox(child: Image.asset("assets/others/Group.png")),
               ),
               // Content row on top
               Positioned.fill(
@@ -1571,13 +1570,22 @@ class _HomeTabState extends State<HomeTab> {
                   top: 0,
                   child: Stack(
                     children: [
-                      Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(20),
-                          image: DecorationImage(
-                            matchTextDirection: true,
-                            fit: BoxFit.cover,
-                            image: CachedNetworkImageProvider(imageUrl),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(20),
+                        child: CachedNetworkImage(
+                          imageUrl: imageUrl,
+                          matchTextDirection: true,
+                          fit: BoxFit.cover,
+                          width: double.infinity,
+                          height: double.infinity,
+                          placeholder: (context, url) => Shimmer.fromColors(
+                            baseColor: Colors.grey[200]!,
+                            highlightColor: Colors.grey[500]!,
+                            child: Container(color: Colors.grey[200]),
+                          ),
+                          errorWidget: (context, url, error) => Container(
+                            color: Colors.grey[100],
+                            child: const Icon(Icons.error, color: Colors.grey),
                           ),
                         ),
                       ),
@@ -1737,11 +1745,21 @@ class _HomeTabState extends State<HomeTab> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          AppLocalizations.of(context)!.choose_your_cause_and_make_an_impact,
+          AppLocalizations.of(context)!.giving_opportunities,
           style: const TextStyle(
-            fontSize: 14,
+            fontSize: 18,
             fontWeight: FontWeight.bold,
             color: Colors.black87,
+          ),
+        ),
+        Text(
+          AppLocalizations.of(
+            context,
+          )!.choose_where_to_give_and_create_a_lasting_impact,
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: Colors.grey.shade500,
           ),
         ),
         const SizedBox(height: 16),
@@ -2152,7 +2170,7 @@ class _HomeTabState extends State<HomeTab> {
                       borderRadius: BorderRadius.circular(16),
                       side: BorderSide(
                         color: isSelected
-                            ? AppColors.buttonBlue
+                            ? AppColors.buttonBlueDark
                             : Colors.transparent,
                         width: 2,
                       ),
@@ -2187,7 +2205,7 @@ class _HomeTabState extends State<HomeTab> {
                                         const Center(
                                           child: Icon(
                                             Icons.water_drop,
-                                            color: AppColors.buttonBlue,
+                                            color: AppColors.buttonBlueDark,
                                             size: 40,
                                           ),
                                         ),
@@ -2195,7 +2213,7 @@ class _HomeTabState extends State<HomeTab> {
                                 : const Center(
                                     child: Icon(
                                       Icons.water_drop,
-                                      color: AppColors.buttonBlue,
+                                      color: AppColors.buttonBlueDark,
                                       size: 40,
                                     ),
                                   ),
@@ -2446,8 +2464,8 @@ class _HomeTabState extends State<HomeTab> {
         ),
         if (onClear != null)
           PositionedDirectional(
-            top: -4,
-            end: -4,
+            top: -8,
+            end: -8,
             child: GestureDetector(
               onTap: onClear,
               child: Container(
@@ -2462,26 +2480,6 @@ class _HomeTabState extends State<HomeTab> {
             ),
           ),
       ],
-    );
-  }
-
-  Widget buildHighNeedBadge(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(8),
-      decoration: BoxDecoration(
-        color: AppColors.buttonBlueLight,
-        borderRadius: BorderRadius.circular(24),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.trending_up, color: AppColors.buttonBlue, size: 12),
-          Text(
-            AppLocalizations.of(context)!.high_need,
-            style: const TextStyle(fontSize: 12, color: AppColors.buttonBlue),
-          ),
-        ],
-      ),
     );
   }
 

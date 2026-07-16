@@ -79,7 +79,7 @@ class _TrackSubscriptionDeliveryPageState
 
   @override
   Widget build(BuildContext context) {
-    String title = "Track donation";
+    String title = AppLocalizations.of(context)!.track_donation;
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
 
     return Scaffold(
@@ -91,25 +91,28 @@ class _TrackSubscriptionDeliveryPageState
               hasBackgroundColor: true,
               isStartAligned: true,
               title: title,
-              subtitle: widget.orderId,
               showBackButton: true,
               onBackTap: () => Navigator.pop(context),
             ),
           ),
           SliverToBoxAdapter(
             child: Container(
-              color: AppColors.buttonBlueDark,
+              decoration: BoxDecoration(
+                color: AppColors.buttonBlueDark,
+                border: Border.all(color: AppColors.buttonBlueDark, width: 0),
+              ),
               child: Container(
                 width: double.infinity,
                 constraints: BoxConstraints(
                   minHeight: MediaQuery.of(context).size.height - 150,
                 ),
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: Color(0xFFF8FAFB),
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(30),
                     topRight: Radius.circular(30),
                   ),
+                  border: Border.all(style: BorderStyle.none, width: 0),
                 ),
                 child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 500),
@@ -133,15 +136,26 @@ class _TrackSubscriptionDeliveryPageState
     if (_isLoading) {
       return Padding(
         key: const ValueKey('loader'),
-        padding: const EdgeInsets.all(24.0),
+        padding: const EdgeInsets.all(16.0),
         child: Shimmer.fromColors(
           baseColor: Colors.grey[300]!,
           highlightColor: Colors.grey[100]!,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Container(height: 20, width: 150, color: Colors.white),
+              const SizedBox(height: 16),
               Container(
-                height: 100,
+                height: 82,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                height: 82,
                 width: double.infinity,
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -150,7 +164,29 @@ class _TrackSubscriptionDeliveryPageState
               ),
               const SizedBox(height: 16),
               Container(
-                height: 100,
+                height: 250,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+              const Divider(height: 48),
+
+              const SizedBox(height: 24),
+              Container(height: 20, width: 150, color: Colors.white),
+              const SizedBox(height: 16),
+              Container(
+                height: 82,
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(16),
+                ),
+              ),
+              const SizedBox(height: 12),
+              Container(
+                height: 82,
                 width: double.infinity,
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -159,16 +195,7 @@ class _TrackSubscriptionDeliveryPageState
               ),
               const SizedBox(height: 16),
               Container(
-                height: 150,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(16),
-                ),
-              ),
-              const SizedBox(height: 16),
-              Container(
-                height: 80,
+                height: 250,
                 width: double.infinity,
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -247,6 +274,9 @@ class _TrackSubscriptionDeliveryPageState
                   ),
 
                   if (order.target != null) _buildDeliveringToCard(order, isAr),
+                  if (order.product != null) ...[
+                    _buildProductCard(order, isAr),
+                  ],
 
                   if (order.deliveredToDifferentMosque == true) ...[
                     const SizedBox(height: 12),
@@ -267,18 +297,24 @@ class _TrackSubscriptionDeliveryPageState
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  AppLocalizations.of(context)!.deliveredToDifferentLocation,
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.deliveredToDifferentLocation,
                                   style: const TextStyle(
                                     color: Colors.orange,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
-                                if (order.differentMosqueReason != null && order.differentMosqueReason!.isNotEmpty)
+                                if (order.differentMosqueReason != null &&
+                                    order.differentMosqueReason!.isNotEmpty)
                                   Padding(
                                     padding: const EdgeInsets.only(top: 4.0),
                                     child: Text(
                                       '${AppLocalizations.of(context)!.reasonForDifferentLocation}: ${order.differentMosqueReason}',
-                                      style: TextStyle(color: Colors.orange.shade800, fontSize: 12),
+                                      style: TextStyle(
+                                        color: Colors.orange.shade800,
+                                        fontSize: 12,
+                                      ),
                                     ),
                                   ),
                               ],
@@ -289,12 +325,10 @@ class _TrackSubscriptionDeliveryPageState
                     ),
                   ],
 
-                  const SizedBox(height: 16),
                   _buildDeliveryProgressCard(order),
 
                   if (order.status == 'COMPLETED' ||
                       order.status == 'DELIVERED') ...[
-                    const SizedBox(height: 16),
                     _buildActionButtons(order),
                     const SizedBox(height: 16),
                     _buildDeliveryProofs(order),
@@ -365,16 +399,88 @@ class _TrackSubscriptionDeliveryPageState
     );
   }
 
+  Widget _buildProductCard(OrderResponseModel order, bool isAr) {
+    return Card(
+      color: Colors.white,
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          children: [
+            ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: CachedNetworkImage(
+                imageUrl: order.product!.image,
+                width: 50,
+                height: 50,
+                fit: BoxFit.cover,
+                placeholder: (context, url) => Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Container(color: Colors.white),
+                ),
+                errorWidget: (context, url, error) => Container(
+                  width: 50,
+                  height: 50,
+                  color: Colors.grey[200],
+                  child: const Icon(Icons.inventory_2_outlined),
+                ),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    AppLocalizations.of(context)!.product,
+                    style: const TextStyle(color: Colors.grey, fontSize: 12),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    isAr ? order.product!.nameAr : order.product!.name,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            if (order.product!.quantity > 0)
+              Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 6,
+                ),
+                decoration: BoxDecoration(
+                  color: AppColors.buttonBlueDark.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Text(
+                  'x${order.product!.quantity}',
+                  style: const TextStyle(
+                    color: AppColors.buttonBlueDark,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildDeliveryProgressCard(OrderResponseModel order) {
     final bool isOrderPlaced = true;
     final bool isOutForDelivery =
         order.driver != null ||
         order.status == 'DISPATCHED' ||
         order.status == 'OUT_FOR_DELIVERY' ||
-        order.status == 'DELIVERED' ||
-        order.status == 'COMPLETED';
+        order.status == 'DELIVERED';
     final bool isDelivered =
-        order.status == 'DELIVERED' || order.status == 'COMPLETED';
+        order.status == 'CONFIRMED' || order.status == 'COMPLETED';
 
     return Card(
       color: Colors.white,
@@ -385,28 +491,28 @@ class _TrackSubscriptionDeliveryPageState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              "Delivery Progress",
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            Text(
+              AppLocalizations.of(context)!.delivery_progress,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 24),
             _buildTimelineItem(
-              title: "Order Placed",
+              title: AppLocalizations.of(context)!.order_placed,
               date: order.createdAt,
               isReached: isOrderPlaced,
               isLast: false,
               icon: Icons.receipt_long,
             ),
             _buildTimelineItem(
-              title: "Out for delivery",
+              title: AppLocalizations.of(context)!.out_for_delivery,
               date: order.assignedAt,
               isReached: isOutForDelivery,
               isLast: false,
               icon: Icons.local_shipping,
             ),
             _buildTimelineItem(
-              title: "Delivery completed",
-              date: order.confirmedAt,
+              title: AppLocalizations.of(context)!.delivery_completed,
+              date: order.confirmedAt ?? order.completedAt,
               isReached: isDelivered,
               isLast: true,
               icon: Icons.check_circle,
@@ -521,118 +627,154 @@ class _TrackSubscriptionDeliveryPageState
     }
 
     final proofs = order.deliveryProof!;
+    int count = 0;
+    if (proofs['mosqueFrontImage'] != null &&
+        proofs['mosqueFrontImage'].toString().isNotEmpty)
+      count++;
+    if (proofs['mosqueInsideImage'] != null &&
+        proofs['mosqueInsideImage'].toString().isNotEmpty)
+      count++;
+    if (proofs['packagesImage'] != null &&
+        proofs['packagesImage'].toString().isNotEmpty)
+      count++;
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          "Proof of Delivery",
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+    // Some proofs from subscription tracking use 'proofVideo' or 'video' occasionally as seen in the original code, but 'deliveryVideo' is standard
+    final deliveryVideo =
+        proofs['deliveryVideo'] ?? proofs['proofVideo'] ?? proofs['video'];
+    if (deliveryVideo != null && deliveryVideo.toString().isNotEmpty) count++;
+
+    if (count == 0) return const SizedBox.shrink();
+
+    return Card(
+      color: Colors.white,
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Padding(
+        padding: const EdgeInsets.all(24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              AppLocalizations.of(context)!.proof_of_delivery,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            Row(
+              spacing: 8,
+              children: [
+                if (proofs['mosqueFrontImage'] != null &&
+                    proofs['mosqueFrontImage'].toString().isNotEmpty)
+                  Expanded(
+                    child: _buildSmallProofCard(
+                      AppLocalizations.of(context)!.mosque_front,
+                      proofs['mosqueFrontImage'],
+                      false,
+                    ),
+                  ),
+                if (proofs['mosqueInsideImage'] != null &&
+                    proofs['mosqueInsideImage'].toString().isNotEmpty)
+                  Expanded(
+                    child: _buildSmallProofCard(
+                      AppLocalizations.of(context)!.mosque_inside,
+                      proofs['mosqueInsideImage'],
+                      false,
+                    ),
+                  ),
+                if (proofs['packagesImage'] != null &&
+                    proofs['packagesImage'].toString().isNotEmpty)
+                  Expanded(
+                    child: _buildSmallProofCard(
+                      AppLocalizations.of(context)!.packages,
+                      proofs['packagesImage'],
+                      false,
+                    ),
+                  ),
+                if (deliveryVideo != null &&
+                    deliveryVideo.toString().isNotEmpty)
+                  Expanded(
+                    child: _buildSmallProofCard(
+                      AppLocalizations.of(context)!.delivery_video,
+                      deliveryVideo,
+                      true,
+                    ),
+                  ),
+              ],
+            ),
+          ],
         ),
-        const SizedBox(height: 16),
-        if (proofs['mosqueFrontImage'] != null)
-          _buildProofCard("Mosque Front", proofs['mosqueFrontImage'], false),
-        if (proofs['mosqueInsideImage'] != null)
-          _buildProofCard("Mosque Inside", proofs['mosqueInsideImage'], false),
-        if (proofs['packagesImage'] != null)
-          _buildProofCard("Packages", proofs['packagesImage'], false),
-        if (proofs['deliveryVideo'] != null &&
-                proofs['deliveryVideo'].toString().isNotEmpty ||
-            proofs['proofVideo'] != null &&
-                proofs['proofVideo'].toString().isNotEmpty ||
-            proofs['video'] != null && proofs['video'].toString().isNotEmpty)
-          _buildProofCard(
-            "Delivery Video",
-            proofs['deliveryVideo'] ?? proofs['proofVideo'] ?? proofs['video'],
-            true,
-          ),
-      ],
+      ),
     );
   }
 
-  Widget _buildProofCard(String title, String url, bool isVideo) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16.0),
-      child: GestureDetector(
-        onTap: () {
-          if (isVideo) {
-            _showVideoPreview(url);
-          } else {
-            _showImagePreview(url);
-          }
-        },
-        child: Card(
-          color: Colors.white,
-          elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Container(
-                height: 200,
-                decoration: const BoxDecoration(
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-                ),
-                child: ClipRRect(
-                  borderRadius: const BorderRadius.vertical(
-                    top: Radius.circular(16),
-                  ),
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      if (!isVideo)
-                        CachedNetworkImage(
-                          imageUrl: url,
-                          fit: BoxFit.cover,
-                          placeholder: (context, url) => Shimmer.fromColors(
-                            baseColor: Colors.grey[300]!,
-                            highlightColor: Colors.grey[100]!,
-                            child: Container(color: Colors.white),
-                          ),
-                          errorWidget: (context, url, error) => Container(
-                            color: Colors.grey[200],
-                            child: const Icon(
-                              Icons.broken_image,
-                              color: Colors.grey,
-                            ),
-                          ),
-                        )
-                      else
-                        Container(
-                          color: Colors.black12,
-                          child: const Icon(
-                            Icons.videocam,
-                            size: 48,
-                            color: Colors.grey,
-                          ),
+  Widget _buildSmallProofCard(String title, String url, bool isVideo) {
+    return GestureDetector(
+      onTap: () {
+        if (isVideo) {
+          _showVideoPreview(url);
+        } else {
+          _showImagePreview(url);
+        }
+      },
+      child: Column(
+        children: [
+          AspectRatio(
+            aspectRatio: 1,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(8),
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  if (!isVideo)
+                    CachedNetworkImage(
+                      imageUrl: url,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => Shimmer.fromColors(
+                        baseColor: Colors.grey[300]!,
+                        highlightColor: Colors.grey[100]!,
+                        child: Container(color: Colors.white),
+                      ),
+                      errorWidget: (context, url, error) => Container(
+                        color: Colors.grey[200],
+                        child: const Icon(
+                          Icons.broken_image,
+                          color: Colors.grey,
                         ),
-                      if (isVideo)
-                        const Center(
-                          child: CircleAvatar(
-                            backgroundColor: Colors.black54,
-                            child: Icon(Icons.play_arrow, color: Colors.white),
-                          ),
+                      ),
+                    )
+                  else
+                    Container(
+                      color: Colors.black12,
+                      child: const Icon(
+                        Icons.videocam,
+                        size: 32,
+                        color: Colors.grey,
+                      ),
+                    ),
+                  if (isVideo)
+                    const Center(
+                      child: CircleAvatar(
+                        radius: 16,
+                        backgroundColor: Colors.black54,
+                        child: Icon(
+                          Icons.play_arrow,
+                          color: Colors.white,
+                          size: 16,
                         ),
-                    ],
-                  ),
-                ),
+                      ),
+                    ),
+                ],
               ),
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-            ],
+            ),
           ),
-        ),
+          const SizedBox(height: 4),
+          Text(
+            title,
+            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600),
+            textAlign: TextAlign.center,
+            maxLines: 2,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ],
       ),
     );
   }

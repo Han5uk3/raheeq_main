@@ -91,12 +91,13 @@ class _MyWalletPageState extends State<MyWalletPage> {
               color: AppColors.buttonBlueDark,
               child: Container(
                 width: double.infinity,
-                decoration: const BoxDecoration(
-                  color: Color(0xFFF8FAFB),
-                  borderRadius: BorderRadius.only(
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF8FAFB),
+                  borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(30),
                     topRight: Radius.circular(30),
                   ),
+                  border: Border.all(style: BorderStyle.none, width: 0),
                 ),
                 child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 500),

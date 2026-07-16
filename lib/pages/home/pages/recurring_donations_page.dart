@@ -42,6 +42,8 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
             .map((json) => SubscriptionModel.fromJson(json))
             .toList();
 
+        subscriptions.sort((a, b) => b.startDate.compareTo(a.startDate));
+
         setState(() {
           _subscriptions = subscriptions;
           _isLoading = false;
@@ -81,15 +83,19 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
           ),
           Expanded(
             child: Container(
-              color: AppColors.buttonBlueDark,
+              decoration: BoxDecoration(
+                color: AppColors.buttonBlueDark,
+                border: Border.all(color: AppColors.buttonBlueDark, width: 0),
+              ),
               child: Container(
                 width: double.infinity,
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(30),
                     topRight: Radius.circular(30),
                   ),
+                  border: Border.all(style: BorderStyle.none, width: 0),
                 ),
                 child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 500),
@@ -118,19 +124,50 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
     }
 
     if (_errorMessage != null) {
-      return Center(
+      return Container(
         key: const ValueKey('error'),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.error_outline, color: Colors.redAccent, size: 48),
-            const SizedBox(height: 16),
-            Text(_errorMessage!, style: const TextStyle(color: Colors.grey)),
-            TextButton(
-              onPressed: _fetchSubscriptions,
-              child: Text(AppLocalizations.of(context)!.retry),
-            ),
-          ],
+        alignment: Alignment.center,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 32),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.error_outline_rounded,
+                color: Colors.redAccent,
+                size: 60,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                AppLocalizations.of(context)!.error_occurred_try_again,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.black87,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                _errorMessage ?? '',
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontSize: 14, color: Colors.black54),
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton.icon(
+                onPressed: _fetchSubscriptions,
+                icon: const Icon(Icons.refresh),
+                label: Text(AppLocalizations.of(context)!.retry),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.buttonBlueDark,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       );
     }
@@ -181,7 +218,7 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
     return RefreshIndicator(
       key: const ValueKey('content'),
       onRefresh: _fetchSubscriptions,
-      color: AppColors.buttonBlue,
+      color: AppColors.buttonBlueDark,
       child: ListView.separated(
         physics: const ClampingScrollPhysics(),
         padding: const EdgeInsets.all(16),
@@ -207,13 +244,15 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
 
     return GestureDetector(
       onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) =>
-                SubscriptionDetailsPage(subscriptionId: subscription.id),
-          ),
-        );
+        subscription.status != "CANCELLED"
+            ? Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>
+                      SubscriptionDetailsPage(subscriptionId: subscription.id),
+                ),
+              )
+            : Null;
       },
       child: Material(
         elevation: 2,

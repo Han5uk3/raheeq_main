@@ -225,7 +225,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
         start: 16,
         end: 16,
         top: 16,
-        bottom: 140,
+        bottom: 16,
       ),
       itemCount: relevantStates.length,
       separatorBuilder: (_, __) => const SizedBox(height: 16),
@@ -405,7 +405,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                             style: TextStyle(
                               fontSize: 14,
                               fontWeight: FontWeight.bold,
-                              color: AppColors.buttonBlue,
+                              color: AppColors.buttonBlueDark,
                             ),
                           ),
                           const SizedBox(width: 8),
@@ -467,7 +467,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: const BorderSide(
-                        color: AppColors.buttonBlue,
+                        color: AppColors.buttonBlueDark,
                         width: 1.5,
                       ),
                     ),
@@ -518,7 +518,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
       child: DefaultTabController(
         length: _uniqueProducts.length,
         child: Scaffold(
-          backgroundColor: Colors.white,
+          backgroundColor: AppColors.buttonBlueDark,
           floatingActionButtonLocation:
               FloatingActionButtonLocation.centerFloat,
           floatingActionButton: Padding(
@@ -602,7 +602,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                                   clipBehavior: Clip.antiAlias,
                                   color: Colors.white,
                                   child: Image.asset(
-                                    "assets/details_banner.jpeg",
+                                    "assets/static_banners/details_banner.jpeg",
                                     fit: BoxFit.cover,
                                   ),
                                 ),
@@ -669,7 +669,8 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                 ),
               ];
             },
-            body: SizedBox(
+            body: Container(
+              decoration: BoxDecoration(color: AppColors.white),
               child: TabBarView(
                 children: _uniqueProducts.map((product) {
                   return _buildProductTab(product, isAr);

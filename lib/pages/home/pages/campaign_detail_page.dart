@@ -581,7 +581,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: const BorderSide(
-                      color: AppColors.buttonBlue,
+                      color: AppColors.buttonBlueDark,
                       width: 1.5,
                     ),
                   ),
@@ -723,7 +723,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                             focusedBorder: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                               borderSide: const BorderSide(
-                                color: AppColors.buttonBlue,
+                                color: AppColors.buttonBlueDark,
                                 width: 1.5,
                               ),
                             ),

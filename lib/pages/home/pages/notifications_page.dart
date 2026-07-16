@@ -180,93 +180,88 @@ class _NotificationsPageState extends State<NotificationsPage> {
     final subtitle = AppLocalizations.of(context)!.latest_updates_and_alerts;
 
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: RefreshIndicator(
-        onRefresh: _fetchNotifications,
-        color: AppColors.buttonBlue,
-        child: SingleChildScrollView(
-          physics: const ClampingScrollPhysics(),
-          child: Column(
-            children: [
-              CustomAppBar(
-                hasBackgroundColor: true,
-                isStartAligned: true,
-                title: title,
-                subtitle: subtitle,
-                showBackButton: true,
-                onBackTap: () => Navigator.pop(context),
-                actions: [
-                  PopupMenuButton<String>(
-                    borderRadius: BorderRadius.circular(12),
-                    color: Colors.white,
-                    icon: const Icon(Icons.more_vert, color: Colors.white),
-                    onSelected: (value) {
-                      if (value == 'mark_all_read') {
-                        _markAllAsRead();
-                      } else if (value == 'clear_all') {
-                        _clearAllNotifications();
-                      }
-                    },
-                    itemBuilder: (context) => [
-                      PopupMenuItem(
-                        value: 'mark_all_read',
-                        child: Text(
-                          AppLocalizations.of(context)!.mark_all_read,
-                        ),
-                      ),
-                      PopupMenuItem(
-                        value: 'clear_all',
-                        child: Text(
-                          AppLocalizations.of(context)!.clear_notifications,
-                        ),
-                      ),
-                    ],
+      backgroundColor: AppColors.buttonBlueDark,
+      body: Column(
+        children: [
+          CustomAppBar(
+            hasBackgroundColor: true,
+            isStartAligned: true,
+            title: title,
+            subtitle: subtitle,
+            showBackButton: true,
+            onBackTap: () => Navigator.pop(context),
+            actions: [
+              PopupMenuButton<String>(
+                borderRadius: BorderRadius.circular(12),
+                color: Colors.white,
+                icon: const Icon(Icons.more_vert, color: Colors.white),
+                onSelected: (value) {
+                  if (value == 'mark_all_read') {
+                    _markAllAsRead();
+                  } else if (value == 'clear_all') {
+                    _clearAllNotifications();
+                  }
+                },
+                itemBuilder: (context) => [
+                  PopupMenuItem(
+                    value: 'mark_all_read',
+                    child: Text(AppLocalizations.of(context)!.mark_all_read),
+                  ),
+                  PopupMenuItem(
+                    value: 'clear_all',
+                    child: Text(
+                      AppLocalizations.of(context)!.clear_notifications,
+                    ),
                   ),
                 ],
               ),
-              Container(
-                width: double.infinity,
+            ],
+          ),
+          Expanded(
+            child: Transform.translate(
+              offset: const Offset(0, -1),
+              child: RefreshIndicator(
+                onRefresh: _fetchNotifications,
                 color: AppColors.buttonBlueDark,
                 child: Container(
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: const BorderRadius.only(
-                      topLeft: Radius.circular(30),
-                      topRight: Radius.circular(30),
-                    ),
-                    child: ConstrainedBox(
-                      constraints: BoxConstraints(
-                        minHeight:
-                            MediaQuery.of(context).size.height -
-                            90 -
-                            MediaQuery.paddingOf(context).top,
+                  width: double.infinity,
+                  color: AppColors.buttonBlueDark,
+                  child: Container(
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(30),
+                        topRight: Radius.circular(30),
                       ),
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 500),
-                        layoutBuilder: (currentChild, previousChildren) {
-                          return Stack(
-                            alignment: Alignment.topCenter,
-                            children: <Widget>[
-                              ...previousChildren,
-                              ?currentChild,
-                            ],
-                          );
-                        },
-                        child: _buildContent(),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: const BorderRadius.only(
+                        topLeft: Radius.circular(30),
+                        topRight: Radius.circular(30),
+                      ),
+                      child: SingleChildScrollView(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 500),
+                          layoutBuilder: (currentChild, previousChildren) {
+                            return Stack(
+                              alignment: Alignment.topCenter,
+                              children: <Widget>[
+                                ...previousChildren,
+                                ?currentChild,
+                              ],
+                            );
+                          },
+                          child: _buildContent(),
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }
@@ -363,7 +358,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
                 icon: const Icon(Icons.refresh),
                 label: Text(AppLocalizations.of(context)!.retry),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.buttonBlue,
+                  backgroundColor: AppColors.buttonBlueDark,
                   foregroundColor: Colors.white,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(20),

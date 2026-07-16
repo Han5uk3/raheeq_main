@@ -211,7 +211,7 @@ class _SubscriptionDetailsBottomSheetState
             ),
             const Icon(
               Icons.calendar_today,
-              color: AppColors.buttonBlue,
+              color: AppColors.buttonBlueDark,
               size: 20,
             ),
           ],
@@ -245,7 +245,7 @@ class _SubscriptionDetailsBottomSheetState
                 }
               },
               icon: const Icon(Icons.remove_circle_outline),
-              color: AppColors.buttonBlue,
+              color: AppColors.buttonBlueDark,
               iconSize: 28,
             ),
             const SizedBox(width: 24),
@@ -267,7 +267,7 @@ class _SubscriptionDetailsBottomSheetState
                 }
               },
               icon: const Icon(Icons.add_circle_outline),
-              color: AppColors.buttonBlue,
+              color: AppColors.buttonBlueDark,
               iconSize: 28,
             ),
           ],
@@ -327,7 +327,7 @@ class _SubscriptionDetailsBottomSheetState
                   }
                 });
               },
-              selectedColor: AppColors.buttonBlue.withValues(alpha: 0.2),
+              selectedColor: AppColors.buttonBlueDark.withValues(alpha: 0.2),
               checkmarkColor: AppColors.buttonBlueDark,
               labelStyle: TextStyle(
                 color: isSelected ? AppColors.buttonBlueDark : Colors.black87,

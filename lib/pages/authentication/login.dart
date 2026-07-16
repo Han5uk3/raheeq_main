@@ -324,7 +324,7 @@ class _LoginState extends State<Login> {
                       ),
                     ),
                     child: Image.asset(
-                      'assets/rahiq_login_2.png',
+                      'assets/login/new_login.png',
                       fit: BoxFit.contain,
                     ),
                   ),
@@ -546,28 +546,16 @@ class _LoginState extends State<Login> {
                                         context,
                                       )!.enter_phone,
                                       hintStyle: TextStyle(
-                                        color: AppColors.buttonBlueDark.withValues(alpha: 0.8),
-                                        fontSize: 12,
-                                      ),
-                                      border: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                        borderSide: const BorderSide(color: AppColors.buttonBlueDark),
-                                      ),
-                                      enabledBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                        borderSide: const BorderSide(color: AppColors.buttonBlueDark),
-                                      ),
-                                      focusedBorder: OutlineInputBorder(
-                                        borderRadius: BorderRadius.circular(12),
-                                        borderSide: const BorderSide(
-                                          color: AppColors.buttonBlue,
-                                          width: 1.5,
+                                        color: AppColors.black.withValues(
+                                          alpha: 0.8,
                                         ),
+                                        fontSize: 14,
                                       ),
+                                      border: InputBorder.none,
                                     ),
                                     style: const TextStyle(
-                                      color: AppColors.buttonBlueDark,
-                                      fontSize: 12,
+                                      color: AppColors.black,
+                                      fontSize: 14,
                                     ),
                                   ),
                                 ),

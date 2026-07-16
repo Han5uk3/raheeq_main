@@ -77,6 +77,32 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
     }
   }
 
+  String _formatPaymentMethod(BuildContext context, String method) {
+    if (method.isEmpty) return '';
+    final loc = AppLocalizations.of(context)!;
+    switch (method.toUpperCase()) {
+      case 'CREDIT_CARD':
+      case 'MADA':
+        return loc.credit_card_mada;
+      case 'STC_PAY':
+        return loc.stc_pay;
+      case 'APPLE_PAY':
+        return loc.apple_pay;
+      case 'BANK_TRANSFER':
+      case 'IBAN':
+        return loc.iban_bank_transfer;
+      default:
+        final parts = method.split('_');
+        return parts
+            .map(
+              (p) => p.isEmpty
+                  ? ''
+                  : '${p[0].toUpperCase()}${p.substring(1).toLowerCase()}',
+            )
+            .join(' ');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
@@ -86,7 +112,7 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
       backgroundColor: Colors.white,
       body: RefreshIndicator(
         onRefresh: _fetchDetails,
-        color: AppColors.buttonBlue,
+        color: AppColors.buttonBlueDark,
         child: SingleChildScrollView(
           physics: const ClampingScrollPhysics(),
           child: Column(
@@ -103,15 +129,19 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
                 constraints: BoxConstraints(
                   minHeight: MediaQuery.of(context).size.height - 100,
                 ),
-                color: AppColors.buttonBlueDark,
+                decoration: BoxDecoration(
+                  color: AppColors.buttonBlueDark,
+                  border: Border.all(color: AppColors.buttonBlueDark, width: 0),
+                ),
                 child: Container(
                   width: double.infinity,
-                  decoration: const BoxDecoration(
+                  decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.only(
                       topLeft: Radius.circular(30),
                       topRight: Radius.circular(30),
                     ),
+                    border: Border.all(style: BorderStyle.none, width: 0),
                   ),
                   child: AnimatedSwitcher(
                     duration: const Duration(milliseconds: 500),
@@ -293,10 +323,11 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
               ],
             ),
             const Divider(height: 32),
-            // _buildDetailRow(
-            //   AppLocalizations.of(context)!.purchased_date,
-            //   dateFormat.format(_details!..toLocal()),
-            // ),
+            _buildDetailRow(
+              AppLocalizations.of(context)!.payment_method,
+              _formatPaymentMethod(context, _details!.paymentMethod),
+            ),
+
             const SizedBox(height: 8),
             _buildDetailRow(
               AppLocalizations.of(context)!.start_date,
@@ -424,7 +455,7 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
       child: Card(
         color: Colors.white,
         margin: const EdgeInsets.only(bottom: 16),
-        elevation: 0,
+        elevation: 2,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(16),
           side: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
@@ -434,34 +465,14 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              const SizedBox(height: 4),
               Padding(
                 padding: const EdgeInsets.all(16),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.calendar_today_outlined,
-                          size: 20,
-                          color: AppColors.buttonBlueDark,
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          delivery.scheduledDate != null
-                              ? dateFormat.format(
-                                  delivery.scheduledDate!.toLocal(),
-                                )
-                              : dateFormat.format(delivery.createdAt.toLocal()),
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ],
-                    ),
                     Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           '#${delivery.orderNumber}',
@@ -470,35 +481,34 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
                             fontSize: 13,
                           ),
                         ),
-                        const SizedBox(height: 4),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 8,
-                            vertical: 4,
-                          ),
-                          decoration: BoxDecoration(
-                            color: _getStatusColor(
-                              delivery.status,
-                            ).withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          child: Text(
-                            _localizeStatus(delivery.status, context),
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.bold,
-                              color: _getStatusColor(delivery.status),
+                        SizedBox(height: 8),
+                        Row(
+                          children: [
+                            const Icon(
+                              Icons.calendar_today_outlined,
+                              size: 20,
+                              color: AppColors.buttonBlueDark,
                             ),
-                          ),
+                            const SizedBox(width: 8),
+                            Text(
+                              delivery.scheduledDate != null
+                                  ? dateFormat.format(
+                                      delivery.scheduledDate!.toLocal(),
+                                    )
+                                  : dateFormat.format(
+                                      delivery.createdAt.toLocal(),
+                                    ),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
                   ],
                 ),
-              ),
-              const Divider(height: 1, thickness: 1, color: Color(0xFFEEEEEE)),
-              ...delivery.subOrders.map(
-                (subOrder) => _buildSubOrder(subOrder, isAr, delivery.orderId),
               ),
             ],
           ),

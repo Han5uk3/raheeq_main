@@ -54,10 +54,12 @@ flutter:
   uses-material-design: true
   assets:
     - .env
-    - assets/giftcard.png
-    - assets/
     - assets/campaign/
+    - assets/static_banners/
+    - assets/app_logo/
+    - assets/payment_method_icons/
     - assets/login/
+    - assets/others/
 
   fonts:
     - family: SF Pro

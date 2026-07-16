@@ -23,4 +23,15 @@ class AppStorage {
   }
 
   static String? get lastProcessedDeepLink => _box.get(_lastDeepLinkKey);
+
+  static const String _latitudeKey = 'userLatitude';
+  static const String _longitudeKey = 'userLongitude';
+
+  static Future<void> saveUserLocation(double lat, double lng) async {
+    await _box.put(_latitudeKey, lat);
+    await _box.put(_longitudeKey, lng);
+  }
+
+  static double? get userLatitude => _box.get(_latitudeKey);
+  static double? get userLongitude => _box.get(_longitudeKey);
 }

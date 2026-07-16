@@ -128,6 +128,16 @@ class ApiService {
         },
         onError: (DioException e, handler) async {
           DioException customException = e;
+
+          if (e.response?.statusCode == 502) {
+            final isAr = localeNotifier.value.languageCode == 'ar';
+            e.response?.data = {
+              'message': isAr
+                  ? 'خطأ في الخادم. يرجى المحاولة مرة أخرى لاحقًا.'
+                  : 'Server error. Please try again later',
+            };
+          }
+
           if (e.response?.data is Map && e.response?.data['message'] != null) {
             customException = ApiDioException(
               requestOptions: e.requestOptions,
@@ -619,10 +629,7 @@ class ApiService {
       if (etag != null && etag.isNotEmpty) {
         options.headers = {'If-None-Match': etag};
       }
-      final response = await _dio.get(
-        '/geography/cities',
-        options: options,
-      );
+      final response = await _dio.get('/geography/cities', options: options);
       return response;
     } catch (e) {
       rethrow;
@@ -1191,10 +1198,7 @@ class ApiService {
       if (etag != null && etag.isNotEmpty) {
         options.headers = {'If-None-Match': etag};
       }
-      final response = await _dio.get(
-        '/me/impact',
-        options: options,
-      );
+      final response = await _dio.get('/me/impact', options: options);
       return response;
     } catch (e) {
       rethrow;

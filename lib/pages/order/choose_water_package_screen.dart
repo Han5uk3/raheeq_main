@@ -363,7 +363,7 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
             side: BorderSide(
-              color: isSelected ? AppColors.buttonBlue : Colors.transparent,
+              color: isSelected ? AppColors.buttonBlueDark : Colors.transparent,
               width: 2,
             ),
           ),
@@ -393,7 +393,7 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
                           errorWidget: (context, url, error) => const Center(
                             child: Icon(
                               Icons.water_drop,
-                              color: AppColors.buttonBlue,
+                              color: AppColors.buttonBlueDark,
                               size: 40,
                             ),
                           ),
@@ -401,7 +401,7 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
                       : const Center(
                           child: Icon(
                             Icons.water_drop,
-                            color: AppColors.buttonBlue,
+                            color: AppColors.buttonBlueDark,
                             size: 40,
                           ),
                         ),

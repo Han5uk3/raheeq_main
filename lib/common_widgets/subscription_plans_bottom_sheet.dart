@@ -208,14 +208,14 @@ class _SubscriptionPlansBottomSheetState
                                   borderRadius: BorderRadius.circular(16),
                                   border: Border.all(
                                     color: isSelected
-                                        ? AppColors.buttonBlue
+                                        ? AppColors.buttonBlueDark
                                         : Colors.grey[200]!,
                                     width: isSelected ? 2 : 1,
                                   ),
                                   boxShadow: isSelected
                                       ? [
                                           BoxShadow(
-                                            color: AppColors.buttonBlue
+                                            color: AppColors.buttonBlueDark
                                                 .withValues(alpha: 0.1),
                                             blurRadius: 10,
                                             offset: const Offset(0, 4),
@@ -287,7 +287,7 @@ class _SubscriptionPlansBottomSheetState
                                       const SizedBox(width: 4),
                                       const Icon(
                                         Icons.check_circle,
-                                        color: AppColors.buttonBlue,
+                                        color: AppColors.buttonBlueDark,
                                         size: 20,
                                       ),
                                     ],

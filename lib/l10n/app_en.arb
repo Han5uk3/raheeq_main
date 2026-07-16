@@ -162,6 +162,8 @@
   "deliver_blessings": "Deliver Blessings.",
   "give_water": "Give Water.",
   "we": "We",
+  "kilometer": "Km",
+  "meter": "m",
   "coming_soon": "Coming Soon...",
   "your_impact": "Your Impact",
   "view_status_and_delivery_details": "View status and delivery details.",
@@ -173,9 +175,9 @@
   "starting_from": "Starting from",
   "high_need": "High Need",
   "essential_mosque_supplies": "Essential Mosque Supplies",
-  "choose_your_cause_and_make_an_impact": "Choose the destination you want to deliver to :",
-  "quick_actions": "Quick Actions",
-  "donate_now": "Donate Now   ",
+  "choose_where_to_give_and_create_a_lasting_impact": "Choose where to give and create a lasting impact.",
+  "giving_opportunities": "Giving Opportunities",
+  "donate_now": "Donate Now",
   "subscribe": "Subscribe",
   "i_understand": "I understand",
   "your_current_basket_will_be_cleared_and_you_will_be_moved_to_targetname": "Your current basket will be cleared and you will be moved to $targetName.",
@@ -509,6 +511,7 @@
   "failed_to_retrieve_google_id_token": "Failed to retrieve Google ID token",
   "failed_to_retrieve_apple_identity_token": "Failed to retrieve Apple Identity token",
   "failed_to_submit_review": "Failed to submit review",
+  "failed_to_load_orders_page": "Failed to load orders page",
   "no_chillers_found": "No chillers found",
   "location": "Location",
   "address": "Address",
@@ -534,5 +537,16 @@
       }
     }
   },
-  "internet_error": "Internet error. Please check your internet connection"
+  "internet_error": "Internet error. Please check your internet connection",
+  "@distanceAway": {
+    "description": "Displays how far something is from the user",
+    "placeholders": {
+      "distance": {
+        "type": "String",
+        "example": "23.87"
+      }
+    }
+  },
+  "distanceAway": "{distance} km away from you",
+  "product": "Product"
 }

@@ -129,6 +129,7 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
           ),
           Expanded(
             child: Container(
+              transform: Matrix4.translationValues(0.0, -1.0, 0.0),
               color: AppColors.buttonBlueDark,
               child: Container(
                 width: double.infinity,

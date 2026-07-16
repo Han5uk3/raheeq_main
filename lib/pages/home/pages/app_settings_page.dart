@@ -41,7 +41,7 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     )!.manage_preferences_and_app_info;
 
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.buttonBlueDark,
       body: Column(
         children: [
           CustomAppBar(
@@ -53,35 +53,102 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
             onBackTap: () => Navigator.pop(context),
           ),
           Expanded(
-            child: Container(
-              color: AppColors.buttonBlueDark,
+            child: Transform.translate(
+              offset: const Offset(0, -1),
               child: Container(
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(30),
+                color: AppColors.buttonBlueDark,
+                child: Container(
+                  width: double.infinity,
+                  decoration: const BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(30),
+                      topRight: Radius.circular(30),
+                    ),
                   ),
-                ),
-                child: SingleChildScrollView(
-                  physics: const ClampingScrollPhysics(),
-                  padding: const EdgeInsets.all(24),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Language Switch
-                      GestureDetector(
-                        onTap: () {
-                          _showLanguageDialog(context);
-                        },
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 12,
+                  child: SingleChildScrollView(
+                    physics: const ClampingScrollPhysics(),
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Language Switch
+                        GestureDetector(
+                          onTap: () {
+                            _showLanguageDialog(context);
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.white,
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: const Color(0xFFEAEFF2),
+                              ),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withValues(alpha: 0.2),
+                                  spreadRadius: 1,
+                                  blurRadius: 10,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(
+                                      Icons.language,
+                                      color: AppColors.buttonBlueDark,
+                                    ),
+                                    const SizedBox(width: 16),
+                                    Text(
+                                      AppLocalizations.of(
+                                        context,
+                                      )!.app_language,
+                                      style: const TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Text(
+                                      isAr ? 'عربي' : 'English',
+                                      style: const TextStyle(
+                                        fontSize: 14,
+                                        fontWeight: FontWeight.bold,
+                                        color: AppColors.buttonBlueDark,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            ),
                           ),
+                        ),
+                        const SizedBox(height: 16),
+
+                        // App Info Card
+                        Text(
+                          AppLocalizations.of(context)!.app_information,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Container(
+                          padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
-                            color: AppColors.white,
+                            color: Colors.white,
                             borderRadius: BorderRadius.circular(16),
                             border: Border.all(color: const Color(0xFFEAEFF2)),
                             boxShadow: [
@@ -93,135 +160,28 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
                               ),
                             ],
                           ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          child: Column(
                             children: [
-                              Row(
-                                children: [
-                                  const Icon(
-                                    Icons.language,
-                                    color: AppColors.buttonBlue,
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Text(
-                                    AppLocalizations.of(context)!.app_language,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w500,
-                                    ),
-                                  ),
-                                ],
+                              _buildInfoRow(
+                                AppLocalizations.of(context)!.version,
+                                _appVersion.isEmpty ? '...' : _appVersion,
                               ),
-                              Row(
-                                children: [
-                                  Text(
-                                    isAr ? 'عربي' : 'English',
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                      color: AppColors.buttonBlue,
-                                    ),
-                                  ),
-                                ],
+                              const Padding(
+                                padding: EdgeInsets.symmetric(vertical: 12),
+                                child: Divider(
+                                  height: 1,
+                                  color: Color(0xFFEAEFF2),
+                                ),
+                              ),
+                              _buildInfoRow(
+                                AppLocalizations.of(context)!.build_number,
+                                _buildNumber.isEmpty ? '...' : _buildNumber,
                               ),
                             ],
                           ),
                         ),
-                      ),
-                      const SizedBox(height: 16),
-
-                      // Dark Mode Switch
-                      // Container(
-                      //   padding: const EdgeInsets.symmetric(
-                      //     horizontal: 16,
-                      //     vertical: 12,
-                      //   ),
-                      //   decoration: BoxDecoration(
-                      //     color: const Color(0xFFF2F4F5),
-                      //     borderRadius: BorderRadius.circular(16),
-                      //   ),
-                      //   child: Row(
-                      //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      //     children: [
-                      //       Row(
-                      //         children: [
-                      //           Icon(
-                      //             _isDarkMode
-                      //                 ? Icons.dark_mode
-                      //                 : Icons.light_mode,
-                      //             color: AppColors.buttonBlue,
-                      //           ),
-                      //           const SizedBox(width: 16),
-                      //           Text(
-                      //             AppLocalizations.of(context)!.dark_mode,
-                      //             style: const TextStyle(
-                      //               fontSize: 16,
-                      //               fontWeight: FontWeight.w500,
-                      //             ),
-                      //           ),
-                      //         ],
-                      //       ),
-                      //       Switch(
-                      //         value: _isDarkMode,
-                      //         onChanged: (value) {
-                      //           setState(() {
-                      //             _isDarkMode = value;
-                      //           });
-                      //           CustomSnackbar.show(context: context, message: //                 AppLocalizations.of(context)!.theme_switching_coming_soon,
-                      //, duration: const Duration(seconds: 1));
-                      //         },
-                      //         activeThumbColor: AppColors.buttonBlueDark,
-                      //       ),
-                      //     ],
-                      //   ),
-                      // ),
-                      // const SizedBox(height: 24),
-
-                      // App Info Card
-                      Text(
-                        AppLocalizations.of(context)!.app_information,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(16),
-                          border: Border.all(color: const Color(0xFFEAEFF2)),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withValues(alpha: 0.2),
-                              spreadRadius: 1,
-                              blurRadius: 10,
-                              offset: const Offset(0, 4),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          children: [
-                            _buildInfoRow(
-                              AppLocalizations.of(context)!.version,
-                              _appVersion.isEmpty ? '...' : _appVersion,
-                            ),
-                            const Padding(
-                              padding: EdgeInsets.symmetric(vertical: 12),
-                              child: Divider(
-                                height: 1,
-                                color: Color(0xFFEAEFF2),
-                              ),
-                            ),
-                            _buildInfoRow(
-                              AppLocalizations.of(context)!.build_number,
-                              _buildNumber.isEmpty ? '...' : _buildNumber,
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -307,11 +267,13 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
         decoration: BoxDecoration(
           color: isSelected
-              ? AppColors.buttonBlue.withValues(alpha: 0.1)
+              ? AppColors.buttonBlueDark.withValues(alpha: 0.1)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(
-            color: isSelected ? AppColors.buttonBlue : const Color(0xFFEAEFF2),
+            color: isSelected
+                ? AppColors.buttonBlueDark
+                : const Color(0xFFEAEFF2),
           ),
         ),
         child: Row(
@@ -322,13 +284,13 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
               style: TextStyle(
                 fontSize: 16,
                 fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                color: isSelected ? AppColors.buttonBlue : Colors.black87,
+                color: isSelected ? AppColors.buttonBlueDark : Colors.black87,
               ),
             ),
             if (isSelected)
               const Icon(
                 Icons.radio_button_checked,
-                color: AppColors.buttonBlue,
+                color: AppColors.buttonBlueDark,
                 size: 20,
               )
             else

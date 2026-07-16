@@ -824,6 +824,18 @@ abstract class AppLocalizations {
   /// **'We'**
   String get we;
 
+  /// No description provided for @kilometer.
+  ///
+  /// In en, this message translates to:
+  /// **'Km'**
+  String get kilometer;
+
+  /// No description provided for @meter.
+  ///
+  /// In en, this message translates to:
+  /// **'m'**
+  String get meter;
+
   /// No description provided for @coming_soon.
   ///
   /// In en, this message translates to:
@@ -890,22 +902,22 @@ abstract class AppLocalizations {
   /// **'Essential Mosque Supplies'**
   String get essential_mosque_supplies;
 
-  /// No description provided for @choose_your_cause_and_make_an_impact.
+  /// No description provided for @choose_where_to_give_and_create_a_lasting_impact.
   ///
   /// In en, this message translates to:
-  /// **'Choose the destination you want to deliver to :'**
-  String get choose_your_cause_and_make_an_impact;
+  /// **'Choose where to give and create a lasting impact.'**
+  String get choose_where_to_give_and_create_a_lasting_impact;
 
-  /// No description provided for @quick_actions.
+  /// No description provided for @giving_opportunities.
   ///
   /// In en, this message translates to:
-  /// **'Quick Actions'**
-  String get quick_actions;
+  /// **'Giving Opportunities'**
+  String get giving_opportunities;
 
   /// No description provided for @donate_now.
   ///
   /// In en, this message translates to:
-  /// **'Donate Now   '**
+  /// **'Donate Now'**
   String get donate_now;
 
   /// No description provided for @subscribe.
@@ -2824,6 +2836,12 @@ abstract class AppLocalizations {
   /// **'Failed to submit review'**
   String get failed_to_submit_review;
 
+  /// No description provided for @failed_to_load_orders_page.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to load orders page'**
+  String get failed_to_load_orders_page;
+
   /// No description provided for @no_chillers_found.
   ///
   /// In en, this message translates to:
@@ -2937,6 +2955,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Internet error. Please check your internet connection'**
   String get internet_error;
+
+  /// Displays how far something is from the user
+  ///
+  /// In en, this message translates to:
+  /// **'{distance} km away from you'**
+  String distanceAway(String distance);
+
+  /// No description provided for @product.
+  ///
+  /// In en, this message translates to:
+  /// **'Product'**
+  String get product;
 }
 
 class _AppLocalizationsDelegate

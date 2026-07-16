@@ -499,7 +499,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
         log('Payment Flow: SDK Configuration generated.', name: 'CheckoutFlow');
 
         final theme = IOSThemeConfigurations();
-        theme.logoImage = "assets/logo.png";
+        theme.logoImage = "assets/app_logo/logo.png";
 
         theme.secondaryColor = "1A6A8F";
         theme.secondaryColorDark = "1A6A8F";
@@ -840,7 +840,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
               color: const Color(0xFFF0F7FB),
               borderRadius: BorderRadius.circular(12),
               border: Border.all(
-                color: AppColors.buttonBlue.withValues(alpha: 0.1),
+                color: AppColors.buttonBlueDark.withValues(alpha: 0.1),
               ),
             ),
             child: Column(children: rows),
@@ -954,6 +954,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                 ),
                 SliverToBoxAdapter(
                   child: Container(
+                    transform: Matrix4.translationValues(0.0, -1.0, 0.0),
                     color: AppColors.buttonBlueDark,
                     child: Container(
                       width: double.infinity,
@@ -982,7 +983,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(16),
                                   child: Image.asset(
-                                    "assets/payment_banner.jpeg",
+                                    "assets/static_banners/payment_banner.jpeg",
                                     fit: BoxFit.cover,
                                   ),
 
@@ -1182,19 +1183,18 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                                                 .buttonBlueDark,
                                                           ),
                                                     ),
-                                                    focusedBorder:
-                                                        OutlineInputBorder(
-                                                          borderRadius:
-                                                              BorderRadius.circular(
-                                                                12,
-                                                              ),
-                                                          borderSide:
-                                                              const BorderSide(
-                                                                color: AppColors
-                                                                    .buttonBlue,
-                                                                width: 1.5,
-                                                              ),
-                                                        ),
+                                                    focusedBorder: OutlineInputBorder(
+                                                      borderRadius:
+                                                          BorderRadius.circular(
+                                                            12,
+                                                          ),
+                                                      borderSide:
+                                                          const BorderSide(
+                                                            color: AppColors
+                                                                .buttonBlueDark,
+                                                            width: 1.5,
+                                                          ),
+                                                    ),
                                                     isDense: true,
                                                     contentPadding:
                                                         const EdgeInsets.symmetric(
@@ -2154,7 +2154,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                 ),
               ),
               child: Image.asset(
-                "assets/giftcard.png",
+                "assets/others/giftcard.png",
                 width: 130,
                 height: 140,
               ),

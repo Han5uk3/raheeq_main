@@ -432,7 +432,10 @@ class _GiftCardPageState extends State<GiftCardPage> {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
-          borderSide: const BorderSide(color: AppColors.buttonBlue, width: 1.5),
+          borderSide: const BorderSide(
+            color: AppColors.buttonBlueDark,
+            width: 1.5,
+          ),
         ),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
@@ -683,7 +686,7 @@ class _GiftCardPageState extends State<GiftCardPage> {
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(
-                  color: AppColors.buttonBlue,
+                  color: AppColors.buttonBlueDark,
                   width: 1.5,
                 ),
               ),

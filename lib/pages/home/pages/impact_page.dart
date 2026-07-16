@@ -156,7 +156,7 @@ class _ImpactPageState extends State<ImpactPage> {
                           fit: BoxFit.contain,
                           errorWidget: (context, url, error) => const Icon(
                             Icons.water_drop,
-                            color: AppColors.buttonBlue,
+                            color: AppColors.buttonBlueDark,
                           ),
                         ),
                       ),
@@ -307,7 +307,7 @@ class _ImpactPageState extends State<ImpactPage> {
   Widget build(BuildContext context) {
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: AppColors.buttonBlueDark,
       body: CustomScrollView(
         slivers: [
           SliverToBoxAdapter(
@@ -323,9 +323,13 @@ class _ImpactPageState extends State<ImpactPage> {
           SliverFillRemaining(
             hasScrollBody: false,
             child: Container(
-              color: AppColors.buttonBlueDark,
+              decoration: BoxDecoration(
+                color: AppColors.buttonBlueDark,
+
+                border: Border.all(width: 1, color: AppColors.buttonBlueDark),
+              ),
               child: Container(
-                decoration: const BoxDecoration(
+                decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(30),
@@ -333,8 +337,8 @@ class _ImpactPageState extends State<ImpactPage> {
                   ),
                 ),
                 padding: const EdgeInsets.symmetric(
-                  horizontal: 24,
-                  vertical: 24,
+                  horizontal: 16,
+                  vertical: 16,
                 ),
                 child: AnimatedSwitcher(
                   duration: const Duration(milliseconds: 500),

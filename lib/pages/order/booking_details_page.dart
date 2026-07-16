@@ -811,7 +811,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
           style: TextStyle(
             fontSize: isTotal ? 16 : 14,
             fontWeight: FontWeight.bold,
-            color: isTotal ? AppColors.buttonBlue : Colors.black,
+            color: isTotal ? AppColors.buttonBlueDark : Colors.black,
           ),
         ),
       ],

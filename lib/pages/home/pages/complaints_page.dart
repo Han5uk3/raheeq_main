@@ -447,21 +447,27 @@ class _ComplaintsPageState extends State<ComplaintsPage> {
                               : null,
                           hintText: loc.enter_complaint_hint,
                           hintStyle: TextStyle(
-                            color: AppColors.buttonBlueDark.withValues(alpha: 0.8),
+                            color: AppColors.buttonBlueDark.withValues(
+                              alpha: 0.8,
+                            ),
                             fontSize: 12,
                           ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: AppColors.buttonBlueDark),
+                            borderSide: const BorderSide(
+                              color: AppColors.buttonBlueDark,
+                            ),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
-                            borderSide: const BorderSide(color: AppColors.buttonBlueDark),
+                            borderSide: const BorderSide(
+                              color: AppColors.buttonBlueDark,
+                            ),
                           ),
                           focusedBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(12),
                             borderSide: const BorderSide(
-                              color: AppColors.buttonBlue,
+                              color: AppColors.buttonBlueDark,
                               width: 1.5,
                             ),
                           ),
