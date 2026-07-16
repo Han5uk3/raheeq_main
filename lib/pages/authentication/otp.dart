@@ -360,6 +360,8 @@ class _OTPState extends State<OTP> {
                               length: 4,
                               controller: _pinController,
                               focusNode: _focusNode,
+                              autofillHints: const [AutofillHints.oneTimeCode],
+                              keyboardType: TextInputType.number,
                               onCompleted: (pin) {
                                 if (!_isVerifying) {
                                   _verifyOtp();
