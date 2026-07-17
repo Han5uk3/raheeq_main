@@ -225,7 +225,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
         start: 16,
         end: 16,
         top: 16,
-        bottom: 16,
+        bottom: 120,
       ),
       itemCount: relevantStates.length,
       separatorBuilder: (_, __) => const SizedBox(height: 16),
@@ -560,121 +560,109 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
               },
             ),
           ),
-          body: NestedScrollView(
-            headerSliverBuilder: (context, innerBoxIsScrolled) {
-              return [
-                SliverToBoxAdapter(
-                  child: CustomAppBar(
-                    hasBackgroundColor: true,
-                    isStartAligned: true,
-                    title: title,
-                    subtitle: subtitle,
-                    showBackButton: true,
-                    onBackTap: () => Navigator.pop(context),
-                  ),
-                ),
-                SliverToBoxAdapter(
-                  child: Stack(
-                    children: [
-                      Container(height: 50, color: AppColors.buttonBlueDark),
-                      Container(
-                        decoration: const BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.only(
-                            topLeft: Radius.circular(30),
-                            topRight: Radius.circular(30),
+          body: Column(
+            children: [
+              CustomAppBar(
+                hasBackgroundColor: true,
+                isStartAligned: true,
+                title: title,
+                subtitle: subtitle,
+                showBackButton: true,
+                onBackTap: () => Navigator.pop(context),
+              ),
+              Stack(
+                children: [
+                  Container(height: 50, color: AppColors.buttonBlueDark),
+                  Container(
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(30),
+                        topRight: Radius.circular(30),
+                      ),
+                    ),
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 16),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: AspectRatio(
+                            aspectRatio: 790 / 418,
+                            child: Material(
+                              elevation: 1,
+                              borderRadius: BorderRadius.circular(16),
+                              clipBehavior: Clip.antiAlias,
+                              color: Colors.white,
+                              child: Image.asset(
+                                "assets/static_banners/details_banner.jpeg",
+                                fit: BoxFit.cover,
+                              ),
+                            ),
                           ),
                         ),
-                        child: Column(
-                          children: [
-                            const SizedBox(height: 16),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16.0,
-                              ),
-                              child: AspectRatio(
-                                aspectRatio: 790 / 418,
-                                child: Material(
-                                  elevation: 1,
-                                  borderRadius: BorderRadius.circular(16),
-                                  clipBehavior: Clip.antiAlias,
-                                  color: Colors.white,
-                                  child: Image.asset(
-                                    "assets/static_banners/details_banner.jpeg",
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                              ),
-                            ),
-                            const SizedBox(height: 16),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16.0,
-                              ),
-                              child: ClipRRect(
+                        const SizedBox(height: 16),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(25),
+                            child: Container(
+                              height: 50,
+                              decoration: BoxDecoration(
+                                color: const Color(0xFFE5E9EC),
                                 borderRadius: BorderRadius.circular(25),
-                                child: Container(
-                                  height: 50,
-                                  decoration: BoxDecoration(
-                                    color: const Color(0xFFE5E9EC),
-                                    borderRadius: BorderRadius.circular(25),
-                                  ),
-                                  child: TabBar(
-                                    splashBorderRadius: BorderRadius.circular(
-                                      25,
-                                    ),
-                                    isScrollable: _uniqueProducts.length > 3,
-                                    dividerColor: Colors.transparent,
-                                    dividerHeight: 0,
-                                    labelColor: Colors.white,
-                                    unselectedLabelColor:
-                                        AppColors.buttonBlueDark,
-                                    indicatorSize: TabBarIndicatorSize.tab,
-                                    indicator: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(25),
-                                      color: AppColors.buttonBlueDark,
-                                    ),
-                                    labelPadding: EdgeInsets.zero,
-                                    labelStyle: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 14,
-                                    ),
-                                    tabs: _uniqueProducts
-                                        .map(
-                                          (p) => Tab(
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                    horizontal: 0,
-                                                  ),
-                                              child: Text(
-                                                p.localizedName(isAr),
-                                                style: TextStyle(fontSize: 12),
-                                              ),
-                                            ),
-                                          ),
-                                        )
-                                        .toList(),
-                                  ),
+                              ),
+                              child: TabBar(
+                                splashBorderRadius: BorderRadius.circular(25),
+                                isScrollable: _uniqueProducts.length > 3,
+                                dividerColor: Colors.transparent,
+                                dividerHeight: 0,
+                                labelColor: Colors.white,
+                                unselectedLabelColor: AppColors.buttonBlueDark,
+                                indicatorSize: TabBarIndicatorSize.tab,
+                                indicator: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(25),
+                                  color: AppColors.buttonBlueDark,
                                 ),
+                                labelPadding: EdgeInsets.zero,
+                                labelStyle: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 14,
+                                ),
+                                tabs: _uniqueProducts
+                                    .map(
+                                      (p) => Tab(
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 0,
+                                          ),
+                                          child: Text(
+                                            p.localizedName(isAr),
+                                            style: TextStyle(fontSize: 12),
+                                          ),
+                                        ),
+                                      ),
+                                    )
+                                    .toList(),
                               ),
                             ),
-                          ],
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              Expanded(
+                child: Container(
+                  decoration: BoxDecoration(color: AppColors.white),
+                  child: TabBarView(
+                    children: _uniqueProducts.map((product) {
+                      return _buildProductTab(product, isAr);
+                    }).toList(),
                   ),
                 ),
-              ];
-            },
-            body: Container(
-              decoration: BoxDecoration(color: AppColors.white),
-              child: TabBarView(
-                children: _uniqueProducts.map((product) {
-                  return _buildProductTab(product, isAr);
-                }).toList(),
               ),
-            ),
+            ],
           ),
         ),
       ),

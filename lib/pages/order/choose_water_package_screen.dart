@@ -78,10 +78,9 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
     );
 
     for (final carton in cartons) {
-      final quantities = carton.presetQuantities
-          .where((q) => q >= carton.minQuantity)
-          .toList()
-        ..sort();
+      final quantities =
+          carton.presetQuantities.where((q) => q >= carton.minQuantity).toList()
+            ..sort();
       if (quantities.isNotEmpty) {
         _selectedCartonSlotId = '${carton.id}_${quantities.first}';
         break;
@@ -104,10 +103,11 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
     final chillers = widget.availableProducts.where((p) => p.serialNumber == 2);
 
     for (final chiller in chillers) {
-      final quantities = chiller.presetQuantities
-          .where((q) => q >= chiller.minQuantity)
-          .toList()
-        ..sort();
+      final quantities =
+          chiller.presetQuantities
+              .where((q) => q >= chiller.minQuantity)
+              .toList()
+            ..sort();
       for (final qty in quantities) {
         slots.add(
           _ProductSlot(product: chiller, isChiller: true, quantity: qty),
@@ -121,10 +121,9 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
     );
 
     for (final carton in cartons) {
-      final quantities = carton.presetQuantities
-          .where((q) => q >= carton.minQuantity)
-          .toList()
-        ..sort();
+      final quantities =
+          carton.presetQuantities.where((q) => q >= carton.minQuantity).toList()
+            ..sort();
       for (final qty in quantities) {
         slots.add(
           _ProductSlot(product: carton, isChiller: false, quantity: qty),
@@ -446,19 +445,6 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
 
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Subtitle row
-                      Text(
-                        slot.isChiller
-                            ? AppLocalizations.of(context)!.two_year_guarantee
-                            : (isAr ? product.subtitleAr : product.subtitle),
-                        style: const TextStyle(
-                          fontSize: 10,
-                          color: Colors.grey,
-                        ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-
                       // Product name
                       Text(
                         "${slot.quantity} ${product.localizedName(isAr)}",
@@ -472,7 +458,19 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
                       ),
 
                       const Spacer(),
-
+                      // Subtitle row
+                      Text(
+                        slot.isChiller
+                            ? AppLocalizations.of(context)!.two_year_guarantee
+                            : (isAr ? product.subtitleAr : product.subtitle),
+                        style: const TextStyle(
+                          fontSize: 10,
+                          color: Colors.grey,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      SizedBox(height: 5),
                       // Price
                       Text(
                         '\u202A${AppLocalizations.of(context)!.sar_currency} ${totalPrice.toStringAsFixed(0)}\u202C',

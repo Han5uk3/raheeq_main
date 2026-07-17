@@ -772,7 +772,7 @@ class AppLocalizationsAr extends AppLocalizations {
       'هل تود إضافة ملاحظة لمندوب التوصيل؟';
 
   @override
-  String get general => 'غير محدد';
+  String get general => 'الأكثر حاجة';
 
   @override
   String get most_in_need => 'الأشد حاجة';
