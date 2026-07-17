@@ -27,15 +27,26 @@ class _OrdersTabState extends State<OrdersTab>
   late TabController _tabController;
   int _lastFetchedIndex = 0;
 
+  static bool _hasLoadedOnce = false;
+  static String? _cachedUpcomingETag;
+  static String? _cachedOutForDeliveryETag;
+  static String? _cachedDeliveredETag;
+
+  static List<OrderResponseModel> _cachedUpcomingOrders = [];
+  static List<OrderResponseModel> _cachedOutForDeliveryOrders = [];
+  static List<OrderResponseModel> _cachedDeliveredOrders = [];
+  static List<bool> _cachedHasMore = [true, true, true];
+
   bool _isLoading = true;
   bool _isLoadingMore = false;
-  bool _hasMore = true;
-  int _currentPage = 1;
   String? _errorMessage;
 
-  List<OrderResponseModel> _newOrders = [];
-  List<OrderResponseModel> _outForDelivery = [];
-  List<OrderResponseModel> _delivered = [];
+  late List<OrderResponseModel> _newOrders;
+  late List<OrderResponseModel> _outForDelivery;
+  late List<OrderResponseModel> _delivered;
+
+  List<int> _currentPages = [1, 1, 1];
+  late List<bool> _hasMoreList;
 
   final ScrollController _scrollController = ScrollController();
 
@@ -44,14 +55,27 @@ class _OrdersTabState extends State<OrdersTab>
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(_handleTabSelection);
-    _fetchOrders();
+    
+    _newOrders = List.from(_cachedUpcomingOrders);
+    _outForDelivery = List.from(_cachedOutForDeliveryOrders);
+    _delivered = List.from(_cachedDeliveredOrders);
+    _hasMoreList = List.from(_cachedHasMore);
+
+    if (_hasLoadedOnce) {
+      _isLoading = false;
+    }
+
     _scrollController.addListener(_scrollListener);
+    
+    // Always update them when page is opened
+    _fetchAllOrders();
   }
 
   void _handleTabSelection() {
     if (_tabController.index != _lastFetchedIndex) {
-      _lastFetchedIndex = _tabController.index;
-      _fetchOrders();
+      setState(() {
+        _lastFetchedIndex = _tabController.index;
+      });
     }
   }
 
@@ -67,7 +91,7 @@ class _OrdersTabState extends State<OrdersTab>
             _scrollController.position.maxScrollExtent - 200 &&
         !_isLoading &&
         !_isLoadingMore &&
-        _hasMore) {
+        _hasMoreList[_tabController.index]) {
       _loadMoreOrders();
     }
   }
@@ -78,83 +102,141 @@ class _OrdersTabState extends State<OrdersTab>
     return 'delivered';
   }
 
-  Future<void> _fetchOrders() async {
+  Future<void> _fetchAllOrders() async {
+    if (!mounted) return;
     setState(() {
-      _isLoading = true;
+      if (!_hasLoadedOnce) _isLoading = true;
       _errorMessage = null;
-      _currentPage = 1;
-      _hasMore = true;
-      if (_tabController.index == 0) {
-        _newOrders.clear();
-      } else if (_tabController.index == 1) {
-        _outForDelivery.clear();
-      } else {
-        _delivered.clear();
-      }
+      _currentPages = [1, 1, 1];
     });
 
     try {
-      final response = await ApiService().getMyOrders(
-        page: _currentPage,
-        tab: _getTabName(),
+      final upcomingFuture = ApiService().getMyOrders(
+        page: 1,
+        tab: 'upcoming',
+        etag: _cachedUpcomingETag,
       );
-      _processOrdersResponse(response);
+      final outForDeliveryFuture = ApiService().getMyOrders(
+        page: 1,
+        tab: 'out_for_delivery',
+        etag: _cachedOutForDeliveryETag,
+      );
+      final deliveredFuture = ApiService().getMyOrders(
+        page: 1,
+        tab: 'delivered',
+        etag: _cachedDeliveredETag,
+      );
+
+      final responses = await Future.wait([
+        upcomingFuture,
+        outForDeliveryFuture,
+        deliveredFuture,
+      ]);
+
+      _processInitialResponse(0, responses[0], 'upcoming');
+      _processInitialResponse(1, responses[1], 'out_for_delivery');
+      _processInitialResponse(2, responses[2], 'delivered');
+
+      _hasLoadedOnce = true;
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     } catch (e) {
-      setState(() {
-        _errorMessage = e.toString();
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          _errorMessage = e.toString();
+          _isLoading = false;
+        });
+      }
+    }
+  }
+
+  void _processInitialResponse(int tabIndex, dynamic response, String tabName) {
+    if (response.statusCode == 304) {
+      if (tabIndex == 0) _newOrders = List.from(_cachedUpcomingOrders);
+      if (tabIndex == 1) _outForDelivery = List.from(_cachedOutForDeliveryOrders);
+      if (tabIndex == 2) _delivered = List.from(_cachedDeliveredOrders);
+      _hasMoreList[tabIndex] = _cachedHasMore[tabIndex];
+      return;
+    }
+
+    if (response.statusCode == 200 && response.data['success'] == true) {
+      final newEtag = response.headers.value('etag');
+      if (newEtag != null) {
+        if (tabIndex == 0) _cachedUpcomingETag = newEtag;
+        if (tabIndex == 1) _cachedOutForDeliveryETag = newEtag;
+        if (tabIndex == 2) _cachedDeliveredETag = newEtag;
+      }
+
+      final data = response.data['data']['items'] as List;
+      final orders = data.map((json) => OrderResponseModel.fromJson(json)).toList();
+      final int totalPages = response.data['data']['totalPages'] ?? 1;
+
+      if (tabIndex == 0) {
+        _cachedUpcomingOrders = List.from(orders);
+        _newOrders = List.from(orders);
+      } else if (tabIndex == 1) {
+        _cachedOutForDeliveryOrders = List.from(orders);
+        _outForDelivery = List.from(orders);
+      } else {
+        _cachedDeliveredOrders = List.from(orders);
+        _delivered = List.from(orders);
+      }
+
+      final hasMore = 1 < totalPages;
+      _hasMoreList[tabIndex] = hasMore;
+      _cachedHasMore[tabIndex] = hasMore;
     }
   }
 
   Future<void> _loadMoreOrders() async {
+    final tabIndex = _tabController.index;
     setState(() {
       _isLoadingMore = true;
     });
 
     try {
-      _currentPage++;
+      _currentPages[tabIndex]++;
       final response = await ApiService().getMyOrders(
-        page: _currentPage,
+        page: _currentPages[tabIndex],
         tab: _getTabName(),
       );
-      _processOrdersResponse(response);
+
+      if (response.statusCode == 200 && response.data['success'] == true) {
+        final data = response.data['data']['items'] as List;
+        final orders = data.map((json) => OrderResponseModel.fromJson(json)).toList();
+        final int totalPages = response.data['data']['totalPages'] ?? 1;
+
+        if (mounted) {
+          setState(() {
+            if (tabIndex == 0) {
+              _newOrders.addAll(orders);
+            } else if (tabIndex == 1) {
+              _outForDelivery.addAll(orders);
+            } else {
+              _delivered.addAll(orders);
+            }
+            _hasMoreList[tabIndex] = _currentPages[tabIndex] < totalPages;
+            _isLoadingMore = false;
+          });
+        }
+      } else {
+        if (mounted) {
+          setState(() {
+            _isLoadingMore = false;
+            _currentPages[tabIndex]--;
+          });
+        }
+      }
     } catch (e) {
-      setState(() {
-        _isLoadingMore = false;
-      });
-    }
-  }
-
-  void _processOrdersResponse(dynamic response) {
-    if (response.statusCode == 200 && response.data['success'] == true) {
-      final data = response.data['data']['items'] as List;
-      final orders = data
-          .map((json) => OrderResponseModel.fromJson(json))
-          .toList();
-      final int totalPages = response.data['data']['totalPages'] ?? 1;
-
-      setState(() {
-        if (_tabController.index == 0) {
-          _newOrders.addAll(orders);
-        } else if (_tabController.index == 1) {
-          _outForDelivery.addAll(orders);
-        } else {
-          _delivered.addAll(orders);
-        }
-
-        _hasMore = _currentPage < totalPages;
-        _isLoading = false;
-        _isLoadingMore = false;
-      });
-    } else {
-      setState(() {
-        if (_currentPage == 1) {
-          _errorMessage = response.data['message'] ?? 'Failed to load orders';
-        }
-        _isLoading = false;
-        _isLoadingMore = false;
-      });
+      if (mounted) {
+        setState(() {
+          _isLoadingMore = false;
+          _currentPages[tabIndex]--;
+        });
+      }
     }
   }
 
@@ -162,7 +244,7 @@ class _OrdersTabState extends State<OrdersTab>
   Widget build(BuildContext context) {
     final tabController = _tabController;
     return RefreshIndicator(
-      onRefresh: _fetchOrders,
+      onRefresh: _fetchAllOrders,
       color: AppColors.buttonBlueDark,
       child: SingleChildScrollView(
         controller: _scrollController,
@@ -482,7 +564,7 @@ class _OrdersTabState extends State<OrdersTab>
               ),
               const SizedBox(height: 24),
               ElevatedButton.icon(
-                onPressed: _fetchOrders,
+                onPressed: _fetchAllOrders,
                 icon: const Icon(Icons.refresh),
                 label: Text(AppLocalizations.of(context)!.retry),
                 style: ElevatedButton.styleFrom(
@@ -555,7 +637,7 @@ class _OrdersTabState extends State<OrdersTab>
     return _OrderCard(
       order: order,
       isDelivered: isDelivered,
-      onRefresh: _fetchOrders,
+      onRefresh: _fetchAllOrders,
     );
   }
 }

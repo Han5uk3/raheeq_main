@@ -1077,13 +1077,22 @@ class ApiService {
     int page = 1,
     int limit = 20,
     String? tab,
+    String? etag,
   }) async {
     try {
       final queryParams = <String, dynamic>{'page': page, 'limit': limit};
       if (tab != null) {
         queryParams['tab'] = tab;
       }
-      final response = await _dio.get('/orders', queryParameters: queryParams);
+      final options = Options();
+      if (etag != null && etag.isNotEmpty) {
+        options.headers = {'If-None-Match': etag};
+      }
+      final response = await _dio.get(
+        '/orders',
+        queryParameters: queryParams,
+        options: options,
+      );
       return response;
     } catch (e) {
       rethrow;

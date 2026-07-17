@@ -633,23 +633,53 @@ class _TrackSubscriptionDeliveryPageState
     }
 
     final proofs = order.deliveryProof!;
-    int count = 0;
+    List<Widget> proofItems = [];
+
     if (proofs['mosqueFrontImage'] != null &&
-        proofs['mosqueFrontImage'].toString().isNotEmpty)
-      count++;
+        proofs['mosqueFrontImage'].toString().isNotEmpty) {
+      proofItems.add(
+        _buildSmallProofCard(
+          AppLocalizations.of(context)!.mosque_front,
+          proofs['mosqueFrontImage'],
+          false,
+        ),
+      );
+    }
     if (proofs['mosqueInsideImage'] != null &&
-        proofs['mosqueInsideImage'].toString().isNotEmpty)
-      count++;
+        proofs['mosqueInsideImage'].toString().isNotEmpty) {
+      proofItems.add(
+        _buildSmallProofCard(
+          AppLocalizations.of(context)!.mosque_inside,
+          proofs['mosqueInsideImage'],
+          false,
+        ),
+      );
+    }
     if (proofs['packagesImage'] != null &&
-        proofs['packagesImage'].toString().isNotEmpty)
-      count++;
+        proofs['packagesImage'].toString().isNotEmpty) {
+      proofItems.add(
+        _buildSmallProofCard(
+          AppLocalizations.of(context)!.packages,
+          proofs['packagesImage'],
+          false,
+        ),
+      );
+    }
 
     // Some proofs from subscription tracking use 'proofVideo' or 'video' occasionally as seen in the original code, but 'deliveryVideo' is standard
     final deliveryVideo =
         proofs['deliveryVideo'] ?? proofs['proofVideo'] ?? proofs['video'];
-    if (deliveryVideo != null && deliveryVideo.toString().isNotEmpty) count++;
+    if (deliveryVideo != null && deliveryVideo.toString().isNotEmpty) {
+      proofItems.add(
+        _buildSmallProofCard(
+          AppLocalizations.of(context)!.delivery_video,
+          deliveryVideo,
+          true,
+        ),
+      );
+    }
 
-    if (count == 0) return const SizedBox.shrink();
+    if (proofItems.isEmpty) return const SizedBox.shrink();
 
     return Card(
       color: Colors.white,
@@ -666,45 +696,18 @@ class _TrackSubscriptionDeliveryPageState
             ),
             const SizedBox(height: 16),
             Row(
-              spacing: 8,
-              children: [
-                if (proofs['mosqueFrontImage'] != null &&
-                    proofs['mosqueFrontImage'].toString().isNotEmpty)
-                  Expanded(
-                    child: _buildSmallProofCard(
-                      AppLocalizations.of(context)!.mosque_front,
-                      proofs['mosqueFrontImage'],
-                      false,
-                    ),
-                  ),
-                if (proofs['mosqueInsideImage'] != null &&
-                    proofs['mosqueInsideImage'].toString().isNotEmpty)
-                  Expanded(
-                    child: _buildSmallProofCard(
-                      AppLocalizations.of(context)!.mosque_inside,
-                      proofs['mosqueInsideImage'],
-                      false,
-                    ),
-                  ),
-                if (proofs['packagesImage'] != null &&
-                    proofs['packagesImage'].toString().isNotEmpty)
-                  Expanded(
-                    child: _buildSmallProofCard(
-                      AppLocalizations.of(context)!.packages,
-                      proofs['packagesImage'],
-                      false,
-                    ),
-                  ),
-                if (deliveryVideo != null &&
-                    deliveryVideo.toString().isNotEmpty)
-                  Expanded(
-                    child: _buildSmallProofCard(
-                      AppLocalizations.of(context)!.delivery_video,
-                      deliveryVideo,
-                      true,
-                    ),
-                  ),
-              ],
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: List.generate(7, (index) {
+                if (index.isOdd) {
+                  return const SizedBox(width: 8.0);
+                }
+                int itemIndex = index ~/ 2;
+                if (itemIndex < proofItems.length) {
+                  return Expanded(child: proofItems[itemIndex]);
+                } else {
+                  return const Expanded(child: SizedBox.shrink());
+                }
+              }),
             ),
           ],
         ),
