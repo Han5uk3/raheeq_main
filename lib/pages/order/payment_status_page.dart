@@ -4,7 +4,7 @@ import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/pages/home/home_screen.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 
-enum PaymentStatus { success, failed, pendingApproval }
+enum PaymentStatus { success, failed, pendingApproval, serverError }
 
 class PaymentStatusPage extends StatefulWidget {
   final PaymentStatus status;
@@ -91,6 +91,13 @@ class _PaymentStatusPageState extends State<PaymentStatusPage>
         color = Colors.yellow.shade700;
         lightColor = Colors.yellow.shade700.withValues(alpha: 0.1);
         fallbackIcon = Icons.access_time;
+        break;
+      case PaymentStatus.serverError:
+        title = widget.isAr ? 'خطأ في الخادم' : 'Server Error';
+        description = widget.message ?? (widget.isAr ? 'سيتم التحقق من الدفع بمجرد عودتنا ومعالجة طلبك.' : 'Payment will be verified as soon as we are back and process your order.');
+        color = Colors.orange;
+        lightColor = Colors.orange.withValues(alpha: 0.1);
+        fallbackIcon = Icons.cloud_off;
         break;
     }
 
@@ -266,6 +273,7 @@ class _PaymentStatusPageState extends State<PaymentStatusPage>
                                 )!.back_to_home,
                                 onPressed: () {
                                   if (widget.status == PaymentStatus.success ||
+                                      widget.status == PaymentStatus.serverError ||
                                       widget.status ==
                                           PaymentStatus.pendingApproval) {
                                     HomeTab.clearBasket();

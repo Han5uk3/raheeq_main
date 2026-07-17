@@ -1,4 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:shimmer/shimmer.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
@@ -25,7 +27,6 @@ import 'package:raheeq_main/common_widgets/gift_card_bottom_sheet.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_paytabs_bridge/BaseBillingShippingInfo.dart';
 import 'package:flutter_paytabs_bridge/PaymentSdkConfigurationDetails.dart';
-import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 
 class ContributionDetailsPage extends StatefulWidget {
   final List<OrderCategoryState> orderStates;
@@ -378,6 +379,19 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
       'Payment Flow: Starting _processPayment with method: $paymentMethod',
       name: 'CheckoutFlow',
     );
+
+    bool hasConnection = await InternetConnectionChecker.instance.hasConnection;
+    if (!hasConnection) {
+      if (mounted) {
+        CustomSnackbar.show(
+          isError: true,
+          context: context,
+          message: AppLocalizations.of(context)!.internet_error,
+        );
+      }
+      return;
+    }
+
     setState(() {
       _isProcessingPayment = true;
     });
@@ -624,19 +638,40 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                 'Payment Flow: verifyPayment API error: $e',
                 name: 'CheckoutFlow',
               );
-              await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => PaymentStatusPage(
-                    status: PaymentStatus.failed,
-                    message: AppLocalizations.of(
-                      context,
-                    )!.error_verifying_payment,
-                    isAr: isAr,
-                    onRetry: () => Navigator.pop(context),
+
+              bool is502Error = false;
+              if (e is DioException) {
+                if (e.response?.statusCode == 502) {
+                  is502Error = true;
+                }
+              }
+
+              if (is502Error) {
+                await Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => PaymentStatusPage(
+                      status: PaymentStatus.serverError,
+                      isAr: isAr,
+                    ),
                   ),
-                ),
-              );
+                );
+              } else {
+                await Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => PaymentStatusPage(
+                      status: PaymentStatus.failed,
+                      message: AppLocalizations.of(
+                        context,
+                      )!.error_verifying_payment,
+                      isAr: isAr,
+                      onRetry: () => Navigator.pop(context),
+                    ),
+                  ),
+                );
+              }
+
               if (mounted) {
                 setState(() {
                   _isProcessingPayment = false;

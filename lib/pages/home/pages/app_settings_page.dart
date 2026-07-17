@@ -313,14 +313,11 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(
-          label,
-          style: TextStyle(fontSize: 15, color: AppColors.headersubtitlecolor),
-        ),
+        Text(label, style: TextStyle(fontSize: 14, color: AppColors.black)),
         Text(
           value,
           style: const TextStyle(
-            fontSize: 15,
+            fontSize: 14,
             fontWeight: FontWeight.w600,
             color: Colors.black,
           ),

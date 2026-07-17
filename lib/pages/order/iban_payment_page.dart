@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
@@ -59,6 +60,18 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
           context,
         )!.please_attach_the_transfer_receipt,
       );
+      return;
+    }
+
+    bool hasConnection = await InternetConnectionChecker.instance.hasConnection;
+    if (!hasConnection) {
+      if (mounted) {
+        CustomSnackbar.show(
+          isError: true,
+          context: context,
+          message: AppLocalizations.of(context)!.internet_error,
+        );
+      }
       return;
     }
 
