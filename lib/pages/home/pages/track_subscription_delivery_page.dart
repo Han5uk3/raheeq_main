@@ -478,7 +478,9 @@ class _TrackSubscriptionDeliveryPageState
         order.driver != null ||
         order.status == 'DISPATCHED' ||
         order.status == 'OUT_FOR_DELIVERY' ||
-        order.status == 'DELIVERED';
+        order.status == 'DELIVERED' ||
+        order.status == 'CONFIRMED' ||
+        order.status == 'COMPLETED';
     final bool isDelivered =
         order.status == 'CONFIRMED' || order.status == 'COMPLETED';
 
@@ -505,7 +507,11 @@ class _TrackSubscriptionDeliveryPageState
             ),
             _buildTimelineItem(
               title: AppLocalizations.of(context)!.out_for_delivery,
-              date: order.assignedAt,
+              date:
+                  order.assignedAt ??
+                  ((order.status == 'CONFIRMED' || order.status == 'COMPLETED')
+                      ? (order.confirmedAt ?? order.completedAt)
+                      : null),
               isReached: isOutForDelivery,
               isLast: false,
               icon: Icons.local_shipping,

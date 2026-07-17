@@ -867,7 +867,9 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
         order.driver != null ||
         order.status == 'DISPATCHED' ||
         order.status == 'OUT_FOR_DELIVERY' ||
-        order.status == 'DELIVERED';
+        order.status == 'DELIVERED' ||
+        order.status == 'CONFIRMED' ||
+        order.status == 'COMPLETED';
     final bool isDelivered =
         order.status == 'CONFIRMED' || order.status == 'COMPLETED';
 
@@ -889,14 +891,18 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
           ),
           _buildTimelineItem(
             title: AppLocalizations.of(context)!.out_for_delivery,
-            date: order.assignedAt,
+            date:
+                order.assignedAt ??
+                ((order.status == 'CONFIRMED' || order.status == 'COMPLETED')
+                    ? (order.confirmedAt ?? order.completedAt)
+                    : null),
             isReached: isOutForDelivery,
             isLast: false,
             icon: Icons.local_shipping,
           ),
           _buildTimelineItem(
             title: AppLocalizations.of(context)!.delivery_completed,
-            date: order.completedAt,
+            date: order.completedAt ?? order.confirmedAt,
             isReached: isDelivered,
             isLast: true,
             icon: Icons.check_circle,
