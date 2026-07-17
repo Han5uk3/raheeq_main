@@ -43,6 +43,7 @@ dependencies:
   geolocator: ^14.0.2
   app_links: ^7.0.0
   internet_connection_checker: ^3.0.1
+  smart_auth: ^3.2.0
   
 
 dev_dependencies:

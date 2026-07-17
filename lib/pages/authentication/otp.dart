@@ -15,6 +15,31 @@ import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/utils/rtl_helpers.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 
+import 'package:smart_auth/smart_auth.dart';
+
+class SmsRetrieverImpl implements SmsRetriever {
+  const SmsRetrieverImpl(this.smartAuth);
+
+  final SmartAuth smartAuth;
+
+  @override
+  Future<void> dispose() async {
+    await smartAuth.removeUserConsentApiListener();
+  }
+
+  @override
+  Future<String?> getSmsCode() async {
+    final res = await smartAuth.getSmsWithUserConsentApi(matcher: '\\d{4}');
+    if (res.hasData) {
+      return res.data?.code;
+    }
+    return null;
+  }
+
+  @override
+  bool get listenForMultipleSms => false;
+}
+
 class OTP extends StatefulWidget {
   final String phoneNumber;
   final String countryCode;
@@ -357,6 +382,9 @@ class _OTPState extends State<OTP> {
                           child: Directionality(
                             textDirection: TextDirection.ltr,
                             child: Pinput(
+                              smsRetriever: SmsRetrieverImpl(
+                                SmartAuth.instance,
+                              ),
                               length: 4,
                               controller: _pinController,
                               focusNode: _focusNode,
