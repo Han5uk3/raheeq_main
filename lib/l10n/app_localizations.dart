@@ -1293,11 +1293,12 @@ abstract class AppLocalizations {
   /// **'Coupon Code'**
   String get coupon_code;
 
-  /// No description provided for @do_you_want_to_give_a_gift_to_someone_close_to_you.
+  /// No description provided for @gift_your_loved_ones_the_blessing_of_providing_water_in_the_holiest_places.
   ///
   /// In en, this message translates to:
-  /// **'Do you want to give a gift to someone close to you?'**
-  String get do_you_want_to_give_a_gift_to_someone_close_to_you;
+  /// **'Gift your loved ones the blessing of providing water in the holiest places.'**
+  String
+  get gift_your_loved_ones_the_blessing_of_providing_water_in_the_holiest_places;
 
   /// No description provided for @donation_type.
   ///

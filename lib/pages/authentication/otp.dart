@@ -24,12 +24,12 @@ class SmsRetrieverImpl implements SmsRetriever {
 
   @override
   Future<void> dispose() async {
-    await smartAuth.removeUserConsentApiListener();
+    await smartAuth.removeSmsRetrieverApiListener();
   }
 
   @override
   Future<String?> getSmsCode() async {
-    final res = await smartAuth.getSmsWithUserConsentApi(matcher: '\\d{4}');
+    final res = await smartAuth.getSmsWithRetrieverApi(matcher: '\\d{4}');
     if (res.hasData) {
       return res.data?.code;
     }

@@ -633,8 +633,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get coupon_code => 'Coupon Code';
 
   @override
-  String get do_you_want_to_give_a_gift_to_someone_close_to_you =>
-      'Do you want to give a gift to someone close to you?';
+  String
+  get gift_your_loved_ones_the_blessing_of_providing_water_in_the_holiest_places =>
+      'Gift your loved ones the blessing of providing water in the holiest places.';
 
   @override
   String get donation_type => 'Order Type';

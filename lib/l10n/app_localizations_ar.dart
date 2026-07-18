@@ -632,8 +632,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get coupon_code => 'كود الخصم';
 
   @override
-  String get do_you_want_to_give_a_gift_to_someone_close_to_you =>
-      'هل ترغب في إهداء شخص قريب منك؟';
+  String
+  get gift_your_loved_ones_the_blessing_of_providing_water_in_the_holiest_places =>
+      'أهدِ أحبّاءك أجرَ سقيا الماء في أطهر البقاع.';
 
   @override
   String get donation_type => 'نوع الطلب';
