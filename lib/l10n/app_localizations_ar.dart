@@ -444,6 +444,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get subscribe => 'اشتراك متاح';
 
   @override
+  String get no_new_notifications => 'لا توجد إشعارات جديدة';
+
+  @override
   String get i_understand => 'مفهوم';
 
   @override
@@ -962,7 +965,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get enter_last_name => 'أدخل اسم العائلة';
 
   @override
-  String get enter_email_optional_hint => 'أدخل البريد الإلكتروني (اختياري)';
+  String get enter_email_optional_hint => 'أدخل البريد الإلكتروني';
 
   @override
   String get enter_phone_number_hint => 'أدخل رقم الهاتف';

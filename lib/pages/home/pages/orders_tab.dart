@@ -28,9 +28,6 @@ class _OrdersTabState extends State<OrdersTab>
   int _lastFetchedIndex = 0;
 
   static bool _hasLoadedOnce = false;
-  static String? _cachedUpcomingETag;
-  static String? _cachedOutForDeliveryETag;
-  static String? _cachedDeliveredETag;
 
   static List<OrderResponseModel> _cachedUpcomingOrders = [];
   static List<OrderResponseModel> _cachedOutForDeliveryOrders = [];
@@ -114,17 +111,14 @@ class _OrdersTabState extends State<OrdersTab>
       final upcomingFuture = ApiService().getMyOrders(
         page: 1,
         tab: 'upcoming',
-        etag: _cachedUpcomingETag,
       );
       final outForDeliveryFuture = ApiService().getMyOrders(
         page: 1,
         tab: 'out_for_delivery',
-        etag: _cachedOutForDeliveryETag,
       );
       final deliveredFuture = ApiService().getMyOrders(
         page: 1,
         tab: 'delivered',
-        etag: _cachedDeliveredETag,
       );
 
       final responses = await Future.wait([
@@ -154,22 +148,7 @@ class _OrdersTabState extends State<OrdersTab>
   }
 
   void _processInitialResponse(int tabIndex, dynamic response, String tabName) {
-    if (response.statusCode == 304) {
-      if (tabIndex == 0) _newOrders = List.from(_cachedUpcomingOrders);
-      if (tabIndex == 1) _outForDelivery = List.from(_cachedOutForDeliveryOrders);
-      if (tabIndex == 2) _delivered = List.from(_cachedDeliveredOrders);
-      _hasMoreList[tabIndex] = _cachedHasMore[tabIndex];
-      return;
-    }
-
     if (response.statusCode == 200 && response.data['success'] == true) {
-      final newEtag = response.headers.value('etag');
-      if (newEtag != null) {
-        if (tabIndex == 0) _cachedUpcomingETag = newEtag;
-        if (tabIndex == 1) _cachedOutForDeliveryETag = newEtag;
-        if (tabIndex == 2) _cachedDeliveredETag = newEtag;
-      }
-
       final data = response.data['data']['items'] as List;
       final orders = data.map((json) => OrderResponseModel.fromJson(json)).toList();
       final int totalPages = response.data['data']['totalPages'] ?? 1;

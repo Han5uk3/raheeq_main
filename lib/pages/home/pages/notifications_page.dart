@@ -223,40 +223,53 @@ class _NotificationsPageState extends State<NotificationsPage> {
               child: RefreshIndicator(
                 onRefresh: _fetchNotifications,
                 color: AppColors.buttonBlueDark,
-                child: Container(
-                  width: double.infinity,
-                  color: AppColors.buttonBlueDark,
-                  child: Container(
-                    decoration: const BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.only(
-                        topLeft: Radius.circular(30),
-                        topRight: Radius.circular(30),
-                      ),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(30),
-                        topRight: Radius.circular(30),
-                      ),
-                      child: SingleChildScrollView(
-                        physics: const AlwaysScrollableScrollPhysics(),
-                        child: AnimatedSwitcher(
-                          duration: const Duration(milliseconds: 500),
-                          layoutBuilder: (currentChild, previousChildren) {
-                            return Stack(
-                              alignment: Alignment.topCenter,
-                              children: <Widget>[
-                                ...previousChildren,
-                                ?currentChild,
-                              ],
-                            );
-                          },
-                          child: _buildContent(),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return Container(
+                      height: constraints.maxHeight,
+                      width: double.infinity,
+                      color: AppColors.buttonBlueDark,
+                      child: Container(
+                        decoration: const BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.only(
+                            topLeft: Radius.circular(30),
+                            topRight: Radius.circular(30),
+                          ),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(30),
+                            topRight: Radius.circular(30),
+                          ),
+                          child: SingleChildScrollView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            child: ConstrainedBox(
+                              constraints: BoxConstraints(
+                                minHeight: constraints.maxHeight,
+                              ),
+                              child: AnimatedSwitcher(
+                                duration: const Duration(milliseconds: 500),
+                                layoutBuilder:
+                                    (currentChild, previousChildren) {
+                                      return Stack(
+                                        alignment: Alignment.topCenter,
+                                        children: <Widget>[
+                                          ...previousChildren,
+                                          if (currentChild != null)
+                                            currentChild,
+                                        ],
+                                      );
+                                    },
+
+                                child: _buildContent(constraints.maxHeight),
+                              ),
+                            ),
+                          ),
                         ),
                       ),
-                    ),
-                  ),
+                    );
+                  },
                 ),
               ),
             ),
@@ -266,7 +279,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
     );
   }
 
-  Widget _buildContent() {
+  Widget _buildContent(double minHeight) {
     if (_isLoading) {
       return ListView.separated(
         key: const ValueKey('loader'),
@@ -334,7 +347,9 @@ class _NotificationsPageState extends State<NotificationsPage> {
     }
 
     if (_errorMessage != null) {
-      return Center(
+      return Container(
+        height: minHeight,
+        alignment: Alignment.center,
         key: const ValueKey('error'),
         child: Padding(
           padding: const EdgeInsets.all(32.0),
@@ -372,11 +387,26 @@ class _NotificationsPageState extends State<NotificationsPage> {
     }
 
     if (_notifications.isEmpty) {
-      return Center(
+      return Container(
+        height: minHeight,
+        alignment: Alignment.center,
         key: const ValueKey('empty'),
-        child: Text(
-          "No new notifications",
-          style: TextStyle(color: AppColors.headersubtitlecolor, fontSize: 16),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              Icons.notifications_on_outlined,
+              size: 80,
+              color: AppColors.headersubtitlecolor,
+            ),
+            Text(
+              AppLocalizations.of(context)!.no_new_notifications,
+              style: TextStyle(
+                color: AppColors.headersubtitlecolor,
+                fontSize: 16,
+              ),
+            ),
+          ],
         ),
       );
     }

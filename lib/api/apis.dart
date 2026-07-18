@@ -101,14 +101,29 @@ class ApiService {
           return handler.next(response);
         },
         onError: (DioException e, handler) {
+          String displayMessage = e.message ?? 'Unknown Error';
+          
+          if (e.response?.data is Map) {
+            final data = e.response!.data as Map;
+            if (data['message'] != null) {
+              displayMessage = data['message'].toString();
+              
+              if (data['details'] is List && (data['details'] as List).isNotEmpty) {
+                final firstDetail = (data['details'] as List).first;
+                if (firstDetail is Map && firstDetail['message'] != null) {
+                  displayMessage += ' - ${firstDetail['message']}';
+                }
+              }
+            }
+          }
+
           log(
             '└── ERROR ───────────────────────────────────────────────\n'
             '│ ${e.requestOptions.method} ${e.requestOptions.uri}\n'
             '│ Status  : ${e.response?.statusCode}\n'
-            '│ Message : ${e.message}\n'
+            '│ Message : $displayMessage\n'
             '│ Body    : ${e.response?.data}',
             name: 'API',
-            error: e,
           );
           return handler.next(e);
         },
@@ -140,13 +155,23 @@ class ApiService {
           }
 
           if (e.response?.data is Map && e.response?.data['message'] != null) {
+            final data = e.response!.data as Map;
+            String apiMsg = data['message'].toString();
+            
+            if (data['details'] is List && (data['details'] as List).isNotEmpty) {
+              final firstDetail = (data['details'] as List).first;
+              if (firstDetail is Map && firstDetail['message'] != null) {
+                apiMsg += ' - ${firstDetail['message']}';
+              }
+            }
+
             customException = ApiDioException(
               requestOptions: e.requestOptions,
-              apiMessage: e.response!.data['message'].toString(),
+              apiMessage: apiMsg,
               response: e.response,
               type: e.type,
               error: e.error,
-              message: e.message,
+              message: apiMsg,
             );
           }
           e = customException;
@@ -405,7 +430,12 @@ class ApiService {
     if (refreshToken == null) return false;
 
     try {
-      final dioRefresh = Dio(BaseOptions(baseUrl: baseUrl));
+      final dioRefresh = Dio(
+        BaseOptions(
+          baseUrl: baseUrl,
+          headers: {'Content-Type': 'application/json'},
+        ),
+      );
       final response = await dioRefresh.post(
         '/auth/refresh-token',
         data: {'refreshToken': refreshToken},
@@ -425,7 +455,10 @@ class ApiService {
       }
       return false;
     } on DioException catch (e) {
-      if (e.response?.statusCode == 401 || e.response?.statusCode == 403) {
+      if (e.response != null &&
+          e.response!.statusCode != null &&
+          e.response!.statusCode! >= 400 &&
+          e.response!.statusCode! < 500) {
         return false;
       }
       rethrow;
@@ -1077,21 +1110,15 @@ class ApiService {
     int page = 1,
     int limit = 20,
     String? tab,
-    String? etag,
   }) async {
     try {
       final queryParams = <String, dynamic>{'page': page, 'limit': limit};
       if (tab != null) {
         queryParams['tab'] = tab;
       }
-      final options = Options();
-      if (etag != null && etag.isNotEmpty) {
-        options.headers = {'If-None-Match': etag};
-      }
       final response = await _dio.get(
         '/orders',
         queryParameters: queryParams,
-        options: options,
       );
       return response;
     } catch (e) {

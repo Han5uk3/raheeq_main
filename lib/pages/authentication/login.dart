@@ -31,6 +31,7 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   bool _isLoading = false;
+  String? _socialLoadingProvider;
   Country _selectedCountry = Country(
     phoneCode: '966',
     countryCode: 'SA',
@@ -161,10 +162,21 @@ class _LoginState extends State<Login> {
   }
 
   Future<void> _handleSocialLogin(String provider) async {
-    if (provider == 'Google') {
-      await _handleGoogleSignIn();
-    } else if (provider == 'Apple') {
-      await _handleAppleSignIn();
+    setState(() {
+      _socialLoadingProvider = provider;
+    });
+    try {
+      if (provider == 'Google') {
+        await _handleGoogleSignIn();
+      } else if (provider == 'Apple') {
+        await _handleAppleSignIn();
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _socialLoadingProvider = null;
+        });
+      }
     }
   }
 
@@ -175,13 +187,6 @@ class _LoginState extends State<Login> {
     String? firstName,
     String? lastName,
   }) async {
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (context) =>
-          const Center(child: WaterLoadingIndicator(size: 30)),
-    );
-
     try {
       final fcmToken = await FirebaseMessaging.instance.getToken();
 
@@ -215,7 +220,6 @@ class _LoginState extends State<Login> {
             );
 
       if (!mounted) return;
-      Navigator.pop(context); // Close loading
 
       if (response.statusCode == 200 && response.data['success'] == true) {
         final resData = response.data['data'];
@@ -259,7 +263,6 @@ class _LoginState extends State<Login> {
       }
     } catch (e) {
       if (!mounted) return;
-      Navigator.pop(context); // Close loading
       String errorMessage = AppLocalizations.of(context)!.authentication_failed;
       if (e is DioException &&
           e.response?.data is Map &&
@@ -578,7 +581,8 @@ class _LoginState extends State<Login> {
                         SizedBox(
                           width: double.infinity,
                           child: ElevatedButton(
-                            onPressed: _isLoading
+                            onPressed:
+                                (_isLoading || _socialLoadingProvider != null)
                                 ? null
                                 : () async {
                                     String phoneText = _phoneController.text
@@ -820,6 +824,7 @@ class _LoginState extends State<Login> {
                           backgroundColor: Colors.white,
                           textColor: Colors.black87,
                           borderColor: Colors.grey[300],
+                          isLoading: _socialLoadingProvider == 'Google',
                         ),
                         if (Platform.isIOS) ...{
                           const SizedBox(height: 14),
@@ -829,6 +834,7 @@ class _LoginState extends State<Login> {
                             onPressed: () => _handleSocialLogin('Apple'),
                             backgroundColor: Colors.black,
                             textColor: Colors.white,
+                            isLoading: _socialLoadingProvider == 'Apple',
                           ),
                         },
                         const SizedBox(height: 32),
@@ -851,25 +857,21 @@ class _LoginState extends State<Login> {
     required Color backgroundColor,
     required Color textColor,
     Color? borderColor,
+    bool isLoading = false,
   }) {
     return Directionality(
       textDirection: TextDirection.ltr,
       child: SizedBox(
         width: double.infinity,
-        child: ElevatedButton.icon(
-          onPressed: onPressed,
-          icon: FaIcon(icon, size: 20, color: textColor),
-          label: Text(
-            label,
-            style: TextStyle(
-              color: textColor,
-              fontSize: 15,
-              fontWeight: FontWeight.w600,
-            ),
-          ),
+        child: ElevatedButton(
+          onPressed: (_isLoading || _socialLoadingProvider != null)
+              ? null
+              : onPressed,
           style: ElevatedButton.styleFrom(
             backgroundColor: backgroundColor,
             foregroundColor: textColor,
+            disabledBackgroundColor: backgroundColor,
+            disabledForegroundColor: textColor,
             elevation: 0,
             padding: const EdgeInsets.symmetric(vertical: 16),
             shape: RoundedRectangleBorder(
@@ -879,6 +881,29 @@ class _LoginState extends State<Login> {
                   : BorderSide.none,
             ),
           ),
+          child: isLoading
+              ? const SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: WaterLoadingIndicator(
+                    waveColor1: AppColors.buttonBlueDark,
+                  ),
+                )
+              : Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    FaIcon(icon, size: 20, color: textColor),
+                    const SizedBox(width: 8),
+                    Text(
+                      label,
+                      style: TextStyle(
+                        color: textColor,
+                        fontSize: 15,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
         ),
       ),
     );

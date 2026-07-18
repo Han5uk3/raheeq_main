@@ -21,6 +21,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:raheeq_main/utils/colors.dart';
 
 final ValueNotifier<Locale> localeNotifier = ValueNotifier(const Locale('en'));
+final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -97,6 +98,7 @@ class MainApp extends StatelessWidget {
           top: false,
           child: MaterialApp(
             navigatorKey: AuthStorage.navigatorKey,
+            navigatorObservers: [routeObserver],
             builder: (context, child) {
               final mediaQueryData = MediaQuery.of(context);
               return MediaQuery(

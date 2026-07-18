@@ -510,43 +510,44 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
           _buildDeliveryProgressCard(order),
           const SizedBox(height: 12),
           // Additional Order Details
-          if (order.assignedAt != null ||
-              order.confirmedAt != null ||
-              order.cancelledAt != null ||
-              order.isChillerAvailable != null) ...[
-            const SizedBox(height: 12),
-            _buildPremiumCard(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  _buildSectionHeader(
-                    AppLocalizations.of(context)!.chiller_info,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  if (order.isChillerAvailable != null)
-                    _buildInfoRow(
-                      AppLocalizations.of(context)!.chiller_available,
-                      order.isChillerAvailable!
-                          ? AppLocalizations.of(context)!.yes
-                          : AppLocalizations.of(context)!.no,
-                    ),
-                  const SizedBox(height: 12),
-                  if (order.deliveredLocationDetails != null &&
-                      order.deliveredLocationDetails!['location_name'] !=
-                          null) ...[
-                    _buildInfoRow(
-                      AppLocalizations.of(context)!.delivered_to,
-                      order.deliveredLocationDetails!['location_name'],
-                    ),
-                  ],
-                ],
-              ),
-            ),
-          ],
+          // if ((order.assignedAt != null ||
+          //         order.confirmedAt != null ||
+          //         order.cancelledAt != null ||
+          //         order.isChillerAvailable != null) &&
+          //     order.product?.serialNumber == 2) ...[
+
+          //   _buildPremiumCard(
+          //     child: Column(
+          //       crossAxisAlignment: CrossAxisAlignment.start,
+          //       children: [
+          //         _buildSectionHeader(
+          //           AppLocalizations.of(context)!.chiller_info,
+          //           style: const TextStyle(
+          //             fontSize: 16,
+          //             fontWeight: FontWeight.bold,
+          //           ),
+          //         ),
+          //         const SizedBox(height: 12),
+          //         if (order.isChillerAvailable != null)
+          //           _buildInfoRow(
+          //             AppLocalizations.of(context)!.chiller_available,
+          //             order.isChillerAvailable!
+          //                 ? AppLocalizations.of(context)!.yes
+          //                 : AppLocalizations.of(context)!.no,
+          //           ),
+          //         const SizedBox(height: 12),
+          //         if (order.deliveredLocationDetails != null &&
+          //             order.deliveredLocationDetails!['location_name'] !=
+          //                 null) ...[
+          //           _buildInfoRow(
+          //             AppLocalizations.of(context)!.delivered_to,
+          //             order.deliveredLocationDetails!['location_name'],
+          //           ),
+          //         ],
+          //       ],
+          //     ),
+          //   ),
+          // ],
 
           // Financials
           if (order.financials != null) ...[

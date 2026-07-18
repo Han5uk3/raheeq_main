@@ -29,6 +29,7 @@ import 'package:raheeq_main/pages/order/order_details_page.dart';
 import 'package:raheeq_main/models/order_item.dart';
 import 'package:raheeq_main/pages/home/pages/impact_page.dart';
 import 'package:raheeq_main/pages/home/pages/notifications_page.dart';
+import 'package:raheeq_main/main.dart';
 
 class HomeTab extends StatefulWidget {
   const HomeTab({super.key});
@@ -48,7 +49,7 @@ class HomeTab extends StatefulWidget {
   State<HomeTab> createState() => _HomeTabState();
 }
 
-class _HomeTabState extends State<HomeTab> {
+class _HomeTabState extends State<HomeTab> with RouteAware, WidgetsBindingObserver {
   final PageController _pageController = PageController(
     initialPage: 1000,
     viewportFraction: 0.9,
@@ -107,6 +108,7 @@ class _HomeTabState extends State<HomeTab> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _unreadNotificationsCount = _cachedUnreadCount;
     if (_hasLoadedOnce) {
       _bannerData = _cachedBannerData;
@@ -161,7 +163,30 @@ class _HomeTabState extends State<HomeTab> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final modalRoute = ModalRoute.of(context);
+    if (modalRoute is PageRoute) {
+      routeObserver.subscribe(this, modalRoute);
+    }
+  }
+
+  @override
+  void didPopNext() {
+    _fetchHomeData();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _fetchHomeData();
+    }
+  }
+
+  @override
   void dispose() {
+    routeObserver.unsubscribe(this);
+    WidgetsBinding.instance.removeObserver(this);
     _timer?.cancel();
     _pageController.dispose();
     super.dispose();
@@ -712,8 +737,16 @@ class _HomeTabState extends State<HomeTab> {
                                     .asMap()
                                     .entries
                                     .map((entry) {
-                                      if ((entry.value.description == " ") &&
-                                          (entry.value.descriptionAr == " ")) {
+                                      if ((entry.value.description == " " ||
+                                              entry
+                                                  .value
+                                                  .description
+                                                  .isEmpty) &&
+                                          (entry.value.descriptionAr == " " ||
+                                              entry
+                                                  .value
+                                                  .descriptionAr
+                                                  .isEmpty)) {
                                         return buildCampaignCard(
                                           context,
                                           entry.value,

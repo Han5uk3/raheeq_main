@@ -445,6 +445,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get subscribe => 'Subscribe';
 
   @override
+  String get no_new_notifications => 'No New Notifications';
+
+  @override
   String get i_understand => 'I understand';
 
   @override
@@ -969,7 +972,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get enter_last_name => 'Enter your last name';
 
   @override
-  String get enter_email_optional_hint => 'Enter your email (optional)';
+  String get enter_email_optional_hint => 'Enter your email';
 
   @override
   String get enter_phone_number_hint => 'Enter phone number';

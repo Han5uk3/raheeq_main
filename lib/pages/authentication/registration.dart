@@ -86,7 +86,11 @@ class _RegistrationState extends State<Registration> {
     super.initState();
     if (widget.isSocialLogin) {
       if (widget.firstName != null)
-        _firstNameController.text = widget.firstName!;
+       {
+        {
+          _firstNameController.text = widget.firstName!;
+        }
+      }
       if (widget.lastName != null) _lastNameController.text = widget.lastName!;
       if (widget.email != null) _emailController.text = widget.email!;
     } else {
@@ -110,44 +114,55 @@ class _RegistrationState extends State<Registration> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: AppColors.buttonBlueDark,
-      appBar: AppBar(
+    return PopScope(
+      canPop: false,
+      onPopInvokedWithResult: (didPop, result) {
+        if (!didPop) {
+          Navigator.pushAndRemoveUntil(
+            context,
+            MaterialPageRoute(builder: (context) => const Login()),
+            (route) => false,
+          );
+        }
+      },
+      child: Scaffold(
         backgroundColor: AppColors.buttonBlueDark,
-        shape: Border.all(width: 0, color: AppColors.buttonBlueDark),
-        centerTitle: true,
-        toolbarHeight: 80,
-        title: Text(
-          AppLocalizations.of(context)!.complete_profile,
-          style: const TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.w700,
-            color: Colors.white,
-          ),
-        ),
-        leading: Padding(
-          padding: const EdgeInsetsDirectional.only(
-            start: 16,
-            top: 4,
-            bottom: 4,
-          ),
-          child: Container(
-            decoration: const BoxDecoration(
+        appBar: AppBar(
+          backgroundColor: AppColors.buttonBlueDark,
+          shape: Border.all(width: 0, color: AppColors.buttonBlueDark),
+          centerTitle: true,
+          toolbarHeight: 80,
+          title: Text(
+            AppLocalizations.of(context)!.complete_profile,
+            style: const TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w700,
               color: Colors.white,
-              shape: BoxShape.circle,
             ),
-            child: IconButton(
-              highlightColor: Colors.transparent,
-              icon: Icon(backArrowIcon(context)),
-              color: Colors.black87,
-              onPressed: () => Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => const Login()),
-                (route) => false,
+          ),
+          leading: Padding(
+            padding: const EdgeInsetsDirectional.only(
+              start: 16,
+              top: 4,
+              bottom: 4,
+            ),
+            child: Container(
+              decoration: const BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+              ),
+              child: IconButton(
+                highlightColor: Colors.transparent,
+                icon: Icon(backArrowIcon(context)),
+                color: Colors.black87,
+                onPressed: () => Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(builder: (context) => const Login()),
+                  (route) => false,
+                ),
               ),
             ),
           ),
-        ),
         actions: const [
           Padding(
             padding: EdgeInsetsDirectional.only(end: 24),
@@ -177,10 +192,10 @@ class _RegistrationState extends State<Registration> {
                   ),
                   Padding(
                     padding: EdgeInsetsDirectional.only(
-                      top: MediaQuery.of(context).size.height * 0.05,
-                      start: 24,
-                      end: 24,
-                      bottom: 40,
+                        top: 16,
+                        start: 16,
+                        end: 16,
+                        bottom: 16,
                     ),
                     child: Container(
                       padding: const EdgeInsets.all(24),
@@ -263,25 +278,25 @@ class _RegistrationState extends State<Registration> {
                                 ),
                               ),
                             ),
-                            const SizedBox(height: 32),
+                              const SizedBox(height: 12),
                             _buildTextField(
                               controller: _firstNameController,
                               label: AppLocalizations.of(context)!.first_name,
                               hint: AppLocalizations.of(
                                 context,
                               )!.enter_first_name,
-                              icon: Icons.person_outline,
+                   
                             ),
-                            const SizedBox(height: 16),
+                              const SizedBox(height: 12),
                             _buildTextField(
                               controller: _lastNameController,
                               label: AppLocalizations.of(context)!.last_name,
                               hint: AppLocalizations.of(
                                 context,
                               )!.enter_last_name,
-                              icon: Icons.person_outline,
+                         
                             ),
-                            const SizedBox(height: 16),
+                              const SizedBox(height: 12),
                             _buildTextField(
                               controller: _emailController,
                               label: widget.isSocialLogin
@@ -290,15 +305,15 @@ class _RegistrationState extends State<Registration> {
                               hint: AppLocalizations.of(
                                 context,
                               )!.enter_email_optional_hint,
-                              icon: Icons.email_outlined,
+                      
                               keyboardType: TextInputType.emailAddress,
                               isEmail: true,
                               isOptional: !widget.isSocialLogin,
                               enabled: !widget.isSocialLogin,
                             ),
-                            const SizedBox(height: 16),
+                              const SizedBox(height: 12),
                             widget.isSocialLogin
-                                ? _buildSocialPhoneInput()
+                                  ? _buildSocialPhoneInput(_phoneController)
                                 : _buildTextField(
                                     controller: _phoneController,
                                     label: AppLocalizations.of(
@@ -307,7 +322,7 @@ class _RegistrationState extends State<Registration> {
                                     hint: AppLocalizations.of(
                                       context,
                                     )!.enter_phone_number_hint,
-                                    icon: Icons.phone_outlined,
+                            
                                     enabled: false, // Pre-filled and locked
                                     isRtl:
                                         Localizations.localeOf(
@@ -316,7 +331,7 @@ class _RegistrationState extends State<Registration> {
                                         'ar',
                                   ),
 
-                            const SizedBox(height: 16),
+                              const SizedBox(height: 12),
                             _buildGenderDropdown(),
                             const SizedBox(height: 40),
                             SizedBox(
@@ -461,7 +476,7 @@ class _RegistrationState extends State<Registration> {
                                                   gender:
                                                       _selectedGender
                                                           ?.toUpperCase() ??
-                                                      'MALE',
+                                                        '',
                                                   deviceType: Platform.isIOS
                                                       ? 'IOS'
                                                       : 'ANDROID',
@@ -609,7 +624,8 @@ class _RegistrationState extends State<Registration> {
             ],
           ),
         ),
-      ),
+        ),
+      )
     );
   }
 
@@ -617,7 +633,7 @@ class _RegistrationState extends State<Registration> {
     required TextEditingController controller,
     required String label,
     required String hint,
-    required IconData icon,
+  
     TextInputType? keyboardType,
     bool enabled = true,
     bool isEmail = false,
@@ -639,90 +655,80 @@ class _RegistrationState extends State<Registration> {
           ),
         ),
         const SizedBox(height: 8),
-        Container(
-          decoration: BoxDecoration(
-            color: enabled ? Colors.white : Colors.grey[100],
-            borderRadius: BorderRadius.circular(15),
-            border: Border.all(
-              color: hasError ? Colors.red : AppColors.indicatorGrey,
-            ),
+        TextFormField(
+          key: fieldKey,
+          cursorColor: AppColors.buttonBlueDark,
+          textAlign: isRtl ? TextAlign.end : TextAlign.start,
+          controller: controller,
+          enabled: enabled,
+          keyboardType: keyboardType,
+          style: TextStyle(
+            color: enabled == false ? AppColors.grey : AppColors.black,
+            fontSize: 14,
           ),
-          child: TextFormField(
-            key: fieldKey,
-            cursorColor: AppColors.buttonBlueDark,
-            textAlign: isRtl ? TextAlign.end : TextAlign.start,
-            controller: controller,
-            enabled: enabled,
-            keyboardType: keyboardType,
-            style: const TextStyle(
-              color: AppColors.buttonBlueDark,
-              fontSize: 12,
+          textDirection: isRtl ? TextDirection.ltr : null,
+          decoration: InputDecoration(
+            hintText: hint,
+            hintStyle: TextStyle(
+              color: enabled == false
+                  ? AppColors.grey
+                  : AppColors.black.withValues(alpha: 0.8),
+              fontSize: 14,
             ),
-            textDirection: isRtl ? TextDirection.ltr : null,
-            decoration: InputDecoration(
-              hintText: hint,
-              hintStyle: TextStyle(
-                color: AppColors.buttonBlueDark.withValues(alpha: 0.8),
-                fontSize: 12,
-              ),
-              prefixIcon: Icon(
-                icon,
-                size: 20,
-                color: AppColors.buttonBlueDark.withValues(alpha: 0.7),
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.buttonBlueDark),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.buttonBlueDark),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(
-                  color: AppColors.buttonBlueDark,
-                  width: 1.5,
-                ),
-              ),
-              errorStyle: const TextStyle(height: 0, fontSize: 0),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 12,
-              ),
-              isDense: false,
+       
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppColors.buttonBlueDark),
             ),
-            onChanged: (value) {
-              // Validate only this field and update UI immediately
-              fieldKey?.currentState?.validate();
-              setState(() {});
-            },
-            validator: (value) {
-              final trimmedValue = value?.trim() ?? '';
-              if (trimmedValue.isEmpty) {
-                if (isOptional) return null;
-                return AppLocalizations.of(context)!.field_required;
-              }
-              if (isEmail) {
-                final emailRegex = RegExp(
-                  r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
-                );
-                if (!emailRegex.hasMatch(trimmedValue)) {
-                  return AppLocalizations.of(context)!.enter_valid_email;
-                }
-              }
-              return null;
-            },
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: AppColors.buttonBlueDark),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(
+                color: AppColors.buttonBlueDark,
+                width: 1.5,
+              ),
+            ),
+            focusedErrorBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Colors.red, width: 1),
+            ),
+            errorStyle: const TextStyle(height: 0, fontSize: 0),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 16,
+              vertical: 12,
+            ),
+            isDense: false,
           ),
+          onChanged: (value) {
+            // Validate only this field and update UI immediately
+            fieldKey?.currentState?.validate();
+            setState(() {});
+          },
+          validator: (value) {
+            final trimmedValue = value?.trim() ?? '';
+            if (trimmedValue.isEmpty) {
+              if (isOptional) return null;
+              return AppLocalizations.of(context)!.field_required;
+            }
+            if (isEmail) {
+              final emailRegex = RegExp(
+                r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+              );
+              if (!emailRegex.hasMatch(trimmedValue)) {
+                return AppLocalizations.of(context)!.enter_valid_email;
+              }
+            }
+            return null;
+          },
         ),
         if (hasError && fieldKey?.currentState?.errorText != null) ...[
           const SizedBox(height: 4),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              fieldKey!.currentState!.errorText!,
-              style: const TextStyle(color: Colors.red, fontSize: 12),
-            ),
+          Text(
+            fieldKey!.currentState!.errorText!,
+            style: const TextStyle(color: Colors.red, fontSize: 12),
           ),
         ],
       ],
@@ -730,7 +736,6 @@ class _RegistrationState extends State<Registration> {
   }
 
   Widget _buildGenderDropdown() {
-    final hasError = _genderFieldKey.currentState?.hasError == true;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -743,27 +748,51 @@ class _RegistrationState extends State<Registration> {
           ),
         ),
         const SizedBox(height: 8),
-        Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(15),
-            border: Border.all(
-              color: hasError ? Colors.red : AppColors.indicatorGrey,
-            ),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButtonFormField<String>(
-              dropdownColor: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              isExpanded: true,
-              initialValue: _selectedGender,
-              icon: const Icon(Icons.keyboard_arrow_down, color: Colors.grey),
-              hint: Text(
-                AppLocalizations.of(context)!.select_gender,
-                style: TextStyle(color: Colors.grey[400], fontSize: 13),
-              ),
-              items:
-                  [
+        FormField<String>(
+          key: _genderFieldKey,
+          initialValue: _selectedGender,
+          validator: (value) => value == null
+              ? AppLocalizations.of(context)!.please_select_gender
+              : null,
+          builder: (FormFieldState<String> state) {
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(15),
+                    border: Border.all(
+                      color: state.hasError
+                          ? Colors.red
+                          : AppColors.indicatorGrey,
+                    ),
+                  ),
+                  child: DropdownButtonHideUnderline(
+                    child: DropdownButton<String>(
+                      isExpanded: true,
+                      value: state.value,
+                      dropdownColor: Colors.white,
+                      borderRadius: BorderRadius.circular(10),
+                      icon: Icon(
+                        Icons.arrow_drop_down,
+                        color: state.hasError
+                            ? Colors.red
+                            : AppColors.buttonBlueDark,
+                      ),
+                      hint: Text(
+                        AppLocalizations.of(context)!.select_gender,
+                        style: TextStyle(
+                          color: AppColors.black.withValues(alpha: 0.8),
+                          fontSize: 14,
+                        ),
+                      ),
+                      items:
+                          [
                         {
                           'label': AppLocalizations.of(context)!.male,
                           'value': 'Male',
@@ -776,62 +805,48 @@ class _RegistrationState extends State<Registration> {
                           'label': AppLocalizations.of(context)!.other_gender,
                           'value': 'Other',
                         },
-                      ]
-                      .map(
-                        (item) => DropdownMenuItem<String>(
-                          value: item['value'],
-                          child: Text(
-                            item['label']!,
-                            style: const TextStyle(fontSize: 14),
-                          ),
-                        ),
-                      )
-                      .toList(),
-              onChanged: (value) {
-                setState(() {
-                  _selectedGender = value;
-                });
-                // Validate gender field specifically and refresh UI
-                _genderFieldKey.currentState?.validate();
-                setState(() {});
-              },
-              decoration: InputDecoration(
-                prefixIcon: Icon(
-                  Icons.wc_outlined,
-                  size: 20,
-                  color: AppColors.buttonBlueDark.withValues(alpha: 0.7),
+                              ]
+                              .map(
+                                (item) => DropdownMenuItem<String>(
+                                  value: item['value'],
+                                  child: Text(
+                                    item['label']!,
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      color: AppColors.black,
+                                    ),
+                                  ),
+                                ),
+                              )
+                              .toList(),
+                      onChanged: (value) {
+                        setState(() {
+                          _selectedGender = value;
+                        });
+                        state.didChange(value);
+                        state.validate();
+                      },
+                    ),
+                  ),
                 ),
-                border: InputBorder.none,
-                errorStyle: const TextStyle(height: 0, fontSize: 0),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                isDense: false,
-                errorMaxLines: 2,
-              ),
-              validator: (value) => value == null
-                  ? AppLocalizations.of(context)!.please_select_gender
-                  : null,
-              key: _genderFieldKey,
-            ),
-          ),
+                if (state.hasError && state.errorText != null) ...[
+                  const SizedBox(height: 4),
+                  Text(
+                    state.errorText!,
+                    style: const TextStyle(color: Colors.red, fontSize: 12),
+                  ),
+                ],
+              ],
+            );
+          },
         ),
-        if (hasError && _genderFieldKey.currentState?.errorText != null) ...[
-          const SizedBox(height: 4),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              _genderFieldKey.currentState!.errorText!,
-              style: const TextStyle(color: Colors.red, fontSize: 12),
-            ),
-          ),
-        ],
       ],
     );
   }
 
-  Widget _buildSocialPhoneInput() {
+  Widget _buildSocialPhoneInput(TextEditingController controller) {
+    final fieldKey = _fieldKeys[controller];
+    final hasError = fieldKey?.currentState?.hasError == true;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -848,7 +863,7 @@ class _RegistrationState extends State<Registration> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: AppColors.indicatorGrey),
+            border: Border.all(color: AppColors.buttonBlueDark),
           ),
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Row(
@@ -937,74 +952,83 @@ class _RegistrationState extends State<Registration> {
               Container(height: 24, width: 1, color: Colors.grey[300]),
               const SizedBox(width: 12),
               Expanded(
-                child: TextField(
-                  cursorColor: AppColors.buttonBlueDark,
-                  controller: _phoneController,
-                  keyboardType: TextInputType.phone,
-                  inputFormatters: [
-                    FilteringTextInputFormatter.digitsOnly,
-                    TextInputFormatter.withFunction((oldValue, newValue) {
-                      int maxLength = 15;
-                      if (_selectedCountry.phoneCode == '966') {
-                        if (newValue.text.startsWith('0')) {
-                          maxLength = 10;
-                        } else if (newValue.text.startsWith('5')) {
-                          maxLength = 9;
-                        } else {
-                          maxLength = 10;
-                        }
-                      }
-                      if (newValue.text.length > maxLength) {
-                        if (oldValue.text.length < maxLength) {
-                          return TextEditingValue(
-                            text: newValue.text.substring(0, maxLength),
-                            selection: TextSelection.collapsed(
-                              offset: newValue.selection.end > maxLength
-                                  ? maxLength
-                                  : newValue.selection.end,
-                            ),
-                          );
-                        }
-                        return oldValue;
-                      }
-                      return newValue;
-                    }),
-                  ],
-                  decoration: InputDecoration(
-                    hintText: AppLocalizations.of(context)!.enter_phone,
-                    hintStyle: TextStyle(
-                      color: AppColors.buttonBlueDark.withValues(alpha: 0.8),
-                      fontSize: 12,
-                    ),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                        color: AppColors.buttonBlueDark,
+                child: FormField<String>(
+                  key: fieldKey,
+                  initialValue: _phoneController.text,
+                  validator: (value) {
+                    final trimmedValue = _phoneController.text.trim();
+                    if (trimmedValue.isEmpty) {
+                      return AppLocalizations.of(context)!.field_required;
+                    }
+                    return null;
+                  },
+                  builder: (FormFieldState<String> state) {
+                    return TextField(
+                      cursorColor: AppColors.buttonBlueDark,
+                      controller: _phoneController,
+                      keyboardType: TextInputType.phone,
+                      inputFormatters: [
+                        FilteringTextInputFormatter.digitsOnly,
+                        TextInputFormatter.withFunction((oldValue, newValue) {
+                          int maxLength = 15;
+                          if (_selectedCountry.phoneCode == '966') {
+                            if (newValue.text.startsWith('0')) {
+                              maxLength = 10;
+                            } else if (newValue.text.startsWith('5')) {
+                              maxLength = 9;
+                            } else {
+                              maxLength = 10;
+                            }
+                          }
+                          if (newValue.text.length > maxLength) {
+                            if (oldValue.text.length < maxLength) {
+                              return TextEditingValue(
+                                text: newValue.text.substring(0, maxLength),
+                                selection: TextSelection.collapsed(
+                                  offset: newValue.selection.end > maxLength
+                                      ? maxLength
+                                      : newValue.selection.end,
+                                ),
+                              );
+                            }
+                            return oldValue;
+                          }
+                          return newValue;
+                        }),
+                      ],
+                      onChanged: (value) {
+                        state.didChange(value);
+                        state.validate();
+                        setState(() {});
+                      },
+                      decoration: InputDecoration(
+                        hintText: AppLocalizations.of(context)!.enter_phone,
+                        hintStyle: TextStyle(
+                          color: AppColors.black.withValues(alpha: 0.8),
+                          fontSize: 14,
+                        ),
+                        border: InputBorder.none,
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
                       ),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                        color: AppColors.buttonBlueDark,
+                      style: const TextStyle(
+                        color: AppColors.black,
+                        fontSize: 14,
                       ),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                        color: AppColors.buttonBlueDark,
-                        width: 1.5,
-                      ),
-                    ),
-                  ),
-                  style: const TextStyle(
-                    color: AppColors.buttonBlueDark,
-                    fontSize: 12,
-                  ),
+                    );
+                  },
                 ),
               ),
             ],
           ),
         ),
+        if (hasError && fieldKey?.currentState?.errorText != null) ...[
+          const SizedBox(height: 4),
+          Text(
+            fieldKey!.currentState!.errorText!,
+            style: const TextStyle(color: Colors.red, fontSize: 12),
+          ),
+        ],
       ],
     );
   }

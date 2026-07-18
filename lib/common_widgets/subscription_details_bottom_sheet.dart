@@ -126,7 +126,9 @@ class _SubscriptionDetailsBottomSheetState
       setState(() {
         _isCreatingCheckout = false;
       });
-      _showError('Failed to create checkout. Please try again.');
+      if (e is DioException) {
+        _showError("${e.message}");
+      }
     }
   }
 
@@ -136,10 +138,21 @@ class _SubscriptionDetailsBottomSheetState
 
   Future<void> _selectDate(BuildContext context, bool isStart) async {
     final initialDate = DateTime.now().add(const Duration(days: 1));
+    
+    DateTime firstDate = initialDate;
+    if (!isStart && _startDate != null) {
+      firstDate = _startDate!.add(const Duration(days: 1));
+    }
+    
+    DateTime initialPickerDate = (isStart ? _startDate : _endDate) ?? firstDate;
+    if (initialPickerDate.isBefore(firstDate)) {
+      initialPickerDate = firstDate;
+    }
+
     final DateTime? picked = await showDatePicker(
       context: context,
-      initialDate: (isStart ? _startDate : _endDate) ?? initialDate,
-      firstDate: initialDate,
+      initialDate: initialPickerDate,
+      firstDate: firstDate,
       lastDate: DateTime.now().add(const Duration(days: 365)),
       builder: (context, child) {
         return Theme(

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:pinput/pinput.dart';
 import 'dart:io';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/storage/auth_storage.dart';
@@ -106,51 +107,46 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
       backgroundColor: AppColors.buttonBlueDark,
       body: Column(
         children: [
+          CustomAppBar(
+            hasBackgroundColor: true,
+            isStartAligned: true,
+            title: AppLocalizations.of(context)!.personal_information,
+            showBackButton: true,
+            onBackTap: () => Navigator.pop(context),
+          ),
           Expanded(
-            child: SingleChildScrollView(
-              physics: ClampingScrollPhysics(),
-              child: Column(
-                children: [
-                  CustomAppBar(
-                    hasBackgroundColor: true,
-                    isStartAligned: true,
-                    title: AppLocalizations.of(context)!.personal_information,
-                    showBackButton: true,
-                    onBackTap: () => Navigator.pop(context),
+            child: Container(
+              color: AppColors.buttonBlueDark,
+              child: Container(
+                width: double.infinity,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFF8FAFB),
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(30),
+                    topRight: Radius.circular(30),
                   ),
-                  Container(
-                    constraints: BoxConstraints(
-                      minHeight: MediaQuery.of(context).size.height - 100,
-                    ),
-                    color: AppColors.buttonBlueDark,
-                    child: Container(
-                      width: double.infinity,
-                      decoration: const BoxDecoration(
-                        color: Color(0xFFF8FAFB),
-                        borderRadius: BorderRadius.only(
-                          topLeft: Radius.circular(30),
-                          topRight: Radius.circular(30),
-                        ),
-                      ),
-                      child: AnimatedSwitcher(
-                        duration: const Duration(milliseconds: 500),
-                        layoutBuilder: (currentChild, previousChildren) {
-                          return Stack(
-                            alignment: Alignment.topCenter,
-                            children: <Widget>[
-                              ...previousChildren,
-                              ?currentChild,
-                            ],
-                          );
-                        },
-                        child: (_isLoading)
+                ),
+                child: SingleChildScrollView(
+                  physics: const ClampingScrollPhysics(),
+                  child: AnimatedSwitcher(
+                    duration: const Duration(milliseconds: 500),
+                    layoutBuilder: (currentChild, previousChildren) {
+                      return Stack(
+                        alignment: Alignment.topCenter,
+                        children: <Widget>[
+                          ...previousChildren,
+                          if (currentChild != null) currentChild,
+                        ],
+                      );
+                    },
+                    child: (_isLoading)
                             ? _buildShimmerLoading()
                             : Column(
                                 key: const ValueKey('content'),
                                 children: [
                                   // Upper blue header block with avatar and details
                                   Card(
-                                    margin: EdgeInsets.all(24),
+                                margin: EdgeInsets.all(16),
                                     color: Colors.white,
                                     child: Center(
                                       child: Column(
@@ -231,7 +227,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                                   // Username display
                                   Padding(
                                     padding: const EdgeInsets.symmetric(
-                                      horizontal: 24,
+                                  horizontal: 16,
                                     ),
                                     child: Column(
                                       children: [
@@ -310,9 +306,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                                 ],
                               ),
                       ),
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
           ),
@@ -347,19 +341,54 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
             borderRadius: BorderRadius.circular(15),
             border: Border.all(color: AppColors.indicatorGrey),
           ),
-          child: TextFormField(
+          child: controller.text.isEmpty
+              ? TextFormField(
+                  controller: TextEditingController(text: "Email not provided"),
+                  enabled: false,
+                  style: const TextStyle(color: AppColors.grey, fontSize: 14),
+                  decoration: InputDecoration(
+                    hintText: hint,
+                    hintStyle: TextStyle(
+                      color: AppColors.black.withValues(alpha: 0.8),
+                      fontSize: 14,
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(
+                        color: AppColors.buttonBlueDark,
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(
+                        color: AppColors.buttonBlueDark,
+                      ),
+                    ),
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(
+                        color: AppColors.buttonBlueDark,
+                        width: 1.5,
+                      ),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                  ),
+                )
+              : TextFormField(
             cursorColor: AppColors.buttonBlueDark,
             controller: controller,
             enabled: enabled,
             style: const TextStyle(
-              color: AppColors.buttonBlueDark,
-              fontSize: 12,
+              color: AppColors.black, fontSize: 14,
             ),
             decoration: InputDecoration(
               hintText: hint,
               hintStyle: TextStyle(
-                color: AppColors.buttonBlueDark.withValues(alpha: 0.8),
-                fontSize: 12,
+                      color: AppColors.black.withValues(alpha: 0.8),
+                      fontSize: 14,
               ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
@@ -369,6 +398,12 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(color: AppColors.buttonBlueDark),
               ),
+                    disabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(
+                        color: AppColors.buttonBlueDark,
+                      ),
+                    ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: const BorderSide(
@@ -419,12 +454,13 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           decoration: BoxDecoration(
-            color: const Color(0xFFF3F4F6),
+            color: Colors.white,
             borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: AppColors.indicatorGrey),
+            border: Border.all(color: AppColors.buttonBlueDark),
           ),
           child: DropdownButtonHideUnderline(
             child: DropdownButtonFormField<String>(
+              iconDisabledColor: Colors.white,
               borderRadius: BorderRadius.circular(15),
               dropdownColor: Colors.white,
               onTap: () {

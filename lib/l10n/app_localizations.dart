@@ -926,6 +926,12 @@ abstract class AppLocalizations {
   /// **'Subscribe'**
   String get subscribe;
 
+  /// No description provided for @no_new_notifications.
+  ///
+  /// In en, this message translates to:
+  /// **'No New Notifications'**
+  String get no_new_notifications;
+
   /// No description provided for @i_understand.
   ///
   /// In en, this message translates to:
@@ -1933,7 +1939,7 @@ abstract class AppLocalizations {
   /// No description provided for @enter_email_optional_hint.
   ///
   /// In en, this message translates to:
-  /// **'Enter your email (optional)'**
+  /// **'Enter your email'**
   String get enter_email_optional_hint;
 
   /// No description provided for @enter_phone_number_hint.
