@@ -28,7 +28,7 @@ class ProfileTab extends StatefulWidget {
 }
 
 class _ProfileTabState extends State<ProfileTab> {
-  static String? _cachedProfileETag;
+
   static String? _cachedNotificationsETag;
   static int _cachedUnreadCount = 0;
 
