@@ -356,6 +356,7 @@
   "enter_last_name": "Enter your last name",
   "enter_email_optional_hint": "Enter your email",
   "enter_phone_number_hint": "Enter phone number",
+  "order_number": "Order Number",
   "registration_failed": "Registration failed",
   "validation_error": "Validation error",
   "validation_error_check_inputs": "Validation error. Please check your inputs.",

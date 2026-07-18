@@ -474,81 +474,11 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
             ),
           ],
 
-          // // Parent Order details
-          // if (order.parentOrder != null) ...[
-          //   const SizedBox(height: 12),
-          //   _buildPremiumCard(
-          //     child: Column(
-          //       crossAxisAlignment: CrossAxisAlignment.start,
-          //       children: [
-          //         _buildSectionHeader(
-          //           isAr ? 'الطلب الأساسي' : 'Parent Order',
-          //           style: const TextStyle(
-          //             fontSize: 16,
-          //             fontWeight: FontWeight.bold,
-          //           ),
-          //         ),
-          //         const SizedBox(height: 12),
-          //         _buildInfoRow(
-          //           isAr ? 'رقم الطلب' : 'Order Number',
-          //           order.parentOrder!.orderNumber,
-          //         ),
-          //         _buildInfoRow(
-          //           isAr ? 'طريقة الدفع' : 'Payment Method',
-          //           order.parentOrder!.paymentMethod,
-          //         ),
-          //         _buildInfoRow(
-          //           isAr ? 'حالة الدفع' : 'Payment Status',
-          //           order.parentOrder!.paymentStatus,
-          //         ),
-          //       ],
-          //     ),
-          //   ),
-          // ],
-
+         
           // Delivery Progress
           _buildDeliveryProgressCard(order),
           const SizedBox(height: 12),
-          // Additional Order Details
-          // if ((order.assignedAt != null ||
-          //         order.confirmedAt != null ||
-          //         order.cancelledAt != null ||
-          //         order.isChillerAvailable != null) &&
-          //     order.product?.serialNumber == 2) ...[
-
-          //   _buildPremiumCard(
-          //     child: Column(
-          //       crossAxisAlignment: CrossAxisAlignment.start,
-          //       children: [
-          //         _buildSectionHeader(
-          //           AppLocalizations.of(context)!.chiller_info,
-          //           style: const TextStyle(
-          //             fontSize: 16,
-          //             fontWeight: FontWeight.bold,
-          //           ),
-          //         ),
-          //         const SizedBox(height: 12),
-          //         if (order.isChillerAvailable != null)
-          //           _buildInfoRow(
-          //             AppLocalizations.of(context)!.chiller_available,
-          //             order.isChillerAvailable!
-          //                 ? AppLocalizations.of(context)!.yes
-          //                 : AppLocalizations.of(context)!.no,
-          //           ),
-          //         const SizedBox(height: 12),
-          //         if (order.deliveredLocationDetails != null &&
-          //             order.deliveredLocationDetails!['location_name'] !=
-          //                 null) ...[
-          //           _buildInfoRow(
-          //             AppLocalizations.of(context)!.delivered_to,
-          //             order.deliveredLocationDetails!['location_name'],
-          //           ),
-          //         ],
-          //       ],
-          //     ),
-          //   ),
-          // ],
-
+         
           // Financials
           if (order.financials != null) ...[
             _buildPremiumCard(

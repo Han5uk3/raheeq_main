@@ -313,6 +313,7 @@
   "enter_email_optional_hint": "أدخل البريد الإلكتروني",
   "enter_phone_number_hint": "أدخل رقم الهاتف",
   "registration_failed": "فشل التسجيل",
+  "order_number": "رقم الطلب",
   "validation_error": "خطأ في التحقق",
   "validation_error_check_inputs": "خطأ في التحقق. يرجى مراجعة مدخلاتك.",
   "register": "تسجيل",

@@ -51,7 +51,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
   bool _isApplyingCoupon = false;
   bool _isTogglingWallet = false;
   bool _isProcessingPayment = false;
-  String _selectedPaymentMethod = 'CREDIT_CARD';
+  String _selectedPaymentMethod = Platform.isIOS ? 'APPLE_PAY' : 'STC_PAY';
 
   @override
   void initState() {
@@ -263,12 +263,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
 
   Widget _buildPaymentMethods(bool isAr) {
     final methods = [
-      {
-        'id': 'CREDIT_CARD',
-        'hasTwoIcons': true,
-        'icon': "assets/payment_method_icons/visa.png",
-        'icon2': "assets/payment_method_icons/mada.png",
-      },
+     
       if (Platform.isIOS)
         {
           'id': 'APPLE_PAY',
@@ -279,6 +274,12 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
         'id': 'STC_PAY',
         'hasTwoIcons': false,
         'icon': "assets/payment_method_icons/stc_pay.png",
+      },
+      {
+        'id': 'CREDIT_CARD',
+        'hasTwoIcons': true,
+        'icon': "assets/payment_method_icons/visa.png",
+        'icon2': "assets/payment_method_icons/mada.png",
       },
       if (_checkoutData.subscription == null)
         {
@@ -315,6 +316,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                       side: BorderSide(
+                        width: isSelected ? 2 : 1,
                         color: isSelected
                             ? AppColors.buttonBlueDark
                             : AppColors.grey,

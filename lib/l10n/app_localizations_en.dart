@@ -978,6 +978,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get enter_phone_number_hint => 'Enter phone number';
 
   @override
+  String get order_number => 'Order Number';
+
+  @override
   String get registration_failed => 'Registration failed';
 
   @override

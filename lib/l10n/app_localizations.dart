@@ -1948,6 +1948,12 @@ abstract class AppLocalizations {
   /// **'Enter phone number'**
   String get enter_phone_number_hint;
 
+  /// No description provided for @order_number.
+  ///
+  /// In en, this message translates to:
+  /// **'Order Number'**
+  String get order_number;
+
   /// No description provided for @registration_failed.
   ///
   /// In en, this message translates to:

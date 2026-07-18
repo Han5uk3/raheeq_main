@@ -971,6 +971,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get enter_phone_number_hint => 'أدخل رقم الهاتف';
 
   @override
+  String get order_number => 'رقم الطلب';
+
+  @override
   String get registration_failed => 'فشل التسجيل';
 
   @override

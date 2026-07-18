@@ -693,10 +693,17 @@ class _OrderCardState extends State<_OrderCard> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Text(AppLocalizations.of(context)!.order_number),
+                      Text(
                     '#${widget.order.subOrderNumber}',
                     textDirection: TextDirection.ltr,
                     style: const TextStyle(color: Colors.grey, fontSize: 14),
+                  ),
+
+                    ],
                   ),
                   if (widget.order.status.toUpperCase() == 'COMPLETED')
                     SizedBox(
