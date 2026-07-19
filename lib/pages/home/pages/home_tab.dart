@@ -1590,6 +1590,8 @@ class _HomeTabState extends State<HomeTab>
     final description = campaign.localizedDescription(isAr);
 
     final imageUrl = campaign.image;
+    final bannerWidth = MediaQuery.of(context).size.width - 32;
+    const minBannerHeight = 195.0;
 
     return GestureDetector(
       onTap: () async {
@@ -1627,26 +1629,20 @@ class _HomeTabState extends State<HomeTab>
           );
         }
       },
-      child: FittedBox(
-        fit: BoxFit.fitWidth,
-        clipBehavior: Clip.none,
-        child: Material(
-          elevation: 3,
-          borderRadius: BorderRadius.circular(20),
-          color: Colors.white,
-          child: Container(
-            height: 228,
-            width: 420, // Fixed width for design baseline
-            margin: const EdgeInsetsDirectional.only(bottom: 0),
+      child: Material(
+        elevation: 3,
+        borderRadius: BorderRadius.circular(20),
+        color: Colors.white,
+        child: Container(
+          width: bannerWidth,
+          constraints: const BoxConstraints(minHeight: minBannerHeight),
+          margin: const EdgeInsetsDirectional.only(bottom: 0),
+          child: IntrinsicHeight(
             child: Stack(
               clipBehavior: Clip.none,
               children: [
-                // Dark blue background container — half the total height, aligned to bottom
-                Positioned(
-                  left: 0,
-                  right: 0,
-                  bottom: 0,
-                  top: 0,
+                // Dark blue background container — fills to match content height
+                Positioned.fill(
                   child: Stack(
                     children: [
                       ClipRRect(
@@ -1691,123 +1687,115 @@ class _HomeTabState extends State<HomeTab>
                   ),
                 ),
 
-                // Content row on top
-                Positioned.fill(
-                  child: Row(
-                    children: [
-                      // Left side: Title + Button
-                      Expanded(
-                        flex: 7,
-                        child: Padding(
-                          padding: const EdgeInsetsDirectional.only(
-                            start: 16,
-                            top: 28,
-                            bottom: 16,
-                            end: 16,
-                          ),
-                          child: Column(
-                            spacing: 8,
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Column(
-                                spacing: 8,
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        flex: 8,
-                                        child: Text(
-                                          title,
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: const TextStyle(
-                                            color: Colors.white,
-                                            fontSize: 25,
-                                            fontWeight: FontWeight.bold,
-                                            height: 1.2,
-                                          ),
-                                        ),
-                                      ),
-
-                                      Expanded(flex: 8, child: SizedBox()),
-                                    ],
-                                  ),
-
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        flex: 7,
-                                        child: Text(
-                                          description,
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                            color: Colors.white.withValues(
-                                              alpha: 0.9,
-                                            ),
-                                            fontSize: 14,
-                                          ),
-                                        ),
-                                      ),
-                                      Expanded(flex: 2, child: SizedBox()),
-                                    ],
-                                  ),
-                                ],
-                              ),
-
-                              Material(
-                                elevation: 2,
-                                borderRadius: BorderRadius.circular(30),
-                                color: Colors.white,
-                                child: Container(
-                                  padding: const EdgeInsets.symmetric(
-                                    horizontal: 16,
-                                    vertical: 8,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(30),
-                                  ),
-                                  child: Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
-                                      Text(
-                                        AppLocalizations.of(
-                                          context,
-                                        )!.donate_now,
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w600,
-                                          color: AppColors.buttonBlueDark,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Container(
-                                        padding: const EdgeInsets.all(5),
-                                        decoration: BoxDecoration(
-                                          color: AppColors.buttonBlueDark,
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: Icon(
-                                          forwardArrowIcon(context),
-                                          size: 12,
+                // Content row — non-positioned, so it drives the Stack's height
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      flex: 7,
+                      child: Padding(
+                        padding: const EdgeInsetsDirectional.only(
+                          start: 16,
+                          top: 16,
+                          bottom: 16,
+                          end: 16,
+                        ),
+                        child: Column(
+                          spacing: 8,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Column(
+                              spacing: 8,
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      flex: 8,
+                                      child: Text(
+                                        title,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: const TextStyle(
                                           color: Colors.white,
+                                          fontSize: 26,
+                                          fontWeight: FontWeight.bold,
+                                          height: 1.2,
                                         ),
                                       ),
-                                    ],
-                                  ),
+                                    ),
+                                    Expanded(flex: 8, child: SizedBox()),
+                                  ],
+                                ),
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      flex: 7,
+                                      child: Text(
+                                        description,
+                                        maxLines: 2,
+                                        overflow: TextOverflow.ellipsis,
+                                        style: TextStyle(
+                                          color: Colors.white.withValues(
+                                            alpha: 0.9,
+                                          ),
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(flex: 2, child: SizedBox()),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            Material(
+                              elevation: 2,
+                              borderRadius: BorderRadius.circular(30),
+                              color: Colors.white,
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 8,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Text(
+                                      AppLocalizations.of(context)!.donate_now,
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        fontWeight: FontWeight.w600,
+                                        color: AppColors.buttonBlueDark,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Container(
+                                      padding: const EdgeInsets.all(5),
+                                      decoration: BoxDecoration(
+                                        color: AppColors.buttonBlueDark,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(
+                                        forwardArrowIcon(context),
+                                        size: 12,
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
               ],
             ),

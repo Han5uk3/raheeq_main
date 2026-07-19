@@ -237,6 +237,100 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          Builder(
+            builder: (context) {
+              final bool showInvoice =
+                  order.invoiceUrl != null && order.invoiceUrl!.isNotEmpty;
+              final bool showReorder =
+                  order.status.toUpperCase() == 'CONFIRMED';
+
+              if (!showInvoice && !showReorder) return const SizedBox.shrink();
+
+              return Padding(
+                padding: const EdgeInsets.only(bottom: 24.0),
+                child: Row(
+                  children: [
+                    if (showInvoice)
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.buttonBlueDark,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                          ),
+                          onPressed: () async {
+                            final url = Uri.parse(order.invoiceUrl!);
+                            try {
+                              await launchUrl(
+                                url,
+                                mode: LaunchMode.externalApplication,
+                              );
+                            } catch (e) {
+                              if (mounted) {
+                                CustomSnackbar.show(
+                                  context: context,
+                                  message: AppLocalizations.of(
+                                    context,
+                                  )!.could_not_open_invoice,
+                                );
+                              }
+                            }
+                          },
+                          icon: const Icon(
+                            Icons.receipt,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                          label: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              AppLocalizations.of(context)!.view_invoice,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    if (showInvoice && showReorder) const SizedBox(width: 12),
+                    if (showReorder)
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.buttonBlueDark,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            padding: const EdgeInsets.symmetric(vertical: 16),
+                          ),
+                          onPressed: () {
+                            DeepLinkService().handleReorder(order.id);
+                          },
+                          icon: const Icon(
+                            Icons.refresh,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                          label: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              AppLocalizations.of(context)!.reorder,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              );
+            },
+          ),
           // Product details
           if (order.product != null) ...[
             _buildPremiumCard(
@@ -576,7 +670,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                 ],
               ),
             ),
-            const SizedBox(height: 24), // spacing at bottom
+            const SizedBox(height: 12), // spacing at bottom
           ],
 
           // Customer Review
@@ -619,101 +713,6 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
             ),
             const SizedBox(height: 24),
           ],
-
-          Builder(
-            builder: (context) {
-              final bool showInvoice =
-                  order.invoiceUrl != null && order.invoiceUrl!.isNotEmpty;
-              final bool showReorder =
-                  order.status.toUpperCase() == 'CONFIRMED';
-
-              if (!showInvoice && !showReorder) return const SizedBox.shrink();
-
-              return Padding(
-                padding: const EdgeInsets.only(bottom: 24.0),
-                child: Row(
-                  children: [
-                    if (showInvoice)
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.buttonBlueDark,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                          ),
-                          onPressed: () async {
-                            final url = Uri.parse(order.invoiceUrl!);
-                            try {
-                              await launchUrl(
-                                url,
-                                mode: LaunchMode.externalApplication,
-                              );
-                            } catch (e) {
-                              if (mounted) {
-                                CustomSnackbar.show(
-                                  context: context,
-                                  message: AppLocalizations.of(
-                                    context,
-                                  )!.could_not_open_invoice,
-                                );
-                              }
-                            }
-                          },
-                          icon: const Icon(
-                            Icons.receipt,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                          label: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Text(
-                              AppLocalizations.of(context)!.view_invoice,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    if (showInvoice && showReorder) const SizedBox(width: 12),
-                    if (showReorder)
-                      Expanded(
-                        child: ElevatedButton.icon(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.buttonBlueDark,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                          ),
-                          onPressed: () {
-                            DeepLinkService().handleReorder(order.id);
-                          },
-                          icon: const Icon(
-                            Icons.refresh,
-                            color: Colors.white,
-                            size: 20,
-                          ),
-                          label: FittedBox(
-                            fit: BoxFit.scaleDown,
-                            child: Text(
-                              AppLocalizations.of(context)!.reorder,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              );
-            },
-          ),
         ],
       ),
     );
@@ -1015,7 +1014,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                   if (!isVideo)
                     CachedNetworkImage(
                       imageUrl: url,
-                      fit: BoxFit.cover,
+                      fit: BoxFit.contain,
                       placeholder: (context, url) => Shimmer.fromColors(
                         baseColor: Colors.grey[300]!,
                         highlightColor: Colors.grey[100]!,
