@@ -1,4 +1,4 @@
-import 'package:raheeq_main/api/apis.dart';
+import 'package:raheeq_main/api/new.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'dart:developer';
 import 'package:raheeq_main/utils/formatters.dart';
@@ -49,7 +49,8 @@ class HomeTab extends StatefulWidget {
   State<HomeTab> createState() => _HomeTabState();
 }
 
-class _HomeTabState extends State<HomeTab> with RouteAware, WidgetsBindingObserver {
+class _HomeTabState extends State<HomeTab>
+    with RouteAware, WidgetsBindingObserver {
   final PageController _pageController = PageController(
     initialPage: 1000,
     viewportFraction: 0.9,

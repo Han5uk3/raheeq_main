@@ -1,6 +1,8 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:raheeq_main/api/new.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
+import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/models/order_item.dart';
 import 'package:raheeq_main/models/product.dart';
 import 'package:raheeq_main/models/place.dart';
@@ -8,7 +10,6 @@ import 'package:raheeq_main/models/city.dart';
 import 'package:raheeq_main/pages/order/contribution_details_page.dart';
 import 'package:raheeq_main/common_widgets/bottom_action_pill.dart';
 import 'package:raheeq_main/utils/colors.dart';
-import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/models/checkout.dart';
 import 'dart:developer';
 import 'package:raheeq_main/common_widgets/donation_type_bottom_sheet.dart';
@@ -27,9 +28,11 @@ class ReviewOrderPage extends StatefulWidget {
   State<ReviewOrderPage> createState() => _ReviewOrderPageState();
 }
 
-class _ReviewOrderPageState extends State<ReviewOrderPage> {
+class _ReviewOrderPageState extends State<ReviewOrderPage>
+    with SingleTickerProviderStateMixin {
   late List<Product> _uniqueProducts;
   bool _isProcessing = false;
+  TabController? _tabController;
 
   @override
   void initState() {
@@ -41,6 +44,24 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
       }
     }
     _uniqueProducts = productMap.values.toList();
+
+    if (_uniqueProducts.isNotEmpty) {
+      _tabController = TabController(
+        length: _uniqueProducts.length,
+        vsync: this,
+      );
+      // Rebuild the page whenever the selected tab changes so the
+      // (non-lazy) content below the TabBar reflects the new tab.
+      _tabController!.addListener(() {
+        if (mounted) setState(() {});
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _tabController?.dispose();
+    super.dispose();
   }
 
   double get _totalPrice {
@@ -214,268 +235,280 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
     );
   }
 
-  Widget _buildProductTab(Product product, bool isAr) {
-    // find all category states that contain this product
+  /// Builds the cards for a single product as a plain (non-scrolling)
+  /// Column, so its height is exactly the sum of its children — no
+  /// leftover space when there's only one or two cards.
+  Widget _buildProductTabContent(Product product, bool isAr) {
     final relevantStates = widget.orderStates.where((state) {
       return state.selectedProducts.any((sp) => sp.product.id == product.id);
     }).toList();
 
-    return ListView.separated(
-      padding: const EdgeInsetsDirectional.only(
-        start: 16,
-        end: 16,
-        top: 16,
-        bottom: 120,
-      ),
-      itemCount: relevantStates.length,
-      separatorBuilder: (_, __) => const SizedBox(height: 16),
-      itemBuilder: (context, index) {
-        final state = relevantStates[index];
-        final category = state.categoryItem.category;
-        final sp = state.selectedProducts.firstWhere(
-          (p) => p.product.id == product.id,
-        );
+    return Column(
+      children: [
+        for (int index = 0; index < relevantStates.length; index++) ...[
+          if (index > 0) const SizedBox(height: 16),
+          Builder(
+            builder: (context) {
+              final state = relevantStates[index];
+              final category = state.categoryItem.category;
+              final sp = state.selectedProducts.firstWhere(
+                (p) => p.product.id == product.id,
+              );
 
-        final slug = category.slug;
-        final optionType = state.categoryItem.optionType;
-        String originalCategoryLabel = category.localizedLabel(isAr);
-        String categoryLabel = originalCategoryLabel;
-        String locationText = "";
+              final slug = category.slug;
+              final optionType = state.categoryItem.optionType;
+              String originalCategoryLabel = category.localizedLabel(isAr);
+              String categoryLabel = originalCategoryLabel;
+              String locationText = "";
 
-        if (optionType == 'specific') {
-          final specificData = state.categoryItem.specificData;
-          if (specificData is Place) {
-            categoryLabel = specificData.localizedName(isAr);
-            locationText = specificData.address;
-          } else {
-            categoryLabel = specificData?.localizedName(isAr) ?? "";
-            locationText = "";
-          }
-        } else if (optionType == 'most_in_need') {
-          if (slug == 'orphanages') {
-            locationText = AppLocalizations.of(context)!.most_needy_orphanage;
-          } else if (slug == 'meqat_mosques') {
-            locationText = AppLocalizations.of(
-              context,
-            )!.most_needy_meqat_mosque;
-          } else if (slug == 'mosques_in_need') {
-            final specificData = state.categoryItem.specificData;
-            if (specificData != null) {
-              // Can be a City object or a String depending on where it was selected
-              if (specificData is City) {
-                categoryLabel = specificData.localizedName(isAr);
-              } else if (specificData is String) {
-                categoryLabel = specificData;
-              } else {
-                try {
+              if (optionType == 'specific') {
+                final specificData = state.categoryItem.specificData;
+                if (specificData is Place) {
                   categoryLabel = specificData.localizedName(isAr);
-                } catch (_) {}
+                  locationText = specificData.address;
+                } else {
+                  categoryLabel = specificData?.localizedName(isAr) ?? "";
+                  locationText = "";
+                }
+              } else if (optionType == 'most_in_need') {
+                if (slug == 'orphanages') {
+                  locationText = AppLocalizations.of(
+                    context,
+                  )!.most_needy_orphanage;
+                } else if (slug == 'meqat_mosques') {
+                  locationText = AppLocalizations.of(
+                    context,
+                  )!.most_needy_meqat_mosque;
+                } else if (slug == 'mosques_in_need') {
+                  final specificData = state.categoryItem.specificData;
+                  if (specificData != null) {
+                    // Can be a City object or a String depending on where it was selected
+                    if (specificData is City) {
+                      categoryLabel = specificData.localizedName(isAr);
+                    } else if (specificData is String) {
+                      categoryLabel = specificData;
+                    } else {
+                      try {
+                        categoryLabel = specificData.localizedName(isAr);
+                      } catch (_) {}
+                    }
+                  }
+                  locationText = "";
+                } else {
+                  locationText = AppLocalizations.of(context)!.most_in_need;
+                }
+              } else if (slug == 'remote_mosques' || slug == 'cemeteries') {
+                locationText = "";
+              } else {
+                locationText = AppLocalizations.of(context)!.general;
               }
-            }
-            locationText = "";
-          } else {
-            locationText = AppLocalizations.of(context)!.most_in_need;
-          }
-        } else if (slug == 'remote_mosques' || slug == 'cemeteries') {
-          locationText = "";
-        } else {
-          locationText = AppLocalizations.of(context)!.general;
-        }
 
-        // If the title of the card was changed to something specific (like a mosque name or city name),
-        // show the original category name where the location would normally be shown.
-        if (categoryLabel != originalCategoryLabel) {
-          locationText = originalCategoryLabel;
-        }
+              // If the title of the card was changed to something specific (like a mosque name or city name),
+              // show the original category name where the location would normally be shown.
+              if (categoryLabel != originalCategoryLabel) {
+                locationText = originalCategoryLabel;
+              }
 
-        return Card(
-          color: Colors.white,
-          elevation: 2,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+              return Card(
+                color: Colors.white,
+                elevation: 2,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(20),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            categoryLabel,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.buttonBlueDark,
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  categoryLabel,
+                                  style: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.buttonBlueDark,
+                                  ),
+                                ),
+                                if (locationText.isNotEmpty) ...[
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    locationText,
+                                    style: TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.grey[600],
+                                    ),
+                                  ),
+                                ],
+                              ],
                             ),
                           ),
-                          if (locationText.isNotEmpty) ...[
-                            const SizedBox(height: 4),
-                            Text(
-                              locationText,
-                              style: TextStyle(
-                                fontSize: 13,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ],
                         ],
                       ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 5),
-                Divider(),
-                SizedBox(height: 5),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "${AppLocalizations.of(context)!.choose_quantity} (${product.localizedName(isAr)})",
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.normal,
-                        color: AppColors.grey,
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF0F4F8),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
+                      SizedBox(height: 5),
+                      Divider(),
+                      SizedBox(height: 5),
+                      Row(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          AnimatedOpacity(
-                            duration: const Duration(milliseconds: 200),
-                            opacity: sp.quantity > sp.product.minQuantity
-                                ? 1.0
-                                : 0.45,
-                            child: GestureDetector(
-                              onTap: () {
-                                if (sp.quantity > sp.product.minQuantity) {
-                                  setState(() {
-                                    sp.quantity -= 1;
-                                  });
-                                } else {
-                                  CustomSnackbar.show(
-                                    context: context,
-                                    message: AppLocalizations.of(context)!
-                                        .minimum_quantity_for_location_is(
-                                          sp.product.minQuantity.toString(),
-                                        ),
-                                    isError: true,
-                                    bottomMargin: 120,
-                                  );
-                                }
-                              },
-                              child: Container(
-                                width: 30,
-                                height: 30,
-                                alignment: Alignment.center,
-                                decoration: BoxDecoration(
-                                  color: sp.quantity > sp.product.minQuantity
-                                      ? AppColors.buttonBlueDark
-                                      : Colors.grey,
-                                  borderRadius: BorderRadius.circular(8),
-                                ),
-                                child: Icon(
-                                  Icons.remove,
-                                  size: 18,
-                                  color: AppColors.white,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 8),
                           Text(
-                            "${sp.quantity}",
+                            "${AppLocalizations.of(context)!.choose_quantity} (${product.localizedName(isAr)})",
                             style: TextStyle(
                               fontSize: 14,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.buttonBlueDark,
+                              fontWeight: FontWeight.normal,
+                              color: AppColors.grey,
                             ),
                           ),
-                          const SizedBox(width: 8),
-                          GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                sp.quantity += 1;
-                              });
-                            },
-                            child: Container(
-                              width: 30,
-                              height: 30,
-                              alignment: Alignment.center,
-                              decoration: BoxDecoration(
-                                color: AppColors.buttonBlueDark,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: const Icon(
-                                Icons.add,
-                                size: 18,
-                                color: Colors.white,
-                              ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 6,
+                            ),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFF0F4F8),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                AnimatedOpacity(
+                                  duration: const Duration(milliseconds: 200),
+                                  opacity: sp.quantity > sp.product.minQuantity
+                                      ? 1.0
+                                      : 0.45,
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      if (sp.quantity >
+                                          sp.product.minQuantity) {
+                                        setState(() {
+                                          sp.quantity -= 1;
+                                        });
+                                      } else {
+                                        CustomSnackbar.show(
+                                          context: context,
+                                          message: AppLocalizations.of(context)!
+                                              .minimum_quantity_for_location_is(
+                                                sp.product.minQuantity
+                                                    .toString(),
+                                              ),
+                                          isError: true,
+                                          bottomMargin: 120,
+                                        );
+                                      }
+                                    },
+                                    child: Container(
+                                      width: 30,
+                                      height: 30,
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                        color:
+                                            sp.quantity > sp.product.minQuantity
+                                            ? AppColors.buttonBlueDark
+                                            : Colors.grey,
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                      child: Icon(
+                                        Icons.remove,
+                                        size: 18,
+                                        color: AppColors.white,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  "${sp.quantity}",
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.bold,
+                                    color: AppColors.buttonBlueDark,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      sp.quantity += 1;
+                                    });
+                                  },
+                                  child: Container(
+                                    width: 30,
+                                    height: 30,
+                                    alignment: Alignment.center,
+                                    decoration: BoxDecoration(
+                                      color: AppColors.buttonBlueDark,
+                                      borderRadius: BorderRadius.circular(8),
+                                    ),
+                                    child: const Icon(
+                                      Icons.add,
+                                      size: 18,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                         ],
                       ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                TextFormField(
-                  cursorColor: AppColors.buttonBlueDark,
-                  initialValue: sp.notes,
-                  maxLines: 3,
-                  onChanged: (val) {
-                    sp.notes = val;
-                  },
-                  style: TextStyle(
-                    color: AppColors.buttonBlueDark,
-                    fontSize: 12,
-                  ),
-                  decoration: InputDecoration(
-                    hintText: AppLocalizations.of(
-                      context,
-                    )!.would_you_like_to_add_a_note_to_the_delivery_agent,
-                    hintStyle: TextStyle(
-                      color: AppColors.buttonBlueDark.withValues(alpha: 0.8),
-                      fontSize: 12,
-                    ),
-
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: AppColors.buttonBlueDark),
-                    ),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide(color: AppColors.buttonBlueDark),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: const BorderSide(
-                        color: AppColors.buttonBlueDark,
-                        width: 1.5,
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        cursorColor: AppColors.buttonBlueDark,
+                        initialValue: sp.notes,
+                        maxLines: 3,
+                        onChanged: (val) {
+                          sp.notes = val;
+                        },
+                        scrollPadding: EdgeInsets.only(bottom: 70),
+                        style: TextStyle(
+                          color: AppColors.buttonBlueDark,
+                          fontSize: 12,
+                        ),
+                        decoration: InputDecoration(
+                          hintText: AppLocalizations.of(
+                            context,
+                          )!.would_you_like_to_add_a_note_to_the_delivery_agent,
+                          hintStyle: TextStyle(
+                            color: AppColors.buttonBlueDark.withValues(
+                              alpha: 0.8,
+                            ),
+                            fontSize: 12,
+                          ),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(
+                              color: AppColors.buttonBlueDark,
+                            ),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: BorderSide(
+                              color: AppColors.buttonBlueDark,
+                            ),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            borderSide: const BorderSide(
+                              color: AppColors.buttonBlueDark,
+                              width: 1.5,
+                            ),
+                          ),
+                        ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
-              ],
-            ),
+              );
+            },
           ),
-        );
-      },
+        ],
+      ],
     );
   }
 
@@ -485,7 +518,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
     final title = AppLocalizations.of(context)!.order_details;
     final subtitle = AppLocalizations.of(context)!.verify_your_order_details;
 
-    if (_uniqueProducts.isEmpty) {
+    if (_uniqueProducts.isEmpty || _tabController == null) {
       return Scaffold(
         backgroundColor: Colors.white,
         body: CustomScrollView(
@@ -511,56 +544,57 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
       );
     }
 
+    final currentProduct = _uniqueProducts[_tabController!.index];
+
     return IgnorePointer(
       ignoring: _isProcessing,
-      child: DefaultTabController(
-        length: _uniqueProducts.length,
-        child: Scaffold(
-          backgroundColor: AppColors.buttonBlueDark,
-          floatingActionButtonLocation:
-              FloatingActionButtonLocation.centerFloat,
-          floatingActionButton: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
-            child: BottomActionPill(
-              isLoading: _isProcessing,
-              subtitleWidget: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    '$_totalQuantity ${AppLocalizations.of(context)!.items}',
-                    style: const TextStyle(fontSize: 12, color: Colors.white),
-                  ),
-                  const SizedBox(height: 2),
-                  Text(
-                    AppLocalizations.of(context)!.total_price,
-                    style: const TextStyle(fontSize: 12, color: Colors.white),
-                  ),
-                ],
-              ),
-              titleWidget: Text(
-                "\u202A${AppLocalizations.of(context)!.sar_currency} ${_totalPrice.toStringAsFixed(2)}\u202C",
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.white,
+      child: Scaffold(
+        resizeToAvoidBottomInset: true,
+        extendBody: true,
+        backgroundColor: AppColors.white,
+        bottomNavigationBar: Padding(
+          padding: EdgeInsetsDirectional.only(start: 16, end: 16, bottom: 32),
+          child: BottomActionPill(
+            isLoading: _isProcessing,
+            subtitleWidget: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '$_totalQuantity ${AppLocalizations.of(context)!.items}',
+                  style: const TextStyle(fontSize: 12, color: Colors.white),
                 ),
-              ),
-              buttonText: AppLocalizations.of(context)!.continue_btn,
-
-              onButtonTap: () {
-                FocusManager.instance.primaryFocus?.unfocus();
-                final hasChiller = _uniqueProducts.any(
-                  (p) => p.serialNumber == 2,
-                );
-                if (hasChiller) {
-                  _processOneTimeCheckout(context, isAr);
-                } else {
-                  _showDonationTypeDialog(context, isAr);
-                }
-              },
+                const SizedBox(height: 2),
+                Text(
+                  AppLocalizations.of(context)!.total_price,
+                  style: const TextStyle(fontSize: 12, color: Colors.white),
+                ),
+              ],
             ),
+            titleWidget: Text(
+              "\u202A${AppLocalizations.of(context)!.sar_currency} ${_totalPrice.toStringAsFixed(2)}\u202C",
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+                color: AppColors.white,
+              ),
+            ),
+            buttonText: AppLocalizations.of(context)!.continue_btn,
+            onButtonTap: () {
+              FocusManager.instance.primaryFocus?.unfocus();
+              final hasChiller = _uniqueProducts.any(
+                (p) => p.serialNumber == 2,
+              );
+              if (hasChiller) {
+                _processOneTimeCheckout(context, isAr);
+              } else {
+                _showDonationTypeDialog(context, isAr);
+              }
+            },
           ),
-          body: Column(
+        ),
+        body: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               CustomAppBar(
                 hasBackgroundColor: true,
@@ -612,6 +646,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                                 borderRadius: BorderRadius.circular(25),
                               ),
                               child: TabBar(
+                                controller: _tabController,
                                 splashBorderRadius: BorderRadius.circular(25),
                                 isScrollable: _uniqueProducts.length > 3,
                                 dividerColor: Colors.transparent,
@@ -647,20 +682,18 @@ class _ReviewOrderPageState extends State<ReviewOrderPage> {
                             ),
                           ),
                         ),
+                        const SizedBox(height: 16),
+                        Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                          child: _buildProductTabContent(currentProduct, isAr),
+                        ),
                       ],
                     ),
                   ),
                 ],
               ),
-              Expanded(
-                child: Container(
-                  decoration: BoxDecoration(color: AppColors.white),
-                  child: TabBarView(
-                    children: _uniqueProducts.map((product) {
-                      return _buildProductTab(product, isAr);
-                    }).toList(),
-                  ),
-                ),
+              SizedBox(
+                height: MediaQuery.of(context).viewInsets.bottom > 0 ? 50 : 140,
               ),
             ],
           ),

@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:raheeq_main/api/new.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:shimmer/shimmer.dart';
@@ -14,7 +15,6 @@ import 'package:flutter_paytabs_bridge/PaymentSdkTokeniseType.dart';
 import 'package:flutter_paytabs_bridge/PaymentSdkApms.dart';
 import 'package:raheeq_main/pages/order/payment_status_page.dart';
 import 'package:raheeq_main/pages/order/choose_iban_account_bottom_sheet.dart';
-import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/models/order_item.dart';
 import 'package:raheeq_main/models/checkout.dart';
 import 'package:raheeq_main/storage/auth_storage.dart';
@@ -1009,10 +1009,15 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
       child: Stack(
         children: [
           Scaffold(
-            floatingActionButtonLocation:
-                FloatingActionButtonLocation.centerFloat,
-            floatingActionButton: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 0),
+            backgroundColor: Colors.white,
+            extendBody: true,
+            resizeToAvoidBottomInset: true,
+            bottomNavigationBar: Padding(
+              padding: const EdgeInsetsDirectional.only(
+                start: 16,
+                end: 16,
+                bottom: 32,
+              ),
               child: BottomActionPill(
                 isLoading: _isProcessingPayment,
                 subtitleWidget: Text(
@@ -1031,6 +1036,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                 onButtonTap: () => _confirmAndPay(context, isAr),
               ),
             ),
+
             body: CustomScrollView(
               physics: ClampingScrollPhysics(),
               slivers: [
@@ -1058,11 +1064,13 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                         ),
                       ),
                       child: Padding(
-                        padding: const EdgeInsetsDirectional.fromSTEB(
+                        padding: EdgeInsetsDirectional.fromSTEB(
                           16,
                           24,
                           16,
-                          120,
+                          MediaQuery.of(context).viewInsets.bottom > 0
+                              ? 50
+                              : 130,
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -1078,13 +1086,6 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                     "assets/static_banners/payment_banner.jpeg",
                                     fit: BoxFit.cover,
                                   ),
-
-                                  //  CachedNetworkImage(
-                                  //   imageUrl: widget.campaign.image,
-                                  //   fit: BoxFit.cover,
-                                  //   errorWidget: (context, url, error) =>
-                                  //       Container(color: Colors.grey[200]),
-                                  // ),
                                 ),
                               ),
                             ),
@@ -1242,7 +1243,18 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                                   ],
                                                   cursorColor:
                                                       AppColors.buttonBlueDark,
-
+                                                  scrollPadding:
+                                                      EdgeInsets.only(
+                                                        bottom:
+                                                            MediaQuery.of(
+                                                                      context,
+                                                                    )
+                                                                    .viewInsets
+                                                                    .bottom >
+                                                                0
+                                                            ? 160
+                                                            : 20,
+                                                      ),
                                                   controller: _couponController,
                                                   decoration: InputDecoration(
                                                     hintStyle: TextStyle(
@@ -1318,11 +1330,12 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                                       : () =>
                                                             _applyCoupon(isAr),
                                                   style: ElevatedButton.styleFrom(
-                                                    backgroundColor: AppColors
-                                                        .buttonBlueDark,
+                                                    backgroundColor: isEmpty
+                                                        ? AppColors.grey
+                                                        : AppColors
+                                                              .buttonBlueDark,
                                                     disabledBackgroundColor:
-                                                        AppColors
-                                                            .buttonBlueDark,
+                                                        AppColors.grey,
                                                     disabledForegroundColor:
                                                         Colors.white,
                                                     foregroundColor:

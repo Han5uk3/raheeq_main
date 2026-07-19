@@ -1,3 +1,4 @@
+import 'package:raheeq_main/api/new.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'dart:async';
 import 'dart:io';
@@ -9,7 +10,6 @@ import 'package:dio/dio.dart';
 import 'package:raheeq_main/models/user.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/pages/authentication/registration.dart';
-import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/pages/home/home_screen.dart';
 import 'package:raheeq_main/storage/auth_storage.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
@@ -150,7 +150,7 @@ class _OTPState extends State<OTP> {
           if (response.data is Map && response.data['message'] != null) {
             successMessage = response.data['message'];
           }
-        
+
           CustomSnackbar.show(
             bottomMargin: 130,
             context: context,

@@ -1,3 +1,5 @@
+import 'package:raheeq_main/api/new.dart';
+import 'package:raheeq_main/common_widgets/bottom_action_pill.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'dart:developer';
@@ -6,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:raheeq_main/models/campaign.dart';
 import 'package:raheeq_main/models/product.dart';
-import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/models/checkout.dart';
 import 'package:raheeq_main/pages/order/contribution_details_page.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
@@ -114,7 +115,9 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
 
     return Scaffold(
       extendBodyBehindAppBar: true,
-      floatingActionButton: _buildFloatingBar(context, isAr),
+      extendBody: true,
+      backgroundColor: Colors.white,
+      bottomNavigationBar: _buildFloatingBar(context, isAr),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       body: Stack(
         children: [
@@ -224,12 +227,15 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                                 ),
                               ),
                               Padding(
-                                padding: const EdgeInsetsDirectional.only(
+                                padding: EdgeInsetsDirectional.only(
                                   start: 12,
                                   end: 12,
                                   top: 12, // spacing after banner
                                   bottom:
-                                      280, // extra space for bottom bar and keyboard
+                                      MediaQuery.of(context).viewInsets.bottom >
+                                          0
+                                      ? 50
+                                      : 130, // extra space for bottom bar and keyboard
                                 ),
                                 child: _selectedProduct != null
                                     ? _buildQuantitySection(context, isAr)
@@ -756,112 +762,58 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
       total += qty * product.price;
     });
 
-    return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 16),
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-      decoration: BoxDecoration(
-        color: AppColors.buttonBlueDark,
-        borderRadius: BorderRadius.circular(40),
-        border: Border.all(color: Colors.grey[200]!),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, -2),
+    return Padding(
+      padding: const EdgeInsetsDirectional.only(start: 16, end: 16, bottom: 32),
+      child: BottomActionPill(
+        isLoading: _isLoading,
+        subtitleWidget: Text(
+          AppLocalizations.of(context)!.payable_amount,
+          style: const TextStyle(fontSize: 14, color: Colors.white70),
+        ),
+        titleWidget: Text(
+          "\u202A${AppLocalizations.of(context)!.sar_currency} ${total.toStringAsFixed(total.truncateToDouble() == total ? 0 : 2)}\u202C",
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.white,
           ),
-        ],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                AppLocalizations.of(context)!.payable_amount,
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: Colors.white,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Text(
-                "\u202A${AppLocalizations.of(context)!.sar_currency} ${total.toStringAsFixed(total.truncateToDouble() == total ? 0 : 2)}\u202C",
-                style: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.w900,
-                  color: Colors.white,
-                ),
-              ),
-            ],
-          ),
-          ElevatedButton(
-            onPressed: _isLoading
-                ? null
-                : () {
-                    FocusManager.instance.primaryFocus?.unfocus();
-                    if (_hasAnySelection) {
-                      if (widget.campaign.canSubscribe) {
-                        _showDonationTypeDialog(context, isAr);
-                      } else {
-                        _processOneTimeCheckout(context, isAr);
-                      }
-                    } else {
-                      final min = _selectedProduct?.minQuantity ?? 1;
-                      final customText = _customController.text;
-                      final parsed = int.tryParse(customText);
+        ),
+        buttonText: AppLocalizations.of(context)!.confirm_pay,
+        onButtonTap: () {
+          FocusManager.instance.primaryFocus?.unfocus();
+          if (_hasAnySelection) {
+            if (widget.campaign.canSubscribe) {
+              _showDonationTypeDialog(context, isAr);
+            } else {
+              _processOneTimeCheckout(context, isAr);
+            }
+          } else {
+            final min = _selectedProduct?.minQuantity ?? 1;
+            final customText = _customController.text;
+            final parsed = int.tryParse(customText);
 
-                      if (_isCustomMap[_selectedProduct?.id] == true &&
-                          customText.isNotEmpty &&
-                          parsed != null &&
-                          parsed < min) {
-                        CustomSnackbar.show(
-                          context: context,
-                          message: AppLocalizations.of(
-                            context,
-                          )!.minimum_quantity_is(min.toString()),
-                          isError: true,
-                        );
-                      } else {
-                        CustomSnackbar.show(
-                          context: context,
-                          message: AppLocalizations.of(
-                            context,
-                          )!.select_a_product_to_continue,
-                          isError: true,
-                        );
-                      }
-                    }
-                  },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.white,
-              disabledBackgroundColor: Colors.grey[300],
-              foregroundColor: Colors.black,
-              padding: const EdgeInsets.symmetric(horizontal: 32, vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(30),
-              ),
-            ),
-            child: _isLoading
-                ? const SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: WaterLoadingIndicator(
-                      waveColor1: AppColors.buttonBlueDark,
-                    ),
-                  )
-                : Text(
-                    AppLocalizations.of(context)!.continue_btn,
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.buttonBlueDark,
-                    ),
-                  ),
-          ),
-        ],
+            if (_isCustomMap[_selectedProduct?.id] == true &&
+                customText.isNotEmpty &&
+                parsed != null &&
+                parsed < min) {
+              CustomSnackbar.show(
+                context: context,
+                message: AppLocalizations.of(
+                  context,
+                )!.minimum_quantity_is(min.toString()),
+                isError: true,
+              );
+            } else {
+              CustomSnackbar.show(
+                context: context,
+                message: AppLocalizations.of(
+                  context,
+                )!.select_a_product_to_continue,
+                isError: true,
+              );
+            }
+          }
+        },
       ),
     );
   }

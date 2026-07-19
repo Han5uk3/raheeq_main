@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:io';
-import 'package:raheeq_main/api/apis.dart';
+import 'package:raheeq_main/api/new.dart';
 import 'package:raheeq_main/storage/auth_storage.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/models/user.dart';
@@ -138,172 +138,164 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                       );
                     },
                     child: (_isLoading)
-                            ? _buildShimmerLoading()
-                            : Column(
-                                key: const ValueKey('content'),
-                                children: [
-                                  // Upper blue header block with avatar and details
-                                  Card(
+                        ? _buildShimmerLoading()
+                        : Column(
+                            key: const ValueKey('content'),
+                            children: [
+                              // Upper blue header block with avatar and details
+                              Card(
                                 margin: EdgeInsets.all(16),
-                                    color: Colors.white,
-                                    child: Center(
-                                      child: Column(
+                                color: Colors.white,
+                                child: Center(
+                                  child: Column(
+                                    children: [
+                                      SizedBox(height: 50),
+                                      Stack(
                                         children: [
-                                          SizedBox(height: 50),
-                                          Stack(
-                                            children: [
-                                              Container(
-                                                decoration: BoxDecoration(
-                                                  shape: BoxShape.circle,
-                                                  border: Border.all(
-                                                    color: Colors.white,
-                                                    width: 4,
-                                                  ),
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      color: Colors.black
-                                                          .withValues(
-                                                            alpha: 0.1,
-                                                          ),
-                                                      blurRadius: 15,
-                                                    ),
-                                                  ],
-                                                ),
-                                                child: CircleAvatar(
-                                                  radius: 50,
-                                                  backgroundColor: const Color(
-                                                    0xFFF0F4F8,
-                                                  ),
-                                                  backgroundImage:
-                                                      _selectedAvatarPath !=
-                                                          null
-                                                      ? FileImage(
-                                                              File(
-                                                                _selectedAvatarPath!,
-                                                              ),
-                                                            )
-                                                            as ImageProvider
-                                                      : (avatarUrl != null &&
-                                                                avatarUrl
-                                                                    .isNotEmpty
-                                                            ? CachedNetworkImageProvider(
-                                                                avatarUrl,
-                                                              )
-                                                            : null),
-                                                  child:
-                                                      _selectedAvatarPath ==
-                                                              null &&
-                                                          (avatarUrl == null ||
-                                                              avatarUrl.isEmpty)
-                                                      ? const Icon(
-                                                          Icons.person_rounded,
-                                                          size: 55,
-                                                          color: Colors.grey,
-                                                        )
-                                                      : null,
-                                                ),
+                                          Container(
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.circle,
+                                              border: Border.all(
+                                                color: Colors.white,
+                                                width: 4,
                                               ),
-                                            ],
-                                          ),
-                                          SizedBox(height: 8),
-                                          Text(
-                                            AppLocalizations.of(
-                                              context,
-                                            )!.profile_picture,
-                                            style: TextStyle(
-                                              fontSize: 14,
-                                              color: AppColors.grey,
+                                              boxShadow: [
+                                                BoxShadow(
+                                                  color: Colors.black
+                                                      .withValues(alpha: 0.1),
+                                                  blurRadius: 15,
+                                                ),
+                                              ],
+                                            ),
+                                            child: CircleAvatar(
+                                              radius: 50,
+                                              backgroundColor: const Color(
+                                                0xFFF0F4F8,
+                                              ),
+                                              backgroundImage:
+                                                  _selectedAvatarPath != null
+                                                  ? FileImage(
+                                                          File(
+                                                            _selectedAvatarPath!,
+                                                          ),
+                                                        )
+                                                        as ImageProvider
+                                                  : (avatarUrl != null &&
+                                                            avatarUrl.isNotEmpty
+                                                        ? CachedNetworkImageProvider(
+                                                            avatarUrl,
+                                                          )
+                                                        : null),
+                                              child:
+                                                  _selectedAvatarPath == null &&
+                                                      (avatarUrl == null ||
+                                                          avatarUrl.isEmpty)
+                                                  ? const Icon(
+                                                      Icons.person_rounded,
+                                                      size: 55,
+                                                      color: Colors.grey,
+                                                    )
+                                                  : null,
                                             ),
                                           ),
-                                          SizedBox(height: 50),
                                         ],
                                       ),
-                                    ),
-                                  ),
-                                  const SizedBox(height: 12),
-
-                                  // Username display
-                                  Padding(
-                                    padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                    ),
-                                    child: Column(
-                                      children: [
-                                        // USER FORM SECTION
-                                        Form(
-                                          key: _formKey,
-                                          child: Builder(
-                                            builder: (context) {
-                                              // final hasExistingEmail =
-                                              //     _currentUser?.email != null &&
-                                              //     _currentUser!.email
-                                              //         .trim()
-                                              //         .isNotEmpty;
-                                              return Column(
-                                                children: [
-                                                  _buildTextField(
-                                                    controller:
-                                                        _firstNameController,
-                                                    label: AppLocalizations.of(
-                                                      context,
-                                                    )!.first_name,
-                                                    hint: AppLocalizations.of(
-                                                      context,
-                                                    )!.enter_first_name,
-                                                    enabled: false,
-                                                  ),
-                                                  const SizedBox(height: 16),
-                                                  _buildTextField(
-                                                    controller:
-                                                        _lastNameController,
-                                                    label: AppLocalizations.of(
-                                                      context,
-                                                    )!.last_name,
-                                                    hint: AppLocalizations.of(
-                                                      context,
-                                                    )!.enter_last_name,
-                                                    enabled: false,
-                                                  ),
-                                                  const SizedBox(height: 16),
-                                                  _buildTextField(
-                                                    controller:
-                                                        _emailController,
-                                                    label: AppLocalizations.of(
-                                                      context,
-                                                    )!.email_address,
-                                                    hint: AppLocalizations.of(
-                                                      context,
-                                                    )!.enter_email_optional_hint,
-                                                    enabled: false,
-                                                    isOptional: true,
-                                                    isEmail: true,
-                                                  ),
-                                                  const SizedBox(height: 16),
-                                                  _buildTextField(
-                                                    controller:
-                                                        _phoneController,
-                                                    label: AppLocalizations.of(
-                                                      context,
-                                                    )!.phone_number,
-                                                    hint: AppLocalizations.of(
-                                                      context,
-                                                    )!.enter_phone_number_hint,
-                                                    enabled: false,
-                                                  ),
-                                                  const SizedBox(height: 16),
-                                                  _buildGenderDropdown(),
-                                                  const SizedBox(height: 48),
-                                                ],
-                                              );
-                                            },
-                                          ),
+                                      SizedBox(height: 8),
+                                      Text(
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.profile_picture,
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          color: AppColors.grey,
                                         ),
-                                      ],
-                                    ),
+                                      ),
+                                      SizedBox(height: 50),
+                                    ],
                                   ),
-                                ],
+                                ),
                               ),
-                      ),
+                              const SizedBox(height: 12),
+
+                              // Username display
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
+                                child: Column(
+                                  children: [
+                                    // USER FORM SECTION
+                                    Form(
+                                      key: _formKey,
+                                      child: Builder(
+                                        builder: (context) {
+                                          // final hasExistingEmail =
+                                          //     _currentUser?.email != null &&
+                                          //     _currentUser!.email
+                                          //         .trim()
+                                          //         .isNotEmpty;
+                                          return Column(
+                                            children: [
+                                              _buildTextField(
+                                                controller:
+                                                    _firstNameController,
+                                                label: AppLocalizations.of(
+                                                  context,
+                                                )!.first_name,
+                                                hint: AppLocalizations.of(
+                                                  context,
+                                                )!.enter_first_name,
+                                                enabled: false,
+                                              ),
+                                              const SizedBox(height: 16),
+                                              _buildTextField(
+                                                controller: _lastNameController,
+                                                label: AppLocalizations.of(
+                                                  context,
+                                                )!.last_name,
+                                                hint: AppLocalizations.of(
+                                                  context,
+                                                )!.enter_last_name,
+                                                enabled: false,
+                                              ),
+                                              const SizedBox(height: 16),
+                                              _buildTextField(
+                                                controller: _emailController,
+                                                label: AppLocalizations.of(
+                                                  context,
+                                                )!.email_address,
+                                                hint: AppLocalizations.of(
+                                                  context,
+                                                )!.enter_email_optional_hint,
+                                                enabled: false,
+                                                isOptional: true,
+                                                isEmail: true,
+                                              ),
+                                              const SizedBox(height: 16),
+                                              _buildTextField(
+                                                controller: _phoneController,
+                                                label: AppLocalizations.of(
+                                                  context,
+                                                )!.phone_number,
+                                                hint: AppLocalizations.of(
+                                                  context,
+                                                )!.enter_phone_number_hint,
+                                                enabled: false,
+                                              ),
+                                              const SizedBox(height: 16),
+                                              _buildGenderDropdown(),
+                                              const SizedBox(height: 48),
+                                            ],
+                                          );
+                                        },
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                  ),
                 ),
               ),
             ),
@@ -376,61 +368,63 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                   ),
                 )
               : TextFormField(
-            cursorColor: AppColors.buttonBlueDark,
-            controller: controller,
-            enabled: enabled,
-            style: const TextStyle(
-              color: AppColors.black, fontSize: 14,
-            ),
-            decoration: InputDecoration(
-              hintText: hint,
-              hintStyle: TextStyle(
+                  cursorColor: AppColors.buttonBlueDark,
+                  controller: controller,
+                  enabled: enabled,
+                  style: const TextStyle(color: AppColors.black, fontSize: 14),
+                  decoration: InputDecoration(
+                    hintText: hint,
+                    hintStyle: TextStyle(
                       color: AppColors.black.withValues(alpha: 0.8),
                       fontSize: 14,
-              ),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.buttonBlueDark),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(color: AppColors.buttonBlueDark),
-              ),
+                    ),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(
+                        color: AppColors.buttonBlueDark,
+                      ),
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(
+                        color: AppColors.buttonBlueDark,
+                      ),
+                    ),
                     disabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(12),
                       borderSide: const BorderSide(
                         color: AppColors.buttonBlueDark,
                       ),
                     ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: const BorderSide(
-                  color: AppColors.buttonBlueDark,
-                  width: 1.5,
+                    focusedBorder: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(12),
+                      borderSide: const BorderSide(
+                        color: AppColors.buttonBlueDark,
+                        width: 1.5,
+                      ),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 12,
+                    ),
+                  ),
+                  validator: (value) {
+                    final trimmedValue = value?.trim() ?? '';
+                    if (trimmedValue.isEmpty) {
+                      if (isOptional) return null;
+                      return AppLocalizations.of(context)!.field_required;
+                    }
+                    if (isEmail) {
+                      final emailRegex = RegExp(
+                        r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
+                      );
+                      if (!emailRegex.hasMatch(trimmedValue)) {
+                        return AppLocalizations.of(context)!.enter_valid_email;
+                      }
+                    }
+                    return null;
+                  },
                 ),
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 12,
-              ),
-            ),
-            validator: (value) {
-              final trimmedValue = value?.trim() ?? '';
-              if (trimmedValue.isEmpty) {
-                if (isOptional) return null;
-                return AppLocalizations.of(context)!.field_required;
-              }
-              if (isEmail) {
-                final emailRegex = RegExp(
-                  r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$',
-                );
-                if (!emailRegex.hasMatch(trimmedValue)) {
-                  return AppLocalizations.of(context)!.enter_valid_email;
-                }
-              }
-              return null;
-            },
-          ),
         ),
       ],
     );

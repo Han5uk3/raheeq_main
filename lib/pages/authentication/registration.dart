@@ -6,12 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:phone_numbers_parser/phone_numbers_parser.dart';
+import 'package:raheeq_main/api/new.dart';
 import 'package:raheeq_main/common_widgets/language_switch.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/pages/home/home_screen.dart';
 import 'package:raheeq_main/pages/authentication/login.dart';
-import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/utils/rtl_helpers.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
@@ -85,8 +85,7 @@ class _RegistrationState extends State<Registration> {
   void initState() {
     super.initState();
     if (widget.isSocialLogin) {
-      if (widget.firstName != null)
-       {
+      if (widget.firstName != null) {
         {
           _firstNameController.text = widget.firstName!;
         }
@@ -163,258 +162,240 @@ class _RegistrationState extends State<Registration> {
               ),
             ),
           ),
-        actions: const [
-          Padding(
-            padding: EdgeInsetsDirectional.only(end: 24),
-            child: LanguageSwitchButton(isFromLogin: false),
-          ),
-        ],
-      ),
-      body: AbsorbPointer(
-        absorbing: _isRegistering,
-        child: SingleChildScrollView(
-          physics: const ClampingScrollPhysics(),
-          child: Column(
-            children: [
-              Stack(
-                clipBehavior: Clip.none,
-                children: [
-                  Container(
-                    height: MediaQuery.of(context).size.height * 0.15,
-                    width: MediaQuery.of(context).size.width,
-                    decoration: BoxDecoration(
-                      color: AppColors.buttonBlueDark,
-                      borderRadius: const BorderRadius.only(
-                        bottomLeft: Radius.circular(40),
-                        bottomRight: Radius.circular(40),
+          actions: const [
+            Padding(
+              padding: EdgeInsetsDirectional.only(end: 24),
+              child: LanguageSwitchButton(isFromLogin: false),
+            ),
+          ],
+        ),
+        body: AbsorbPointer(
+          absorbing: _isRegistering,
+          child: SingleChildScrollView(
+            physics: const ClampingScrollPhysics(),
+            child: Column(
+              children: [
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    Container(
+                      height: MediaQuery.of(context).size.height * 0.15,
+                      width: MediaQuery.of(context).size.width,
+                      decoration: BoxDecoration(
+                        color: AppColors.buttonBlueDark,
+                        borderRadius: const BorderRadius.only(
+                          bottomLeft: Radius.circular(40),
+                          bottomRight: Radius.circular(40),
+                        ),
                       ),
                     ),
-                  ),
-                  Padding(
-                    padding: EdgeInsetsDirectional.only(
+                    Padding(
+                      padding: EdgeInsetsDirectional.only(
                         top: 16,
                         start: 16,
                         end: 16,
                         bottom: 16,
-                    ),
-                    child: Container(
-                      padding: const EdgeInsets.all(24),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(25),
-                        boxShadow: [
-                          BoxShadow(
-                            color: AppColors.buttonBlueDark.withValues(
-                              alpha: 0.1,
-                            ),
-                            blurRadius: 50,
-                            offset: const Offset(0, 25),
-                          ),
-                        ],
                       ),
-                      child: Form(
-                        key: _formKey,
-                        child: Column(
-                          children: [
-                            // Profile Picture Section
-                            Center(
-                              child: InkWell(
-                                onTap: _pickImage,
-                                child: Stack(
-                                  children: [
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        shape: BoxShape.circle,
-                                        border: Border.all(
-                                          color: AppColors.buttonBlueDark
-                                              .withValues(alpha: 0.1),
-                                          width: 4,
-                                        ),
-                                      ),
-                                      child: CircleAvatar(
-                                        radius: 50,
-                                        backgroundColor: const Color(
-                                          0xFFF0F4F8,
-                                        ),
-                                        backgroundImage: _profileImage != null
-                                            ? FileImage(_profileImage!)
-                                                  as ImageProvider
-                                            : null,
-                                        child: _profileImage == null
-                                            ? const Icon(
-                                                Icons.person,
-                                                size: 50,
-                                                color: Color.fromRGBO(
-                                                  158,
-                                                  158,
-                                                  158,
-                                                  1,
-                                                ),
-                                              )
-                                            : null,
-                                      ),
-                                    ),
-                                    PositionedDirectional(
-                                      bottom: 0,
-                                      end: 0,
-                                      child: Container(
-                                        padding: const EdgeInsets.all(8),
+                      child: Container(
+                        padding: const EdgeInsets.all(24),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(25),
+                          boxShadow: [
+                            BoxShadow(
+                              color: AppColors.buttonBlueDark.withValues(
+                                alpha: 0.1,
+                              ),
+                              blurRadius: 50,
+                              offset: const Offset(0, 25),
+                            ),
+                          ],
+                        ),
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            children: [
+                              // Profile Picture Section
+                              Center(
+                                child: InkWell(
+                                  onTap: _pickImage,
+                                  child: Stack(
+                                    children: [
+                                      Container(
                                         decoration: BoxDecoration(
-                                          color: AppColors.buttonBlueDark,
                                           shape: BoxShape.circle,
                                           border: Border.all(
-                                            color: Colors.white,
-                                            width: 2,
+                                            color: AppColors.buttonBlueDark
+                                                .withValues(alpha: 0.1),
+                                            width: 4,
                                           ),
                                         ),
-                                        child: const Icon(
-                                          Icons.camera_alt,
-                                          color: Colors.white,
-                                          size: 16,
+                                        child: CircleAvatar(
+                                          radius: 50,
+                                          backgroundColor: const Color(
+                                            0xFFF0F4F8,
+                                          ),
+                                          backgroundImage: _profileImage != null
+                                              ? FileImage(_profileImage!)
+                                                    as ImageProvider
+                                              : null,
+                                          child: _profileImage == null
+                                              ? const Icon(
+                                                  Icons.person,
+                                                  size: 50,
+                                                  color: Color.fromRGBO(
+                                                    158,
+                                                    158,
+                                                    158,
+                                                    1,
+                                                  ),
+                                                )
+                                              : null,
                                         ),
                                       ),
-                                    ),
-                                  ],
+                                      PositionedDirectional(
+                                        bottom: 0,
+                                        end: 0,
+                                        child: Container(
+                                          padding: const EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            color: AppColors.buttonBlueDark,
+                                            shape: BoxShape.circle,
+                                            border: Border.all(
+                                              color: Colors.white,
+                                              width: 2,
+                                            ),
+                                          ),
+                                          child: const Icon(
+                                            Icons.camera_alt,
+                                            color: Colors.white,
+                                            size: 16,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
-                            ),
                               const SizedBox(height: 12),
-                            _buildTextField(
-                              controller: _firstNameController,
-                              label: AppLocalizations.of(context)!.first_name,
-                              hint: AppLocalizations.of(
-                                context,
-                              )!.enter_first_name,
-                   
-                            ),
+                              _buildTextField(
+                                controller: _firstNameController,
+                                label: AppLocalizations.of(context)!.first_name,
+                                hint: AppLocalizations.of(
+                                  context,
+                                )!.enter_first_name,
+                              ),
                               const SizedBox(height: 12),
-                            _buildTextField(
-                              controller: _lastNameController,
-                              label: AppLocalizations.of(context)!.last_name,
-                              hint: AppLocalizations.of(
-                                context,
-                              )!.enter_last_name,
-                         
-                            ),
+                              _buildTextField(
+                                controller: _lastNameController,
+                                label: AppLocalizations.of(context)!.last_name,
+                                hint: AppLocalizations.of(
+                                  context,
+                                )!.enter_last_name,
+                              ),
                               const SizedBox(height: 12),
-                            _buildTextField(
-                              controller: _emailController,
-                              label: widget.isSocialLogin
-                                  ? AppLocalizations.of(context)!.email_address
-                                  : "${AppLocalizations.of(context)!.email_address} (${AppLocalizations.of(context)!.optional})",
-                              hint: AppLocalizations.of(
-                                context,
-                              )!.enter_email_optional_hint,
-                      
-                              keyboardType: TextInputType.emailAddress,
-                              isEmail: true,
-                              isOptional: !widget.isSocialLogin,
-                              enabled: !widget.isSocialLogin,
-                            ),
+                              _buildTextField(
+                                controller: _emailController,
+                                label: widget.isSocialLogin
+                                    ? AppLocalizations.of(
+                                        context,
+                                      )!.email_address
+                                    : "${AppLocalizations.of(context)!.email_address} (${AppLocalizations.of(context)!.optional})",
+                                hint: AppLocalizations.of(
+                                  context,
+                                )!.enter_email_optional_hint,
+
+                                keyboardType: TextInputType.emailAddress,
+                                isEmail: true,
+                                isOptional: !widget.isSocialLogin,
+                                enabled: !widget.isSocialLogin,
+                              ),
                               const SizedBox(height: 12),
-                            widget.isSocialLogin
+                              widget.isSocialLogin
                                   ? _buildSocialPhoneInput(_phoneController)
-                                : _buildTextField(
-                                    controller: _phoneController,
-                                    label: AppLocalizations.of(
-                                      context,
-                                    )!.phone_number,
-                                    hint: AppLocalizations.of(
-                                      context,
-                                    )!.enter_phone_number_hint,
-                            
-                                    enabled: false, // Pre-filled and locked
-                                    isRtl:
-                                        Localizations.localeOf(
-                                          context,
-                                        ).languageCode ==
-                                        'ar',
-                                  ),
+                                  : _buildTextField(
+                                      controller: _phoneController,
+                                      label: AppLocalizations.of(
+                                        context,
+                                      )!.phone_number,
+                                      hint: AppLocalizations.of(
+                                        context,
+                                      )!.enter_phone_number_hint,
+
+                                      enabled: false, // Pre-filled and locked
+                                      isRtl:
+                                          Localizations.localeOf(
+                                            context,
+                                          ).languageCode ==
+                                          'ar',
+                                    ),
 
                               const SizedBox(height: 12),
-                            _buildGenderDropdown(),
-                            const SizedBox(height: 40),
-                            SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton(
-                                onPressed: _isRegistering
-                                    ? null
-                                    : () async {
-                                        if (_formKey.currentState!.validate()) {
-                                          if (widget.isSocialLogin) {
-                                            String phoneText = _phoneController
-                                                .text
-                                                .trim();
-                                            if (phoneText.isEmpty) {
-                                              CustomSnackbar.show(
-                                                context: context,
-                                                message: AppLocalizations.of(
-                                                  context,
-                                                )!.enter_phone,
-                                                isError: true,
-                                              );
-                                              return;
-                                            }
-                                            if (!RegExp(
-                                              r'^\d+$',
-                                            ).hasMatch(phoneText)) {
-                                              CustomSnackbar.show(
-                                                context: context,
-                                                message: AppLocalizations.of(
-                                                  context,
-                                                )!.invalid_phone_number,
-                                                isError: true,
-                                              );
-                                              return;
-                                            }
-
-                                            if (_selectedCountry.phoneCode ==
-                                                '966') {
-                                              if (phoneText.startsWith('0') &&
-                                                  phoneText.length != 10) {
+                              _buildGenderDropdown(),
+                              const SizedBox(height: 40),
+                              SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  onPressed: _isRegistering
+                                      ? null
+                                      : () async {
+                                          if (_formKey.currentState!
+                                              .validate()) {
+                                            if (widget.isSocialLogin) {
+                                              String phoneText =
+                                                  _phoneController.text.trim();
+                                              if (phoneText.isEmpty) {
                                                 CustomSnackbar.show(
                                                   context: context,
                                                   message: AppLocalizations.of(
                                                     context,
-                                                  )!.enter_valid_number_gc,
-                                                  isError: true,
-                                                );
-                                                return;
-                                              } else if (phoneText.startsWith(
-                                                    '5',
-                                                  ) &&
-                                                  phoneText.length != 9) {
-                                                CustomSnackbar.show(
-                                                  context: context,
-                                                  message: AppLocalizations.of(
-                                                    context,
-                                                  )!.enter_valid_number_gc,
-                                                  isError: true,
-                                                );
-                                                return;
-                                              } else if (!phoneText.startsWith(
-                                                    '0',
-                                                  ) &&
-                                                  !phoneText.startsWith('5')) {
-                                                CustomSnackbar.show(
-                                                  context: context,
-                                                  message: AppLocalizations.of(
-                                                    context,
-                                                  )!.enter_valid_number_gc,
+                                                  )!.enter_phone,
                                                   isError: true,
                                                 );
                                                 return;
                                               }
-                                            } else {
-                                              try {
-                                                final phone = PhoneNumber.parse(
-                                                  '+${_selectedCountry.phoneCode}$phoneText',
+                                              if (!RegExp(
+                                                r'^\d+$',
+                                              ).hasMatch(phoneText)) {
+                                                CustomSnackbar.show(
+                                                  context: context,
+                                                  message: AppLocalizations.of(
+                                                    context,
+                                                  )!.invalid_phone_number,
+                                                  isError: true,
                                                 );
-                                                if (!phone.isValid(
-                                                      type: PhoneNumberType
-                                                          .mobile,
+                                                return;
+                                              }
+
+                                              if (_selectedCountry.phoneCode ==
+                                                  '966') {
+                                                if (phoneText.startsWith('0') &&
+                                                    phoneText.length != 10) {
+                                                  CustomSnackbar.show(
+                                                    context: context,
+                                                    message: AppLocalizations.of(
+                                                      context,
+                                                    )!.enter_valid_number_gc,
+                                                    isError: true,
+                                                  );
+                                                  return;
+                                                } else if (phoneText.startsWith(
+                                                      '5',
                                                     ) &&
-                                                    !phone.isValid()) {
+                                                    phoneText.length != 9) {
+                                                  CustomSnackbar.show(
+                                                    context: context,
+                                                    message: AppLocalizations.of(
+                                                      context,
+                                                    )!.enter_valid_number_gc,
+                                                    isError: true,
+                                                  );
+                                                  return;
+                                                } else if (!phoneText
+                                                        .startsWith('0') &&
+                                                    !phoneText.startsWith(
+                                                      '5',
+                                                    )) {
                                                   CustomSnackbar.show(
                                                     context: context,
                                                     message: AppLocalizations.of(
@@ -424,208 +405,242 @@ class _RegistrationState extends State<Registration> {
                                                   );
                                                   return;
                                                 }
-                                              } catch (e) {
-                                                CustomSnackbar.show(
-                                                  context: context,
-                                                  message: AppLocalizations.of(
-                                                    context,
-                                                  )!.invalid_phone_format,
-                                                  isError: true,
-                                                );
-                                                return;
-                                              }
-                                            }
-                                          }
-
-                                          setState(() => _isRegistering = true);
-                                          try {
-                                            String apiPhoneText =
-                                                _phoneController.text.trim();
-                                            if (widget.isSocialLogin &&
-                                                _selectedCountry.phoneCode ==
-                                                    '966' &&
-                                                apiPhoneText.startsWith('0')) {
-                                              apiPhoneText = apiPhoneText
-                                                  .substring(1);
-                                            }
-
-                                            final response = await ApiService()
-                                                .register(
-                                                  countryCode:
-                                                      widget.isSocialLogin
-                                                      ? '+${_selectedCountry.phoneCode}'
-                                                      : widget.countryCode,
-                                                  phoneNumber:
-                                                      widget.isSocialLogin
-                                                      ? apiPhoneText
-                                                      : widget.phoneNumber
-                                                            .replaceAll(
-                                                              widget
-                                                                  .countryCode,
-                                                              '',
-                                                            )
-                                                            .trim(), // Ensure pure phone number
-                                                  email: _emailController.text
-                                                      .trim(),
-                                                  firstName:
-                                                      _firstNameController.text
-                                                          .trim(),
-                                                  lastName: _lastNameController
-                                                      .text
-                                                      .trim(),
-                                                  gender:
-                                                      _selectedGender
-                                                          ?.toUpperCase() ??
-                                                        '',
-                                                  deviceType: Platform.isIOS
-                                                      ? 'IOS'
-                                                      : 'ANDROID',
-                                                  registrationToken:
-                                                      widget.registrationToken,
-                                                );
-
-                                            if (!context.mounted) return;
-                                            setState(
-                                              () => _isRegistering = false,
-                                            );
-
-                                            if ((response.statusCode == 200 ||
-                                                    response.statusCode ==
-                                                        201) &&
-                                                response.data['success'] ==
-                                                    true) {
-                                              if (_profileImage != null) {
+                                              } else {
                                                 try {
-                                                  await ApiService()
-                                                      .updateProfile(
-                                                        profileImage:
-                                                            _profileImage!.path,
-                                                      );
+                                                  final phone = PhoneNumber.parse(
+                                                    '+${_selectedCountry.phoneCode}$phoneText',
+                                                  );
+                                                  if (!phone.isValid(
+                                                        type: PhoneNumberType
+                                                            .mobile,
+                                                      ) &&
+                                                      !phone.isValid()) {
+                                                    CustomSnackbar.show(
+                                                      context: context,
+                                                      message: AppLocalizations.of(
+                                                        context,
+                                                      )!.enter_valid_number_gc,
+                                                      isError: true,
+                                                    );
+                                                    return;
+                                                  }
                                                 } catch (e) {
-                                                  // Silent error on avatar upload failure
+                                                  CustomSnackbar.show(
+                                                    context: context,
+                                                    message:
+                                                        AppLocalizations.of(
+                                                          context,
+                                                        )!.invalid_phone_format,
+                                                    isError: true,
+                                                  );
+                                                  return;
                                                 }
                                               }
-                                              if (!mounted) return;
-                                              Navigator.pushAndRemoveUntil(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      const HomeScreen(),
-                                                ),
-                                                (route) => false,
-                                              );
-                                            } else {
-                                              CustomSnackbar.show(
-                                                context: context,
-                                                message:
-                                                    response.data['message'] ??
-                                                    AppLocalizations.of(
-                                                      context,
-                                                    )!.registration_failed,
-                                              );
                                             }
-                                          } catch (e) {
-                                            if (mounted) {
+
+                                            setState(
+                                              () => _isRegistering = true,
+                                            );
+                                            try {
+                                              String apiPhoneText =
+                                                  _phoneController.text.trim();
+                                              if (widget.isSocialLogin &&
+                                                  _selectedCountry.phoneCode ==
+                                                      '966' &&
+                                                  apiPhoneText.startsWith(
+                                                    '0',
+                                                  )) {
+                                                apiPhoneText = apiPhoneText
+                                                    .substring(1);
+                                              }
+
+                                              final response =
+                                                  await ApiService().register(
+                                                    countryCode:
+                                                        widget.isSocialLogin
+                                                        ? '+${_selectedCountry.phoneCode}'
+                                                        : widget.countryCode,
+                                                    phoneNumber:
+                                                        widget.isSocialLogin
+                                                        ? apiPhoneText
+                                                        : widget.phoneNumber
+                                                              .replaceAll(
+                                                                widget
+                                                                    .countryCode,
+                                                                '',
+                                                              )
+                                                              .trim(), // Ensure pure phone number
+                                                    email: _emailController.text
+                                                        .trim(),
+                                                    firstName:
+                                                        _firstNameController
+                                                            .text
+                                                            .trim(),
+                                                    lastName:
+                                                        _lastNameController.text
+                                                            .trim(),
+                                                    gender:
+                                                        _selectedGender
+                                                            ?.toUpperCase() ??
+                                                        '',
+                                                    deviceType: Platform.isIOS
+                                                        ? 'IOS'
+                                                        : 'ANDROID',
+                                                    registrationToken: widget
+                                                        .registrationToken,
+                                                  );
+
+                                              if (!context.mounted) return;
                                               setState(
                                                 () => _isRegistering = false,
                                               );
-                                            }
-                                            String errorMessage =
-                                                AppLocalizations.of(
-                                                  context,
-                                                )!.registration_failed;
-                                            try {
-                                              if (e is DioException &&
-                                                  e.response?.data != null) {
-                                                final data = e.response!.data;
-                                                if (data is Map) {
-                                                  if (data['details'] != null &&
-                                                      data['details'] is List &&
-                                                      data['details']
-                                                          .isNotEmpty) {
-                                                    errorMessage =
-                                                        data['details'][0]['message']
-                                                            ?.toString() ??
-                                                        data['message']
-                                                            ?.toString() ??
-                                                        AppLocalizations.of(
-                                                          context,
-                                                        )!.validation_error;
-                                                  } else if (data['message'] !=
-                                                      null) {
-                                                    errorMessage =
-                                                        data['message']
-                                                            .toString();
+
+                                              if ((response.statusCode == 200 ||
+                                                      response.statusCode ==
+                                                          201) &&
+                                                  response.data['success'] ==
+                                                      true) {
+                                                if (_profileImage != null) {
+                                                  try {
+                                                    await ApiService()
+                                                        .updateProfile(
+                                                          profileImage:
+                                                              _profileImage!
+                                                                  .path,
+                                                        );
+                                                  } catch (e) {
+                                                    // Silent error on avatar upload failure
                                                   }
                                                 }
-                                              } else if (e.toString().contains(
-                                                'DioException',
-                                              )) {
-                                                // Fallback if type check somehow fails
-                                                errorMessage = AppLocalizations.of(
+                                                if (!mounted) return;
+                                                Navigator.pushAndRemoveUntil(
                                                   context,
-                                                )!.validation_error_check_inputs;
+                                                  MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        const HomeScreen(),
+                                                  ),
+                                                  (route) => false,
+                                                );
                                               } else {
+                                                CustomSnackbar.show(
+                                                  context: context,
+                                                  message:
+                                                      response
+                                                          .data['message'] ??
+                                                      AppLocalizations.of(
+                                                        context,
+                                                      )!.registration_failed,
+                                                );
+                                              }
+                                            } catch (e) {
+                                              if (mounted) {
+                                                setState(
+                                                  () => _isRegistering = false,
+                                                );
+                                              }
+                                              String errorMessage =
+                                                  AppLocalizations.of(
+                                                    context,
+                                                  )!.registration_failed;
+                                              try {
+                                                if (e is DioException &&
+                                                    e.response?.data != null) {
+                                                  final data = e.response!.data;
+                                                  if (data is Map) {
+                                                    if (data['details'] !=
+                                                            null &&
+                                                        data['details']
+                                                            is List &&
+                                                        data['details']
+                                                            .isNotEmpty) {
+                                                      errorMessage =
+                                                          data['details'][0]['message']
+                                                              ?.toString() ??
+                                                          data['message']
+                                                              ?.toString() ??
+                                                          AppLocalizations.of(
+                                                            context,
+                                                          )!.validation_error;
+                                                    } else if (data['message'] !=
+                                                        null) {
+                                                      errorMessage =
+                                                          data['message']
+                                                              .toString();
+                                                    }
+                                                  }
+                                                } else if (e
+                                                    .toString()
+                                                    .contains('DioException')) {
+                                                  // Fallback if type check somehow fails
+                                                  errorMessage =
+                                                      AppLocalizations.of(
+                                                        context,
+                                                      )!.validation_error_check_inputs;
+                                                } else {
+                                                  errorMessage =
+                                                      AppLocalizations.of(
+                                                        context,
+                                                      )!.error_msg(
+                                                        e.toString(),
+                                                      );
+                                                }
+                                              } catch (_) {
                                                 errorMessage =
                                                     AppLocalizations.of(
                                                       context,
                                                     )!.error_msg(e.toString());
                                               }
-                                            } catch (_) {
-                                              errorMessage =
-                                                  AppLocalizations.of(
-                                                    context,
-                                                  )!.error_msg(e.toString());
-                                            }
 
-                                            CustomSnackbar.show(
-                                              context: context,
-                                              message: errorMessage,
-                                              isError: true,
-                                            );
+                                              CustomSnackbar.show(
+                                                context: context,
+                                                message: errorMessage,
+                                                isError: true,
+                                              );
+                                            }
                                           }
-                                        }
-                                      },
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: AppColors.buttonBlueDark,
-                                  foregroundColor: Colors.white,
-                                  elevation: 0,
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 16,
+                                        },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: AppColors.buttonBlueDark,
+                                    foregroundColor: Colors.white,
+                                    elevation: 0,
+                                    padding: const EdgeInsets.symmetric(
+                                      vertical: 16,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(35),
+                                    ),
                                   ),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(35),
-                                  ),
+                                  child: _isRegistering
+                                      ? SizedBox(
+                                          height: 20,
+                                          width: 20,
+                                          child: WaterLoadingIndicator(
+                                            waveColor1: Colors.white,
+                                          ),
+                                        )
+                                      : Text(
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.register,
+                                          style: const TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
                                 ),
-                                child: _isRegistering
-                                    ? SizedBox(
-                                        height: 20,
-                                        width: 20,
-                                        child: WaterLoadingIndicator(
-                                          waveColor1: Colors.white,
-                                        ),
-                                      )
-                                    : Text(
-                                        AppLocalizations.of(context)!.register,
-                                        style: const TextStyle(
-                                          fontSize: 16,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                      ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ],
+                  ],
+                ),
+              ],
+            ),
           ),
         ),
-        ),
-      )
+      ),
     );
   }
 
@@ -633,7 +648,7 @@ class _RegistrationState extends State<Registration> {
     required TextEditingController controller,
     required String label,
     required String hint,
-  
+
     TextInputType? keyboardType,
     bool enabled = true,
     bool isEmail = false,
@@ -675,7 +690,7 @@ class _RegistrationState extends State<Registration> {
                   : AppColors.black.withValues(alpha: 0.8),
               fontSize: 14,
             ),
-       
+
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: const BorderSide(color: AppColors.buttonBlueDark),
@@ -793,18 +808,20 @@ class _RegistrationState extends State<Registration> {
                       ),
                       items:
                           [
-                        {
-                          'label': AppLocalizations.of(context)!.male,
-                          'value': 'Male',
-                        },
-                        {
-                          'label': AppLocalizations.of(context)!.female,
-                          'value': 'Female',
-                        },
-                        {
-                          'label': AppLocalizations.of(context)!.other_gender,
-                          'value': 'Other',
-                        },
+                                {
+                                  'label': AppLocalizations.of(context)!.male,
+                                  'value': 'Male',
+                                },
+                                {
+                                  'label': AppLocalizations.of(context)!.female,
+                                  'value': 'Female',
+                                },
+                                {
+                                  'label': AppLocalizations.of(
+                                    context,
+                                  )!.other_gender,
+                                  'value': 'Other',
+                                },
                               ]
                               .map(
                                 (item) => DropdownMenuItem<String>(

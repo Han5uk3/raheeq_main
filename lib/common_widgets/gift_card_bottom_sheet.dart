@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'package:phone_numbers_parser/phone_numbers_parser.dart';
+import 'package:raheeq_main/api/new.dart';
 import 'package:raheeq_main/utils/rtl_helpers.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -7,7 +8,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:raheeq_main/models/checkout.dart';
 import 'package:raheeq_main/models/gift_card_template.dart';
-import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:country_picker/country_picker.dart';

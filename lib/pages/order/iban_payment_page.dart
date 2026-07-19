@@ -2,7 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:raheeq_main/api/apis.dart';
+import 'package:raheeq_main/api/new.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/pages/order/payment_status_page.dart';
 import 'package:raheeq_main/utils/colors.dart';
@@ -128,8 +128,11 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
+      floatingActionButtonAnimator: FloatingActionButtonAnimator.noAnimation,
       floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-      floatingActionButton: _buildSubmitButton(),
+      floatingActionButton: MediaQuery.of(context).viewInsets.bottom > 0
+          ? null
+          : _buildSubmitButton(),
       body: Column(
         children: [
           CustomAppBar(

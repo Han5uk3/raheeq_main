@@ -1,3 +1,4 @@
+import 'package:raheeq_main/api/new.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'dart:io';
 import 'dart:developer';
@@ -13,7 +14,6 @@ import 'package:raheeq_main/pages/authentication/otp.dart';
 import 'package:raheeq_main/pages/authentication/registration.dart';
 import 'package:raheeq_main/pages/home/home_screen.dart';
 import 'package:raheeq_main/storage/auth_storage.dart';
-import 'package:raheeq_main/api/apis.dart';
 import 'package:dio/dio.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:google_sign_in/google_sign_in.dart' as google_sign_in;
