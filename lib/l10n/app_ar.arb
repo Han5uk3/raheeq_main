@@ -311,6 +311,7 @@
   "enter_first_name": "أدخل الاسم الأول",
   "enter_last_name": "أدخل اسم العائلة",
   "enter_email_optional_hint": "أدخل البريد الإلكتروني",
+  "feedbackSubmittedSuccessfully": "تم إرسال ملاحظاتك بنجاح",
   "enter_phone_number_hint": "أدخل رقم الهاتف",
   "registration_failed": "فشل التسجيل",
   "order_number": "رقم الطلب",

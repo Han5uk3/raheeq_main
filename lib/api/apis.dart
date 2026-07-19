@@ -102,13 +102,14 @@ class ApiService {
         },
         onError: (DioException e, handler) {
           String displayMessage = e.message ?? 'Unknown Error';
-          
+
           if (e.response?.data is Map) {
             final data = e.response!.data as Map;
             if (data['message'] != null) {
               displayMessage = data['message'].toString();
-              
-              if (data['details'] is List && (data['details'] as List).isNotEmpty) {
+
+              if (data['details'] is List &&
+                  (data['details'] as List).isNotEmpty) {
                 final firstDetail = (data['details'] as List).first;
                 if (firstDetail is Map && firstDetail['message'] != null) {
                   displayMessage += ' - ${firstDetail['message']}';
@@ -157,8 +158,9 @@ class ApiService {
           if (e.response?.data is Map && e.response?.data['message'] != null) {
             final data = e.response!.data as Map;
             String apiMsg = data['message'].toString();
-            
-            if (data['details'] is List && (data['details'] as List).isNotEmpty) {
+
+            if (data['details'] is List &&
+                (data['details'] as List).isNotEmpty) {
               final firstDetail = (data['details'] as List).first;
               if (firstDetail is Map && firstDetail['message'] != null) {
                 apiMsg += ' - ${firstDetail['message']}';
@@ -474,7 +476,7 @@ class ApiService {
   }) async {
     try {
       fcmToken ??= await NotificationService().getToken();
-      final response = await _dio.post(
+      final response = await _dio.patch(
         '/me/locale',
         data: {
           'locale': locale,
@@ -1116,10 +1118,7 @@ class ApiService {
       if (tab != null) {
         queryParams['tab'] = tab;
       }
-      final response = await _dio.get(
-        '/orders',
-        queryParameters: queryParams,
-      );
+      final response = await _dio.get('/orders', queryParameters: queryParams);
       return response;
     } catch (e) {
       rethrow;

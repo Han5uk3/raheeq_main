@@ -94,7 +94,11 @@ class _PaymentStatusPageState extends State<PaymentStatusPage>
         break;
       case PaymentStatus.serverError:
         title = widget.isAr ? 'خطأ في الخادم' : 'Server Error';
-        description = widget.message ?? (widget.isAr ? 'سيتم التحقق من الدفع بمجرد عودتنا ومعالجة طلبك.' : 'Payment will be verified as soon as we are back and process your order.');
+        description =
+            widget.message ??
+            (widget.isAr
+                ? 'سيتم التحقق من الدفع بمجرد عودتنا ومعالجة طلبك.'
+                : 'Payment will be verified as soon as we are back and process your order.');
         color = Colors.orange;
         lightColor = Colors.orange.withValues(alpha: 0.1);
         fallbackIcon = Icons.cloud_off;
@@ -124,7 +128,7 @@ class _PaymentStatusPageState extends State<PaymentStatusPage>
           ),
           SafeArea(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
               child: Column(
                 children: [
                   Expanded(
@@ -273,7 +277,8 @@ class _PaymentStatusPageState extends State<PaymentStatusPage>
                                 )!.back_to_home,
                                 onPressed: () {
                                   if (widget.status == PaymentStatus.success ||
-                                      widget.status == PaymentStatus.serverError ||
+                                      widget.status ==
+                                          PaymentStatus.serverError ||
                                       widget.status ==
                                           PaymentStatus.pendingApproval) {
                                     HomeTab.clearBasket();

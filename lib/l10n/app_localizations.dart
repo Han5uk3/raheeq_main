@@ -1287,6 +1287,12 @@ abstract class AppLocalizations {
   /// **'Enter coupon code'**
   String get enter_coupon_code;
 
+  /// No description provided for @feedback_submitted_successfully.
+  ///
+  /// In en, this message translates to:
+  /// **'Feedback submitted successfully'**
+  String get feedback_submitted_successfully;
+
   /// No description provided for @coupon_code.
   ///
   /// In en, this message translates to:

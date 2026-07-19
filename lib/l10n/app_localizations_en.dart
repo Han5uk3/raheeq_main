@@ -630,6 +630,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get enter_coupon_code => 'Enter coupon code';
 
   @override
+  String get feedback_submitted_successfully =>
+      'Feedback submitted successfully';
+
+  @override
   String get coupon_code => 'Coupon Code';
 
   @override

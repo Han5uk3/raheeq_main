@@ -65,8 +65,16 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
         String errorMessage = 'Failed to send feedback';
         if (e is DioException &&
             e.response?.data is Map &&
-            e.response?.data['message'] != null) {
-          errorMessage = e.response!.data['message'];
+            e.response?.data['message'] != null &&
+            e.response?.data['message'] == 'Feedback submitted successfully') {
+          errorMessage = AppLocalizations.of(
+            context,
+          )!.feedback_submitted_successfully;
+        } else if (e is DioException &&
+            e.response?.data is Map &&
+            e.response?.data['message'] != null &&
+            e.response?.data['message'] != 'Feedback submitted successfully') {
+          errorMessage = e.response?.data['message'];
         }
         CustomSnackbar.show(
           context: context,
@@ -113,8 +121,8 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
                     TextField(
                       cursorColor: AppColors.buttonBlueDark,
                       style: const TextStyle(
-                        color: AppColors.buttonBlueDark,
-                        fontSize: 12,
+                        color: AppColors.black,
+                        fontSize: 14,
                       ),
                       controller: _suggestionController,
                       onChanged: (value) {
@@ -127,10 +135,8 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
                         errorText: _suggestionError ? loc.field_required : null,
                         hintText: loc.your_suggestions_hint,
                         hintStyle: TextStyle(
-                          color: AppColors.buttonBlueDark.withValues(
-                            alpha: 0.8,
-                          ),
-                          fontSize: 12,
+                          color: AppColors.black.withValues(alpha: 0.8),
+                          fontSize: 14,
                         ),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(12),

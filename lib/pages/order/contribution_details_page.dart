@@ -263,7 +263,6 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
 
   Widget _buildPaymentMethods(bool isAr) {
     final methods = [
-     
       if (Platform.isIOS)
         {
           'id': 'APPLE_PAY',
@@ -2209,7 +2208,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                   Text(
                     AppLocalizations.of(
                       context,
-                    )!.do_you_want_to_give_a_gift_to_someone_close_to_you,
+                    )!.gift_your_loved_ones_the_blessing_of_providing_water_in_the_holiest_places,
                     style: const TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.w700,

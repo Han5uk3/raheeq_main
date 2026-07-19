@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'package:phone_numbers_parser/phone_numbers_parser.dart';
+import 'package:raheeq_main/utils/rtl_helpers.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
@@ -831,8 +832,10 @@ class _GiftCardPageState extends State<GiftCardPage> {
               child: CachedNetworkImage(
                 imageUrl: imageUrl,
                 fit: BoxFit.contain,
-                placeholder: (context, url) => const Center(
-                  child: CircularProgressIndicator(color: Colors.white),
+                placeholder: (context, url) => Shimmer.fromColors(
+                  baseColor: Colors.grey[300]!,
+                  highlightColor: Colors.grey[100]!,
+                  child: Container(color: Colors.white),
                 ),
                 errorWidget: (context, error, stackTrace) => const Center(
                   child: Icon(
@@ -843,12 +846,21 @@ class _GiftCardPageState extends State<GiftCardPage> {
                 ),
               ),
             ),
-            Positioned(
+            Positioned.directional(
+              textDirection: Directionality.of(context),
               top: 40,
-              right: 20,
-              child: IconButton(
-                icon: const Icon(Icons.close, color: Colors.white, size: 30),
-                onPressed: () => Navigator.of(context).pop(),
+              start: 20,
+              child: Container(
+                decoration: const BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                ),
+                child: IconButton(
+                  highlightColor: Colors.transparent,
+                  icon: Icon(backArrowIcon(context)),
+                  color: Colors.black87,
+                  onPressed: () => Navigator.of(context).pop(),
+                ),
               ),
             ),
           ],
