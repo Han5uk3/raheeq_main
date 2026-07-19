@@ -574,6 +574,8 @@ class _OTPState extends State<OTP> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.buttonBlueDark,
                               foregroundColor: Colors.white,
+                              disabledBackgroundColor: AppColors.buttonBlueDark,
+                              disabledForegroundColor: Colors.white,
                               elevation: 0,
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               shape: RoundedRectangleBorder(
@@ -582,10 +584,10 @@ class _OTPState extends State<OTP> {
                             ),
                             child: _isVerifying
                                 ? const SizedBox(
-                                    height: 20,
-                                    width: 20,
+                                    height: 24,
+                                    width: 24,
                                     child: WaterLoadingIndicator(
-                                      waveColor1: AppColors.buttonBlueDark,
+                                      waveColor1: AppColors.white,
                                     ),
                                   )
                                 : Text(
@@ -593,6 +595,7 @@ class _OTPState extends State<OTP> {
                                     style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,
+                                      color: AppColors.white,
                                     ),
                                   ),
                           ),

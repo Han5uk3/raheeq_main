@@ -1,5 +1,9 @@
+import 'package:dio/dio.dart';
 import 'package:raheeq_main/api/new.dart';
+import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
+import 'package:raheeq_main/services/network_monitor.dart';
+import 'package:raheeq_main/services/snackbar_insets_services.dart';
 import 'dart:developer';
 import 'package:raheeq_main/utils/formatters.dart';
 
@@ -109,6 +113,7 @@ class _HomeTabState extends State<HomeTab>
   @override
   void initState() {
     super.initState();
+    SnackbarInsets.setBottomInset(kBottomNavigationBarHeight + 10);
     WidgetsBinding.instance.addObserver(this);
     _unreadNotificationsCount = _cachedUnreadCount;
     if (_hasLoadedOnce) {
@@ -190,6 +195,7 @@ class _HomeTabState extends State<HomeTab>
     WidgetsBinding.instance.removeObserver(this);
     _timer?.cancel();
     _pageController.dispose();
+    SnackbarInsets.clear();
     super.dispose();
   }
 
@@ -468,7 +474,15 @@ class _HomeTabState extends State<HomeTab>
     } catch (e) {
       setState(() {
         _isLoading = false;
-        _errorMessage = e.toString();
+        if (e.toString().contains("connection error")) {
+          _errorMessage = AppLocalizations.of(context)!.internet_error;
+        } else if (e is DioException) {
+          _errorMessage =
+              e.response?.data['message'] ??
+              AppLocalizations.of(context)!.failed_to_load_home_page;
+        } else {
+          _errorMessage = AppLocalizations.of(context)!.error;
+        }
       });
     }
   }
@@ -787,11 +801,7 @@ class _HomeTabState extends State<HomeTab>
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             child: buildYourImpactSection(context),
                           ),
-                          const SizedBox(height: 24),
-                          // Padding(
-                          //   padding: const EdgeInsets.symmetric(horizontal: 16),
-                          //   child: buildBottomText(context),
-                          // ),
+
                           const SizedBox(height: 120),
                           if (_selectedItems.isNotEmpty) ...{
                             SizedBox(height: 80),
@@ -805,68 +815,86 @@ class _HomeTabState extends State<HomeTab>
             ),
           ),
         ),
+
         if (_selectedItems.isNotEmpty)
           Positioned(
             left: 16,
             right: 16,
-            bottom: 110,
-            child: BottomActionPill(
-              titleWidget: Text(
-                AppLocalizations.of(
-                  context,
-                )!.selected_items_count(_selectedItems.length),
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white,
-                ),
-              ),
-              buttonText: AppLocalizations.of(context)!.order_now,
-
-              onButtonTap: () async {
-                final isEssential = _selectedItems.any(
-                  (i) => i.category.slug == 'essential_supplies',
-                );
-                if (isEssential) {
-                  final orderStates = <OrderCategoryState>[];
-                  for (final item in _selectedItems) {
-                    if (item.specificData is EssentialSelection) {
-                      final selection = item.specificData as EssentialSelection;
-                      orderStates.add(
-                        OrderCategoryState(
-                          categoryItem: SelectedCategoryItem(
-                            category: item.category,
-                            optionType: item.optionType,
-                            specificData: selection.place,
-                          ),
-                          selectedProducts: [
-                            SelectedProduct(
-                              product: selection.product,
-                              quantity: selection.product.minQuantity,
-                            ),
-                          ],
-                        ),
-                      );
-                    }
-                  }
-                  if (orderStates.isNotEmpty) {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            ReviewOrderPage(orderStates: orderStates),
-                      ),
-                    );
-                  }
-                } else {
-                  if (_selectedItems.isNotEmpty) {
-                    ChooseWaterPackageScreen.showAsBottomSheet(
-                      context,
-                      selectedCategories: _selectedItems,
-                      availableProducts: List<Product>.from(_products),
-                    );
-                  }
-                }
+            bottom: 115,
+            child: Listener(
+              onPointerDown: (_) {
+                debugPrint("Pointer reached pill");
               },
+              child: BottomActionPill(
+                titleWidget: Text(
+                  AppLocalizations.of(
+                    context,
+                  )!.selected_items_count(_selectedItems.length),
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
+                ),
+                buttonText: AppLocalizations.of(context)!.order_now,
+
+                onButtonTap:
+                    (NetworkMonitor.instance.status.value !=
+                        NetworkStatus.online)
+                    ? () {
+                        CustomSnackbar.show(
+                          context: context,
+                          message: AppLocalizations.of(context)!.internet_error,
+                          isError: true,
+                        );
+                        return;
+                      }
+                    : () async {
+                        final isEssential = _selectedItems.any(
+                          (i) => i.category.slug == 'essential_supplies',
+                        );
+                        if (isEssential) {
+                          final orderStates = <OrderCategoryState>[];
+                          for (final item in _selectedItems) {
+                            if (item.specificData is EssentialSelection) {
+                              final selection =
+                                  item.specificData as EssentialSelection;
+                              orderStates.add(
+                                OrderCategoryState(
+                                  categoryItem: SelectedCategoryItem(
+                                    category: item.category,
+                                    optionType: item.optionType,
+                                    specificData: selection.place,
+                                  ),
+                                  selectedProducts: [
+                                    SelectedProduct(
+                                      product: selection.product,
+                                      quantity: selection.product.minQuantity,
+                                    ),
+                                  ],
+                                ),
+                              );
+                            }
+                          }
+                          if (orderStates.isNotEmpty) {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                    ReviewOrderPage(orderStates: orderStates),
+                              ),
+                            );
+                          }
+                        } else {
+                          if (_selectedItems.isNotEmpty) {
+                            ChooseWaterPackageScreen.showAsBottomSheet(
+                              context,
+                              selectedCategories: _selectedItems,
+                              availableProducts: List<Product>.from(_products),
+                            );
+                          }
+                        }
+                      },
+              ),
             ),
           ),
       ],
@@ -1364,6 +1392,15 @@ class _HomeTabState extends State<HomeTab>
               _selectedItems.clear();
             });
             if (context.mounted) {
+              if (NetworkMonitor.instance.status.value ==
+                  NetworkStatus.offline) {
+                CustomSnackbar.show(
+                  context: context,
+                  message: AppLocalizations.of(context)!.internet_error,
+                  isError: true,
+                );
+                return;
+              }
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (_) => CampaignDetailPage(campaign: campaign),
@@ -1556,6 +1593,14 @@ class _HomeTabState extends State<HomeTab>
 
     return GestureDetector(
       onTap: () async {
+        if (NetworkMonitor.instance.status.value == NetworkStatus.offline) {
+          CustomSnackbar.show(
+            context: context,
+            message: AppLocalizations.of(context)!.internet_error,
+            isError: true,
+          );
+          return;
+        }
         if (_selectedItems.isNotEmpty) {
           final shouldProceed = await _showClearBasketDialog(
             context,
@@ -2229,18 +2274,18 @@ class _HomeTabState extends State<HomeTab>
     VoidCallback? onClear,
     double price,
   ) {
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Container(
-          width: 125,
-          margin: EdgeInsetsDirectional.only(
-            start: index == 0 ? 16 : 8,
-            end: index == _essentialProducts.length - 1 ? 16 : 8,
-            bottom: 12,
-            top: 4,
-          ),
-          child: Card(
+    return Container(
+      width: 125,
+      margin: EdgeInsetsDirectional.only(
+        start: index == 0 ? 16 : 8,
+        end: index == _essentialProducts.length - 1 ? 16 : 8,
+        bottom: 12,
+        top: 4,
+      ),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          Card(
             margin: EdgeInsets.all(0),
             color: Colors.white,
             elevation: isSelected ? 3 : 1,
@@ -2349,25 +2394,25 @@ class _HomeTabState extends State<HomeTab>
               ],
             ),
           ),
-        ),
-        if (isSelected)
-          PositionedDirectional(
-            top: 0,
-            end: 0,
-            child: GestureDetector(
-              onTap: onClear,
-              child: Container(
-                padding: const EdgeInsets.all(2),
-                decoration: BoxDecoration(
-                  color: Colors.redAccent,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 1.5),
+          if (isSelected)
+            PositionedDirectional(
+              top: -3,
+              end: -8,
+              child: GestureDetector(
+                onTap: onClear,
+                child: Container(
+                  padding: const EdgeInsets.all(2),
+                  decoration: BoxDecoration(
+                    color: Colors.redAccent,
+                    shape: BoxShape.circle,
+                    border: Border.all(color: Colors.white, width: 1.5),
+                  ),
+                  child: const Icon(Icons.close, color: Colors.white, size: 14),
                 ),
-                child: const Icon(Icons.close, color: Colors.white, size: 14),
               ),
             ),
-          ),
-      ],
+        ],
+      ),
     );
   }
 

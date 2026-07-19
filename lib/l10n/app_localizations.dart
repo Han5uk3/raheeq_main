@@ -2945,6 +2945,12 @@ abstract class AppLocalizations {
   /// **'Profile Picture'**
   String get profile_picture;
 
+  /// No description provided for @back_online.
+  ///
+  /// In en, this message translates to:
+  /// **'Back online'**
+  String get back_online;
+
   /// No description provided for @no_delivery_video_available.
   ///
   /// In en, this message translates to:
@@ -2956,6 +2962,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'OK'**
   String get ok;
+
+  /// No description provided for @failed_to_load_notifications.
+  ///
+  /// In en, this message translates to:
+  /// **'failed_to_load_notifications'**
+  String get failed_to_load_notifications;
+
+  /// No description provided for @failed_to_load_orders.
+  ///
+  /// In en, this message translates to:
+  /// **'failed_to_load_orders'**
+  String get failed_to_load_orders;
 
   /// No description provided for @priceIncludesDistributionDeliveryAndDocumentation.
   ///
@@ -2975,6 +2993,12 @@ abstract class AppLocalizations {
   /// **'Reason'**
   String get reasonForDifferentLocation;
 
+  /// No description provided for @error.
+  ///
+  /// In en, this message translates to:
+  /// **'error'**
+  String get error;
+
   /// No description provided for @minimum_quantity_for_location_is.
   ///
   /// In en, this message translates to:
@@ -2984,7 +3008,7 @@ abstract class AppLocalizations {
   /// No description provided for @internet_error.
   ///
   /// In en, this message translates to:
-  /// **'Internet error. Please check your internet connection'**
+  /// **'No internet connection. Please check your network and try again.'**
   String get internet_error;
 
   /// Displays how far something is from the user

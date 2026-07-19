@@ -5,6 +5,7 @@ import 'package:raheeq_main/pages/home/home_screen.dart';
 import 'package:raheeq_main/pages/home/pages/app_settings_page.dart';
 import 'package:raheeq_main/pages/home/pages/my_wallet_page.dart';
 import 'package:raheeq_main/pages/home/pages/notifications_page.dart';
+import 'package:raheeq_main/services/snackbar_insets_services.dart';
 import 'package:raheeq_main/storage/auth_storage.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/models/user.dart';
@@ -39,6 +40,7 @@ class _ProfileTabState extends State<ProfileTab> {
   @override
   void initState() {
     super.initState();
+    SnackbarInsets.setBottomInset(kBottomNavigationBarHeight + 10);
     _currentUser = AuthStorage.user;
     _unreadNotificationsCount = _cachedUnreadCount;
 
@@ -214,6 +216,11 @@ class _ProfileTabState extends State<ProfileTab> {
       // Clear storage (this will automatically pop routes and redirect to Login via navigatorKey)
       await AuthStorage.clear();
     }
+  }
+
+  void dispose() {
+    SnackbarInsets.clear();
+    super.dispose();
   }
 
   @override
@@ -435,16 +442,6 @@ class _ProfileTabState extends State<ProfileTab> {
                       _buildSection(
                         AppLocalizations.of(context)!.support_section,
                         [
-                          // _buildMenuTile(
-                          //   icon: Icons.help_outline,
-                          //   title: AppLocalizations.of(context)!.help_center,
-                          //   onTap: () {
-                          //     CustomSnackbar.show(context: context, message: //           AppLocalizations.of(
-                          //             context,
-                          //           )!.feature_coming_soon,
-                          //, duration: Duration(seconds: 1));
-                          //   },
-                          // ),
                           _buildMenuTile(
                             icon: Icons.phone_outlined,
                             title: AppLocalizations.of(context)!.contact_us,
@@ -493,7 +490,7 @@ class _ProfileTabState extends State<ProfileTab> {
                           child: Text(AppLocalizations.of(context)!.logout),
                         ),
                       ),
-                      const SizedBox(height: 150),
+                      const SizedBox(height: 120),
                     ],
                   ),
                 ),

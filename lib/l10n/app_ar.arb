@@ -491,8 +491,12 @@
   "ok": "حسناً",
   "deliveredToDifferentLocation": "تم التسليم لمسجد آخر",
   "reasonForDifferentLocation": "السبب",
+  "back_online": "تم استعادة الاتصال بالإنترنت",
   "minimum_quantity_for_location_is": "الحد الأدنى للكمية للموقع الواحد هو {min}",
   "internet_error": "خطأ في الإنترنت. يرجى التحقق من اتصال الإنترنت الخاص بك",
+  "error": "خطأ",
+  "failed_to_load_orders": "فشل في تحميل الطلبات",
+  "failed_to_load_notifications": "فشل في تحميل الإشعارات",
   "@distanceAway": {
     "description": "يعرض المسافة بين المستخدم والوجهة",
     "placeholders": {

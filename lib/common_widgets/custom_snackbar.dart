@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:raheeq_main/services/snackbar_insets_services.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'dart:async';
 import 'dart:math' as math;
@@ -152,10 +153,10 @@ class _AnimatedSnackbarOverlayState extends State<_AnimatedSnackbarOverlay>
   @override
   Widget build(BuildContext context) {
     return Positioned(
-      bottom: math.max(
-        MediaQuery.of(context).viewInsets.bottom + 24,
-        widget.bottomMargin,
-      ), // Respect keyboard and clear bottom nav
+      bottom:
+          MediaQuery.of(context).padding.bottom +
+          SnackbarInsets.bottom.value +
+          20,
       left: 20,
       right: 20,
       child: SafeArea(

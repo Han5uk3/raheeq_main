@@ -2,13 +2,14 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/api/new.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
-import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/models/order_item.dart';
 import 'package:raheeq_main/models/product.dart';
 import 'package:raheeq_main/models/place.dart';
 import 'package:raheeq_main/models/city.dart';
 import 'package:raheeq_main/pages/order/contribution_details_page.dart';
 import 'package:raheeq_main/common_widgets/bottom_action_pill.dart';
+import 'package:raheeq_main/services/network_monitor.dart';
+import 'package:raheeq_main/services/snackbar_insets_services.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/models/checkout.dart';
 import 'dart:developer';
@@ -37,6 +38,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage>
   @override
   void initState() {
     super.initState();
+    SnackbarInsets.setBottomInset(kBottomNavigationBarHeight);
     final productMap = <String, Product>{};
     for (final state in widget.orderStates) {
       for (final sp in state.selectedProducts) {
@@ -60,22 +62,14 @@ class _ReviewOrderPageState extends State<ReviewOrderPage>
 
   @override
   void dispose() {
+    SnackbarInsets.clear();
+
     _tabController?.dispose();
     super.dispose();
   }
 
   double get _totalPrice {
     return widget.orderStates.fold(0, (sum, state) => sum + state.totalPrice);
-  }
-
-  int get _totalQuantity {
-    return widget.orderStates.fold(0, (sum, state) {
-      return sum +
-          state.selectedProducts.fold(
-            0,
-            (productSum, sp) => productSum + sp.quantity,
-          );
-    });
   }
 
   void _showDonationTypeDialog(BuildContext context, bool isAr) {
@@ -553,7 +547,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage>
         extendBody: true,
         backgroundColor: AppColors.white,
         bottomNavigationBar: Padding(
-          padding: EdgeInsetsDirectional.only(start: 16, end: 16, bottom: 32),
+          padding: EdgeInsetsDirectional.only(start: 16, end: 16, bottom: 16),
           child: BottomActionPill(
             isLoading: _isProcessing,
             subtitleWidget: Column(
@@ -575,6 +569,14 @@ class _ReviewOrderPageState extends State<ReviewOrderPage>
             ),
             buttonText: AppLocalizations.of(context)!.continue_btn,
             onButtonTap: () {
+              if (NetworkMonitor.instance.status == NetworkStatus.offline) {
+                CustomSnackbar.show(
+                  context: context,
+                  message: AppLocalizations.of(context)!.internet_error,
+                  isError: true,
+                );
+                return;
+              }
               FocusManager.instance.primaryFocus?.unfocus();
               final hasChiller = _uniqueProducts.any(
                 (p) => p.serialNumber == 2,

@@ -1,10 +1,10 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:raheeq_main/api/new.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/pages/order/payment_status_page.dart';
+import 'package:raheeq_main/services/network_monitor.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
@@ -48,6 +48,14 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
   }
 
   Future<void> _submitOrder() async {
+    if (NetworkMonitor.instance.status.value == NetworkStatus.offline) {
+      CustomSnackbar.show(
+        isError: true,
+        context: context,
+        message: AppLocalizations.of(context)!.internet_error,
+      );
+      return;
+    }
     final accountId =
         widget.selectedBankAccount['id']?.toString() ??
         widget.selectedBankAccount['_id']?.toString();
@@ -60,18 +68,6 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
           context,
         )!.please_attach_the_transfer_receipt,
       );
-      return;
-    }
-
-    bool hasConnection = await InternetConnectionChecker.instance.hasConnection;
-    if (!hasConnection) {
-      if (mounted) {
-        CustomSnackbar.show(
-          isError: true,
-          context: context,
-          message: AppLocalizations.of(context)!.internet_error,
-        );
-      }
       return;
     }
 

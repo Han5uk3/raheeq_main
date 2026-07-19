@@ -49,10 +49,14 @@ class _CustomerReviewsPageState extends State<CustomerReviewsPage> {
         String errorMessage =
             AppLocalizations.of(context)?.error_msg(e.toString()) ??
             e.toString();
-        if (e is DioException &&
+        if (e.toString().contains("connection error")) {
+          errorMessage = AppLocalizations.of(context)!.internet_error;
+        } else if (e is DioException &&
             e.response?.data is Map &&
             e.response?.data['message'] != null) {
           errorMessage = e.response!.data['message'];
+        } else {
+          errorMessage = AppLocalizations.of(context)!.error;
         }
         CustomSnackbar.show(
           context: context,

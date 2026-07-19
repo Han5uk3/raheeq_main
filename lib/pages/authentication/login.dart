@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:raheeq_main/api/new.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'dart:io';
@@ -463,9 +464,10 @@ class _LoginState extends State<Login> {
                                           CircleAvatar(
                                             radius: 14,
                                             backgroundColor: Colors.grey[200],
-                                            backgroundImage: NetworkImage(
-                                              "https://flagcdn.com/w80/${_selectedCountry.countryCode.toLowerCase()}.png",
-                                            ),
+                                            backgroundImage:
+                                                CachedNetworkImageProvider(
+                                                  "https://flagcdn.com/w80/${_selectedCountry.countryCode.toLowerCase()}.png",
+                                                ),
                                           ),
                                           const SizedBox(width: 8),
                                           Directionality(
@@ -676,7 +678,7 @@ class _LoginState extends State<Login> {
                                         apiPhoneText.startsWith('0')) {
                                       apiPhoneText = apiPhoneText.substring(1);
                                     }
-
+                                    log("apiservice called");
                                     setState(() => _isLoading = true);
                                     try {
                                       final response = await ApiService()
@@ -685,9 +687,9 @@ class _LoginState extends State<Login> {
                                             countryCode:
                                                 '+${_selectedCountry.phoneCode}',
                                           );
-
+                                      log("context not mounted");
                                       if (!context.mounted) return;
-
+                                      log("context mounted");
                                       if (response.statusCode == 200 &&
                                           response.data['success'] == true) {
                                         final receivedOtp = response
@@ -704,13 +706,16 @@ class _LoginState extends State<Login> {
                                             ),
                                           ),
                                         );
+                                        log("otp sent");
                                         if (mounted) {
                                           setState(() => _isLoading = false);
                                         }
+                                        log("otp sent and state changed");
                                       } else {
                                         if (mounted) {
                                           setState(() => _isLoading = false);
                                         }
+                                        log("otp not sent and state changed");
                                         CustomSnackbar.show(
                                           context: context,
                                           message:
@@ -728,19 +733,19 @@ class _LoginState extends State<Login> {
                                       String errorMessage = AppLocalizations.of(
                                         context,
                                       )!.failed_to_send_otp;
-                                      if (e is ApiDioException) {
+                                      if (e is DioException) {
                                         if (e.type ==
                                             DioExceptionType.connectionError) {
-                                          // Internet interceptor already showed a snackbar
+                                          CustomSnackbar.show(
+                                            context: context,
+                                            isError: true,
+                                            message: AppLocalizations.of(
+                                              context,
+                                            )!.internet_error,
+                                          );
                                           return;
-                                        }
-                                        errorMessage = e.apiMessage;
-                                      } else if (e is DioException) {
-                                        if (e.type ==
-                                            DioExceptionType.connectionError) {
-                                          return;
-                                        }
-                                        if (e.response?.statusCode == 429) {
+                                        } else if (e.response?.statusCode ==
+                                            429) {
                                           errorMessage = AppLocalizations.of(
                                             context,
                                           )!.too_many_attempts;
@@ -761,6 +766,8 @@ class _LoginState extends State<Login> {
                             style: ElevatedButton.styleFrom(
                               backgroundColor: AppColors.buttonBlueDark,
                               foregroundColor: Colors.white,
+                              disabledBackgroundColor: AppColors.buttonBlueDark,
+                              disabledForegroundColor: Colors.white,
                               elevation: 0,
                               padding: const EdgeInsets.symmetric(vertical: 16),
                               shape: RoundedRectangleBorder(
@@ -769,10 +776,10 @@ class _LoginState extends State<Login> {
                             ),
                             child: _isLoading
                                 ? const SizedBox(
-                                    height: 20,
-                                    width: 20,
+                                    height: 24,
+                                    width: 24,
                                     child: WaterLoadingIndicator(
-                                      waveColor1: AppColors.buttonBlueDark,
+                                      waveColor1: AppColors.white,
                                     ),
                                   )
                                 : Text(
@@ -780,6 +787,7 @@ class _LoginState extends State<Login> {
                                     style: const TextStyle(
                                       fontSize: 16,
                                       fontWeight: FontWeight.w600,
+                                      color: Colors.white,
                                     ),
                                   ),
                           ),

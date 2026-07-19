@@ -1479,11 +1479,20 @@ class AppLocalizationsAr extends AppLocalizations {
   String get profile_picture => 'صورة الملف الشخصي';
 
   @override
+  String get back_online => 'تم استعادة الاتصال بالإنترنت';
+
+  @override
   String get no_delivery_video_available =>
       'لا يوجد فيديو توصيل متاح لهذا الطلب حتى الآن.';
 
   @override
   String get ok => 'حسناً';
+
+  @override
+  String get failed_to_load_notifications => 'فشل في تحميل الإشعارات';
+
+  @override
+  String get failed_to_load_orders => 'فشل في تحميل الطلبات';
 
   @override
   String get priceIncludesDistributionDeliveryAndDocumentation =>
@@ -1494,6 +1503,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get reasonForDifferentLocation => 'السبب';
+
+  @override
+  String get error => 'خطأ';
 
   @override
   String minimum_quantity_for_location_is(String min) {

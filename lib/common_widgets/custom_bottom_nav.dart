@@ -22,18 +22,17 @@ class CustomBottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
+    return Padding(
       padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 16, 16),
       child: Material(
         elevation: 10,
-        color: Colors.white,
+        color: Colors.transparent,
         borderRadius: BorderRadius.circular(45),
         child: Container(
           height: 85,
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(45),
-            boxShadow: [],
           ),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,

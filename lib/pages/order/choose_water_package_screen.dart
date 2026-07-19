@@ -240,19 +240,12 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
           // Handle bar
           Padding(
             padding: const EdgeInsets.only(top: 12.0, bottom: 16.0),
-            child: Container(
-              width: 70,
-              height: 4,
-              decoration: BoxDecoration(
-                color: Colors.grey[300],
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ),
+            child: Container(width: 70, height: 4),
           ),
 
           // Header
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Row(
               children: [
                 GestureDetector(
@@ -335,7 +328,7 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
 
           // Continue button
           Container(
-            padding: const EdgeInsets.only(left: 16, right: 16, bottom: 16),
+            padding: const EdgeInsets.only(left: 16, right: 16, bottom: 12),
             child: SizedBox(
               width: double.infinity,
               height: 56,
@@ -364,7 +357,6 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
           ),
 
           // Safe area padding for bottom
-          SizedBox(height: MediaQuery.of(context).padding.bottom),
         ],
       ),
     );

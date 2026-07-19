@@ -57,7 +57,11 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
       }
     } catch (e) {
       setState(() {
-        _errorMessage = e.toString();
+        if (e.toString().contains('connection error')) {
+          _errorMessage = AppLocalizations.of(context)!.internet_error;
+        } else {
+          _errorMessage = e.toString();
+        }
         _isLoading = false;
       });
     }

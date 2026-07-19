@@ -126,176 +126,168 @@ class _PaymentStatusPageState extends State<PaymentStatusPage>
               ),
             ),
           ),
-          SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Column(
-                children: [
-                  Expanded(
-                    child: Center(
-                      child: SlideTransition(
-                        position: _slideAnimation,
-                        child: FadeTransition(
-                          opacity: _fadeAnimation,
-                          child: Container(
-                            padding: const EdgeInsets.all(32),
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(32),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: color.withValues(alpha: 0.08),
-                                  blurRadius: 32,
-                                  offset: const Offset(0, 16),
-                                ),
-                              ],
-                            ),
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                // Icon or Lottie Animation
-                                TweenAnimationBuilder<double>(
-                                  tween: Tween<double>(begin: 0.5, end: 1.0),
-                                  duration: const Duration(milliseconds: 800),
-                                  curve: Curves.elasticOut,
-                                  builder: (context, scale, child) {
-                                    return Transform.scale(
-                                      scale: scale,
-                                      child: child,
-                                    );
-                                  },
-                                  child: Container(
-                                    width: 140,
-                                    height: 140,
-                                    decoration: BoxDecoration(
-                                      color: lightColor,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Center(
-                                      child: Icon(
-                                        fallbackIcon,
-                                        size: 80,
-                                        color: color,
-                                      ),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16.0),
+            child: Column(
+              children: [
+                Expanded(
+                  child: Center(
+                    child: SlideTransition(
+                      position: _slideAnimation,
+                      child: FadeTransition(
+                        opacity: _fadeAnimation,
+                        child: Container(
+                          padding: const EdgeInsets.all(32),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(32),
+                            boxShadow: [
+                              BoxShadow(
+                                color: color.withValues(alpha: 0.08),
+                                blurRadius: 32,
+                                offset: const Offset(0, 16),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // Icon or Lottie Animation
+                              TweenAnimationBuilder<double>(
+                                tween: Tween<double>(begin: 0.5, end: 1.0),
+                                duration: const Duration(milliseconds: 800),
+                                curve: Curves.elasticOut,
+                                builder: (context, scale, child) {
+                                  return Transform.scale(
+                                    scale: scale,
+                                    child: child,
+                                  );
+                                },
+                                child: Container(
+                                  width: 140,
+                                  height: 140,
+                                  decoration: BoxDecoration(
+                                    color: lightColor,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Center(
+                                    child: Icon(
+                                      fallbackIcon,
+                                      size: 80,
+                                      color: color,
                                     ),
                                   ),
                                 ),
-                                const SizedBox(height: 32),
-                                // Title
-                                Text(
-                                  title,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 26,
-                                    fontWeight: FontWeight.bold,
-                                    color: color,
-                                    letterSpacing: -0.5,
-                                  ),
+                              ),
+                              const SizedBox(height: 32),
+                              // Title
+                              Text(
+                                title,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 26,
+                                  fontWeight: FontWeight.bold,
+                                  color: color,
+                                  letterSpacing: -0.5,
                                 ),
-                                const SizedBox(height: 16),
-                                // Description
-                                Text(
-                                  description,
-                                  textAlign: TextAlign.center,
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    color: Colors.grey.shade600,
-                                    height: 1.5,
-                                  ),
+                              ),
+                              const SizedBox(height: 16),
+                              // Description
+                              Text(
+                                description,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  color: Colors.grey.shade600,
+                                  height: 1.5,
                                 ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
                       ),
                     ),
                   ),
-                  // Bottom Actions
-                  SlideTransition(
-                    position: _slideAnimation,
-                    child: FadeTransition(
-                      opacity: _fadeAnimation,
-                      child: Padding(
-                        padding: const EdgeInsets.only(bottom: 32.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.stretch,
-                          children: [
-                            if (widget.status == PaymentStatus.failed &&
-                                widget.onRetry != null) ...[
-                              _buildPrimaryButton(
-                                context,
-                                text: AppLocalizations.of(
-                                  context,
-                                )!.retry_payment,
-                                onPressed: widget.onRetry!,
-                                color: color,
-                              ),
-                              const SizedBox(height: 16),
-                            ],
-                            if (widget.status ==
-                                PaymentStatus.pendingApproval) ...[
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: _buildSecondaryButton(
-                                      context,
-                                      text: AppLocalizations.of(
-                                        context,
-                                      )!.orders,
-                                      onPressed: () {
-                                        HomeTab.clearBasket();
-                                        HomeScreen.switchTabNotifier.value = 1;
-                                        Navigator.of(
-                                          context,
-                                        ).popUntil((route) => route.isFirst);
-                                      },
-                                    ),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Expanded(
-                                    child: _buildPrimaryButton(
-                                      color: AppColors.buttonBlueDark,
-                                      context,
-                                      text: AppLocalizations.of(
-                                        context,
-                                      )!.back_to_home,
-                                      onPressed: () {
-                                        HomeTab.clearBasket();
-                                        Navigator.of(
-                                          context,
-                                        ).popUntil((route) => route.isFirst);
-                                      },
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ] else ...[
-                              _buildSecondaryButton(
-                                context,
-                                text: AppLocalizations.of(
-                                  context,
-                                )!.back_to_home,
-                                onPressed: () {
-                                  if (widget.status == PaymentStatus.success ||
-                                      widget.status ==
-                                          PaymentStatus.serverError ||
-                                      widget.status ==
-                                          PaymentStatus.pendingApproval) {
-                                    HomeTab.clearBasket();
-                                  }
-                                  Navigator.of(
-                                    context,
-                                  ).popUntil((route) => route.isFirst);
-                                },
-                              ),
-                            ],
+                ),
+                // Bottom Actions
+                SlideTransition(
+                  position: _slideAnimation,
+                  child: FadeTransition(
+                    opacity: _fadeAnimation,
+                    child: Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          if (widget.status == PaymentStatus.failed &&
+                              widget.onRetry != null) ...[
+                            _buildPrimaryButton(
+                              context,
+                              text: AppLocalizations.of(context)!.retry_payment,
+                              onPressed: widget.onRetry!,
+                              color: color,
+                            ),
+                            const SizedBox(height: 16),
                           ],
-                        ),
+                          if (widget.status ==
+                              PaymentStatus.pendingApproval) ...[
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: _buildSecondaryButton(
+                                    context,
+                                    text: AppLocalizations.of(context)!.orders,
+                                    onPressed: () {
+                                      HomeTab.clearBasket();
+                                      HomeScreen.switchTabNotifier.value = 1;
+                                      Navigator.of(
+                                        context,
+                                      ).popUntil((route) => route.isFirst);
+                                    },
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: _buildPrimaryButton(
+                                    color: AppColors.buttonBlueDark,
+                                    context,
+                                    text: AppLocalizations.of(
+                                      context,
+                                    )!.back_to_home,
+                                    onPressed: () {
+                                      HomeTab.clearBasket();
+                                      Navigator.of(
+                                        context,
+                                      ).popUntil((route) => route.isFirst);
+                                    },
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ] else ...[
+                            _buildSecondaryButton(
+                              context,
+                              text: AppLocalizations.of(context)!.back_to_home,
+                              onPressed: () {
+                                if (widget.status == PaymentStatus.success ||
+                                    widget.status ==
+                                        PaymentStatus.serverError ||
+                                    widget.status ==
+                                        PaymentStatus.pendingApproval) {
+                                  HomeTab.clearBasket();
+                                }
+                                Navigator.of(
+                                  context,
+                                ).popUntil((route) => route.isFirst);
+                              },
+                            ),
+                          ],
+                        ],
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],

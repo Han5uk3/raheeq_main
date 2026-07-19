@@ -5,6 +5,8 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
+import 'package:raheeq_main/services/network_monitor.dart';
 
 import 'firebase_options.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
@@ -15,7 +17,6 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:raheeq_main/services/notification_service.dart';
 import 'package:raheeq_main/storage/app_storage.dart';
 import 'package:raheeq_main/services/freshchat_service.dart';
-import 'package:raheeq_main/services/deep_link_service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:raheeq_main/utils/colors.dart';
@@ -45,13 +46,38 @@ Future<void> _initDependencies() async {
   await AuthStorage.init();
   await AppStorage.init();
   localeNotifier.value = Locale(AppStorage.localeCode);
-
+  final ValueNotifier<double> snackbarBottomInset = ValueNotifier(0);
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   await Permission.notification.request();
 
   // Initialize notification service
   await NotificationService().init();
+  await NetworkMonitor.instance.start();
+
+  NetworkMonitor.instance.onOffline = () {
+    final context = AuthStorage.navigatorKey.currentContext;
+    if (context == null) return;
+
+    CustomSnackbar.show(
+      context: context,
+      message: AppLocalizations.of(context)!.internet_error,
+      isError: true,
+      bottomMargin: snackbarBottomInset.value,
+    );
+  };
+
+  NetworkMonitor.instance.onOnline = () {
+    final context = AuthStorage.navigatorKey.currentContext;
+    if (context == null) return;
+
+    CustomSnackbar.show(
+      context: context,
+      message: AppLocalizations.of(context)!.back_online,
+      isError: false,
+      bottomMargin: snackbarBottomInset.value,
+    );
+  };
 
   final freshchatAppId = dotenv.env['FRESHCHAT_APP_ID'];
   final freshchatAppKey = dotenv.env['FRESHCHAT_APP_KEY'];

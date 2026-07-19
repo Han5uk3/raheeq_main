@@ -1,8 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:internet_connection_checker/internet_connection_checker.dart';
 import 'package:raheeq_main/api/new.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:intl/intl.dart' show DateFormat;
+import 'package:raheeq_main/services/network_monitor.dart';
+import 'package:raheeq_main/services/snackbar_insets_services.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'dart:developer';
@@ -56,6 +57,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
   @override
   void initState() {
     super.initState();
+    SnackbarInsets.setBottomInset(kBottomNavigationBarHeight);
     _checkoutData = widget.checkoutData;
     _couponController.addListener(_onCouponChanged);
   }
@@ -66,11 +68,20 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
 
   @override
   void dispose() {
+    SnackbarInsets.clear();
     _couponController.dispose();
     super.dispose();
   }
 
   void _applyCoupon(bool isAr) async {
+    if (NetworkMonitor.instance.status == NetworkStatus.offline) {
+      CustomSnackbar.show(
+        context: context,
+        message: AppLocalizations.of(context)!.internet_error,
+        isError: true,
+      );
+      return;
+    }
     final code = _couponController.text.trim();
     if (code.isEmpty) return;
 
@@ -173,6 +184,15 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
     });
 
     try {
+      if (NetworkMonitor.instance.status == NetworkStatus.offline) {
+        CustomSnackbar.show(
+          context: context,
+          message: AppLocalizations.of(context)!.internet_error,
+          isError: true,
+        );
+        return;
+      }
+
       final apiService = ApiService();
       final response = await apiService.toggleWallet(useWallet);
       if (response.statusCode == 200 && response.data['success'] == true) {
@@ -232,6 +252,14 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
   }
 
   void _confirmAndPay(BuildContext context, bool isAr) {
+    if (NetworkMonitor.instance.status == NetworkStatus.offline) {
+      CustomSnackbar.show(
+        context: context,
+        message: AppLocalizations.of(context)!.internet_error,
+        isError: true,
+      );
+      return;
+    }
     log(
       'Payment Flow Started: Confirm & Pay clicked. Total Amount: ${_checkoutData.finalTotal}',
       name: 'CheckoutFlow',
@@ -376,22 +404,18 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
     bool isAr,
     String paymentMethod,
   ) async {
+    if (NetworkMonitor.instance.status == NetworkStatus.offline) {
+      CustomSnackbar.show(
+        context: context,
+        message: AppLocalizations.of(context)!.internet_error,
+        isError: true,
+      );
+      return;
+    }
     log(
       'Payment Flow: Starting _processPayment with method: $paymentMethod',
       name: 'CheckoutFlow',
     );
-
-    bool hasConnection = await InternetConnectionChecker.instance.hasConnection;
-    if (!hasConnection) {
-      if (mounted) {
-        CustomSnackbar.show(
-          isError: true,
-          context: context,
-          message: AppLocalizations.of(context)!.internet_error,
-        );
-      }
-      return;
-    }
 
     setState(() {
       _isProcessingPayment = true;
@@ -1016,7 +1040,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
               padding: const EdgeInsetsDirectional.only(
                 start: 16,
                 end: 16,
-                bottom: 32,
+                bottom: 16,
               ),
               child: BottomActionPill(
                 isLoading: _isProcessingPayment,
@@ -1715,8 +1739,18 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
               children: [
                 Expanded(
                   child: ElevatedButton(
-                    onPressed: () =>
-                        _showGiftCardsSheet(context, isAr, itemsWithGiftCards),
+                    onPressed: () {
+                      if (NetworkMonitor.instance.status ==
+                          NetworkStatus.offline) {
+                        CustomSnackbar.show(
+                          context: context,
+                          message: AppLocalizations.of(context)!.internet_error,
+                          isError: true,
+                        );
+                        return;
+                      }
+                      _showGiftCardsSheet(context, isAr, itemsWithGiftCards);
+                    },
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
                       foregroundColor: AppColors.buttonBlueDark,
@@ -2221,6 +2255,15 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
   Widget _buildOriginalGiftCardSection(bool isAr) {
     return GestureDetector(
       onTap: () async {
+        if (NetworkMonitor.instance.status == NetworkStatus.offline) {
+          CustomSnackbar.show(
+            context: context,
+            message: AppLocalizations.of(context)!.internet_error,
+            isError: true,
+          );
+          return;
+        }
+
         final updatedCheckout = await Navigator.push<Checkout>(
           context,
           MaterialPageRoute(

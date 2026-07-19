@@ -1,6 +1,5 @@
 import 'package:raheeq_main/api/new.dart';
 import 'package:raheeq_main/common_widgets/bottom_action_pill.dart';
-import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'dart:developer';
 
@@ -15,6 +14,7 @@ import 'package:raheeq_main/common_widgets/donation_type_bottom_sheet.dart';
 import 'package:raheeq_main/common_widgets/subscription_plans_bottom_sheet.dart';
 import 'package:raheeq_main/common_widgets/subscription_details_bottom_sheet.dart';
 import 'package:raheeq_main/models/subscription_plan.dart';
+import 'package:raheeq_main/services/snackbar_insets_services.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:dio/dio.dart';
@@ -46,6 +46,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
   @override
   void initState() {
     super.initState();
+    SnackbarInsets.setBottomInset(kBottomNavigationBarHeight);
 
     // Auto-select first product if available
     if (widget.campaign.products.isNotEmpty) {
@@ -55,23 +56,13 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
 
   @override
   void dispose() {
+    SnackbarInsets.clear();
     _customController.dispose();
     _customFocusNode.dispose();
     _noteController.dispose();
     _noteFocusNode.dispose();
     super.dispose();
   }
-
-  // double get _totalAmount {
-  //   double total = 0;
-  //   for (var product in widget.campaign.products) {
-  //     final qty = _selectedQuantities[product.id];
-  //     if (qty != null && qty > 0) {
-  //       total += (product.price) * qty;
-  //     }
-  //   }
-  //   return total;
-  // }
 
   void _selectProduct(Product product) {
     if (_selectedProduct?.id == product.id) return;
@@ -763,7 +754,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
     });
 
     return Padding(
-      padding: const EdgeInsetsDirectional.only(start: 16, end: 16, bottom: 32),
+      padding: const EdgeInsetsDirectional.only(start: 16, end: 16, bottom: 16),
       child: BottomActionPill(
         isLoading: _isLoading,
         subtitleWidget: Text(

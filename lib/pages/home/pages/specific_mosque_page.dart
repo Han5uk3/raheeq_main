@@ -10,7 +10,6 @@ import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:raheeq_main/storage/app_storage.dart';
-import '../../../api/apis.dart';
 import '../../../models/mosque.dart';
 import '../../../models/meqat_mosque.dart';
 import '../../../models/orphanage.dart';

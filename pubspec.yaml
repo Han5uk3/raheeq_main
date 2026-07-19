@@ -12,6 +12,8 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   intl: ^0.20.2
+  connectivity_plus: ^7.0.0
+  internet_connection_checker_plus: ^2.7.2
   country_picker: ^2.0.27
   font_awesome_flutter: ^11.0.0
   cached_network_image: ^3.4.1
@@ -42,7 +44,6 @@ dependencies:
   pinput: ^6.0.2
   geolocator: ^14.0.2
   app_links: ^7.0.0
-  internet_connection_checker: ^3.0.1
   smart_auth: ^3.2.0
   
 

@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'dart:developer';
@@ -23,7 +25,11 @@ enum SessionStatus {
 
 class ApiService {
   static const String baseUrl = 'https://api-staging.suqyarahiq.com/api/v1';
-  final Dio _dio;
+  static final ApiService _instance = ApiService._internal();
+
+  factory ApiService() => _instance;
+
+  late final Dio _dio;
 
   /// Prevents multiple refresh requests from firing concurrently. Every
   /// caller that needs a fresh token (proactively on request, or reactively
@@ -56,6 +62,45 @@ class ApiService {
     '/auth/refresh-token',
     '/auth/logout',
   ];
+
+  /// Called when a request fails because the device has no internet
+  /// connection or the server is unreachable (DNS failure, timeout, etc).
+  /// Wire this in main.dart to show a snackbar via CustomSnackbar +
+  /// AppLocalizations, similar to [onSessionExpired].
+  VoidCallback? onConnectionError;
+
+  /// Simple throttle so a burst of failing requests (e.g. a proactive
+  /// refresh + the request that triggered it) doesn't spam the user with
+  /// multiple snackbars at once.
+  DateTime? _lastConnectionErrorShown;
+  static const Duration _connectionErrorThrottle = Duration(seconds: 3);
+
+  bool _isConnectionError(DioException e) {
+    return e.type == DioExceptionType.connectionError ||
+        e.type == DioExceptionType.connectionTimeout ||
+        e.type == DioExceptionType.receiveTimeout ||
+        e.type == DioExceptionType.sendTimeout ||
+        e.error is SocketException;
+  }
+
+  void _notifyConnectionError(DioException e, {String context = ''}) {
+    final now = DateTime.now();
+    if (_lastConnectionErrorShown != null &&
+        now.difference(_lastConnectionErrorShown!) < _connectionErrorThrottle) {
+      return;
+    }
+    _lastConnectionErrorShown = now;
+
+    _logNetwork(
+      "No internet / server unreachable${context.isNotEmpty ? ' ($context)' : ''}: "
+      "${e.requestOptions.method} ${e.requestOptions.path} — ${e.message}",
+    );
+    onConnectionError?.call();
+  }
+
+  void _logNetwork(String message) {
+    debugPrint("[NETWORK] ${DateTime.now().toIso8601String()} $message");
+  }
 
   /// Called once when the session is conclusively invalid (refresh token
   /// missing/expired/rejected). Wire this in main.dart / a router listener
@@ -175,7 +220,7 @@ class ApiService {
   // Constructor + interceptor wiring
   // ---------------------------------------------------------------------
 
-  ApiService()
+  ApiService._internal()
     : _dio = Dio(
         BaseOptions(
           baseUrl: baseUrl,
@@ -214,6 +259,10 @@ class ApiService {
           return handler.next(options);
         },
         onError: (DioException error, handler) async {
+          if (_isConnectionError(error)) {
+            _notifyConnectionError(error);
+          }
+
           final requestOptions = error.requestOptions;
 
           final isUnauthorized = error.response?.statusCode == 401;
@@ -236,6 +285,9 @@ class ApiService {
             // session over a transient failure - surface the original
             // error and let the user retry the action.
             _log("Refresh errored (network/server), not logging out: $e");
+            if (e is DioException && _isConnectionError(e)) {
+              _notifyConnectionError(e, context: 'token refresh');
+            }
             return handler.next(error);
           }
 

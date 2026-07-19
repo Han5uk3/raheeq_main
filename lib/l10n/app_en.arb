@@ -529,11 +529,15 @@
   "review": "Review",
   "coupon_not_applicable": "Coupon codes cannot be applied to this order",
   "profile_picture": "Profile Picture",
+  "back_online":"Back online",
   "no_delivery_video_available": "No delivery video is available for this order yet.",
   "ok": "OK",
+  "failed_to_load_notifications":"failed_to_load_notifications",
+  "failed_to_load_orders":"failed_to_load_orders",
   "priceIncludesDistributionDeliveryAndDocumentation": "Price includes distribution, delivery, and documention.",
   "deliveredToDifferentLocation": "Delivered to a different location",
   "reasonForDifferentLocation": "Reason",
+  "error": "error",
   "minimum_quantity_for_location_is": "minimum quantity for one location is {min}",
   "@minimum_quantity_for_location_is": {
     "placeholders": {
@@ -542,7 +546,7 @@
       }
     }
   },
-  "internet_error": "Internet error. Please check your internet connection",
+  "internet_error": "No internet connection. Please check your network and try again.",
   "@distanceAway": {
     "description": "Displays how far something is from the user",
     "placeholders": {

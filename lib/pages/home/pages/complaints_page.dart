@@ -48,7 +48,25 @@ class _ComplaintsPageState extends State<ComplaintsPage> {
         }
       }
     } catch (e) {
-      // ignore
+      if (e.toString().contains("connection error")) {
+        CustomSnackbar.show(
+          context: context,
+          isError: true,
+          message: AppLocalizations.of(context)!.internet_error,
+        );
+      } else if (e is DioException && e.response != null) {
+        CustomSnackbar.show(
+          context: context,
+          isError: true,
+          message: e.response!.data['message'],
+        );
+      } else {
+        CustomSnackbar.show(
+          context: context,
+          isError: true,
+          message: AppLocalizations.of(context)!.error,
+        );
+      }
     }
   }
 

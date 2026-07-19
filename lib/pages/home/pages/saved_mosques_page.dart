@@ -68,7 +68,11 @@ class _SavedMosquesPageState extends State<SavedMosquesPage> {
     } catch (e) {
       setState(() {
         _isLoading = false;
-        _errorMessage = e.toString();
+        if (e.toString().contains('connection error')) {
+          _errorMessage = AppLocalizations.of(context)!.internet_error;
+        } else {
+          _errorMessage = e.toString();
+        }
       });
     }
   }
@@ -214,18 +218,7 @@ class _SavedMosquesPageState extends State<SavedMosquesPage> {
                                         size: 60,
                                       ),
                                       const SizedBox(height: 16),
-                                      Text(
-                                        AppLocalizations.of(
-                                          context,
-                                        )!.error_occurred_try_again,
-                                        style: const TextStyle(
-                                          fontSize: 18,
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.black87,
-                                        ),
-                                        textAlign: TextAlign.center,
-                                      ),
-                                      const SizedBox(height: 8),
+
                                       Text(
                                         _errorMessage ?? '',
                                         textAlign: TextAlign.center,

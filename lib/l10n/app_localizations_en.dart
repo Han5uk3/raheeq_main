@@ -1490,11 +1490,20 @@ class AppLocalizationsEn extends AppLocalizations {
   String get profile_picture => 'Profile Picture';
 
   @override
+  String get back_online => 'Back online';
+
+  @override
   String get no_delivery_video_available =>
       'No delivery video is available for this order yet.';
 
   @override
   String get ok => 'OK';
+
+  @override
+  String get failed_to_load_notifications => 'failed_to_load_notifications';
+
+  @override
+  String get failed_to_load_orders => 'failed_to_load_orders';
 
   @override
   String get priceIncludesDistributionDeliveryAndDocumentation =>
@@ -1508,13 +1517,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String get reasonForDifferentLocation => 'Reason';
 
   @override
+  String get error => 'error';
+
+  @override
   String minimum_quantity_for_location_is(String min) {
     return 'minimum quantity for one location is $min';
   }
 
   @override
   String get internet_error =>
-      'Internet error. Please check your internet connection';
+      'No internet connection. Please check your network and try again.';
 
   @override
   String distanceAway(String distance) {

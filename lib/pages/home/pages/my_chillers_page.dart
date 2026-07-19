@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/api/new.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
+import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/models/chiller_model.dart';
 import 'package:raheeq_main/utils/colors.dart';
@@ -19,6 +20,7 @@ class _MyChillersPageState extends State<MyChillersPage> {
   final ApiService _apiService = ApiService();
   bool _isLoading = true;
   List<ChillerModel> _chillers = [];
+  String? _errorMessage;
 
   @override
   void initState() {
@@ -46,6 +48,11 @@ class _MyChillersPageState extends State<MyChillersPage> {
       }
     } catch (e) {
       log('Error fetching chillers: $e');
+      if (e.toString().contains('connection error')) {
+        _errorMessage = AppLocalizations.of(context)!.internet_error;
+      } else {
+        _errorMessage = e.toString();
+      }
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -185,10 +192,16 @@ class _MyChillersPageState extends State<MyChillersPage> {
                                     ),
                                   ),
                                   onPressed: () {
-                                    Navigator.of(
-                                      context,
-                                    ).popUntil((route) => route.isFirst);
-                                    HomeScreen.switchTabNotifier.value = 0;
+                                    if (_errorMessage != null) {
+                                      Navigator.of(
+                                        context,
+                                      ).popUntil((route) => route.isFirst);
+                                      HomeScreen.switchTabNotifier.value = 0;
+                                    }
+                                    CustomSnackbar.show(
+                                      context: context,
+                                      message: _errorMessage ?? "",
+                                    );
                                   },
                                   child: Text(
                                     AppLocalizations.of(context)!.order_now,

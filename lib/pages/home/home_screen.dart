@@ -92,7 +92,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     Widget scaffold = Scaffold(
       extendBody: true, // Important to allow bottom nav area to be transparent
-      backgroundColor: Colors.transparent,
+      backgroundColor: Colors.white,
       appBar: (_currentIndex == 0 || _currentIndex == 1 || _currentIndex == 3)
           ? null
           : CustomAppBar(

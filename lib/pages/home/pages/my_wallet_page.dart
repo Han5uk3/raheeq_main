@@ -19,6 +19,7 @@ class MyWalletPage extends StatefulWidget {
 class _MyWalletPageState extends State<MyWalletPage> {
   bool _isLoading = true;
   double _balance = 0.0;
+  String? _errorMessage;
   List<dynamic> _transactions = [];
 
   @override
@@ -41,33 +42,17 @@ class _MyWalletPageState extends State<MyWalletPage> {
         setState(() {
           _isLoading = false;
         });
-        if (mounted) {
-          CustomSnackbar.show(
-            context: context,
-            message: (response.data is Map && response.data['message'] != null)
-                ? response.data['message']
-                : AppLocalizations.of(context)!.failed_to_load_wallet,
-          );
-        }
       }
     } catch (e) {
       setState(() {
         _isLoading = false;
       });
       if (mounted) {
-        String errorMessage = AppLocalizations.of(
-          context,
-        )!.error_msg(e.toString());
-        if (e is DioException &&
-            e.response?.data is Map &&
-            e.response?.data['message'] != null) {
-          errorMessage = e.response!.data['message'];
+        if (e.toString().contains('connection error')) {
+          _errorMessage = AppLocalizations.of(context)!.internet_error;
+        } else {
+          _errorMessage = e.toString();
         }
-        CustomSnackbar.show(
-          context: context,
-          message: errorMessage,
-          isError: true,
-        );
       }
     }
   }

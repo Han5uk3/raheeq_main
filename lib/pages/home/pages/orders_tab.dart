@@ -1,8 +1,10 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:raheeq_main/api/new.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
+import 'package:raheeq_main/services/snackbar_insets_services.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/models/order_response_model.dart';
@@ -50,6 +52,7 @@ class _OrdersTabState extends State<OrdersTab>
   @override
   void initState() {
     super.initState();
+    SnackbarInsets.setBottomInset(kBottomNavigationBarHeight + 10);
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(_handleTabSelection);
 
@@ -79,6 +82,8 @@ class _OrdersTabState extends State<OrdersTab>
   @override
   void dispose() {
     _tabController.dispose();
+    SnackbarInsets.clear();
+
     _scrollController.dispose();
     super.dispose();
   }
@@ -137,7 +142,15 @@ class _OrdersTabState extends State<OrdersTab>
     } catch (e) {
       if (mounted) {
         setState(() {
-          _errorMessage = e.toString();
+          if (e.toString().contains('connection error')) {
+            _errorMessage = AppLocalizations.of(context)!.internet_error;
+          } else if (e is DioException) {
+            _errorMessage =
+                e.response?.data['message'] ??
+                AppLocalizations.of(context)!.failed_to_load_orders;
+          } else {
+            _errorMessage = AppLocalizations.of(context)!.error;
+          }
           _isLoading = false;
         });
       }
@@ -413,7 +426,7 @@ class _OrdersTabState extends State<OrdersTab>
                           );
                         },
                       ),
-                    const SizedBox(height: 145), // Padding at the bottom
+                    const SizedBox(height: 115), // Padding at the bottom
                   ],
                 ),
               ),

@@ -48,22 +48,24 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
         'Feedback API response: statusCode=${res.statusCode}, data=${res.data}',
         name: 'SuggestionsPage',
       );
-      if (res.statusCode == 200 || res.statusCode == 201) {
+      if (res.statusCode == 200) {
         if (mounted) {
           CustomSnackbar.show(
             context: context,
             message: (res.data is Map && res.data['message'] != null)
                 ? res.data['message']
-                : 'Feedback sent successfully',
+                : AppLocalizations.of(context)!.feedback_submitted_successfully,
           );
           _suggestionController.clear();
         }
       }
     } catch (e) {
-      log('Feedback API error: $e', name: 'SuggestionsPage', error: e);
       if (mounted) {
-        String errorMessage = 'Failed to send feedback';
-        if (e is DioException &&
+        String errorMessage = '';
+
+        if (e.toString().contains('connection error')) {
+          errorMessage = AppLocalizations.of(context)!.internet_error;
+        } else if (e is DioException &&
             e.response?.data is Map &&
             e.response?.data['message'] != null &&
             e.response?.data['message'] == 'Feedback submitted successfully') {
@@ -159,7 +161,8 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
                         ),
                       ),
                     ),
-                    const Spacer(),
+                    SizedBox(height: 16),
+
                     ElevatedButton(
                       onPressed: _isLoading ? null : _sendSuggestion,
                       style: ElevatedButton.styleFrom(

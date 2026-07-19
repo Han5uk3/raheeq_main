@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dio/dio.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:raheeq_main/api/new.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
@@ -55,7 +56,13 @@ class _NotificationsPageState extends State<NotificationsPage> {
       }
     } catch (e) {
       setState(() {
-        _errorMessage = e.toString();
+        if (e.toString().contains("connection error")) {
+          _errorMessage = AppLocalizations.of(context)!.internet_error;
+        } else if (e is DioException) {
+          _errorMessage =
+              e.response?.data['message'] ??
+              AppLocalizations.of(context)!.failed_to_load_notifications;
+        }
         _isLoading = false;
       });
     }
