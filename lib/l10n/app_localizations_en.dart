@@ -624,6 +624,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get remove => 'Remove';
 
   @override
+  String get selected_text => 'selected: ';
+
+  @override
   String get use_wallet_balance => 'Use Wallet Balance';
 
   @override

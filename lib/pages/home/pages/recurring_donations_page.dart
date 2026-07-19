@@ -216,11 +216,14 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
     }
 
     return RefreshIndicator(
+      backgroundColor: Colors.white,
       key: const ValueKey('content'),
       onRefresh: _fetchSubscriptions,
       color: AppColors.buttonBlueDark,
       child: ListView.separated(
-        physics: const ClampingScrollPhysics(),
+        physics: const AlwaysScrollableScrollPhysics(
+          parent: ClampingScrollPhysics(),
+        ),
         padding: const EdgeInsets.all(16),
         itemCount: _subscriptions.length,
         separatorBuilder: (context, index) => const SizedBox(height: 12),
@@ -434,7 +437,7 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
                 Container(
                   padding: const EdgeInsets.symmetric(
                     horizontal: 16,
-                    vertical: 20,
+                    vertical: 26,
                   ),
                   decoration: const BoxDecoration(
                     color: Colors.white,

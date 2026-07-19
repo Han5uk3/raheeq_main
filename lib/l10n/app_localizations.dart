@@ -1275,6 +1275,12 @@ abstract class AppLocalizations {
   /// **'Remove'**
   String get remove;
 
+  /// No description provided for @selected_text.
+  ///
+  /// In en, this message translates to:
+  /// **'selected: '**
+  String get selected_text;
+
   /// No description provided for @use_wallet_balance.
   ///
   /// In en, this message translates to:

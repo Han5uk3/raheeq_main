@@ -237,6 +237,7 @@
   "contribution_details": "Contribution Details",
   "apply": "Apply",
   "remove": "Remove",
+  "selected_text": "selected: ",
   "use_wallet_balance": "Use Wallet Balance",
   "enter_coupon_code": "Enter coupon code",
   "feedback_submitted_successfully": "Feedback submitted successfully",

@@ -623,6 +623,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get remove => 'إزالة';
 
   @override
+  String get selected_text => 'المحدد: ';
+
+  @override
   String get use_wallet_balance => 'استخدام المحفظة';
 
   @override

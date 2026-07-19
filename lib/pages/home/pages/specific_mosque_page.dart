@@ -808,6 +808,9 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
                     setState(() {
                       _selectedItemsList.clear();
                     });
+                    if (mounted) {
+                      Navigator.of(context).pop(_selectedItemsList);
+                    }
                   },
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.red,

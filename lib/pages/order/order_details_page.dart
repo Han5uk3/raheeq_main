@@ -560,22 +560,17 @@ class _ReviewOrderPageState extends State<ReviewOrderPage>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  '$_totalQuantity ${AppLocalizations.of(context)!.items}',
-                  style: const TextStyle(fontSize: 12, color: Colors.white),
-                ),
-                const SizedBox(height: 2),
-                Text(
                   AppLocalizations.of(context)!.total_price,
-                  style: const TextStyle(fontSize: 12, color: Colors.white),
+                  style: const TextStyle(fontSize: 14, color: Colors.white70),
                 ),
               ],
             ),
             titleWidget: Text(
               "\u202A${AppLocalizations.of(context)!.sar_currency} ${_totalPrice.toStringAsFixed(2)}\u202C",
               style: const TextStyle(
-                fontSize: 16,
+                fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: AppColors.white,
+                color: Colors.white,
               ),
             ),
             buttonText: AppLocalizations.of(context)!.continue_btn,

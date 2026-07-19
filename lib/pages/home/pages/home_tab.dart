@@ -792,7 +792,7 @@ class _HomeTabState extends State<HomeTab>
                           //   padding: const EdgeInsets.symmetric(horizontal: 16),
                           //   child: buildBottomText(context),
                           // ),
-                          const SizedBox(height: 140),
+                          const SizedBox(height: 120),
                           if (_selectedItems.isNotEmpty) ...{
                             SizedBox(height: 80),
                           },
@@ -809,7 +809,7 @@ class _HomeTabState extends State<HomeTab>
           Positioned(
             left: 16,
             right: 16,
-            bottom: 130,
+            bottom: 110,
             child: BottomActionPill(
               titleWidget: Text(
                 AppLocalizations.of(
@@ -2188,132 +2188,185 @@ class _HomeTabState extends State<HomeTab>
                     }
                   }
                 },
-                child: Container(
-                  width: 125,
-                  margin: EdgeInsetsDirectional.only(
-                    start: index == 0 ? 16 : 8,
-                    end: index == _essentialProducts.length - 1 ? 16 : 8,
-                    bottom: 12,
-                    top: 4,
-                  ),
-                  child: Card(
-                    margin: EdgeInsets.all(0),
+                child: _buildEssentialMosqueItem(
+                  name,
+                  index,
+                  isSelected,
+                  product,
+                  subtitle,
+                  () {
+                    if (isSelected) {
+                      setState(() {
+                        _selectedItems.removeWhere(
+                          (item) =>
+                              item.category.slug == 'essential_supplies' &&
+                              item.specificData is EssentialSelection &&
+                              (item.specificData as EssentialSelection)
+                                      .product
+                                      .id ==
+                                  product.id,
+                        );
+                      });
+                      return;
+                    }
+                  },
+                  price,
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEssentialMosqueItem(
+    String name,
+    int index,
+    bool isSelected,
+    Product product,
+    String subtitle,
+    VoidCallback? onClear,
+    double price,
+  ) {
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Container(
+          width: 125,
+          margin: EdgeInsetsDirectional.only(
+            start: index == 0 ? 16 : 8,
+            end: index == _essentialProducts.length - 1 ? 16 : 8,
+            bottom: 12,
+            top: 4,
+          ),
+          child: Card(
+            margin: EdgeInsets.all(0),
+            color: Colors.white,
+            elevation: isSelected ? 3 : 1,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+              side: BorderSide(
+                color: isSelected
+                    ? AppColors.buttonBlueDark
+                    : Colors.transparent,
+                width: 2,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // Product image
+                Container(
+                  padding: const EdgeInsets.all(8.0),
+                  width: double.infinity,
+                  height: 100,
+                  decoration: const BoxDecoration(
                     color: Colors.white,
-                    elevation: isSelected ? 3 : 1,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                      side: BorderSide(
-                        color: isSelected
-                            ? AppColors.buttonBlueDark
-                            : Colors.transparent,
-                        width: 2,
-                      ),
-                    ),
+                    borderRadius: BorderRadius.all(Radius.circular(14)),
+                  ),
+                  child: ClipRRect(
+                    borderRadius: const BorderRadius.all(Radius.circular(14)),
+                    child: product.image.isNotEmpty
+                        ? CachedNetworkImage(
+                            imageUrl: product.image,
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) => Shimmer.fromColors(
+                              baseColor: Colors.grey[300]!,
+                              highlightColor: Colors.grey[100]!,
+                              child: Container(color: Colors.white),
+                            ),
+                            errorWidget: (context, url, error) => const Center(
+                              child: Icon(
+                                Icons.water_drop,
+                                color: AppColors.buttonBlueDark,
+                                size: 40,
+                              ),
+                            ),
+                          )
+                        : const Center(
+                            child: Icon(
+                              Icons.water_drop,
+                              color: AppColors.buttonBlueDark,
+                              size: 40,
+                            ),
+                          ),
+                  ),
+                ),
+
+                // Details
+                Expanded(
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
                     child: Column(
+                      mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Product image
-                        Container(
-                          padding: const EdgeInsets.all(8.0),
-                          width: double.infinity,
-                          height: 100,
-                          decoration: const BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.all(Radius.circular(14)),
+                        // Subtitle row
+                        Text(
+                          subtitle,
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: Colors.grey,
                           ),
-                          child: ClipRRect(
-                            borderRadius: const BorderRadius.all(
-                              Radius.circular(14),
-                            ),
-                            child: product.image.isNotEmpty
-                                ? CachedNetworkImage(
-                                    imageUrl: product.image,
-                                    fit: BoxFit.cover,
-                                    placeholder: (context, url) =>
-                                        Shimmer.fromColors(
-                                          baseColor: Colors.grey[300]!,
-                                          highlightColor: Colors.grey[100]!,
-                                          child: Container(color: Colors.white),
-                                        ),
-                                    errorWidget: (context, url, error) =>
-                                        const Center(
-                                          child: Icon(
-                                            Icons.water_drop,
-                                            color: AppColors.buttonBlueDark,
-                                            size: 40,
-                                          ),
-                                        ),
-                                  )
-                                : const Center(
-                                    child: Icon(
-                                      Icons.water_drop,
-                                      color: AppColors.buttonBlueDark,
-                                      size: 40,
-                                    ),
-                                  ),
-                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
 
-                        // Details
-                        Expanded(
-                          child: Padding(
-                            padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                // Subtitle row
-                                Text(
-                                  subtitle,
-                                  style: const TextStyle(
-                                    fontSize: 10,
-                                    color: Colors.grey,
-                                  ),
-                                  maxLines: 1,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
+                        // Product name
+                        Text(
+                          name,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
 
-                                // Product name
-                                Text(
-                                  name,
-                                  style: const TextStyle(
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.black,
-                                  ),
-                                  maxLines: 2,
-                                  overflow: TextOverflow.ellipsis,
-                                ),
-
-                                const Spacer(),
-                                Text(
-                                  AppLocalizations.of(context)!.starting_from,
-                                  style: const TextStyle(
-                                    fontSize: 10,
-                                    color: Colors.grey,
-                                  ),
-                                ),
-                                // Price
-                                Text(
-                                  '\u202A${AppLocalizations.of(context)!.sar_currency} ${price.toStringAsFixed(0)}\u202C',
-                                  style: const TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    color: AppColors.buttonBlueDark,
-                                  ),
-                                ),
-                              ],
-                            ),
+                        const Spacer(),
+                        Text(
+                          AppLocalizations.of(context)!.starting_from,
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        // Price
+                        Text(
+                          '\u202A${AppLocalizations.of(context)!.sar_currency} ${price.toStringAsFixed(0)}\u202C',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.buttonBlueDark,
                           ),
                         ),
                       ],
                     ),
                   ),
                 ),
-              );
-            },
+              ],
+            ),
           ),
         ),
+        if (isSelected)
+          PositionedDirectional(
+            top: 0,
+            end: 0,
+            child: GestureDetector(
+              onTap: onClear,
+              child: Container(
+                padding: const EdgeInsets.all(2),
+                decoration: BoxDecoration(
+                  color: Colors.redAccent,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 1.5),
+                ),
+                child: const Icon(Icons.close, color: Colors.white, size: 14),
+              ),
+            ),
+          ),
       ],
     );
   }
