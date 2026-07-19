@@ -382,7 +382,10 @@ class _GiftCardPageState extends State<GiftCardPage> {
                             left: 16,
                             right: 16,
                           ),
-                          child: _buildPhoneField(),
+                          child: Directionality(
+                            textDirection:TextDirection.ltr,
+                            child:_buildPhoneField(),
+                          )
                         ),
 
                         Padding(

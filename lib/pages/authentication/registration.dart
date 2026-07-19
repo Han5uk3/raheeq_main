@@ -312,7 +312,12 @@ class _RegistrationState extends State<Registration> {
                               ),
                               const SizedBox(height: 12),
                               widget.isSocialLogin
-                                  ? _buildSocialPhoneInput(_phoneController)
+                                  ? Directionality(
+                                      textDirection: TextDirection.ltr,
+                                      child: _buildSocialPhoneInput(
+                                        _phoneController,
+                                      ),
+                                    )
                                   : _buildTextField(
                                       controller: _phoneController,
                                       label: AppLocalizations.of(
@@ -815,12 +820,6 @@ class _RegistrationState extends State<Registration> {
                                 {
                                   'label': AppLocalizations.of(context)!.female,
                                   'value': 'Female',
-                                },
-                                {
-                                  'label': AppLocalizations.of(
-                                    context,
-                                  )!.other_gender,
-                                  'value': 'Other',
                                 },
                               ]
                               .map(
