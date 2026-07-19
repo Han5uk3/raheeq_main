@@ -1,5 +1,8 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:internet_connection_checker/internet_connection_checker.dart';
+import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import '../authentication/login.dart';
 import '../../storage/auth_storage.dart';
@@ -31,11 +34,15 @@ class _SplashScreenState extends State<SplashScreen> {
           return;
         }
 
-        final hasSession = AuthStorage.accessToken != null;
+        // final hasAccessToken = AuthStorage.accessToken != null;
+        // final hasRefreshToken = AuthStorage.refreshToken != null;
+        final isTokenRefreshed = await ApiService().refreshAccessToken();
+
+        log("isTokenRefreshed: ${isTokenRefreshed.toString()}");
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (context) =>
-                hasSession ? const HomeScreen() : const Login(),
+                isTokenRefreshed ? const HomeScreen() : const Login(),
           ),
         );
       }

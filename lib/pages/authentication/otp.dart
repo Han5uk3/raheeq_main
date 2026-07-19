@@ -6,6 +6,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:pinput/pinput.dart';
 import 'package:dio/dio.dart';
+import 'package:raheeq_main/models/user.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/pages/authentication/registration.dart';
 import 'package:raheeq_main/api/apis.dart';
@@ -149,6 +150,7 @@ class _OTPState extends State<OTP> {
           if (response.data is Map && response.data['message'] != null) {
             successMessage = response.data['message'];
           }
+        
           CustomSnackbar.show(
             bottomMargin: 130,
             context: context,

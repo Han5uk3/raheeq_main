@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pinput/pinput.dart';
 import 'dart:io';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/storage/auth_storage.dart';
@@ -26,8 +25,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
 
   String? _selectedGender;
   bool _isLoading = false;
-  // bool _isSaving = false;
-  // bool _isEditing = false;
+
   String? _selectedAvatarPath;
   User? _currentUser;
 

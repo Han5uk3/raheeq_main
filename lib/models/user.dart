@@ -8,6 +8,9 @@ class User {
   final String? avatarUrl;
   final String gender;
   final double walletBalance;
+  final int currentStreak;
+  final int longestStreak;
+  final DateTime? lastDonationDate;
   final String? freshchatRestoreId;
 
   User({
@@ -20,6 +23,9 @@ class User {
     this.avatarUrl,
     required this.gender,
     this.walletBalance = 0.0,
+    this.currentStreak = 0,
+    this.longestStreak = 0,
+    this.lastDonationDate,
     this.freshchatRestoreId,
   });
 
@@ -42,6 +48,11 @@ class User {
       gender: json['gender'] ?? 'MALE',
       walletBalance: balance,
       freshchatRestoreId: json['freshchatRestoreId'] as String?,
+      currentStreak: json['currentStreak'] as int? ?? 0,
+      longestStreak: json['longestStreak'] as int? ?? 0,
+      lastDonationDate: json['lastDonationDate'] == null
+          ? null
+          : DateTime.parse(json['lastDonationDate'] as String),
     );
   }
 
@@ -57,6 +68,9 @@ class User {
       'gender': gender,
       'wallet': {'balance': walletBalance},
       'freshchatRestoreId': freshchatRestoreId,
+      'currentStreak': currentStreak,
+      'longestStreak': longestStreak,
+      'lastDonationDate': lastDonationDate?.toIso8601String(),
     };
   }
 

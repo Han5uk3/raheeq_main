@@ -52,7 +52,7 @@ class _OrdersTabState extends State<OrdersTab>
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(_handleTabSelection);
-    
+
     _newOrders = List.from(_cachedUpcomingOrders);
     _outForDelivery = List.from(_cachedOutForDeliveryOrders);
     _delivered = List.from(_cachedDeliveredOrders);
@@ -63,7 +63,7 @@ class _OrdersTabState extends State<OrdersTab>
     }
 
     _scrollController.addListener(_scrollListener);
-    
+
     // Always update them when page is opened
     _fetchAllOrders();
   }
@@ -108,10 +108,7 @@ class _OrdersTabState extends State<OrdersTab>
     });
 
     try {
-      final upcomingFuture = ApiService().getMyOrders(
-        page: 1,
-        tab: 'upcoming',
-      );
+      final upcomingFuture = ApiService().getMyOrders(page: 1, tab: 'upcoming');
       final outForDeliveryFuture = ApiService().getMyOrders(
         page: 1,
         tab: 'out_for_delivery',
@@ -150,7 +147,9 @@ class _OrdersTabState extends State<OrdersTab>
   void _processInitialResponse(int tabIndex, dynamic response, String tabName) {
     if (response.statusCode == 200 && response.data['success'] == true) {
       final data = response.data['data']['items'] as List;
-      final orders = data.map((json) => OrderResponseModel.fromJson(json)).toList();
+      final orders = data
+          .map((json) => OrderResponseModel.fromJson(json))
+          .toList();
       final int totalPages = response.data['data']['totalPages'] ?? 1;
 
       if (tabIndex == 0) {
@@ -185,7 +184,9 @@ class _OrdersTabState extends State<OrdersTab>
 
       if (response.statusCode == 200 && response.data['success'] == true) {
         final data = response.data['data']['items'] as List;
-        final orders = data.map((json) => OrderResponseModel.fromJson(json)).toList();
+        final orders = data
+            .map((json) => OrderResponseModel.fromJson(json))
+            .toList();
         final int totalPages = response.data['data']['totalPages'] ?? 1;
 
         if (mounted) {
@@ -691,48 +692,14 @@ class _OrderCardState extends State<_OrderCard> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Text(AppLocalizations.of(context)!.order_number),
-                      Text(
+                  Text(AppLocalizations.of(context)!.order_number),
+                  Text(
                     '#${widget.order.subOrderNumber}',
                     textDirection: TextDirection.ltr,
                     style: const TextStyle(color: Colors.grey, fontSize: 14),
                   ),
-
-                    ],
-                  ),
-                  if (widget.order.status.toUpperCase() == 'COMPLETED')
-                    SizedBox(
-                      height: 32,
-                      child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.buttonBlueDark,
-                          padding: const EdgeInsets.symmetric(horizontal: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                        ),
-                        onPressed: () {
-                          DeepLinkService().handleReorder(widget.order.id);
-                        },
-                        icon: const Icon(
-                          Icons.refresh,
-                          color: Colors.white,
-                          size: 16,
-                        ),
-                        label: Text(
-                          AppLocalizations.of(context)!.reorder,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 12,
-                          ),
-                        ),
-                      ),
-                    ),
                 ],
               ),
               const Divider(),
@@ -805,6 +772,7 @@ class _OrderCardState extends State<_OrderCard> {
                         ],
 
                         Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
                             Text(
@@ -812,38 +780,81 @@ class _OrderCardState extends State<_OrderCard> {
                               style: const TextStyle(
                                 color: AppColors.buttonBlueDark,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 16,
+                                fontSize: 18,
                               ),
                             ),
-                            if (widget.isDelivered &&
-                                widget.order.review == null)
-                              SizedBox(
-                                height: 32,
-                                child: ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColors.buttonBlueDark,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 12,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(8),
+                            Row(
+                              spacing: 6,
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                if (widget.order.status.toUpperCase() ==
+                                    'CONFIRMED')
+                                  SizedBox(
+                                    height: 32,
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                            AppColors.buttonBlueDark,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                        ),
+                                      ),
+                                      onPressed: () {
+                                        DeepLinkService().handleReorder(
+                                          widget.order.id,
+                                        );
+                                      },
+
+                                      child: Text(
+                                        AppLocalizations.of(context)!.reorder,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 11,
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                  onPressed: () {
-                                    _showRateOrderBottomSheet(
-                                      context,
-                                      widget.order.id,
-                                    );
-                                  },
-                                  child: Text(
-                                    AppLocalizations.of(context)!.rate_order,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 12,
+                                if (widget.isDelivered &&
+                                    widget.order.review == null)
+                                  SizedBox(
+                                    height: 32,
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                            AppColors.buttonBlueDark,
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 12,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                        ),
+                                      ),
+                                      onPressed: () {
+                                        _showRateOrderBottomSheet(
+                                          context,
+                                          widget.order.id,
+                                        );
+                                      },
+                                      child: Text(
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.rate_order,
+                                        style: const TextStyle(
+                                          color: Colors.white,
+                                          fontSize: 11,
+                                        ),
+                                      ),
                                     ),
                                   ),
-                                ),
-                              ),
+                              ],
+                            ),
                           ],
                         ),
                       ],
@@ -1026,7 +1037,7 @@ class _OrderCardState extends State<_OrderCard> {
                   if (!isVideo)
                     CachedNetworkImage(
                       imageUrl: url,
-                      fit: BoxFit.cover,
+                      fit: BoxFit.contain,
                       placeholder: (context, url) => Shimmer.fromColors(
                         baseColor: Colors.grey[300]!,
                         highlightColor: Colors.grey[100]!,

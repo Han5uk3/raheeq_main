@@ -138,12 +138,12 @@ class _SubscriptionDetailsBottomSheetState
 
   Future<void> _selectDate(BuildContext context, bool isStart) async {
     final initialDate = DateTime.now().add(const Duration(days: 1));
-    
+
     DateTime firstDate = initialDate;
     if (!isStart && _startDate != null) {
       firstDate = _startDate!.add(const Duration(days: 1));
     }
-    
+
     DateTime initialPickerDate = (isStart ? _startDate : _endDate) ?? firstDate;
     if (initialPickerDate.isBefore(firstDate)) {
       initialPickerDate = firstDate;
@@ -247,10 +247,7 @@ class _SubscriptionDetailsBottomSheetState
         ),
         const SizedBox(height: 8),
         Container(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 8,
-            vertical: 6,
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
           decoration: BoxDecoration(
             color: const Color(0xFFF0F4F8),
             borderRadius: BorderRadius.circular(12),
@@ -322,11 +319,7 @@ class _SubscriptionDetailsBottomSheetState
                           : Colors.grey,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(
-                      Icons.add,
-                      size: 18,
-                      color: Colors.white,
-                    ),
+                    child: const Icon(Icons.add, size: 18, color: Colors.white),
                   ),
                 ),
               ),
@@ -339,13 +332,13 @@ class _SubscriptionDetailsBottomSheetState
 
   Widget _buildDaysOfWeekSelector(BuildContext context, bool isAr) {
     final days = [
+      {'id': 0, 'name': AppLocalizations.of(context)!.sun},
       {'id': 1, 'name': AppLocalizations.of(context)!.mon},
       {'id': 2, 'name': AppLocalizations.of(context)!.tue},
       {'id': 3, 'name': AppLocalizations.of(context)!.wed},
       {'id': 4, 'name': AppLocalizations.of(context)!.thu},
       {'id': 5, 'name': AppLocalizations.of(context)!.fri},
       {'id': 6, 'name': AppLocalizations.of(context)!.sat},
-      {'id': 7, 'name': AppLocalizations.of(context)!.sun},
     ];
 
     final maxAllowed = widget.plan.frequency == SubscriptionFrequency.onceAWeek

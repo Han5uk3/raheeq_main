@@ -44,7 +44,7 @@ class AuthStorage {
 
   static String? get registrationToken => _box.get(registrationTokenKey);
 
-  static Future<void> saveUserData(Map<String, dynamic> userData) async {
+  static Future<void> saveUserData(User userData) async {
     await _box.put(userDataKey, userData);
 
     try {

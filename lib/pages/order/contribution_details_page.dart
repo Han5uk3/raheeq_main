@@ -754,35 +754,41 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
         ? DateTime.tryParse(sub['endDate'].toString())?.toLocal()
         : null;
     final months = sub['months'] as int?;
+    final dayOfMonth = sub['dayOfMonth'];
     final daysOfWeek = (sub['daysOfWeek'] as List<dynamic>?)?.cast<int>();
 
     // Infer type or get from plan if available
     String type = '';
     final plan = sub['plan'];
-    if (plan != null && plan is Map && plan['type'] != null) {
-      type = plan['type'].toString().toUpperCase();
-    } else {
-      if (daysOfWeek != null && daysOfWeek.isNotEmpty) {
-        type = 'WEEKLY';
-      } else if (endDate != null) {
-        type = 'EVERYDAY';
-      } else {
-        type = 'MONTHLY';
-      }
+    final planName = plan['name'];
+    final planNameAr = plan['nameAr'];
+    final planFrequency = plan['frequency'];
+    final occurrences = _checkoutData.occurrences;
+
+    if (plan != null && plan is Map && planFrequency != null) {
+      type = planFrequency.toString().toUpperCase();
     }
 
     final dateFormat = DateFormat('MMM dd, yyyy');
 
     List<Widget> rows = [];
 
-    if (type == 'EVERYDAY' || type == 'EVERY_DAY' || type == 'DAILY') {
+    if (type == 'EVERYDAY') {
       if (startDate != null && endDate != null) {
-        final days =
-            endDate.difference(startDate).inDays + 1; // Assuming inclusive
+        // Calculate occurrences from startDate and endDate if not provided or 0
+        if (plan != null && planName != null && planNameAr != null) {
+          rows.add(
+            _buildSubscriptionRow(
+              AppLocalizations.of(context)!.subscription,
+              '${isAr ? planNameAr : planName}',
+            ),
+          );
+        }
+
         rows.add(
           _buildSubscriptionRow(
             AppLocalizations.of(context)!.total_days,
-            '$days',
+            '$occurrences',
           ),
         );
         rows.add(
@@ -798,12 +804,29 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
           ),
         );
       }
-    } else if (type == 'MONTHLY' || type == 'ONCE_A_MONTH') {
+    } else if (type == 'ONCE_A_MONTH') {
       if (months != null) {
         rows.add(
           _buildSubscriptionRow(
             AppLocalizations.of(context)!.months,
             '$months',
+          ),
+        );
+      }
+
+      if (dayOfMonth != null) {
+        rows.add(
+          _buildSubscriptionRow(
+            AppLocalizations.of(context)!.day_of_month,
+            '$dayOfMonth',
+          ),
+        );
+      }
+      if (occurrences != 0) {
+        rows.add(
+          _buildSubscriptionRow(
+            AppLocalizations.of(context)!.total_days,
+            '$occurrences',
           ),
         );
       }
@@ -815,9 +838,15 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
           ),
         );
       }
-    } else if (type == 'WEEKLY' ||
-        type == 'ONCE_A_WEEK' ||
-        type == 'TWICE_A_WEEK') {
+      if (endDate != null) {
+        rows.add(
+          _buildSubscriptionRow(
+            AppLocalizations.of(context)!.end_date,
+            dateFormat.format(endDate),
+          ),
+        );
+      }
+    } else if (type == 'ONCE_A_WEEK' || type == 'TWICE_A_WEEK') {
       if (months != null) {
         rows.add(
           _buildSubscriptionRow(
@@ -834,7 +863,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
           4: 'الخميس',
           5: 'الجمعة',
           6: 'السبت',
-          7: 'الأحد',
+          0: 'الأحد',
         };
         final daysMapEn = {
           1: 'Mon',
@@ -843,7 +872,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
           4: 'Thu',
           5: 'Fri',
           6: 'Sat',
-          7: 'Sun',
+          0: 'Sun',
         };
         final selectedDays = daysOfWeek
             .map((d) => isAr ? daysMapAr[d] : daysMapEn[d])
@@ -852,6 +881,30 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
           _buildSubscriptionRow(
             AppLocalizations.of(context)!.delivery_days,
             selectedDays,
+          ),
+        );
+      }
+      if (occurrences != 0) {
+        rows.add(
+          _buildSubscriptionRow(
+            AppLocalizations.of(context)!.total_days,
+            '$occurrences',
+          ),
+        );
+      }
+      if (startDate != null) {
+        rows.add(
+          _buildSubscriptionRow(
+            AppLocalizations.of(context)!.start_date,
+            dateFormat.format(startDate),
+          ),
+        );
+      }
+      if (endDate != null) {
+        rows.add(
+          _buildSubscriptionRow(
+            AppLocalizations.of(context)!.end_date,
+            dateFormat.format(endDate),
           ),
         );
       }

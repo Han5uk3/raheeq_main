@@ -629,11 +629,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get enter_coupon_code => 'أدخل كود الخصم';
 
   @override
-  String get feedback_submitted_successfully =>
-      'Feedback submitted successfully';
+  String get feedback_submitted_successfully => 'تم إرسال ملاحظاتك بنجاح';
 
   @override
   String get coupon_code => 'كود الخصم';
+
+  @override
+  String get day_of_month => 'يوم من الشهر';
 
   @override
   String

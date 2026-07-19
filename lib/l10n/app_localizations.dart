@@ -1299,6 +1299,12 @@ abstract class AppLocalizations {
   /// **'Coupon Code'**
   String get coupon_code;
 
+  /// No description provided for @day_of_month.
+  ///
+  /// In en, this message translates to:
+  /// **'Day of Month'**
+  String get day_of_month;
+
   /// No description provided for @gift_your_loved_ones_the_blessing_of_providing_water_in_the_holiest_places.
   ///
   /// In en, this message translates to:
