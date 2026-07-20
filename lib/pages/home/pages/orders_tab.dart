@@ -651,6 +651,23 @@ class _OrderCard extends StatefulWidget {
 }
 
 class _OrderCardState extends State<_OrderCard> {
+  // Design-time reference width for the card. This is roughly the card
+  // width on a typical phone once the ListView's 16px horizontal padding
+  // is subtracted. Anything narrower (small phones, split-screen) or wider
+  // (tablets, foldables, landscape, desktop) scales relative to this.
+  static const double _baseCardWidth = 380.0;
+
+  // Clamp so text/images never shrink to unreadable sizes or blow up to
+  // comically large ones on very wide displays.
+  static const double _minScale = 0.85;
+  static const double _maxScale = 1.4;
+
+  double _scale = 1.0;
+
+  /// Scales a design-time pixel value (font size, spacing, icon/image
+  /// size...) by the current responsive [_scale] for this card instance.
+  double _s(double value) => value * _scale;
+
   @override
   Widget build(BuildContext context) {
     final locale = Localizations.localeOf(context).languageCode;
@@ -684,6 +701,38 @@ class _OrderCardState extends State<_OrderCard> {
     final String totalCost =
         '\u202A${AppLocalizations.of(context)!.sar_currency} ${widget.order.totalAmount}\u202C';
 
+    // LayoutBuilder gives us the actual constraints the card is rendered
+    // with, which is more reliable than MediaQuery.size for computing the
+    // scale factor -- it still works correctly if this card ever ends up
+    // inside a grid, a side panel, or a constrained-width container on a
+    // tablet, rather than always assuming full screen width.
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final width = constraints.maxWidth.isFinite
+            ? constraints.maxWidth
+            : MediaQuery.of(context).size.width;
+        _scale = (width / _baseCardWidth).clamp(_minScale, _maxScale);
+
+        return _buildOrderCardContent(
+          imageUrl,
+          locationTitle,
+          address,
+          formattedDate,
+          formattedTime,
+          totalCost,
+        );
+      },
+    );
+  }
+
+  Widget _buildOrderCardContent(
+    String imageUrl,
+    String locationTitle,
+    String address,
+    String formattedDate,
+    String formattedTime,
+    String totalCost,
+  ) {
     return Card(
       color: Colors.white,
       elevation: 2,
@@ -700,18 +749,21 @@ class _OrderCardState extends State<_OrderCard> {
         },
         borderRadius: BorderRadius.circular(16),
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: EdgeInsets.all(_s(16.0)),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Text(AppLocalizations.of(context)!.order_number),
+                  Text(
+                    AppLocalizations.of(context)!.order_number,
+                    style: TextStyle(fontSize: _s(14)),
+                  ),
                   Text(
                     '#${widget.order.subOrderNumber}',
                     textDirection: TextDirection.ltr,
-                    style: const TextStyle(color: Colors.grey, fontSize: 14),
+                    style: TextStyle(color: Colors.grey, fontSize: _s(14)),
                   ),
                 ],
               ),
@@ -725,63 +777,65 @@ class _OrderCardState extends State<_OrderCard> {
                     child: imageUrl.isNotEmpty
                         ? CachedNetworkImage(
                             imageUrl: imageUrl,
-                            width: 60,
-                            height: 60,
+                            width: _s(60),
+                            height: _s(60),
                             fit: BoxFit.cover,
                             placeholder: (context, url) => Shimmer.fromColors(
                               baseColor: Colors.grey[300]!,
                               highlightColor: Colors.grey[100]!,
                               child: Container(
-                                width: 60,
-                                height: 60,
+                                width: _s(60),
+                                height: _s(60),
                                 color: Colors.white,
                               ),
                             ),
                             errorWidget: (context, url, error) => Container(
                               color: Colors.grey[200],
-                              width: 60,
-                              height: 60,
-                              child: const Icon(
+                              width: _s(60),
+                              height: _s(60),
+                              child: Icon(
                                 Icons.image_not_supported,
                                 color: Colors.grey,
+                                size: _s(24),
                               ),
                             ),
                           )
                         : Container(
                             color: Colors.grey[200],
-                            width: 60,
-                            height: 60,
-                            child: const Icon(
+                            width: _s(60),
+                            height: _s(60),
+                            child: Icon(
                               Icons.inventory_2_outlined,
                               color: Colors.grey,
+                              size: _s(24),
                             ),
                           ),
                   ),
-                  const SizedBox(width: 12),
+                  SizedBox(width: _s(12)),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           locationTitle,
-                          style: const TextStyle(
+                          style: TextStyle(
                             fontWeight: FontWeight.bold,
-                            fontSize: 16,
+                            fontSize: _s(16),
                           ),
                         ),
-                        const SizedBox(height: 4),
+                        SizedBox(height: _s(4)),
 
                         if (address.isNotEmpty) ...[
                           Text(
                             address,
-                            style: const TextStyle(
+                            style: TextStyle(
                               color: Colors.grey,
-                              fontSize: 14,
+                              fontSize: _s(14),
                             ),
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
-                          const SizedBox(height: 4),
+                          SizedBox(height: _s(4)),
                         ],
 
                         Row(
@@ -790,58 +844,26 @@ class _OrderCardState extends State<_OrderCard> {
                           children: [
                             Text(
                               totalCost,
-                              style: const TextStyle(
+                              style: TextStyle(
                                 color: AppColors.buttonBlueDark,
                                 fontWeight: FontWeight.bold,
-                                fontSize: 18,
+                                fontSize: _s(14),
                               ),
                             ),
                             Row(
-                              spacing: 6,
+                              spacing: _s(6),
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                if (widget.order.status.toUpperCase() ==
-                                    'CONFIRMED')
-                                  SizedBox(
-                                    height: 32,
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor:
-                                            AppColors.buttonBlueDark,
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 12,
-                                        ),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                        ),
-                                      ),
-                                      onPressed: () {
-                                        DeepLinkService().handleReorder(
-                                          widget.order.id,
-                                        );
-                                      },
-
-                                      child: Text(
-                                        AppLocalizations.of(context)!.reorder,
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 11,
-                                        ),
-                                      ),
-                                    ),
-                                  ),
                                 if (widget.isDelivered &&
                                     widget.order.review == null)
                                   SizedBox(
-                                    height: 32,
                                     child: ElevatedButton(
                                       style: ElevatedButton.styleFrom(
                                         backgroundColor:
                                             AppColors.buttonBlueDark,
-                                        padding: const EdgeInsets.symmetric(
-                                          horizontal: 12,
+                                        padding: EdgeInsets.symmetric(
+                                          vertical: _s(8),
+                                          horizontal: _s(12),
                                         ),
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(
@@ -859,9 +881,41 @@ class _OrderCardState extends State<_OrderCard> {
                                         AppLocalizations.of(
                                           context,
                                         )!.rate_order,
-                                        style: const TextStyle(
+                                        style: TextStyle(
                                           color: Colors.white,
-                                          fontSize: 11,
+                                          fontSize: _s(11),
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                if (widget.order.status.toUpperCase() ==
+                                    'CONFIRMED')
+                                  SizedBox(
+                                    child: ElevatedButton(
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor:
+                                            AppColors.buttonBlueDark,
+                                        padding: EdgeInsets.symmetric(
+                                          vertical: _s(8),
+                                          horizontal: _s(12),
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            8,
+                                          ),
+                                        ),
+                                      ),
+                                      onPressed: () {
+                                        DeepLinkService().handleReorder(
+                                          widget.order.id,
+                                        );
+                                      },
+
+                                      child: Text(
+                                        AppLocalizations.of(context)!.reorder,
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontSize: _s(11),
                                         ),
                                       ),
                                     ),
@@ -875,40 +929,40 @@ class _OrderCardState extends State<_OrderCard> {
                   ),
                 ],
               ),
-              const SizedBox(height: 12),
+              SizedBox(height: _s(12)),
               const Divider(),
               _buildDeliveryProofs(widget.order),
-              const SizedBox(height: 8),
+              SizedBox(height: _s(8)),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     AppLocalizations.of(context)!.date,
-                    style: const TextStyle(color: Colors.grey, fontSize: 14),
+                    style: TextStyle(color: Colors.grey, fontSize: _s(14)),
                   ),
                   Text(
                     formattedDate,
-                    style: const TextStyle(color: Colors.black, fontSize: 14),
+                    style: TextStyle(color: Colors.black, fontSize: _s(14)),
                   ),
                 ],
               ),
-              const SizedBox(height: 4),
+              SizedBox(height: _s(4)),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
                     AppLocalizations.of(context)!.time,
-                    style: const TextStyle(color: Colors.grey, fontSize: 14),
+                    style: TextStyle(color: Colors.grey, fontSize: _s(14)),
                   ),
                   Text(
                     formattedTime,
-                    style: const TextStyle(color: Colors.black, fontSize: 14),
+                    style: TextStyle(color: Colors.black, fontSize: _s(14)),
                   ),
                 ],
               ),
               if (widget.order.invoiceUrl != null &&
                   widget.order.invoiceUrl!.isNotEmpty) ...[
-                const SizedBox(height: 12),
+                SizedBox(height: _s(12)),
                 SizedBox(
                   width: double.infinity,
                   child: OutlinedButton(
@@ -917,6 +971,7 @@ class _OrderCardState extends State<_OrderCard> {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(8),
                       ),
+                      padding: EdgeInsets.symmetric(vertical: _s(8)),
                     ),
                     onPressed: () async {
                       final url = Uri.parse(widget.order.invoiceUrl!);
@@ -938,7 +993,10 @@ class _OrderCardState extends State<_OrderCard> {
                     },
                     child: Text(
                       AppLocalizations.of(context)!.view_receipt,
-                      style: const TextStyle(color: AppColors.buttonBlueDark),
+                      style: TextStyle(
+                        color: AppColors.buttonBlueDark,
+                        fontSize: _s(13),
+                      ),
                     ),
                   ),
                 ),
@@ -1004,17 +1062,17 @@ class _OrderCardState extends State<_OrderCard> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 8),
+        SizedBox(height: _s(8)),
         Text(
           AppLocalizations.of(context)!.proof_of_delivery,
-          style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+          style: TextStyle(fontSize: _s(14), fontWeight: FontWeight.bold),
         ),
-        const SizedBox(height: 12),
+        SizedBox(height: _s(12)),
         Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: List.generate(7, (index) {
             if (index.isOdd) {
-              return const SizedBox(width: 8.0);
+              return SizedBox(width: _s(8.0));
             }
             int itemIndex = index ~/ 2;
             if (itemIndex < proofItems.length) {
@@ -1041,6 +1099,8 @@ class _OrderCardState extends State<_OrderCard> {
       child: Column(
         children: [
           AspectRatio(
+            // Kept square regardless of scale so proof thumbnails always
+            // line up neatly in the row across screen sizes.
             aspectRatio: 1,
             child: ClipRRect(
               borderRadius: BorderRadius.circular(8),
@@ -1058,30 +1118,31 @@ class _OrderCardState extends State<_OrderCard> {
                       ),
                       errorWidget: (context, url, error) => Container(
                         color: Colors.grey[200],
-                        child: const Icon(
+                        child: Icon(
                           Icons.broken_image,
                           color: Colors.grey,
+                          size: _s(24),
                         ),
                       ),
                     )
                   else
                     Container(
                       color: Colors.black12,
-                      child: const Icon(
+                      child: Icon(
                         Icons.videocam,
-                        size: 24,
+                        size: _s(24),
                         color: Colors.grey,
                       ),
                     ),
                   if (isVideo)
-                    const Center(
+                    Center(
                       child: CircleAvatar(
-                        radius: 12,
+                        radius: _s(12),
                         backgroundColor: Colors.black54,
                         child: Icon(
                           Icons.play_arrow,
                           color: Colors.white,
-                          size: 12,
+                          size: _s(12),
                         ),
                       ),
                     ),
@@ -1089,10 +1150,10 @@ class _OrderCardState extends State<_OrderCard> {
               ),
             ),
           ),
-          const SizedBox(height: 4),
+          SizedBox(height: _s(4)),
           Text(
             title,
-            style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w600),
+            style: TextStyle(fontSize: _s(10), fontWeight: FontWeight.w600),
             textAlign: TextAlign.center,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,

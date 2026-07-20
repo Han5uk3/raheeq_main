@@ -1590,8 +1590,22 @@ class _HomeTabState extends State<HomeTab>
     final description = campaign.localizedDescription(isAr);
 
     final imageUrl = campaign.image;
-    final bannerWidth = MediaQuery.of(context).size.width - 32;
-    const minBannerHeight = 195.0;
+
+    final screenWidth = MediaQuery.of(context).size.width;
+
+    // This card keeps its own (full) width...
+    final bannerWidth = screenWidth - 32;
+
+    // ...but its height is matched to the home carousel's banner height,
+    // per the client's request. The carousel derives its width from a
+    // PageView with viewportFraction 0.9 plus 8px horizontal padding
+    // (16 total), then applies the base 790x418 ratio. We replicate that
+    // same derivation here -- using screenWidth as a stand-in for the
+    // carousel's LayoutBuilder constraints.maxWidth -- so both banner
+    // types render at an identical height even though this card is wider.
+    final carouselPageItemWidth = screenWidth * 0.9;
+    final carouselBannerWidth = carouselPageItemWidth - 16;
+    final bannerHeight = carouselBannerWidth * (418 / 790);
 
     return GestureDetector(
       onTap: () async {
@@ -1633,62 +1647,60 @@ class _HomeTabState extends State<HomeTab>
         elevation: 3,
         borderRadius: BorderRadius.circular(20),
         color: Colors.white,
-        child: Container(
+        child: SizedBox(
           width: bannerWidth,
-          constraints: const BoxConstraints(minHeight: minBannerHeight),
-          margin: const EdgeInsetsDirectional.only(bottom: 0),
-          child: IntrinsicHeight(
-            child: Stack(
-              clipBehavior: Clip.none,
-              children: [
-                // Dark blue background container — fills to match content height
-                Positioned.fill(
-                  child: Stack(
-                    children: [
-                      ClipRRect(
+          height: bannerHeight,
+          child: Stack(
+            clipBehavior: Clip.none,
+            children: [
+              // Background image + gradient -- fills the fixed-height box
+              Positioned.fill(
+                child: Stack(
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: CachedNetworkImage(
+                        imageUrl: imageUrl,
+                        matchTextDirection: true,
+                        fit: BoxFit.cover,
+                        width: double.infinity,
+                        height: double.infinity,
+                        placeholder: (context, url) => Shimmer.fromColors(
+                          baseColor: Colors.grey[200]!,
+                          highlightColor: Colors.grey[500]!,
+                          child: Container(color: Colors.grey[200]),
+                        ),
+                        errorWidget: (context, url, error) => Container(
+                          color: Colors.grey[100],
+                          child: const Icon(Icons.error, color: Colors.grey),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Directionality.of(context) == TextDirection.rtl
+                              ? Alignment.centerRight
+                              : Alignment.centerLeft,
+                          end: Directionality.of(context) == TextDirection.rtl
+                              ? Alignment.centerLeft
+                              : Alignment.centerRight,
+                          stops: const [0.25, 1.0],
+                          colors: [
+                            AppColors.buttonBlueDark.withValues(alpha: 0.9),
+                            Colors.transparent,
+                          ],
+                        ),
                         borderRadius: BorderRadius.circular(20),
-                        child: CachedNetworkImage(
-                          imageUrl: imageUrl,
-                          matchTextDirection: true,
-                          fit: BoxFit.cover,
-                          width: double.infinity,
-                          height: double.infinity,
-                          placeholder: (context, url) => Shimmer.fromColors(
-                            baseColor: Colors.grey[200]!,
-                            highlightColor: Colors.grey[500]!,
-                            child: Container(color: Colors.grey[200]),
-                          ),
-                          errorWidget: (context, url, error) => Container(
-                            color: Colors.grey[100],
-                            child: const Icon(Icons.error, color: Colors.grey),
-                          ),
-                        ),
                       ),
-                      Container(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin:
-                                Directionality.of(context) == TextDirection.rtl
-                                ? Alignment.centerRight
-                                : Alignment.centerLeft,
-                            end: Directionality.of(context) == TextDirection.rtl
-                                ? Alignment.centerLeft
-                                : Alignment.centerRight,
-                            stops: [0.25, 1.0],
-                            colors: [
-                              AppColors.buttonBlueDark.withValues(alpha: 0.9),
-                              Colors.transparent,
-                            ],
-                          ),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
+              ),
 
-                // Content row — non-positioned, so it drives the Stack's height
-                Row(
+              // Content -- also fills the box so it scales with the banner
+              Positioned.fill(
+                child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Expanded(
@@ -1726,7 +1738,7 @@ class _HomeTabState extends State<HomeTab>
                                         ),
                                       ),
                                     ),
-                                    Expanded(flex: 8, child: SizedBox()),
+                                    const Expanded(flex: 8, child: SizedBox()),
                                   ],
                                 ),
                                 Row(
@@ -1745,7 +1757,7 @@ class _HomeTabState extends State<HomeTab>
                                         ),
                                       ),
                                     ),
-                                    Expanded(flex: 2, child: SizedBox()),
+                                    const Expanded(flex: 2, child: SizedBox()),
                                   ],
                                 ),
                               ],
@@ -1797,8 +1809,8 @@ class _HomeTabState extends State<HomeTab>
                     ),
                   ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),
