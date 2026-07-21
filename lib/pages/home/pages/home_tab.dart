@@ -89,6 +89,37 @@ class _HomeTabState extends State<HomeTab>
     image: '',
     sortOrder: 0,
   );
+  Future<void> _refreshUnreadCount() async {
+    try {
+      // Don't send the cached ETag here — we just came back from the
+      // notifications page and know the count may have changed, so we
+      // want a guaranteed fresh value rather than a possible 304.
+      final unreadRes = await ApiService().getUnreadNotificationsCount(
+        showSnackbar: false,
+      );
+      if (unreadRes.statusCode == 200 && unreadRes.data['success'] == true) {
+        final newEtag = unreadRes.headers.value('etag');
+        if (newEtag != null) _cachedNotificationsETag = newEtag;
+
+        final countData = unreadRes.data['data'];
+        int? parsedCount;
+        if (countData != null && countData['count'] != null) {
+          parsedCount = countData['count'] as int;
+        } else if (countData is int) {
+          parsedCount = countData;
+        }
+
+        if (parsedCount != null && mounted) {
+          setState(() {
+            _cachedUnreadCount = parsedCount!;
+            _unreadNotificationsCount = parsedCount;
+          });
+        }
+      }
+    } catch (e) {
+      log('Error refreshing unread notifications count: $e', name: 'HomeTab');
+    }
+  }
 
   bool _isLoading = true;
   String? _errorMessage;
@@ -548,7 +579,7 @@ class _HomeTabState extends State<HomeTab>
                                 ),
                               );
                               // Refresh notifications count when returning
-                              _fetchHomeData();
+                              _refreshUnreadCount();
                             },
                             child: Material(
                               color: Colors.white,
