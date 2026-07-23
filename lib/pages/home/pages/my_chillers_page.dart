@@ -1,13 +1,19 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/api/new.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/models/chiller_model.dart';
+import 'package:raheeq_main/pages/order/choose_water_package_screen.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'dart:developer';
 import 'package:shimmer/shimmer.dart';
 import 'package:raheeq_main/pages/home/home_screen.dart';
+import 'package:raheeq_main/pages/home/pages/home_tab.dart';
+import 'package:raheeq_main/pages/home/pages/chiller_details_page.dart';
+import 'package:raheeq_main/models/selected_category_item.dart';
+import 'package:raheeq_main/models/mosque.dart';
 
 class MyChillersPage extends StatefulWidget {
   const MyChillersPage({super.key});
@@ -31,6 +37,8 @@ class _MyChillersPageState extends State<MyChillersPage> {
   Future<void> _fetchChillers() async {
     try {
       final response = await _apiService.getMyChillers();
+      log('My Chillers API Response: ${response.data}');
+
       if (response.statusCode == 200 && response.data['success'] == true) {
         final List<dynamic> data = response.data['data'] ?? [];
         if (mounted) {
@@ -48,6 +56,7 @@ class _MyChillersPageState extends State<MyChillersPage> {
       }
     } catch (e) {
       log('Error fetching chillers: $e');
+      if (!mounted) return;
       if (e.toString().contains('connection error')) {
         _errorMessage = AppLocalizations.of(context)!.internet_error;
       } else {
@@ -130,6 +139,34 @@ class _MyChillersPageState extends State<MyChillersPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16),
+        child: SizedBox(
+          width: double.infinity,
+          child: ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.buttonBlueDark,
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+            ),
+            onPressed: () {
+              Navigator.of(context).popUntil((route) => route.isFirst);
+              HomeScreen.switchTabNotifier.value = 0;
+            },
+            child: Text(
+              AppLocalizations.of(context)!.order_new_chiller,
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 16,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
+      ),
       backgroundColor: AppColors.buttonBlueDark,
       body: Column(
         children: [
@@ -154,79 +191,61 @@ class _MyChillersPageState extends State<MyChillersPage> {
                       topRight: Radius.circular(30),
                     ),
                   ),
-                  child: AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 500),
-                    layoutBuilder: (currentChild, previousChildren) {
-                      return Stack(
-                        alignment: Alignment.topCenter,
-                        children: <Widget>[...previousChildren, ?currentChild],
-                      );
-                    },
-                    child: _isLoading
-                        ? _buildShimmerLoading()
-                        : _chillers.isEmpty
-                        ? Center(
-                            key: const ValueKey('empty'),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text(
-                                  AppLocalizations.of(
-                                    context,
-                                  )!.no_chillers_found,
-                                  style: const TextStyle(
-                                    color: Colors.grey,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                                const SizedBox(height: 16),
-                                ElevatedButton(
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: AppColors.buttonBlueDark,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 24,
-                                      vertical: 12,
-                                    ),
-                                  ),
-                                  onPressed: () {
-                                    if (_errorMessage != null) {
-                                      Navigator.of(
-                                        context,
-                                      ).popUntil((route) => route.isFirst);
-                                      HomeScreen.switchTabNotifier.value = 0;
-                                    }
-                                    CustomSnackbar.show(
-                                      context: context,
-                                      message: _errorMessage ?? "",
-                                    );
-                                  },
-                                  child: Text(
-                                    AppLocalizations.of(context)!.order_now,
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
+                  child: Column(
+                    children: [
+                      Expanded(
+                        child: AnimatedSwitcher(
+                          duration: const Duration(milliseconds: 500),
+                          layoutBuilder: (currentChild, previousChildren) {
+                            return Stack(
+                              alignment: Alignment.topCenter,
+                              children: <Widget>[
+                                ...previousChildren,
+                                ?currentChild,
                               ],
-                            ),
-                          )
-                        : ListView.builder(
-                            key: const ValueKey('content'),
-                            physics: const ClampingScrollPhysics(),
-                            padding: const EdgeInsets.all(24),
-                            itemCount: _chillers.length,
-                            itemBuilder: (context, index) {
-                              final chiller = _chillers[index];
-                              return Padding(
-                                padding: const EdgeInsets.only(bottom: 16),
-                                child: _buildChillerItem(chiller),
-                              );
-                            },
-                          ),
+                            );
+                          },
+                          child: _isLoading
+                              ? _buildShimmerLoading()
+                              : _chillers.isEmpty
+                              ? Center(
+                                  key: const ValueKey('empty'),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.no_chillers_found,
+                                        style: const TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                              : ListView.builder(
+                                  key: const ValueKey('content'),
+                                  physics: const ClampingScrollPhysics(),
+                                  padding: const EdgeInsets.all(16),
+                                  itemCount: _chillers.length,
+                                  itemBuilder: (context, index) {
+                                    final chiller = _chillers[index];
+                                    if (chiller.isChillerAvailable) {
+                                      return Padding(
+                                        padding: const EdgeInsets.only(
+                                          bottom: 16,
+                                        ),
+                                        child: _buildChillerItem(chiller),
+                                      );
+                                    }
+                                    return const SizedBox.shrink();
+                                  },
+                                ),
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ),
@@ -254,127 +273,183 @@ class _MyChillersPageState extends State<MyChillersPage> {
               ? chiller.deliveredLocation!.name
               : chiller.deliveredLocation?.nameAr ?? '');
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 4),
+    return GestureDetector(
+      onTap: () {
+        Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (context) => ChillerDetailsPage(chiller: chiller),
           ),
-        ],
-      ),
-      padding: const EdgeInsets.all(16),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (chiller.product?.image != null &&
-              chiller.product!.image.isNotEmpty)
-            ClipRRect(
-              borderRadius: BorderRadius.circular(12),
-              child: Image.network(
-                chiller.product!.image,
-                width: 80,
-                height: 80,
-                fit: BoxFit.cover,
-                errorBuilder: (context, error, stackTrace) => Container(
-                  width: 80,
-                  height: 80,
-                  color: Colors.grey[200],
-                  child: const Icon(
-                    Icons.image_not_supported,
-                    color: Colors.grey,
-                  ),
-                ),
-              ),
-            )
-          else
-            Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: const Icon(Icons.image, color: Colors.grey),
+        );
+      },
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 4),
             ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
+          ],
+        ),
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  productName.isNotEmpty ? productName : 'Unknown Product',
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  'Order: ${chiller.subOrderNumber}',
-                  style: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    const Icon(Icons.location_on, size: 14, color: Colors.blue),
-                    const SizedBox(width: 4),
-                    Expanded(
-                      child: Text(
-                        locationName.isNotEmpty
-                            ? locationName
-                            : 'Unknown Location',
-                        style: const TextStyle(
-                          fontSize: 12,
-                          color: Colors.blue,
+                if (chiller.product?.image != null &&
+                    chiller.product!.image.isNotEmpty)
+                  ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: CachedNetworkImage(
+                      imageUrl: chiller.product!.image,
+                      width: 80,
+                      height: 80,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => Shimmer.fromColors(
+                        baseColor: const Color.fromRGBO(245, 245, 245, 1),
+                        highlightColor: const Color.fromRGBO(245, 245, 245, 1),
+                        child: Container(
+                          width: 80,
+                          height: 80,
+                          decoration: BoxDecoration(
+                            color: const Color.fromRGBO(245, 245, 245, 1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
+                      ),
+                      errorWidget: (context, error, stackTrace) => Container(
+                        width: 80,
+                        height: 80,
+                        color: Colors.grey[200],
+                        child: const Icon(
+                          Icons.image_not_supported,
+                          color: Colors.grey,
+                        ),
                       ),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 4,
+                  )
+                else
+                  Container(
+                    width: 80,
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[200],
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(Icons.image, color: Colors.grey),
+                  ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${AppLocalizations.of(context)!.order_number}: ${chiller.subOrderNumber}',
+                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                       ),
-                      decoration: BoxDecoration(
-                        color: chiller.status == 'CONFIRMED'
-                            ? Colors.green.withValues(alpha: 0.1)
-                            : Colors.orange.withValues(alpha: 0.1),
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Text(
-                        chiller.status,
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: chiller.status == 'CONFIRMED'
-                              ? Colors.green
-                              : Colors.orange,
+                      const SizedBox(height: 4),
+                      Text(
+                        productName.isNotEmpty
+                            ? productName
+                            : 'Unknown Product',
+                        style: const TextStyle(
+                          fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                    ),
-                    if (chiller.isChillerAvailable)
-                      const Icon(
-                        Icons.check_circle,
-                        color: Colors.green,
-                        size: 20,
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          const Icon(
+                            Icons.location_on,
+                            size: 14,
+                            color: Colors.blue,
+                          ),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              locationName.isNotEmpty
+                                  ? locationName
+                                  : 'Unknown Location',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.blue,
+                              ),
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
                       ),
-                  ],
+                      const SizedBox(height: 8),
+                    ],
+                  ),
                 ),
               ],
             ),
-          ),
-        ],
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton(
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.buttonBlueDark,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+                onPressed: () {
+                  final category = HomeTab.cachedCategories.firstWhere(
+                    (c) => c.slug == chiller.deliveredLocation?.type,
+                    orElse: () => HomeTab.cachedCategories.firstWhere(
+                      (c) => c.slug == 'mosques', // fallback
+                      orElse: () => HomeTab.cachedCategories.first,
+                    ),
+                  );
+
+                  final specificPlace = Mosque(
+                    id: chiller.deliveredLocation?.id ?? '',
+                    name: chiller.deliveredLocation?.name ?? '',
+                    nameAr: chiller.deliveredLocation?.nameAr ?? '',
+                    beneficiaryCount: 0,
+                    latitude: chiller.deliveredLocation?.latitude ?? 0.0,
+                    longitude: chiller.deliveredLocation?.longitude ?? 0.0,
+                    address: chiller.deliveredLocation?.address ?? '',
+                    image: '',
+                    zone: null,
+                    isActive: true,
+                  );
+
+                  final selectedCategoryItem = SelectedCategoryItem(
+                    category: category,
+                    optionType: 'specific',
+                    specificData: specificPlace,
+                  );
+
+                  final waterCartons = HomeTab.cachedProducts
+                      .where((p) => p.serialNumber == 1 || p.serialNumber == 4)
+                      .toList();
+
+                  ChooseWaterPackageScreen.showAsBottomSheet(
+                    context,
+                    selectedCategories: [selectedCategoryItem],
+                    availableProducts: waterCartons,
+                  );
+                },
+
+                child: Text(
+                  AppLocalizations.of(context)!.order_water_to_this_chiller,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

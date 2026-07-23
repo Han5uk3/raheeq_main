@@ -45,6 +45,7 @@ class HomeTab extends StatefulWidget {
 
   /// Exposes the cached categories list to external pages.
   static List<Category> get cachedCategories => _HomeTabState._cachedCategories;
+  static List<Product> get cachedProducts => _HomeTabState._cachedProducts;
 
   /// Clears the basket. Called after a successful payment.
   static void clearBasket() => _HomeTabState._clearBasket();

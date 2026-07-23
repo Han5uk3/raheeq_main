@@ -9,6 +9,7 @@ enum PaymentStatus { success, failed, pendingApproval, serverError }
 class PaymentStatusPage extends StatefulWidget {
   final PaymentStatus status;
   final String? message;
+  final String? orderId;
   final bool isAr;
   final VoidCallback? onRetry;
 
@@ -16,6 +17,7 @@ class PaymentStatusPage extends StatefulWidget {
     super.key,
     required this.status,
     this.message,
+    this.orderId,
     this.isAr = false,
     this.onRetry,
   });
@@ -137,7 +139,7 @@ class _PaymentStatusPageState extends State<PaymentStatusPage>
                       child: FadeTransition(
                         opacity: _fadeAnimation,
                         child: Container(
-                          padding: const EdgeInsets.all(32),
+                          padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(32),
@@ -180,24 +182,68 @@ class _PaymentStatusPageState extends State<PaymentStatusPage>
                                 ),
                               ),
                               const SizedBox(height: 32),
-                              // Title
-                              Text(
-                                title,
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 26,
-                                  fontWeight: FontWeight.bold,
-                                  color: color,
-                                  letterSpacing: -0.5,
+                              if (widget.status != PaymentStatus.success) ...{
+                                Text(
+                                  title,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: color,
+                                    letterSpacing: -0.5,
+                                    height: 1.3,
+                                  ),
                                 ),
-                              ),
-                              const SizedBox(height: 16),
+                              },
+
+                              if (widget.status == PaymentStatus.success &&
+                                  widget.orderId != null) ...[
+                                const SizedBox(height: 16),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 20,
+                                    vertical: 12,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: color.withValues(alpha: 0.08),
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border.all(
+                                      color: color.withValues(alpha: 0.2),
+                                      width: 1.5,
+                                    ),
+                                  ),
+                                  child: Column(
+                                    children: [
+                                      Text(
+                                        title,
+                                        textAlign: TextAlign.center,
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                          color: color,
+                                        ),
+                                      ),
+                                      const SizedBox(height: 8),
+
+                                      Text(
+                                        '${AppLocalizations.of(context)!.order_number}: ${widget.orderId}',
+                                        style: TextStyle(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                          color: color,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                              const SizedBox(height: 100),
                               // Description
                               Text(
                                 description,
                                 textAlign: TextAlign.center,
                                 style: TextStyle(
-                                  fontSize: 16,
+                                  fontSize: 14,
                                   color: Colors.grey.shade600,
                                   height: 1.5,
                                 ),

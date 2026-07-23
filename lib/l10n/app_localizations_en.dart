@@ -471,6 +471,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get order_now => 'Order Now';
 
   @override
+  String get order_new_chiller => 'Order a new chiller';
+
+  @override
+  String get unknown_product => 'Unknown Product';
+
+  @override
+  String get status => 'Status';
+
+  @override
+  String get delivered_at => 'Delivered At';
+
+  @override
+  String get not_available => 'N/A';
+
+  @override
+  String get confirmed => 'Confirmed';
+
+  @override
+  String get unknown_location => 'Unknown Location';
+
+  @override
+  String get order_water_to_this_chiller => 'Order water to this chiller';
+
+  @override
   String get assalamu_alaikum => 'Assalamu Alaikum';
 
   @override
@@ -824,10 +848,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get payment_failed => 'Payment Failed';
 
   @override
-  String get thank_you_for_your_donation => 'Thank you for your order.';
+  String get thank_you_for_your_donation =>
+      'Our team has begun processing your order, and—God willing—it will be delivered within 24 hours.\nOnce completed, you will receive photos and a documentary video via WhatsApp on your registered number, allowing you to witness the impact of your generosity with confidence and transparency.';
 
   @override
-  String get payment_successful => 'Payment Successful!';
+  String get payment_successful => 'Your order has been successfully placed ✅';
 
   @override
   String get confirm => 'Confirm';

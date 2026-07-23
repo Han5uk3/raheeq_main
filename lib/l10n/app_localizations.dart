@@ -975,6 +975,54 @@ abstract class AppLocalizations {
   /// **'Order Now'**
   String get order_now;
 
+  /// No description provided for @order_new_chiller.
+  ///
+  /// In en, this message translates to:
+  /// **'Order a new chiller'**
+  String get order_new_chiller;
+
+  /// No description provided for @unknown_product.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown Product'**
+  String get unknown_product;
+
+  /// No description provided for @status.
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get status;
+
+  /// No description provided for @delivered_at.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivered At'**
+  String get delivered_at;
+
+  /// No description provided for @not_available.
+  ///
+  /// In en, this message translates to:
+  /// **'N/A'**
+  String get not_available;
+
+  /// No description provided for @confirmed.
+  ///
+  /// In en, this message translates to:
+  /// **'Confirmed'**
+  String get confirmed;
+
+  /// No description provided for @unknown_location.
+  ///
+  /// In en, this message translates to:
+  /// **'Unknown Location'**
+  String get unknown_location;
+
+  /// No description provided for @order_water_to_this_chiller.
+  ///
+  /// In en, this message translates to:
+  /// **'Order water to this chiller'**
+  String get order_water_to_this_chiller;
+
   /// No description provided for @assalamu_alaikum.
   ///
   /// In en, this message translates to:
@@ -1658,13 +1706,13 @@ abstract class AppLocalizations {
   /// No description provided for @thank_you_for_your_donation.
   ///
   /// In en, this message translates to:
-  /// **'Thank you for your order.'**
+  /// **'Our team has begun processing your order, and—God willing—it will be delivered within 24 hours.\nOnce completed, you will receive photos and a documentary video via WhatsApp on your registered number, allowing you to witness the impact of your generosity with confidence and transparency.'**
   String get thank_you_for_your_donation;
 
   /// No description provided for @payment_successful.
   ///
   /// In en, this message translates to:
-  /// **'Payment Successful!'**
+  /// **'Your order has been successfully placed ✅'**
   String get payment_successful;
 
   /// No description provided for @confirm.

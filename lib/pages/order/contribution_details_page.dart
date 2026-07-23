@@ -430,7 +430,8 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
 
       final data = response.data['data'];
       final paymentStatus = data['paymentStatus'];
-      final orderId = data['orderId'];
+      final orderId = data['orderId'] ?? data['id'];
+      final orderNumber = data['orderNumber'];
       final paymentId = data['paymentId'];
       final paymentConfig = data['paymentConfig'];
       log(
@@ -452,7 +453,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
           context,
           MaterialPageRoute(
             builder: (_) =>
-                PaymentStatusPage(status: PaymentStatus.success, isAr: isAr),
+                PaymentStatusPage(status: PaymentStatus.success, isAr: isAr, orderId: orderNumber?.toString() ?? orderId?.toString()),
           ),
         );
       } else if (paymentStatus == 'PENDING' && paymentConfig != null) {
@@ -580,6 +581,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                 final paymentData =
                     verifyResponse.data['data'] ?? verifyResponse.data;
                 final paymentStatus = paymentData['paymentStatus'];
+                final verifyOrderNumber = paymentData['orderNumber'];
 
                 if (paymentStatus == 'COMPLETED' ||
                     paymentStatus == 'PAID' ||
@@ -594,6 +596,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                       builder: (_) => PaymentStatusPage(
                         status: PaymentStatus.success,
                         isAr: isAr,
+                        orderId: verifyOrderNumber?.toString() ?? orderNumber?.toString() ?? orderId?.toString(),
                       ),
                     ),
                   );

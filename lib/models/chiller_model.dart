@@ -57,6 +57,7 @@ class ChillerProduct {
 }
 
 class ChillerDeliveredLocation {
+  final String id;
   final String name;
   final String nameAr;
   final String address;
@@ -65,6 +66,7 @@ class ChillerDeliveredLocation {
   final String type;
 
   ChillerDeliveredLocation({
+    required this.id,
     required this.name,
     required this.nameAr,
     required this.address,
@@ -75,6 +77,7 @@ class ChillerDeliveredLocation {
 
   factory ChillerDeliveredLocation.fromJson(Map<String, dynamic> json) {
     return ChillerDeliveredLocation(
+      id: json['id'] as String? ?? '',
       name: json['name'] as String? ?? '',
       nameAr: json['nameAr'] as String? ?? '',
       address: json['address'] as String? ?? '',

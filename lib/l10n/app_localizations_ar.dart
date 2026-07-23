@@ -470,6 +470,30 @@ class AppLocalizationsAr extends AppLocalizations {
   String get order_now => 'اطلب الآن';
 
   @override
+  String get order_new_chiller => 'اطلب مبرد جديد';
+
+  @override
+  String get unknown_product => 'منتج غير معروف';
+
+  @override
+  String get status => 'الحالة';
+
+  @override
+  String get delivered_at => 'تاريخ التوصيل';
+
+  @override
+  String get not_available => 'غير متوفر';
+
+  @override
+  String get confirmed => 'تم التأكيد';
+
+  @override
+  String get unknown_location => 'موقع غير معروف';
+
+  @override
+  String get order_water_to_this_chiller => 'اطلب ماء لهذه الثلاجة';
+
+  @override
   String get assalamu_alaikum => 'السلام عليكم';
 
   @override
@@ -643,7 +667,7 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String
   get gift_your_loved_ones_the_blessing_of_providing_water_in_the_holiest_places =>
-      'أهدِ أحبّاءك أجرَ سقيا الماء في أطهر البقاع.';
+      'أهدِ من تحب سقيا في أطهر البقاع';
 
   @override
   String get donation_type => 'نوع الطلب';
@@ -821,10 +845,10 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get thank_you_for_your_donation =>
-      'شكراً لطلبك. جعله الله في ميزان حسناتك.';
+      'بدأ فريقنا إجراءات تنفيذ طلبك، وسيتم توصيله - بإذن الله - خلال 24 ساعة.\nوبعد اكتمال التنفيذ، ستصلك صور وفيديو توثيقي عبر واتساب على رقمك المسجل، لتعيش أثر عطائك بكل ثقة وشفافية .';
 
   @override
-  String get payment_successful => 'تم الدفع بنجاح!';
+  String get payment_successful => 'تم إنشاء طلبك بنجاح ✅';
 
   @override
   String get confirm => 'تأكيد';
