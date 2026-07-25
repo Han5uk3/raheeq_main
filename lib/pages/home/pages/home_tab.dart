@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:raheeq_main/api/new.dart';
+import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/services/network_monitor.dart';
@@ -79,8 +79,7 @@ class _HomeTabState extends State<HomeTab>
   static String? _cachedImpactETag;
   static String? _cachedNotificationsETag;
   static int _cachedUnreadCount = 0;
-  static bool showImpact = false;
-  static bool showRecentDonations = false;
+  static bool showOrdersOverview = false;
 
   // Queue for items added from external pages (e.g., Saved Mosques)
   static final List<SelectedCategoryItem> _pendingItems = [];
@@ -377,6 +376,7 @@ class _HomeTabState extends State<HomeTab>
         if (mounted) {
           setState(() {
             _isLoading = false;
+            _impactData = _cachedImpactData;
           });
         }
         return;
@@ -391,11 +391,14 @@ class _HomeTabState extends State<HomeTab>
         final rawData = response.data['data'];
         final currentJson = jsonEncode(rawData);
 
+        log('Fetched Home Data: $currentJson', name: 'HomeTab');
+
         if (_hasLoadedOnce && currentJson == _cachedHomeDataJson) {
           log('Home data unchanged. Skipping rebuild.', name: 'HomeTab');
           if (mounted) {
             setState(() {
               _isLoading = false;
+              _impactData = _cachedImpactData;
             });
           }
           return;
@@ -403,6 +406,8 @@ class _HomeTabState extends State<HomeTab>
 
         _cachedHomeDataJson = currentJson;
         final data = rawData as Map<String, dynamic>;
+
+        showOrdersOverview = data['showOrdersOverview'] ?? false;
 
         final banners = ((data['banners'] as List<dynamic>?) ?? [])
             .map((b) => BannerData.fromJson(b as Map<String, dynamic>))
@@ -825,19 +830,20 @@ class _HomeTabState extends State<HomeTab>
                             child: buildQuickServicesSection(context),
                           ),
                           const SizedBox(height: 24),
-                          if (showRecentDonations) ...{
+                          if (showOrdersOverview) ...{
                             Padding(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16,
                               ),
                               child: buildRecentDonationCard(context),
                             ),
+                            const SizedBox(height: 24),
                           },
 
                           buildEssentialMosqueSuppliesSection(context),
 
-                          if (showImpact) ...{
-                            const SizedBox(height: 24),
+                          if (showOrdersOverview) ...{
+                   
                             Padding(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16,

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:raheeq_main/api/new.dart';
+import 'package:raheeq_main/api/apis.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/models/subscription_plan.dart';

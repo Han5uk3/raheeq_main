@@ -1,5 +1,5 @@
 import 'package:intl/intl.dart' show DateFormat;
-import 'package:raheeq_main/api/new.dart';
+import 'package:raheeq_main/api/apis.dart';
 import 'package:shimmer/shimmer.dart';
 
 import 'package:raheeq_main/l10n/app_localizations.dart';

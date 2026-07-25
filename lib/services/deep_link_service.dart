@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:app_links/app_links.dart';
-import 'package:raheeq_main/api/new.dart';
+import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/services/network_monitor.dart';
 import 'package:raheeq_main/storage/auth_storage.dart';
 import 'package:raheeq_main/storage/app_storage.dart';

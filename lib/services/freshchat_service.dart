@@ -4,7 +4,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:freshchat_sdk/freshchat_sdk.dart';
 import 'package:freshchat_sdk/freshchat_user.dart';
-import 'package:raheeq_main/api/new.dart';
+import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/storage/auth_storage.dart';
 
 import '../models/user.dart';

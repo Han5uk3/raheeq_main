@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:phone_numbers_parser/phone_numbers_parser.dart';
-import 'package:raheeq_main/api/new.dart';
+import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/common_widgets/language_switch.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/utils/colors.dart';

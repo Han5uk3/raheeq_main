@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:raheeq_main/api/new.dart';
+import 'package:raheeq_main/api/apis.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:raheeq_main/models/category.dart';
 import 'package:raheeq_main/models/mosque.dart';

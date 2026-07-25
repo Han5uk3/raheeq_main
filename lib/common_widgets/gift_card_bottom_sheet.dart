@@ -1,6 +1,6 @@
 import 'dart:developer';
 import 'package:phone_numbers_parser/phone_numbers_parser.dart';
-import 'package:raheeq_main/api/new.dart';
+import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/utils/rtl_helpers.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:cached_network_image/cached_network_image.dart';

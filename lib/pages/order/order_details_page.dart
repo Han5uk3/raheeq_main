@@ -1,6 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:raheeq_main/api/new.dart';
+import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:raheeq_main/models/order_item.dart';
 import 'package:raheeq_main/models/product.dart';
