@@ -20,6 +20,9 @@ import 'package:video_player/video_player.dart';
 class OrdersTab extends StatefulWidget {
   const OrdersTab({super.key});
 
+  /// Write a tab index to this notifier to switch the inner tab remotely.
+  static final ValueNotifier<int?> switchInnerTabNotifier = ValueNotifier(null);
+
   @override
   State<OrdersTab> createState() => _OrdersTabState();
 }
@@ -55,6 +58,8 @@ class _OrdersTabState extends State<OrdersTab>
     SnackbarInsets.setBottomInset(kBottomNavigationBarHeight + 10);
     _tabController = TabController(length: 3, vsync: this);
     _tabController.addListener(_handleTabSelection);
+    OrdersTab.switchInnerTabNotifier.addListener(_onSwitchInnerTab);
+    _onSwitchInnerTab();
 
     _newOrders = List.from(_cachedUpcomingOrders);
     _outForDelivery = List.from(_cachedOutForDeliveryOrders);
@@ -79,8 +84,19 @@ class _OrdersTabState extends State<OrdersTab>
     }
   }
 
+  void _onSwitchInnerTab() {
+    final idx = OrdersTab.switchInnerTabNotifier.value;
+    if (idx != null) {
+      if (mounted) {
+        _tabController.index = idx;
+      }
+      OrdersTab.switchInnerTabNotifier.value = null;
+    }
+  }
+
   @override
   void dispose() {
+    OrdersTab.switchInnerTabNotifier.removeListener(_onSwitchInnerTab);
     _tabController.dispose();
     SnackbarInsets.clear();
 

@@ -12,6 +12,7 @@ import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/pages/home/home_screen.dart';
+import 'package:raheeq_main/pages/home/pages/orders_tab.dart';
 
 class DeepLinkService {
   static final DeepLinkService _instance = DeepLinkService._internal();
@@ -96,6 +97,8 @@ class DeepLinkService {
     if (context == null) return;
 
     HomeScreen.switchTabNotifier.value = 1;
+    OrdersTab.switchInnerTabNotifier.value = 2; // Set inner tab to Completed
+    
     Navigator.of(context).pushAndRemoveUntil(
       MaterialPageRoute(builder: (_) => const HomeScreen()),
       (route) => false,

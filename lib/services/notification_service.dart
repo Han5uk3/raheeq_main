@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:raheeq_main/pages/home/home_screen.dart';
 import 'package:raheeq_main/pages/order/booking_details_page.dart';
 import 'package:raheeq_main/storage/auth_storage.dart';
+import 'package:raheeq_main/pages/home/pages/orders_tab.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -181,8 +182,26 @@ class NotificationService {
     }
   }
 
+  Map<String, dynamic>? _pendingNotificationData;
+  bool _isHomeScreenReady = false;
+
+  void markHomeScreenReady() {
+    _isHomeScreenReady = true;
+    if (_pendingNotificationData != null) {
+      final data = _pendingNotificationData!;
+      _pendingNotificationData = null;
+      _handleNotificationClick(data);
+    }
+  }
+
   void _handleNotificationClick(Map<String, dynamic> data) {
     debugPrint('Handling notification click with data: $data');
+
+    if (!_isHomeScreenReady) {
+      debugPrint('HomeScreen not ready, buffering notification click.');
+      _pendingNotificationData = data;
+      return;
+    }
 
     // The data payload from RemoteMessage.toMap() is under the 'data' key
     final innerData = data['data'];
@@ -192,6 +211,9 @@ class NotificationService {
       if (type == 'payment_approved') {
         // 1 is the index for OrdersTab in HomeScreen
         HomeScreen.switchTabNotifier.value = 1;
+        // Set New Orders tab (index 0) inside OrdersTab
+        OrdersTab.switchInnerTabNotifier.value = 0;
+
         // Pop any opened pages to return to the root HomeScreen
         AuthStorage.navigatorKey.currentState?.popUntil(
           (route) => route.isFirst,
@@ -208,6 +230,15 @@ class NotificationService {
             payloadData?['order_id'];
 
         if (targetOrderId != null) {
+          // Set Orders tab (index 1) in HomeScreen
+          HomeScreen.switchTabNotifier.value = 1;
+          // Set Completed tab (index 2) inside OrdersTab
+          OrdersTab.switchInnerTabNotifier.value = 2;
+
+          AuthStorage.navigatorKey.currentState?.popUntil(
+            (route) => route.isFirst,
+          );
+
           AuthStorage.navigatorKey.currentState?.push(
             MaterialPageRoute(
               builder: (context) =>

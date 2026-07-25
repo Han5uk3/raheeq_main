@@ -9,6 +9,7 @@ import 'package:raheeq_main/pages/home/pages/profile_tab.dart';
 import 'package:raheeq_main/pages/home/pages/orders_tab.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:raheeq_main/services/deep_link_service.dart';
+import 'package:raheeq_main/services/notification_service.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -44,6 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
     _onSwitchTab(); // Process any pre-set tab value
     DeepLinkService().init();
     DeepLinkService().processPendingDeepLink();
+    NotificationService().markHomeScreenReady();
   }
 
   @override
