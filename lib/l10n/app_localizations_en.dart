@@ -104,7 +104,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get logout_confirmation =>
-      'Are you sure you want to log out of Raheeq?';
+      'Are you sure you want to log out of Rahiq?';
 
   @override
   String get cancel => 'Cancel';
@@ -250,7 +250,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get manage_account_settings => 'Manage your account settings';
 
   @override
-  String get raheeq => 'Raheeq';
+  String get raheeq => 'Rahiq';
 
   @override
   String get my_orders => 'My Orders';
@@ -360,7 +360,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get select_your_impact =>
-      'With Raheeq, your generosity reaches its destination.';
+      'With Rahiq, your generosity reaches its destination.';
 
   @override
   String get select_a_product_to_continue => 'Select a product to continue';
@@ -979,7 +979,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get choose_account_to_continue =>
-      'Choose an account to continue with Raheeq:';
+      'Choose an account to continue with Rahiq:';
 
   @override
   String get authentication_failed => 'Authentication failed';

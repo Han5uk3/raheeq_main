@@ -281,7 +281,7 @@ abstract class AppLocalizations {
   /// No description provided for @logout_confirmation.
   ///
   /// In en, this message translates to:
-  /// **'Are you sure you want to log out of Raheeq?'**
+  /// **'Are you sure you want to log out of Rahiq?'**
   String get logout_confirmation;
 
   /// No description provided for @cancel.
@@ -551,7 +551,7 @@ abstract class AppLocalizations {
   /// No description provided for @raheeq.
   ///
   /// In en, this message translates to:
-  /// **'Raheeq'**
+  /// **'Rahiq'**
   String get raheeq;
 
   /// No description provided for @my_orders.
@@ -761,7 +761,7 @@ abstract class AppLocalizations {
   /// No description provided for @select_your_impact.
   ///
   /// In en, this message translates to:
-  /// **'With Raheeq, your generosity reaches its destination.'**
+  /// **'With Rahiq, your generosity reaches its destination.'**
   String get select_your_impact;
 
   /// No description provided for @select_a_product_to_continue.
@@ -1946,7 +1946,7 @@ abstract class AppLocalizations {
   /// No description provided for @choose_account_to_continue.
   ///
   /// In en, this message translates to:
-  /// **'Choose an account to continue with Raheeq:'**
+  /// **'Choose an account to continue with Rahiq:'**
   String get choose_account_to_continue;
 
   /// No description provided for @authentication_failed.
