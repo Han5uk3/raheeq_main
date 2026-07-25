@@ -452,8 +452,11 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (_) =>
-                PaymentStatusPage(status: PaymentStatus.success, isAr: isAr, orderId: orderNumber?.toString() ?? orderId?.toString()),
+            builder: (_) => PaymentStatusPage(
+              status: PaymentStatus.success,
+              isAr: isAr,
+              orderId: orderNumber?.toString() ?? orderId?.toString(),
+            ),
           ),
         );
       } else if (paymentStatus == 'PENDING' && paymentConfig != null) {
@@ -544,11 +547,38 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
         final theme = IOSThemeConfigurations();
         theme.logoImage = "assets/app_logo/logo.png";
 
+        theme.primaryColor = "FFFFFF";
+        theme.primaryColorDark = "FFFFFF";
+
         theme.secondaryColor = "1A6A8F";
         theme.secondaryColorDark = "1A6A8F";
 
         theme.buttonColor = "1A6A8F";
         theme.buttonColorDark = "1A6A8F";
+
+        theme.backgroundColor = "F9FAFD";
+        theme.backgroundColorDark = "F9FAFD";
+
+        theme.primaryFontColor = "1e1e1e";
+        theme.primaryFontColorDark = "1e1e1e";
+
+        theme.secondaryFontColor = "1A6A8F";
+        theme.secondaryFontColorDark = "1A6A8F";
+
+        theme.buttonFontColor = "FFFFFF";
+        theme.buttonFontColorDark = "FFFFFF";
+
+        theme.titleFontColor = "1e1e1e";
+        theme.titleFontColorDark = "1e1e1e";
+
+        theme.strokeColor = "e1e1e1";
+        theme.strokeColorDark = "e1e1e1";
+
+        theme.inputFieldBackgroundColor = "FFFFFF";
+        theme.inputFieldBackgroundColorDark = "FFFFFF";
+
+        theme.placeholderColor = "a5a5a5";
+        theme.placeholderColorDark = "a5a5a5";
 
         config.iOSThemeConfigurations = theme;
 
@@ -596,7 +626,10 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                       builder: (_) => PaymentStatusPage(
                         status: PaymentStatus.success,
                         isAr: isAr,
-                        orderId: verifyOrderNumber?.toString() ?? orderNumber?.toString() ?? orderId?.toString(),
+                        orderId:
+                            verifyOrderNumber?.toString() ??
+                            orderNumber?.toString() ??
+                            orderId?.toString(),
                       ),
                     ),
                   );

@@ -60,7 +60,7 @@ class _HomeTabState extends State<HomeTab>
     initialPage: 1000,
     viewportFraction: 0.9,
   );
-  
+
   Timer? _timer;
 
   // Static cache to prevent reloading data every time tab is opened
@@ -843,7 +843,6 @@ class _HomeTabState extends State<HomeTab>
                           buildEssentialMosqueSuppliesSection(context),
 
                           if (showOrdersOverview) ...{
-                   
                             Padding(
                               padding: const EdgeInsets.symmetric(
                                 horizontal: 16,
@@ -1854,9 +1853,9 @@ class _HomeTabState extends State<HomeTab>
                                         overflow: TextOverflow.ellipsis,
                                         style: const TextStyle(
                                           color: Colors.white,
-                                          fontSize: 26,
+                                          fontSize: 22,
                                           fontWeight: FontWeight.bold,
-                                          height: 1.2,
+                                          height: 1,
                                         ),
                                       ),
                                     ),
@@ -1875,7 +1874,7 @@ class _HomeTabState extends State<HomeTab>
                                           color: Colors.white.withValues(
                                             alpha: 0.9,
                                           ),
-                                          fontSize: 12,
+                                          fontSize: 10,
                                         ),
                                       ),
                                     ),
@@ -2236,7 +2235,6 @@ class _HomeTabState extends State<HomeTab>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-    
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
@@ -2252,7 +2250,6 @@ class _HomeTabState extends State<HomeTab>
         SizedBox(
           height: 230, // Increased height slightly to accommodate scrollbar
           child: ListView.builder(
-        
             physics: const ClampingScrollPhysics(),
             padding: const EdgeInsets.only(
               bottom: 16.0,
@@ -2385,7 +2382,7 @@ class _HomeTabState extends State<HomeTab>
               );
             },
           ),
-        )
+        ),
       ],
     );
   }
