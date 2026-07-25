@@ -1027,6 +1027,7 @@ class _HomeTabState extends State<HomeTab>
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      /*
                       Container(
                         height: 210,
                         width: double.infinity,
@@ -1206,6 +1207,15 @@ class _HomeTabState extends State<HomeTab>
                             ),
                           ],
                         ),
+                      ),
+                      */
+                      Padding(
+                        padding: const EdgeInsets.only(top: 16),
+                        child: _buildOldCampaignCardShimmer(context),
+                      ),
+                      Padding(
+                        padding: const EdgeInsets.only(top: 16),
+                        child: _buildOldCampaignCardShimmer(context),
                       ),
                       const SizedBox(height: 24),
                       Container(
@@ -1239,6 +1249,74 @@ class _HomeTabState extends State<HomeTab>
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildOldCampaignCardShimmer(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final carouselPageItemWidth = screenWidth * 0.9;
+    final carouselBannerWidth = carouselPageItemWidth - 16;
+    final bannerHeight = carouselBannerWidth * (418 / 790);
+
+    return Container(
+      width: double.infinity,
+      height: bannerHeight,
+      decoration: BoxDecoration(
+        color: Colors.black.withValues(alpha: 0.05),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Expanded(
+            flex: 7,
+            child: Padding(
+              padding: const EdgeInsetsDirectional.only(
+                start: 16,
+                top: 16,
+                bottom: 16,
+                end: 16,
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        height: 26,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.3),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Container(
+                        height: 12,
+                        width: 150,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withValues(alpha: 0.3),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Container(
+                    height: 32,
+                    width: 100,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.3),
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
