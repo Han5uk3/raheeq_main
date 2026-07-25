@@ -2397,7 +2397,7 @@ class _HomeTabState extends State<HomeTab>
     double price,
   ) {
     return Container(
-      width: 125,
+      width: 108,
       margin: EdgeInsetsDirectional.only(
         start: index == 0 ? 16 : 8,
         end: index == _essentialProducts.length - 1 ? 16 : 8,
@@ -2472,21 +2472,7 @@ class _HomeTabState extends State<HomeTab>
                         // Subtitle row
                         Center(
                           child: Text(
-                            subtitle,
-                            style: const TextStyle(
-                              fontSize: 10,
-                              color: Colors.grey,
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                          ),
-                        ),
-
-                        // Product name
-                        Center(
-                          child: Text(
                             name,
-                            textAlign: TextAlign.center,
                             style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.bold,
@@ -2495,6 +2481,18 @@ class _HomeTabState extends State<HomeTab>
                             maxLines: 2,
                             overflow: TextOverflow.ellipsis,
                           ),
+                        ),
+                        const SizedBox(height: 6),
+                        // Product name
+                        Text(
+                          subtitle,
+                          textAlign: TextAlign.start,
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: Colors.grey,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                         ),
 
                         const Spacer(),

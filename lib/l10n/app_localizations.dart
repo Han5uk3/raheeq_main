@@ -761,7 +761,7 @@ abstract class AppLocalizations {
   /// No description provided for @select_your_impact.
   ///
   /// In en, this message translates to:
-  /// **'With Rahiq, your generosity reaches its destination.'**
+  /// **'Rahiq delivers your generosity.'**
   String get select_your_impact;
 
   /// No description provided for @select_a_product_to_continue.

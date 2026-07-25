@@ -441,15 +441,19 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
           children: [
             Row(
               children: [
-                const Icon(Icons.auto_awesome, color: AppColors.buttonBlueDark),
+                const Icon(
+                  Icons.auto_awesome,
+                  color: AppColors.buttonBlueDark,
+                  size: 18,
+                ),
                 const SizedBox(width: 8),
                 Expanded(
                   child: Text(
                     overflow: TextOverflow.ellipsis,
                     maxLines: 2,
                     AppLocalizations.of(context)!.select_your_impact,
-                    style: const TextStyle(
-                      fontSize: 14,
+                    style: TextStyle(
+                      fontSize: isAr ? 14 : 14,
                       fontWeight: FontWeight.bold,
                       color: AppColors.black,
                     ),

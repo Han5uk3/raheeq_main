@@ -351,14 +351,17 @@ class _ReviewOrderPageState extends State<ReviewOrderPage>
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(
-                            "${AppLocalizations.of(context)!.choose_quantity} (${product.localizedName(isAr)})",
-                            style: TextStyle(
-                              fontSize: 14,
-                              fontWeight: FontWeight.normal,
-                              color: AppColors.grey,
+                          Expanded(
+                            child: Text(
+                              "${AppLocalizations.of(context)!.choose_quantity} (${product.localizedName(isAr)})",
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.normal,
+                                color: Colors.grey.shade700,
+                              ),
                             ),
                           ),
+                          const SizedBox(width: 8),
                           Container(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 8,
