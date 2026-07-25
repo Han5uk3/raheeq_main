@@ -359,7 +359,7 @@ class AppLocalizationsAr extends AppLocalizations {
       'أو أدخل كمية مخصصة (الأدنى. \$min)';
 
   @override
-  String get select_your_impact => 'ساهم بأثرٍ يبقى';
+  String get select_your_impact => 'عبر رحيق يصل عطاؤك إلى وجهته';
 
   @override
   String get select_a_product_to_continue => 'اختر منتجاً للمتابعة';

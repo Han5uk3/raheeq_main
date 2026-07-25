@@ -359,7 +359,8 @@ class AppLocalizationsEn extends AppLocalizations {
       'Or enter custom quantity (min. \$min)';
 
   @override
-  String get select_your_impact => 'Make An Impact That Lasts';
+  String get select_your_impact =>
+      'With Raheeq, your generosity reaches its destination.';
 
   @override
   String get select_a_product_to_continue => 'Select a product to continue';

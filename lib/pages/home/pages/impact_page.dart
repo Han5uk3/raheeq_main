@@ -371,9 +371,11 @@ class _ImpactPageState extends State<ImpactPage> {
                                         child: _buildStatCard(
                                           icon:
                                               Icons.volunteer_activism_outlined,
-                                          value: Formatters.formatCount(
-                                            _impactData!.totalOrders,
-                                          ),
+                                          value:
+                                              //  Formatters.formatCount(
+                                              (_impactData!.totalOrders)
+                                                  .toString(),
+                                          // ),
                                           label: AppLocalizations.of(
                                             context,
                                           )!.total_donations,
@@ -386,9 +388,11 @@ class _ImpactPageState extends State<ImpactPage> {
                                         aspectRatio: 1.1,
                                         child: _buildStatCard(
                                           icon: Icons.local_shipping_outlined,
-                                          value: Formatters.formatCount(
-                                            _impactData!.totalProducts,
-                                          ),
+                                          value:
+                                              // Formatters.formatCount(
+                                              (_impactData!.totalProducts)
+                                                  .toString(),
+                                          // ),
                                           label: AppLocalizations.of(
                                             context,
                                           )!.products_donated,
@@ -419,9 +423,11 @@ class _ImpactPageState extends State<ImpactPage> {
                                             aspectRatio: 1.1,
                                             child: _buildStatCard(
                                               icon: Icons.people_outline,
-                                              value: Formatters.formatCount(
-                                                totalCartons * 20,
-                                              ),
+                                              value:
+                                                  //  Formatters.formatCount(
+                                                  (totalCartons * 20)
+                                                      .toString(),
+                                              // ),
                                               label: AppLocalizations.of(
                                                 context,
                                               )!.people_helped,
@@ -436,9 +442,11 @@ class _ImpactPageState extends State<ImpactPage> {
                                         aspectRatio: 1.1,
                                         child: _buildStatCard(
                                           icon: Icons.mosque_outlined,
-                                          value: Formatters.formatCount(
-                                            _impactData!.totalMosques,
-                                          ),
+                                          value:
+                                              // Formatters.formatCount(
+                                              (_impactData!.totalMosques)
+                                                  .toString(),
+                                          // ),
                                           label: AppLocalizations.of(
                                             context,
                                           )!.mosques_helped,
@@ -456,7 +464,11 @@ class _ImpactPageState extends State<ImpactPage> {
                                         child: _buildStatCard(
                                           icon: Icons.account_balance_outlined,
                                           value:
-                                              "\u202A${AppLocalizations.of(context)!.sar} ${Formatters.formatCount(_impactData!.totalAmountPaid)}\u202C",
+                                              "\u202A${AppLocalizations.of(context)!.sar} ${
+                                              // Formatters.formatCount(
+                                              (_impactData!.totalAmountPaid).toStringAsFixed(2)
+                                              // )
+                                              }\u202C",
                                           label: AppLocalizations.of(
                                             context,
                                           )!.total_amount,
@@ -469,9 +481,11 @@ class _ImpactPageState extends State<ImpactPage> {
                                         aspectRatio: 1.1,
                                         child: _buildStatCard(
                                           icon: Icons.house_outlined,
-                                          value: Formatters.formatCount(
-                                            _impactData!.totalOrphanages,
-                                          ),
+                                          value:
+                                              //  Formatters.formatCount(
+                                              (_impactData!.totalOrphanages)
+                                                  .toString(),
+                                          // ),
                                           label: AppLocalizations.of(
                                             context,
                                           )!.orphanages_helped,

@@ -761,7 +761,7 @@ abstract class AppLocalizations {
   /// No description provided for @select_your_impact.
   ///
   /// In en, this message translates to:
-  /// **'Make An Impact That Lasts'**
+  /// **'With Raheeq, your generosity reaches its destination.'**
   String get select_your_impact;
 
   /// No description provided for @select_a_product_to_continue.

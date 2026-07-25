@@ -60,6 +60,7 @@ class _HomeTabState extends State<HomeTab>
     initialPage: 1000,
     viewportFraction: 0.9,
   );
+  
   Timer? _timer;
 
   // Static cache to prevent reloading data every time tab is opened
@@ -78,6 +79,8 @@ class _HomeTabState extends State<HomeTab>
   static String? _cachedImpactETag;
   static String? _cachedNotificationsETag;
   static int _cachedUnreadCount = 0;
+  static bool showImpact = false;
+  static bool showRecentDonations = false;
 
   // Queue for items added from external pages (e.g., Saved Mosques)
   static final List<SelectedCategoryItem> _pendingItems = [];
@@ -822,17 +825,26 @@ class _HomeTabState extends State<HomeTab>
                             child: buildQuickServicesSection(context),
                           ),
                           const SizedBox(height: 24),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: buildRecentDonationCard(context),
-                          ),
+                          if (showRecentDonations) ...{
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              child: buildRecentDonationCard(context),
+                            ),
+                          },
 
                           buildEssentialMosqueSuppliesSection(context),
-                          const SizedBox(height: 24),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: buildYourImpactSection(context),
-                          ),
+
+                          if (showImpact) ...{
+                            const SizedBox(height: 24),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              child: buildYourImpactSection(context),
+                            ),
+                          },
 
                           const SizedBox(height: 120),
                           if (_selectedItems.isNotEmpty) ...{
@@ -853,80 +865,74 @@ class _HomeTabState extends State<HomeTab>
             left: 16,
             right: 16,
             bottom: 115,
-            child: Listener(
-              onPointerDown: (_) {
-                debugPrint("Pointer reached pill");
-              },
-              child: BottomActionPill(
-                titleWidget: Text(
-                  AppLocalizations.of(
-                    context,
-                  )!.selected_items_count(_selectedItems.length),
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
+            child: BottomActionPill(
+              titleWidget: Text(
+                AppLocalizations.of(
+                  context,
+                )!.selected_items_count(_selectedItems.length),
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white,
                 ),
-                buttonText: AppLocalizations.of(context)!.order_now,
+              ),
+              buttonText: AppLocalizations.of(context)!.order_now,
 
-                onButtonTap:
-                    (NetworkMonitor.instance.status.value !=
-                        NetworkStatus.online)
-                    ? () {
-                        CustomSnackbar.show(
-                          context: context,
-                          message: AppLocalizations.of(context)!.internet_error,
-                          isError: true,
-                        );
-                        return;
-                      }
-                    : () async {
-                        final isEssential = _selectedItems.any(
-                          (i) => i.category.slug == 'essential_supplies',
-                        );
-                        if (isEssential) {
-                          final orderStates = <OrderCategoryState>[];
-                          for (final item in _selectedItems) {
-                            if (item.specificData is EssentialSelection) {
-                              final selection =
-                                  item.specificData as EssentialSelection;
-                              orderStates.add(
-                                OrderCategoryState(
-                                  categoryItem: SelectedCategoryItem(
-                                    category: item.category,
-                                    optionType: item.optionType,
-                                    specificData: selection.place,
-                                  ),
-                                  selectedProducts: [
-                                    SelectedProduct(
-                                      product: selection.product,
-                                      quantity: selection.product.minQuantity,
-                                    ),
-                                  ],
+              onButtonTap:
+                  (NetworkMonitor.instance.status.value != NetworkStatus.online)
+                  ? () {
+                      CustomSnackbar.show(
+                        context: context,
+                        message: AppLocalizations.of(context)!.internet_error,
+                        isError: true,
+                      );
+                      return;
+                    }
+                  : () async {
+                      final isEssential = _selectedItems.any(
+                        (i) => i.category.slug == 'essential_supplies',
+                      );
+                      if (isEssential) {
+                        final orderStates = <OrderCategoryState>[];
+                        for (final item in _selectedItems) {
+                          if (item.specificData is EssentialSelection) {
+                            final selection =
+                                item.specificData as EssentialSelection;
+                            orderStates.add(
+                              OrderCategoryState(
+                                categoryItem: SelectedCategoryItem(
+                                  category: item.category,
+                                  optionType: item.optionType,
+                                  specificData: selection.place,
                                 ),
-                              );
-                            }
-                          }
-                          if (orderStates.isNotEmpty) {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (_) =>
-                                    ReviewOrderPage(orderStates: orderStates),
+                                selectedProducts: [
+                                  SelectedProduct(
+                                    product: selection.product,
+                                    quantity: selection.product.minQuantity,
+                                  ),
+                                ],
                               ),
                             );
                           }
-                        } else {
-                          if (_selectedItems.isNotEmpty) {
-                            ChooseWaterPackageScreen.showAsBottomSheet(
-                              context,
-                              selectedCategories: _selectedItems,
-                              availableProducts: List<Product>.from(_products),
-                            );
-                          }
                         }
-                      },
-              ),
+                        if (orderStates.isNotEmpty) {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) =>
+                                  ReviewOrderPage(orderStates: orderStates),
+                            ),
+                          );
+                        }
+                      } else {
+                        if (_selectedItems.isNotEmpty) {
+                          ChooseWaterPackageScreen.showAsBottomSheet(
+                            context,
+                            selectedCategories: _selectedItems,
+                            availableProducts: List<Product>.from(_products),
+                          );
+                        }
+                      }
+                    },
             ),
           ),
       ],
@@ -2146,7 +2152,7 @@ class _HomeTabState extends State<HomeTab>
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const SizedBox(height: 24),
+    
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: Text(
@@ -2160,10 +2166,13 @@ class _HomeTabState extends State<HomeTab>
         ),
         const SizedBox(height: 16),
         SizedBox(
-          height: 215,
+          height: 230, // Increased height slightly to accommodate scrollbar
           child: ListView.builder(
+        
             physics: const ClampingScrollPhysics(),
-            padding: EdgeInsets.zero,
+            padding: const EdgeInsets.only(
+              bottom: 16.0,
+            ), // Padding for scrollbar
             scrollDirection: Axis.horizontal,
             itemCount: _essentialProducts.length,
             itemBuilder: (context, index) {
@@ -2292,7 +2301,7 @@ class _HomeTabState extends State<HomeTab>
               );
             },
           ),
-        ),
+        )
       ],
     );
   }
@@ -2374,32 +2383,37 @@ class _HomeTabState extends State<HomeTab>
                 // Details
                 Expanded(
                   child: Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+                    padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Subtitle row
-                        Text(
-                          subtitle,
-                          style: const TextStyle(
-                            fontSize: 10,
-                            color: Colors.grey,
+                        Center(
+                          child: Text(
+                            subtitle,
+                            style: const TextStyle(
+                              fontSize: 10,
+                              color: Colors.grey,
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
                         ),
 
                         // Product name
-                        Text(
-                          name,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
+                        Center(
+                          child: Text(
+                            name,
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.black,
+                            ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
                         ),
 
                         const Spacer(),
