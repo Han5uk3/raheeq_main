@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import '../models/user.dart';
@@ -21,10 +23,17 @@ class AuthStorage {
     false,
   );
 
+  /// Completes once [init] has finished and the Hive box is open.
+  /// Await [ready] before reading tokens to avoid the race condition
+  /// where the splash screen checks the session before storage is open.
+  static final Completer<void> _readyCompleter = Completer<void>();
+  static Future<void> get ready => _readyCompleter.future;
+
   static Future<void> init() async {
     await Hive.initFlutter();
     await Hive.openBox(boxName);
     isLoggedInNotifier.value = accessToken != null;
+    if (!_readyCompleter.isCompleted) _readyCompleter.complete();
   }
 
   static Box get _box => Hive.box(boxName);

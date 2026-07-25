@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/api/new.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
+import 'package:raheeq_main/storage/auth_storage.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import '../authentication/login.dart';
 import '../../pages/home/home_screen.dart';
@@ -35,6 +36,11 @@ class _SplashScreenState extends State<SplashScreen> {
     if (mounted) {
       setState(() => _showRetry = false);
     }
+
+    // Wait for Hive storage to be fully initialized before reading tokens.
+    // _initDependencies() in main.dart runs in the background, so there is
+    // no guarantee it finishes before this 3500 ms timer fires.
+    await AuthStorage.ready;
 
     final status = await _apiService.checkSession();
     log("Splash session check: $status");
