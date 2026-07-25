@@ -15,6 +15,7 @@ import '../../../models/meqat_mosque.dart';
 import '../../../models/orphanage.dart';
 import '../../../models/place.dart';
 import '../../../utils/colors.dart';
+import '../../../utils/map_marker_icon.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 
@@ -70,10 +71,24 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
   GoogleMapController? _mapController;
   final List<Place> _selectedItemsList = [];
   List<String> _favoriteMosqueIds = [];
+  BitmapDescriptor? _mapPinIcon;
+  BitmapDescriptor? _mapPinSelectedIcon;
+
+  Future<void> _loadMapPinIcon() async {
+    final mapPinIcon = await MapMarkerIcon.load();
+    final mapPinSelectedIcon = await MapMarkerIcon.loadSelected();
+    if (mounted) {
+      setState(() {
+        if (mapPinIcon != null) _mapPinIcon = mapPinIcon;
+        if (mapPinSelectedIcon != null) _mapPinSelectedIcon = mapPinSelectedIcon;
+      });
+    }
+  }
 
   @override
   void initState() {
     super.initState();
+    _loadMapPinIcon();
     _selectedItemsList.addAll(widget.initialSelections);
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(() {
@@ -659,11 +674,9 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
       return Marker(
         markerId: MarkerId(item.id),
         position: LatLng(item.latitude, item.longitude),
-        icon: BitmapDescriptor.defaultMarkerWithHue(
-          _selectedItemsList.any((m) => m.id == item.id)
-              ? BitmapDescriptor.hueGreen
-              : 207.0,
-        ),
+        icon: _selectedItemsList.any((m) => m.id == item.id)
+            ? (_mapPinSelectedIcon ?? BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen))
+            : (_mapPinIcon ?? BitmapDescriptor.defaultMarkerWithHue(207.0)),
         infoWindow: InfoWindow(
           title: item.localizedName(isAr),
           snippet: item.address,
