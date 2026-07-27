@@ -45,6 +45,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get skip => 'تخطي';
 
   @override
+  String get select_mosques_to_deliver_to => 'اختر المساجد للتوصيل إليها';
+
+  @override
   String get continue_btn => 'متابعة';
 
   @override

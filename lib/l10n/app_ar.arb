@@ -20,6 +20,7 @@
   "no_orders_out_for_delivery": "لا توجد طلبات جاري توصيلها",
   "terms_agree_prefix": "بالمتابعة، فإنك توافق على ",
   "terms_conditions": "الشروط والأحكام",
+  "select_mosques_to_deliver_to":"اختر المساجد للتوصيل إليها",
   "and": " و ",
   "privacy_policy": "سياسة الخصوصية",
   "login": "تسجيل الدخول",

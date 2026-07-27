@@ -45,6 +45,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get skip => 'SKIP';
 
   @override
+  String get select_mosques_to_deliver_to => 'Select mosques to deliver to';
+
+  @override
   String get continue_btn => 'Continue';
 
   @override

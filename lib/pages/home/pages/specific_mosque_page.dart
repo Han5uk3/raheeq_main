@@ -23,12 +23,14 @@ class SpecificMosquePage extends StatefulWidget {
   final String slug;
   final List<Place> initialSelections;
   final String? title;
+  final bool isEssentialProduct;
 
   const SpecificMosquePage({
     super.key,
     this.slug = 'mosques',
     this.initialSelections = const [],
     this.title,
+    this.isEssentialProduct = false,
   });
 
   @override
@@ -363,6 +365,10 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
         context,
       )!.select_a_mosque_to_deliver_water_to;
       listTabText = AppLocalizations.of(context)!.list_of_meqat_mosques;
+    } else if (widget.isEssentialProduct) {
+      title = widget.title ?? (AppLocalizations.of(context)!.choose_mosques);
+      subtitle = AppLocalizations.of(context)!.select_mosques_to_deliver_to;
+      listTabText = AppLocalizations.of(context)!.list_of_mosques;
     } else {
       title =
           widget.title ??

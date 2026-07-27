@@ -164,6 +164,12 @@ abstract class AppLocalizations {
   /// **'SKIP'**
   String get skip;
 
+  /// No description provided for @select_mosques_to_deliver_to.
+  ///
+  /// In en, this message translates to:
+  /// **'Select mosques to deliver to'**
+  String get select_mosques_to_deliver_to;
+
   /// No description provided for @continue_btn.
   ///
   /// In en, this message translates to:

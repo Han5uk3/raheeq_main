@@ -2087,6 +2087,7 @@ Future<void> _fetchHomeData({bool forceRefresh = false}) async {
                       final specificItems = await Navigator.of(context).push(
                         MaterialPageRoute(
                           builder: (_) => SpecificMosquePage(
+                            isEssentialProduct: false,
                             slug: category.slug,
                             initialSelections: currentlySelected,
                             title: label,
@@ -2180,6 +2181,7 @@ Future<void> _fetchHomeData({bool forceRefresh = false}) async {
                   final mosques = await Navigator.of(context).push(
                     MaterialPageRoute(
                       builder: (_) => SpecificMosquePage(
+                        isEssentialProduct: false,
                         slug: category.slug,
                         initialSelections: currentlySelected,
                         title: label,
@@ -2349,6 +2351,7 @@ Future<void> _fetchHomeData({bool forceRefresh = false}) async {
                     final specificItems = await Navigator.of(context).push(
                       MaterialPageRoute(
                         builder: (_) => SpecificMosquePage(
+                          isEssentialProduct: true,
                           slug: 'mosques_in_need',
                           initialSelections: const [],
                           title: name,
