@@ -51,10 +51,10 @@ class _RegistrationState extends State<Registration> {
   // Keys to access individual FormField states so we can query `hasError`
   final Map<TextEditingController, GlobalKey<FormFieldState<String>>>
   _fieldKeys = {};
-  final GlobalKey<FormFieldState<String>> _genderFieldKey =
-      GlobalKey<FormFieldState<String>>();
+  // final GlobalKey<FormFieldState<String>> _genderFieldKey =
+  //     GlobalKey<FormFieldState<String>>();
 
-  String? _selectedGender;
+  // String? _selectedGender;
   File? _profileImage;
 
   Future<void> _pickImage() async {
@@ -294,7 +294,8 @@ class _RegistrationState extends State<Registration> {
                                 )!.enter_last_name,
                               ),
                               const SizedBox(height: 12),
-                              _buildTextField(
+                              if(widget.isSocialLogin)...{
+                                  _buildTextField(
                                 controller: _emailController,
                                 label: widget.isSocialLogin
                                     ? AppLocalizations.of(
@@ -310,7 +311,7 @@ class _RegistrationState extends State<Registration> {
                                 isOptional: !widget.isSocialLogin,
                                 enabled: !widget.isSocialLogin,
                               ),
-                              const SizedBox(height: 12),
+                              const SizedBox(height: 12),},
                               widget.isSocialLogin
                                   ? Directionality(
                                       textDirection: TextDirection.ltr,
@@ -336,7 +337,7 @@ class _RegistrationState extends State<Registration> {
                                     ),
 
                               const SizedBox(height: 12),
-                              _buildGenderDropdown(),
+                              // _buildGenderDropdown(),
                               const SizedBox(height: 40),
                               SizedBox(
                                 width: double.infinity,
@@ -485,9 +486,7 @@ class _RegistrationState extends State<Registration> {
                                                         _lastNameController.text
                                                             .trim(),
                                                     gender:
-                                                        _selectedGender
-                                                            ?.toUpperCase() ??
-                                                        '',
+                                                     "",
                                                     deviceType: Platform.isIOS
                                                         ? 'IOS'
                                                         : 'ANDROID',
@@ -755,110 +754,110 @@ class _RegistrationState extends State<Registration> {
     );
   }
 
-  Widget _buildGenderDropdown() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          AppLocalizations.of(context)!.gender,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: Colors.black87,
-          ),
-        ),
-        const SizedBox(height: 8),
-        FormField<String>(
-          key: _genderFieldKey,
-          initialValue: _selectedGender,
-          validator: (value) => value == null
-              ? AppLocalizations.of(context)!.please_select_gender
-              : null,
-          builder: (FormFieldState<String> state) {
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 4,
-                  ),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(15),
-                    border: Border.all(
-                      color: state.hasError
-                          ? Colors.red
-                          : AppColors.indicatorGrey,
-                    ),
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      isExpanded: true,
-                      value: state.value,
-                      dropdownColor: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      icon: Icon(
-                        Icons.arrow_drop_down,
-                        color: state.hasError
-                            ? Colors.red
-                            : AppColors.buttonBlueDark,
-                      ),
-                      hint: Text(
-                        AppLocalizations.of(context)!.select_gender,
-                        style: TextStyle(
-                          color: AppColors.black.withValues(alpha: 0.8),
-                          fontSize: 14,
-                        ),
-                      ),
-                      items:
-                          [
-                                {
-                                  'label': AppLocalizations.of(context)!.male,
-                                  'value': 'Male',
-                                },
-                                {
-                                  'label': AppLocalizations.of(context)!.female,
-                                  'value': 'Female',
-                                },
-                              ]
-                              .map(
-                                (item) => DropdownMenuItem<String>(
-                                  value: item['value'],
-                                  child: Text(
-                                    item['label']!,
-                                    style: const TextStyle(
-                                      fontSize: 14,
-                                      color: AppColors.black,
-                                    ),
-                                  ),
-                                ),
-                              )
-                              .toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedGender = value;
-                        });
-                        state.didChange(value);
-                        state.validate();
-                      },
-                    ),
-                  ),
-                ),
-                if (state.hasError && state.errorText != null) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    state.errorText!,
-                    style: const TextStyle(color: Colors.red, fontSize: 12),
-                  ),
-                ],
-              ],
-            );
-          },
-        ),
-      ],
-    );
-  }
+  // Widget _buildGenderDropdown() {
+  //   return Column(
+  //     crossAxisAlignment: CrossAxisAlignment.start,
+  //     children: [
+  //       Text(
+  //         AppLocalizations.of(context)!.gender,
+  //         style: const TextStyle(
+  //           fontSize: 14,
+  //           fontWeight: FontWeight.w600,
+  //           color: Colors.black87,
+  //         ),
+  //       ),
+  //       const SizedBox(height: 8),
+  //       FormField<String>(
+  //         key: _genderFieldKey,
+  //         initialValue: _selectedGender,
+  //         validator: (value) => value == null
+  //             ? AppLocalizations.of(context)!.please_select_gender
+  //             : null,
+  //         builder: (FormFieldState<String> state) {
+  //           return Column(
+  //             crossAxisAlignment: CrossAxisAlignment.start,
+  //             children: [
+  //               Container(
+  //                 padding: const EdgeInsets.symmetric(
+  //                   horizontal: 16,
+  //                   vertical: 4,
+  //                 ),
+  //                 decoration: BoxDecoration(
+  //                   color: Colors.white,
+  //                   borderRadius: BorderRadius.circular(15),
+  //                   border: Border.all(
+  //                     color: state.hasError
+  //                         ? Colors.red
+  //                         : AppColors.indicatorGrey,
+  //                   ),
+  //                 ),
+  //                 child: DropdownButtonHideUnderline(
+  //                   child: DropdownButton<String>(
+  //                     isExpanded: true,
+  //                     value: state.value,
+  //                     dropdownColor: Colors.white,
+  //                     borderRadius: BorderRadius.circular(10),
+  //                     icon: Icon(
+  //                       Icons.arrow_drop_down,
+  //                       color: state.hasError
+  //                           ? Colors.red
+  //                           : AppColors.buttonBlueDark,
+  //                     ),
+  //                     hint: Text(
+  //                       AppLocalizations.of(context)!.select_gender,
+  //                       style: TextStyle(
+  //                         color: AppColors.black.withValues(alpha: 0.8),
+  //                         fontSize: 14,
+  //                       ),
+  //                     ),
+  //                     items:
+  //                         [
+  //                               {
+  //                                 'label': AppLocalizations.of(context)!.male,
+  //                                 'value': 'Male',
+  //                               },
+  //                               {
+  //                                 'label': AppLocalizations.of(context)!.female,
+  //                                 'value': 'Female',
+  //                               },
+  //                             ]
+  //                             .map(
+  //                               (item) => DropdownMenuItem<String>(
+  //                                 value: item['value'],
+  //                                 child: Text(
+  //                                   item['label']!,
+  //                                   style: const TextStyle(
+  //                                     fontSize: 14,
+  //                                     color: AppColors.black,
+  //                                   ),
+  //                                 ),
+  //                               ),
+  //                             )
+  //                             .toList(),
+  //                     onChanged: (value) {
+  //                       setState(() {
+  //                         _selectedGender = value;
+  //                       });
+  //                       state.didChange(value);
+  //                       state.validate();
+  //                     },
+  //                   ),
+  //                 ),
+  //               ),
+  //               if (state.hasError && state.errorText != null) ...[
+  //                 const SizedBox(height: 4),
+  //                 Text(
+  //                   state.errorText!,
+  //                   style: const TextStyle(color: Colors.red, fontSize: 12),
+  //                 ),
+  //               ],
+  //             ],
+  //           );
+  //         },
+  //       ),
+  //     ],
+  //   );
+  // }
 
   Widget _buildSocialPhoneInput(TextEditingController controller) {
     final fieldKey = _fieldKeys[controller];

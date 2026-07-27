@@ -422,7 +422,7 @@ class ApiService {
     String? email,
     required String firstName,
     required String lastName,
-    required String gender,
+    String? gender,
     required String deviceType,
     String? fcmToken,
     required String registrationToken,
@@ -437,7 +437,7 @@ class ApiService {
         if (email != null && email.isNotEmpty) 'email': email,
         'firstName': firstName,
         'lastName': lastName,
-        'gender': gender,
+       
         'deviceType': deviceType,
         if (fcmToken != null && fcmToken.isNotEmpty) 'fcmToken': fcmToken,
         'registrationToken': registrationToken,
