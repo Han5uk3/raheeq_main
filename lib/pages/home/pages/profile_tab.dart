@@ -213,6 +213,10 @@ class _ProfileTabState extends State<ProfileTab> {
       final refToken = AuthStorage.refreshToken ?? '';
       await ApiService().logout(refreshToken: refToken);
 
+      if (mounted) {
+        Navigator.of(context).pop(); // dismiss the loading dialog
+      }
+
       // Clear storage (this will automatically pop routes and redirect to Login via navigatorKey)
       await AuthStorage.clear();
     }

@@ -6,6 +6,8 @@ import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:raheeq_main/utils/phone_formatter.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:raheeq_main/common_widgets/language_switch.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
@@ -409,6 +411,16 @@ class _LoginState extends State<Login> {
                                           onSelect: (Country country) {
                                             setState(() {
                                               _selectedCountry = country;
+                                              final formatted = GlobalPhoneFormatter.formatText(
+                                                _phoneController.text,
+                                                country,
+                                              );
+                                              if (_phoneController.text != formatted) {
+                                                _phoneController.value = TextEditingValue(
+                                                  text: formatted,
+                                                  selection: TextSelection.collapsed(offset: formatted.length),
+                                                );
+                                              }
                                             });
                                           },
                                           countryListTheme: CountryListThemeData(
@@ -503,48 +515,13 @@ class _LoginState extends State<Login> {
                                     controller: _phoneController,
                                     keyboardType: TextInputType.phone,
                                     inputFormatters: [
+                                      GlobalPhoneFormatter(
+                                        getCurrentCountry: () => _selectedCountry,
+                                        onCountryDetected: (country) {
+                                          if (mounted) setState(() => _selectedCountry = country);
+                                        },
+                                      ),
                                       FilteringTextInputFormatter.digitsOnly,
-                                      TextInputFormatter.withFunction((
-                                        oldValue,
-                                        newValue,
-                                      ) {
-                                        int maxLength = 15;
-                                        if (_selectedCountry.phoneCode ==
-                                            '966') {
-                                          if (newValue.text.startsWith('0')) {
-                                            maxLength = 10;
-                                          } else if (newValue.text.startsWith(
-                                            '5',
-                                          )) {
-                                            maxLength = 9;
-                                          } else {
-                                            maxLength = 10;
-                                          }
-                                        }
-                                        if (newValue.text.length > maxLength) {
-                                          if (oldValue.text.length <
-                                              maxLength) {
-                                            return TextEditingValue(
-                                              text: newValue.text.substring(
-                                                0,
-                                                maxLength,
-                                              ),
-                                              selection:
-                                                  TextSelection.collapsed(
-                                                    offset:
-                                                        newValue.selection.end >
-                                                            maxLength
-                                                        ? maxLength
-                                                        : newValue
-                                                              .selection
-                                                              .end,
-                                                  ),
-                                            );
-                                          }
-                                          return oldValue;
-                                        }
-                                        return newValue;
-                                      }),
                                     ],
                                     decoration: InputDecoration(
                                       hintText: AppLocalizations.of(

@@ -423,7 +423,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sar => '⃁';
 
   @override
-  String get starting_from => 'Starting from';
+  String get starting_from => 'Price';
 
   @override
   String get high_need => 'High Need';
@@ -829,6 +829,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get back_to_home => 'Back to Home';
+
+  @override
+  String get back_to_orders => 'Back to Orders';
 
   @override
   String get retry_payment => 'Retry Payment';

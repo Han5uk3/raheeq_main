@@ -14,7 +14,7 @@ class AppStorage {
     await _box.put(localeKey, localeCode);
   }
 
-  static String get localeCode => _box.get(localeKey, defaultValue: 'en');
+  static String get localeCode => _box.get(localeKey, defaultValue: 'ar');
 
   static const String _lastDeepLinkKey = 'lastProcessedDeepLink';
 

@@ -827,6 +827,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get back_to_home => 'العودة للرئيسية';
 
   @override
+  String get back_to_orders => 'العودة للطلبات';
+
+  @override
   String get retry_payment => 'إعادة المحاولة';
 
   @override
@@ -845,7 +848,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get thank_you_for_your_donation =>
-      'بدأ فريقنا إجراءات تنفيذ طلبك، وسيتم توصيله - بإذن الله - خلال 24 ساعة.\nوبعد اكتمال التنفيذ، ستصلك صور وفيديو توثيقي عبر واتساب على رقمك المسجل، لتعيش أثر عطائك بكل ثقة وشفافية .';
+      'بدأ فريقنا إجراءات تنفيذ طلبك، وسيتم توصيله - بإذن الله - خلال 24 ساعة. وبعد اكتمال التنفيذ، ستصلك صور وفيديو توثيقي عبر واتساب على رقمك المسجل، لتعيش أثر عطائك بكل ثقة وشفافية .';
 
   @override
   String get payment_successful => 'تم إنشاء طلبك بنجاح ✅';

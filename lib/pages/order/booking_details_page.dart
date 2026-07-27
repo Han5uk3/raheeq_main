@@ -5,6 +5,7 @@ import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/models/order_response_model.dart';
+import 'package:raheeq_main/pages/order/proof_media_viewer_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:shimmer/shimmer.dart';
@@ -57,7 +58,19 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             Future.delayed(const Duration(milliseconds: 500), () {
               if (mounted) {
-                _showVideoPreview(_order!.deliveryProof!['deliveryVideo']);
+                List<ProofMediaItem> mediaItems = _getMediaItems(_order!);
+                int videoIndex = mediaItems.indexWhere((item) => item.isVideo);
+                if (videoIndex != -1) {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => ProofMediaViewerPage(
+                        mediaItems: mediaItems,
+                        initialIndex: videoIndex,
+                      ),
+                    ),
+                  );
+                }
               }
             });
           });
@@ -914,56 +927,71 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
     );
   }
 
-  Widget _buildDeliveryProofs(OrderResponseModel order) {
+  List<ProofMediaItem> _getMediaItems(OrderResponseModel order) {
     if (order.deliveryProof == null || order.deliveryProof!.isEmpty) {
-      return const SizedBox.shrink();
+      return [];
     }
 
     final proofs = order.deliveryProof!;
-    List<Widget> proofItems = [];
+    List<ProofMediaItem> mediaItems = [];
 
     if (proofs['mosqueFrontImage'] != null &&
         proofs['mosqueFrontImage'].toString().isNotEmpty) {
-      proofItems.add(
-        _buildSmallProofCard(
-          AppLocalizations.of(context)!.mosque_front,
-          proofs['mosqueFrontImage'],
-          false,
-        ),
-      );
-    }
-    if (proofs['mosqueInsideImage'] != null &&
-        proofs['mosqueInsideImage'].toString().isNotEmpty) {
-      proofItems.add(
-        _buildSmallProofCard(
-          AppLocalizations.of(context)!.mosque_inside,
-          proofs['mosqueInsideImage'],
-          false,
-        ),
-      );
-    }
-    if (proofs['packagesImage'] != null &&
-        proofs['packagesImage'].toString().isNotEmpty) {
-      proofItems.add(
-        _buildSmallProofCard(
-          AppLocalizations.of(context)!.packages,
-          proofs['packagesImage'],
-          false,
-        ),
-      );
-    }
-    if (proofs['deliveryVideo'] != null &&
-        proofs['deliveryVideo'].toString().isNotEmpty) {
-      proofItems.add(
-        _buildSmallProofCard(
-          AppLocalizations.of(context)!.delivery_video,
-          proofs['deliveryVideo'],
-          true,
+      mediaItems.add(
+        ProofMediaItem(
+          title: AppLocalizations.of(context)!.mosque_front,
+          url: proofs['mosqueFrontImage'],
+          isVideo: false,
         ),
       );
     }
 
-    if (proofItems.isEmpty) return const SizedBox.shrink();
+    if (proofs['mosqueInsideImage'] != null &&
+        proofs['mosqueInsideImage'].toString().isNotEmpty) {
+      mediaItems.add(
+        ProofMediaItem(
+          title: AppLocalizations.of(context)!.mosque_inside,
+          url: proofs['mosqueInsideImage'],
+          isVideo: false,
+        ),
+      );
+    }
+
+    if (proofs['packagesImage'] != null &&
+        proofs['packagesImage'].toString().isNotEmpty) {
+      mediaItems.add(
+        ProofMediaItem(
+          title: AppLocalizations.of(context)!.packages,
+          url: proofs['packagesImage'],
+          isVideo: false,
+        ),
+      );
+    }
+
+    if (proofs['deliveryVideo'] != null &&
+        proofs['deliveryVideo'].toString().isNotEmpty) {
+      mediaItems.add(
+        ProofMediaItem(
+          title: AppLocalizations.of(context)!.delivery_video,
+          url: proofs['deliveryVideo'],
+          isVideo: true,
+        ),
+      );
+    }
+    return mediaItems;
+  }
+
+  Widget _buildDeliveryProofs(OrderResponseModel order) {
+    final mediaItems = _getMediaItems(order);
+
+    if (mediaItems.isEmpty) return const SizedBox.shrink();
+
+    List<Widget> proofItems = [];
+    for (int i = 0; i < mediaItems.length; i++) {
+      proofItems.add(
+        _buildSmallProofCard(mediaItems[i].title, mediaItems[i].url, mediaItems[i].isVideo, i, mediaItems),
+      );
+    }
 
     return _buildPremiumCard(
       child: Column(
@@ -993,14 +1021,18 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
     );
   }
 
-  Widget _buildSmallProofCard(String title, String url, bool isVideo) {
+  Widget _buildSmallProofCard(String title, String url, bool isVideo, int index, List<ProofMediaItem> allMedia) {
     return GestureDetector(
       onTap: () {
-        if (isVideo) {
-          _showVideoPreview(url);
-        } else {
-          _showImagePreview(url);
-        }
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ProofMediaViewerPage(
+              mediaItems: allMedia,
+              initialIndex: index,
+            ),
+          ),
+        );
       },
       child: Column(
         children: [

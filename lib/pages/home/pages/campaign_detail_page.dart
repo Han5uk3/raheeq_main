@@ -1,3 +1,4 @@
+import 'package:material_symbols_icons/symbols.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/common_widgets/bottom_action_pill.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
@@ -40,17 +41,49 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
   final TextEditingController _noteController = TextEditingController();
   final FocusNode _noteFocusNode = FocusNode();
   bool _isLoading = false;
+  final ScrollController _productScrollController = ScrollController();
+  bool _canScrollLeft = false;
+  bool _canScrollRight = true;
 
   bool get _hasAnySelection => _selectedQuantities.values.any((qty) => qty > 0);
 
   @override
   void initState() {
     super.initState();
+    debugPrint(
+      'CampaignDetailPage: ${widget.campaign.id} has ${widget.campaign.products.length} products',
+    );
     SnackbarInsets.setBottomInset(kBottomNavigationBarHeight);
 
     // Auto-select first product if available
     if (widget.campaign.products.isNotEmpty) {
       _selectedProduct = widget.campaign.products.first;
+    }
+
+    _productScrollController.addListener(_updateScrollButtonState);
+
+    // Initialize scroll button state after the controller attaches
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _updateScrollButtonState();
+    });
+  }
+
+  void _updateScrollButtonState() {
+    if (!_productScrollController.hasClients) return;
+    if (!mounted) return;
+    final pos = _productScrollController.position;
+    final atStart = pos.pixels <= pos.minScrollExtent + 1;
+    final atEnd = pos.pixels >= pos.maxScrollExtent - 1;
+    // "canScrollStart" = can scroll toward the start (left in LTR, right in RTL)
+    // "canScrollEnd" = can scroll toward the end (right in LTR, left in RTL)
+    final newCanScrollStart = !atStart;
+    final newCanScrollEnd = !atEnd;
+    if (newCanScrollStart != _canScrollLeft ||
+        newCanScrollEnd != _canScrollRight) {
+      setState(() {
+        _canScrollLeft = newCanScrollStart;
+        _canScrollRight = newCanScrollEnd;
+      });
     }
   }
 
@@ -61,7 +94,36 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
     _customFocusNode.dispose();
     _noteController.dispose();
     _noteFocusNode.dispose();
+    _productScrollController.removeListener(_updateScrollButtonState);
+    _productScrollController.dispose();
     super.dispose();
+  }
+
+  void _scrollProducts({required bool forward}) {
+    if (!_productScrollController.hasClients) return;
+    final pos = _productScrollController.position;
+    final scrollAmount = pos.viewportDimension * 0.65;
+    // forward = toward maxScrollExtent, backward = toward minScrollExtent
+    // Flutter handles RTL internally for horizontal ListViews,
+    // so we always use the same pixel direction.
+    final target = forward
+        ? (pos.pixels + scrollAmount).clamp(
+            pos.minScrollExtent,
+            pos.maxScrollExtent,
+          )
+        : (pos.pixels - scrollAmount).clamp(
+            pos.minScrollExtent,
+            pos.maxScrollExtent,
+          );
+    _productScrollController
+        .animateTo(
+          target,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        )
+        .then((_) {
+          _updateScrollButtonState();
+        });
   }
 
   void _selectProduct(Product product) {
@@ -104,229 +166,280 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
     final title = widget.campaign.localizedTitle(isAr);
     final products = widget.campaign.products;
 
-    return GestureDetector(
-      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-      child: Scaffold(
-        extendBodyBehindAppBar: true,
-        extendBody: true,
-        backgroundColor: Colors.white,
-        bottomNavigationBar: _buildFloatingBar(context, isAr),
-        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
-        body: Stack(
-          children: [
-            // Background Gradient
-            Container(
-              decoration: const BoxDecoration(color: AppColors.buttonBlueDark),
-            ),
+    return Scaffold(
+      extendBodyBehindAppBar: true,
+      extendBody: true,
+      backgroundColor: Colors.white,
+      bottomNavigationBar: _buildFloatingBar(context, isAr),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
+      body: Stack(
+        children: [
+          // Background Gradient
+          Container(
+            decoration: const BoxDecoration(color: AppColors.buttonBlueDark),
+          ),
 
-            AbsorbPointer(
-              absorbing: _isLoading,
-              child: SingleChildScrollView(
-                physics: const ClampingScrollPhysics(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    CustomAppBar(
-                      title: title,
-                      isStartAligned: true,
-                      showBackButton: true,
-                      hasBackgroundColor: true,
-                    ),
+          AbsorbPointer(
+            absorbing: _isLoading,
+            child: SingleChildScrollView(
+              physics: const ClampingScrollPhysics(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CustomAppBar(
+                    title: title,
+                    isStartAligned: true,
+                    showBackButton: true,
+                    hasBackgroundColor: true,
+                  ),
 
-                    // Stack for List and Quantity Container to create floating effect
-                    Stack(
-                      clipBehavior: Clip.none,
-                      children: [
-                        // Quantity Selection Container (Background in Stack)
-                        Container(
-                          margin: const EdgeInsets.only(
-                            top: 100,
-                          ), // Start lower so list overlaps it
-                          width: double.infinity,
-                          constraints: BoxConstraints(
-                            minHeight: MediaQuery.of(context).size.height - 300,
+                  // Stack for List and Quantity Container to create floating effect
+                  Stack(
+                    clipBehavior: Clip.none,
+                    children: [
+                      // Quantity Selection Container (Background in Stack)
+                      Container(
+                        margin: const EdgeInsets.only(
+                          top: 100,
+                        ), // Start lower so list overlaps it
+                        width: double.infinity,
+                        constraints: BoxConstraints(
+                          minHeight: MediaQuery.of(context).size.height - 300,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(30),
+                            topRight: Radius.circular(30),
                           ),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(30),
-                              topRight: Radius.circular(30),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, -4),
                             ),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.05),
-                                blurRadius: 10,
-                                offset: const Offset(0, -4),
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(30),
+                            topRight: Radius.circular(30),
+                          ),
+                          child: Column(
+                            children: [
+                              const SizedBox(
+                                height: 55,
+                              ), // Space for overlapping Horizontal Product List
+                              _buildCampaignBanner(_selectedProduct),
+
+                              Container(
+                                width: double.infinity,
+                                margin: const EdgeInsetsDirectional.only(
+                                  top: 16,
+                                  start: 16,
+                                  end: 16,
+                                ),
+                                padding: EdgeInsetsDirectional.only(
+                                  start: 12,
+                                  end: 12,
+                                  top: 12,
+                                  bottom: 12,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: AppColors.buttonBlueDark,
+                                  border: Border.all(
+                                    color: AppColors.buttonBlueDark,
+                                  ),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: [
+                                    Icon(
+                                      Icons.discount_outlined,
+                                      size: 16,
+                                      color: AppColors.white,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Expanded(
+                                      child: Text(
+                                        overflow: TextOverflow.ellipsis,
+                                        _selectedProduct?.localizedMessage(
+                                              isAr,
+                                            ) ??
+                                            "",
+                                        maxLines: 3,
+                                        style: TextStyle(
+                                          fontSize: 12,
+                                          fontWeight: FontWeight.w700,
+                                          color: AppColors.white,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsetsDirectional.only(
+                                  start: 12,
+                                  end: 12,
+                                  top: 12, // spacing after banner
+                                  bottom:
+                                      MediaQuery.of(context).viewInsets.bottom >
+                                          0
+                                      ? 50
+                                      : 130, // extra space for bottom bar and keyboard
+                                ),
+                                child: _selectedProduct != null
+                                    ? _buildQuantitySection(context, isAr)
+                                    : Center(
+                                        child: Padding(
+                                          padding: const EdgeInsets.symmetric(
+                                            vertical: 50,
+                                          ),
+                                          child: Text(
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.select_a_product_to_continue,
+                                            style: const TextStyle(
+                                              color: Colors.grey,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
                               ),
                             ],
                           ),
-                          child: ClipRRect(
-                            borderRadius: const BorderRadius.only(
-                              topLeft: Radius.circular(30),
-                              topRight: Radius.circular(30),
-                            ),
-                            child: Column(
-                              children: [
-                                const SizedBox(
-                                  height: 55,
-                                ), // Space for overlapping Horizontal Product List
-                                _buildCampaignBanner(_selectedProduct),
+                        ),
+                      ),
 
-                                Container(
-                                  width: double.infinity,
-                                  margin: const EdgeInsetsDirectional.only(
-                                    top: 16,
-                                    start: 16,
-                                    end: 16,
-                                  ),
-                                  padding: EdgeInsetsDirectional.only(
-                                    start: 12,
-                                    end: 12,
-                                    top: 12,
-                                    bottom: 12,
+                      // Horizontal Product List inside a white container (Foreground in Stack)
+                      Positioned(
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        child: Builder(
+                          builder: (context) {
+                            final screenWidth = MediaQuery.of(
+                              context,
+                            ).size.width;
+
+                            int visibleCount = products.length;
+                            if (visibleCount == 0) visibleCount = 1;
+                            if (visibleCount > 3) visibleCount = 2;
+
+                            final spacing = 12.0 * (visibleCount - 1);
+                            // When > 3 items, account for scroll buttons and their spacing:
+                            // 2 buttons * 35px + 4 SizedBox spacers * 8px = 102px
+                            final buttonSpace = products.length > 3
+                                ? (35.0 * 2 + 8.0 * 4)
+                                : 0.0;
+                            final totalTakenSpace =
+                                32.0 + // Container margin (16*2)
+                                (products.length > 3
+                                    ? 0.0
+                                    : 24.0) + // ListView padding (12*2) only when no buttons
+                                spacing +
+                                buttonSpace;
+                            final itemWidth =
+                                (screenWidth - totalTakenSpace) / visibleCount;
+
+                            return Padding(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16,
+                              ),
+                              child: Material(
+                                elevation: 2,
+                                borderRadius: BorderRadius.circular(24),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    vertical: 16,
                                   ),
                                   decoration: BoxDecoration(
-                                    color: AppColors.buttonBlueDark,
-                                    border: Border.all(
-                                      color: AppColors.buttonBlueDark,
-                                    ),
-                                    borderRadius: BorderRadius.circular(12),
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(24),
                                   ),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.center,
-                                    children: [
-                                      Icon(
-                                        Icons.discount_outlined,
-                                        size: 16,
-                                        color: AppColors.white,
-                                      ),
-                                      const SizedBox(width: 8),
-                                      Expanded(
-                                        child: Text(
-                                          overflow: TextOverflow.ellipsis,
-                                          _selectedProduct?.localizedMessage(
-                                                isAr,
-                                              ) ??
-                                              "",
-                                          maxLines: 3,
-                                          style: TextStyle(
-                                            fontSize: 12,
-                                            fontWeight: FontWeight.w700,
-                                            color: AppColors.white,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                                Padding(
-                                  padding: EdgeInsetsDirectional.only(
-                                    start: 12,
-                                    end: 12,
-                                    top: 12, // spacing after banner
-                                    bottom:
-                                        MediaQuery.of(
-                                              context,
-                                            ).viewInsets.bottom >
-                                            0
-                                        ? 50
-                                        : 130, // extra space for bottom bar and keyboard
-                                  ),
-                                  child: _selectedProduct != null
-                                      ? _buildQuantitySection(context, isAr)
-                                      : Center(
-                                          child: Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                              vertical: 50,
+                                  height: 130,
+                                  child: products.length > 3
+                                      ? Row(
+                                          children: [
+                                            SizedBox(width: 8),
+                                            _buildScrollButton(
+                                              icon: Icons.chevron_left,
+                                              onTap: _canScrollLeft
+                                                  ? () => _scrollProducts(
+                                                      forward: false,
+                                                    )
+                                                  : null,
+                                              enabled: _canScrollLeft,
                                             ),
-                                            child: Text(
-                                              AppLocalizations.of(
-                                                context,
-                                              )!.select_a_product_to_continue,
-                                              style: const TextStyle(
-                                                color: Colors.grey,
+                                            SizedBox(width: 8),
+                                            Expanded(
+                                              child: ListView.separated(
+                                                controller:
+                                                    _productScrollController,
+                                                physics:
+                                                    const ClampingScrollPhysics(),
+
+                                                scrollDirection:
+                                                    Axis.horizontal,
+                                                itemCount: products.length,
+                                                separatorBuilder: (_, __) =>
+                                                    const SizedBox(width: 12),
+                                                itemBuilder: (context, index) {
+                                                  return _buildProductCard(
+                                                    products[index],
+                                                    isAr,
+                                                    itemWidth,
+                                                  );
+                                                },
                                               ),
                                             ),
+                                            SizedBox(width: 8),
+
+                                            _buildScrollButton(
+                                              icon: Icons.chevron_right,
+                                              onTap: _canScrollRight
+                                                  ? () => _scrollProducts(
+                                                      forward: true,
+                                                    )
+                                                  : null,
+                                              enabled: _canScrollRight,
+                                            ),
+                                            SizedBox(width: 8),
+                                          ],
+                                        )
+                                      : ListView.separated(
+                                          physics:
+                                              const ClampingScrollPhysics(),
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 12,
                                           ),
+                                          scrollDirection: Axis.horizontal,
+                                          itemCount: products.length,
+                                          separatorBuilder: (_, __) =>
+                                              const SizedBox(width: 12),
+                                          itemBuilder: (context, index) {
+                                            return _buildProductCard(
+                                              products[index],
+                                              isAr,
+                                              itemWidth,
+                                            );
+                                          },
                                         ),
                                 ),
-                              ],
-                            ),
-                          ),
+                              ),
+                            );
+                          },
                         ),
-
-                        // Horizontal Product List inside a white container (Foreground in Stack)
-                        Positioned(
-                          top: 0,
-                          left: 0,
-                          right: 0,
-                          child: Builder(
-                            builder: (context) {
-                              final screenWidth = MediaQuery.of(
-                                context,
-                              ).size.width;
-
-                              int visibleCount = products.length;
-                              if (visibleCount == 0) visibleCount = 1;
-                              if (visibleCount > 3) visibleCount = 3;
-
-                              final spacing = 12.0 * (visibleCount - 1);
-                              final totalTakenSpace =
-                                  32.0 +
-                                  24.0 +
-                                  spacing; // Container margin (16*2) + ListView padding (12*2) + Spacing
-                              final itemWidth =
-                                  (screenWidth - totalTakenSpace) /
-                                  visibleCount;
-
-                              return Padding(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                ),
-                                child: Material(
-                                  elevation: 2,
-                                  borderRadius: BorderRadius.circular(24),
-                                  child: Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 16,
-                                    ),
-                                    decoration: BoxDecoration(
-                                      color: Colors.white,
-                                      borderRadius: BorderRadius.circular(24),
-                                    ),
-                                    height: 130,
-                                    child: ListView.separated(
-                                      physics: const ClampingScrollPhysics(),
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 12,
-                                      ),
-                                      scrollDirection: Axis.horizontal,
-                                      itemCount: products.length,
-                                      separatorBuilder: (_, __) =>
-                                          const SizedBox(width: 12),
-                                      itemBuilder: (context, index) {
-                                        return _buildProductCard(
-                                          products[index],
-                                          isAr,
-                                          itemWidth,
-                                        );
-                                      },
-                                    ),
-                                  ),
-                                ),
-                              );
-                            },
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -389,6 +502,12 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                   ? Icons.restaurant_outlined
                   : product.serialNumber == 5
                   ? Icons.beach_access_outlined
+                  : product.serialNumber == 1
+                  ? Symbols.package_2
+                  : product.serialNumber == 2
+                  ? Icons.kitchen_outlined
+                  : product.serialNumber == 7
+                  ? Icons.chair_alt_outlined
                   : Icons.water_drop_outlined,
               color: isSelected ? Colors.white : AppColors.buttonBlueDark,
               size: 18,
@@ -405,6 +524,36 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
               ),
             ),
           ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildScrollButton({
+    required IconData icon,
+    required VoidCallback? onTap,
+    required bool enabled,
+  }) {
+    return IgnorePointer(
+      ignoring: !enabled,
+      child: GestureDetector(
+        onTap: onTap,
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 200),
+          width: 35,
+          decoration: BoxDecoration(
+            color: enabled
+                ? AppColors.buttonBlueDark.withValues(alpha: 0.85)
+                : Colors.grey.shade300,
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Center(
+            child: Icon(
+              icon,
+              color: enabled ? Colors.white : Colors.grey.shade500,
+              size: 20,
+            ),
+          ),
         ),
       ),
     );
@@ -508,13 +657,13 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                       padding: EdgeInsetsDirectional.only(start: 8, end: 8),
                       child: FittedBox(
                         fit: BoxFit.scaleDown,
-                        alignment: AlignmentDirectional.centerStart,
+                        alignment: AlignmentDirectional.center,
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Text(
-                              "$qty ${itemName(qty)}",
+                              "$qty ${isAr ? product.subtitleAr : product.subtitle}",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 10,
@@ -663,8 +812,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                 child: Container(
                   padding: const EdgeInsetsDirectional.only(
                     bottom: 16,
-                    end: 16,
-                    start: 16,
+                 
                   ),
                   decoration: BoxDecoration(
                     color: Colors.white,
@@ -691,6 +839,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                           IconButton(
                             style: const ButtonStyle(
                               padding: WidgetStatePropertyAll(EdgeInsets.zero),
+                              
                             ),
                             onPressed: () {
                               setState(() {

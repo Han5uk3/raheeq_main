@@ -21,7 +21,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:raheeq_main/utils/colors.dart';
 
-final ValueNotifier<Locale> localeNotifier = ValueNotifier(const Locale('en'));
+final ValueNotifier<Locale> localeNotifier = ValueNotifier(const Locale('ar'));
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 
 void main() {
@@ -127,14 +127,17 @@ class MainApp extends StatelessWidget {
             navigatorObservers: [routeObserver],
             builder: (context, child) {
               final mediaQueryData = MediaQuery.of(context);
-              return MediaQuery(
-                data: mediaQueryData.copyWith(
-                  textScaler: _ArabicTextScaler(
-                    mediaQueryData.textScaler,
-                    true,
+              return GestureDetector(
+                onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+                child: MediaQuery(
+                  data: mediaQueryData.copyWith(
+                    textScaler: _ArabicTextScaler(
+                      mediaQueryData.textScaler,
+                      true,
+                    ),
                   ),
+                  child: child!,
                 ),
-                child: child!,
               );
             },
             locale: locale,

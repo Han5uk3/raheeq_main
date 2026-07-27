@@ -286,21 +286,21 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
 
           // Horizontal slot list
           SizedBox(
-            height: 260, // Increased height slightly to accommodate scrollbar
+            height: 240, // Increased height slightly to accommodate scrollbar
             child: Scrollbar(
               controller: _scrollController,
               interactive: true,
               thumbVisibility: true,
               thickness: 4.0,
               radius: const Radius.circular(4.0),
-              child: ListView.builder(
-                controller: _scrollController,
-                physics: const ClampingScrollPhysics(),
-                scrollDirection: Axis.horizontal,
-                padding: const EdgeInsets.only(
-                  bottom: 16.0,
-                ), // Padding for scrollbar
-                itemCount: slots.length,
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 15.0), // Dedicated space for scrollbar, prevents overlap
+                child: ListView.builder(
+                  controller: _scrollController,
+                  physics: const ClampingScrollPhysics(),
+                  scrollDirection: Axis.horizontal,
+                  clipBehavior: Clip.none,
+                  itemCount: slots.length,
                 itemBuilder: (context, index) {
                   final slot = slots[index];
                   final isSelected = _isSlotSelected(slot);
@@ -325,10 +325,16 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
               ),
             ),
           ),
+        ),
 
           // Continue button
           Container(
-            padding: const EdgeInsets.only(left: 16, right: 16, bottom: 12),
+            padding: const EdgeInsets.only(
+              left: 16,
+              right: 16,
+              bottom: 12,
+              top: 12,
+            ),
             child: SizedBox(
               width: double.infinity,
               height: 56,
@@ -452,14 +458,16 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
                       const Spacer(),
                       // Subtitle row
                       Text(
-                        slot.isChiller
-                            ? AppLocalizations.of(context)!.two_year_guarantee
-                            : (isAr ? product.subtitleAr : product.subtitle),
-                        style: const TextStyle(
+                        (isAr
+                            ? product.messageAr ?? ""
+                            : product.message ?? ""),
+                        style: TextStyle(
+                         
+                          
                           fontSize: 10,
-                          color: Colors.grey,
+                          color: Colors.grey.shade700,
                         ),
-                        maxLines: 1,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                       SizedBox(height: 5),

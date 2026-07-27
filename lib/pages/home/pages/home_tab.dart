@@ -62,6 +62,7 @@ class _HomeTabState extends State<HomeTab>
   );
 
   Timer? _timer;
+  static int _fetchGeneration = 0;
 
   // Static cache to prevent reloading data every time tab is opened
   static bool _hasLoadedOnce = false;
@@ -73,7 +74,6 @@ class _HomeTabState extends State<HomeTab>
   static List<City> _cachedCities = [];
   static ImpactModel? _cachedImpactData;
   static String? _cachedHomeDataJson;
-  static String? _cachedHomeETag;
   static String? _cachedProfileETag;
   static String? _cachedCitiesETag;
   static String? _cachedImpactETag;
@@ -244,8 +244,19 @@ class _HomeTabState extends State<HomeTab>
     });
   }
 
-  Future<void> _fetchHomeData() async {
+Future<void> _fetchHomeData({bool forceRefresh = false}) async {
+    final int myGeneration = ++_fetchGeneration;
+
     try {
+      if (forceRefresh) {
+        // Clear all cached ETags and data hash so the server
+        // returns a full 200 response instead of 304.
+        _cachedHomeDataJson = null;
+        _cachedProfileETag = null;
+        _cachedCitiesETag = null;
+        _cachedImpactETag = null;
+        _cachedNotificationsETag = null;
+      }
       setState(() {
         if (!_hasLoadedOnce) _isLoading = true;
         _errorMessage = null;
@@ -330,7 +341,7 @@ class _HomeTabState extends State<HomeTab>
           );
           if (unreadRes.statusCode == 304) {
             log('Unread notifications unchanged (304).', name: 'HomeTab');
-            if (mounted) {
+            if (mounted && myGeneration == _fetchGeneration) {
               setState(() {
                 _unreadNotificationsCount = _cachedUnreadCount;
               });
@@ -356,7 +367,7 @@ class _HomeTabState extends State<HomeTab>
         }
       }();
 
-      final homeFuture = ApiService().getHome(etag: _cachedHomeETag);
+      final homeFuture = ApiService().getHome();
 
       await Future.wait([
         profileFuture,
@@ -368,26 +379,19 @@ class _HomeTabState extends State<HomeTab>
 
       final response = await homeFuture;
 
-      if (response.statusCode == 304) {
+      // A newer _fetchHomeData() call has been issued since this one
+      // started — that call's result (or its own future in-flight
+      // request) should win. Applying this response now would risk
+      // overwriting fresher data with stale data. Discard silently.
+      if (myGeneration != _fetchGeneration) {
         log(
-          'API returned 304 Not Modified. Using cached ETag data.',
+          'Discarding stale home fetch (gen $myGeneration, latest $_fetchGeneration)',
           name: 'HomeTab',
         );
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-            _impactData = _cachedImpactData;
-          });
-        }
         return;
       }
 
       if (response.statusCode == 200 && response.data['success'] == true) {
-        final newEtag = response.headers.value('etag');
-        if (newEtag != null) {
-          _cachedHomeETag = newEtag;
-        }
-
         final rawData = response.data['data'];
         final currentJson = jsonEncode(rawData);
 
@@ -395,11 +399,12 @@ class _HomeTabState extends State<HomeTab>
 
         if (_hasLoadedOnce && currentJson == _cachedHomeDataJson) {
           log('Home data unchanged. Skipping rebuild.', name: 'HomeTab');
-          if (mounted) {
+          if (mounted && myGeneration == _fetchGeneration) {
             setState(() {
               _isLoading = false;
               _impactData = _cachedImpactData;
             });
+            
           }
           return;
         }
@@ -480,6 +485,17 @@ class _HomeTabState extends State<HomeTab>
           }
         }
 
+        // Re-check right before committing to the static caches — this is
+        // the line that was letting a slow, stale request corrupt shared
+        // state that every future HomeTab instance reads from.
+        if (myGeneration != _fetchGeneration) {
+          log(
+            'Discarding stale home fetch after precache (gen $myGeneration, latest $_fetchGeneration)',
+            name: 'HomeTab',
+          );
+          return;
+        }
+
         _cachedBannerData = banners;
         _cachedCampaigns = campaigns;
         _cachedCategories = categories;
@@ -505,6 +521,7 @@ class _HomeTabState extends State<HomeTab>
           });
         }
       } else {
+        if (myGeneration != _fetchGeneration) return;
         setState(() {
           _isLoading = false;
           _errorMessage =
@@ -512,6 +529,7 @@ class _HomeTabState extends State<HomeTab>
         });
       }
     } catch (e) {
+      if (myGeneration != _fetchGeneration) return;
       setState(() {
         _isLoading = false;
         if (e.toString().contains("connection error")) {
@@ -552,10 +570,12 @@ class _HomeTabState extends State<HomeTab>
               ),
             ),
             child: RefreshIndicator(
-              onRefresh: _fetchHomeData,
+              onRefresh: () => _fetchHomeData(forceRefresh: true),
               color: AppColors.buttonBlueDark,
               child: SingleChildScrollView(
-                physics: const ClampingScrollPhysics(),
+                physics: const AlwaysScrollableScrollPhysics(
+                  parent: ClampingScrollPhysics(),
+                ),
                 child: Column(
                   children: [
                     // Header Section
@@ -2248,7 +2268,7 @@ class _HomeTabState extends State<HomeTab>
         ),
         const SizedBox(height: 16),
         SizedBox(
-          height: 230, // Increased height slightly to accommodate scrollbar
+          height: 190, // Increased height slightly to accommodate scrollbar
           child: ListView.builder(
             physics: const ClampingScrollPhysics(),
             padding: const EdgeInsets.only(
@@ -2401,8 +2421,8 @@ class _HomeTabState extends State<HomeTab>
       margin: EdgeInsetsDirectional.only(
         start: index == 0 ? 16 : 8,
         end: index == _essentialProducts.length - 1 ? 16 : 8,
-        bottom: 12,
-        top: 4,
+        bottom: 0,
+        top: 0,
       ),
       child: Stack(
         clipBehavior: Clip.none,
@@ -2410,7 +2430,7 @@ class _HomeTabState extends State<HomeTab>
           Card(
             margin: EdgeInsets.all(0),
             color: Colors.white,
-            elevation: isSelected ? 3 : 1,
+            elevation: isSelected ? 4 : 2,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(16),
               side: BorderSide(
@@ -2420,58 +2440,67 @@ class _HomeTabState extends State<HomeTab>
                 width: 2,
               ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Product image
-                Container(
-                  padding: const EdgeInsets.all(8.0),
-                  width: double.infinity,
-                  height: 100,
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.all(Radius.circular(14)),
-                  ),
-                  child: ClipRRect(
-                    borderRadius: const BorderRadius.all(Radius.circular(14)),
-                    child: product.image.isNotEmpty
-                        ? CachedNetworkImage(
-                            imageUrl: product.image,
-                            fit: BoxFit.cover,
-                            placeholder: (context, url) => Shimmer.fromColors(
-                              baseColor: Colors.grey[300]!,
-                              highlightColor: Colors.grey[100]!,
-                              child: Container(color: Colors.white),
-                            ),
-                            errorWidget: (context, url, error) => const Center(
-                              child: Icon(
-                                Icons.water_drop,
-                                color: AppColors.buttonBlueDark,
-                                size: 40,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Product image
+                  AspectRatio(
+                    aspectRatio: 1.1,
+                    child: Container(
+                      padding: const EdgeInsets.only(bottom: 8),
+                      width: double.infinity,
+                      height: 100,
+                      decoration: const BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.all(Radius.circular(14)),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: const BorderRadius.all(
+                          Radius.circular(14),
+                        ),
+                        child: product.image.isNotEmpty
+                            ? CachedNetworkImage(
+                                imageUrl: product.image,
+                                fit: BoxFit.cover,
+                                placeholder: (context, url) =>
+                                    Shimmer.fromColors(
+                                      baseColor: Colors.grey[300]!,
+                                      highlightColor: Colors.grey[100]!,
+                                      child: Container(color: Colors.white),
+                                    ),
+                                errorWidget: (context, url, error) =>
+                                    const Center(
+                                      child: Icon(
+                                        Icons.water_drop,
+                                        color: AppColors.buttonBlueDark,
+                                        size: 40,
+                                      ),
+                                    ),
+                              )
+                            : const Center(
+                                child: Icon(
+                                  Icons.water_drop,
+                                  color: AppColors.buttonBlueDark,
+                                  size: 40,
+                                ),
                               ),
-                            ),
-                          )
-                        : const Center(
-                            child: Icon(
-                              Icons.water_drop,
-                              color: AppColors.buttonBlueDark,
-                              size: 40,
-                            ),
-                          ),
+                      ),
+                    ),
                   ),
-                ),
 
-                // Details
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(12, 0, 12, 12),
+                  // Details
+                  Expanded(
                     child: Column(
+                      mainAxisSize: MainAxisSize.min,
                       mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         // Subtitle row
                         Center(
                           child: Text(
+                            textAlign: TextAlign.center,
                             name,
                             style: const TextStyle(
                               fontSize: 12,
@@ -2482,41 +2511,46 @@ class _HomeTabState extends State<HomeTab>
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        const SizedBox(height: 6),
+                        
+              
                         // Product name
-                        Text(
-                          subtitle,
-                          textAlign: TextAlign.start,
-                          style: const TextStyle(
-                            fontSize: 10,
-                            color: Colors.grey,
-                          ),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                        ),
-
-                        const Spacer(),
-                        Text(
-                          AppLocalizations.of(context)!.starting_from,
-                          style: const TextStyle(
-                            fontSize: 10,
-                            color: Colors.grey,
-                          ),
-                        ),
-                        // Price
-                        Text(
-                          '\u202A${AppLocalizations.of(context)!.sar_currency} ${price.toStringAsFixed(0)}\u202C',
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.buttonBlueDark,
-                          ),
-                        ),
+                                    
+                       
+                                    
+                              
+                      
+                        
                       ],
                     ),
                   ),
-                ),
-              ],
+                  if (subtitle != "")
+                    Center(
+                      child: Text(
+                        subtitle,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 10,
+                          color: Colors.grey.shade700,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  Center(
+                    child: Text(
+                      textAlign: TextAlign.center,
+                      "${AppLocalizations.of(context)!.starting_from}  \u202A${AppLocalizations.of(context)!.sar_currency} ${price.toStringAsFixed(0)}\u202C",
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.buttonBlueDark,
+                      ),
+                    ),
+                  ),
+                  
+                
+                ],
+              ),
             ),
           ),
           if (isSelected)

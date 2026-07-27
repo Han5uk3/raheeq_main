@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' show DateFormat;
@@ -9,6 +11,7 @@ import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/models/order_response_model.dart';
 import 'package:raheeq_main/pages/order/booking_details_page.dart';
+import 'package:raheeq_main/pages/order/proof_media_viewer_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:shimmer/shimmer.dart';
@@ -174,6 +177,12 @@ class _OrdersTabState extends State<OrdersTab>
   }
 
   void _processInitialResponse(int tabIndex, dynamic response, String tabName) {
+    if (tabName == 'delivered') {
+      log('Completed orders full response: ${jsonEncode(response.data)}');
+    }
+    if (tabName == 'upcoming') {
+      log('New orders full response: ${jsonEncode(response.data)}');
+    }
     if (response.statusCode == 200 && response.data['success'] == true) {
       final data = response.data['data']['items'] as List;
       final orders = data
@@ -210,6 +219,12 @@ class _OrdersTabState extends State<OrdersTab>
         page: _currentPages[tabIndex],
         tab: _getTabName(),
       );
+
+      if (_getTabName() == 'upcoming') {
+        log(
+          'New orders full response (page ${_currentPages[tabIndex]}): ${jsonEncode(response.data)}',
+        );
+      }
 
       if (response.statusCode == 200 && response.data['success'] == true) {
         final data = response.data['data']['items'] as List;
@@ -702,6 +717,14 @@ class _OrderCardState extends State<_OrderCard> {
       locationTitle = isAr
           ? widget.order.target!.labelAr
           : widget.order.target!.label;
+          
+      if (widget.order.target!.type == 'CAMPAIGN' &&
+          widget.order.product != null) {
+        final productName = isAr
+            ? widget.order.product!.nameAr
+            : widget.order.product!.name;
+        locationTitle += ' - $productName';
+      }
     } else if (widget.order.product != null) {
       locationTitle = isAr
           ? widget.order.product!.nameAr
@@ -1030,50 +1053,66 @@ class _OrderCardState extends State<_OrderCard> {
     }
 
     final proofs = order.deliveryProof!;
-    List<Widget> proofItems = [];
+    List<ProofMediaItem> mediaItems = [];
 
     if (proofs['mosqueFrontImage'] != null &&
         proofs['mosqueFrontImage'].toString().isNotEmpty) {
-      proofItems.add(
-        _buildSmallProofCard(
-          AppLocalizations.of(context)!.mosque_front,
-          proofs['mosqueFrontImage'],
-          false,
-        ),
-      );
-    }
-    if (proofs['mosqueInsideImage'] != null &&
-        proofs['mosqueInsideImage'].toString().isNotEmpty) {
-      proofItems.add(
-        _buildSmallProofCard(
-          AppLocalizations.of(context)!.mosque_inside,
-          proofs['mosqueInsideImage'],
-          false,
-        ),
-      );
-    }
-    if (proofs['packagesImage'] != null &&
-        proofs['packagesImage'].toString().isNotEmpty) {
-      proofItems.add(
-        _buildSmallProofCard(
-          AppLocalizations.of(context)!.packages,
-          proofs['packagesImage'],
-          false,
-        ),
-      );
-    }
-    if (proofs['deliveryVideo'] != null &&
-        proofs['deliveryVideo'].toString().isNotEmpty) {
-      proofItems.add(
-        _buildSmallProofCard(
-          AppLocalizations.of(context)!.delivery_video,
-          proofs['deliveryVideo'],
-          true,
+      mediaItems.add(
+        ProofMediaItem(
+          title: AppLocalizations.of(context)!.mosque_front,
+          url: proofs['mosqueFrontImage'],
+          isVideo: false,
         ),
       );
     }
 
-    if (proofItems.isEmpty) return const SizedBox.shrink();
+    if (proofs['mosqueInsideImage'] != null &&
+        proofs['mosqueInsideImage'].toString().isNotEmpty) {
+      mediaItems.add(
+        ProofMediaItem(
+          title: AppLocalizations.of(context)!.mosque_inside,
+          url: proofs['mosqueInsideImage'],
+          isVideo: false,
+        ),
+      );
+    }
+
+    if (proofs['packagesImage'] != null &&
+        proofs['packagesImage'].toString().isNotEmpty) {
+      mediaItems.add(
+        ProofMediaItem(
+          title: AppLocalizations.of(context)!.packages,
+          url: proofs['packagesImage'],
+          isVideo: false,
+        ),
+      );
+    }
+
+    if (proofs['deliveryVideo'] != null &&
+        proofs['deliveryVideo'].toString().isNotEmpty) {
+      mediaItems.add(
+        ProofMediaItem(
+          title: AppLocalizations.of(context)!.delivery_video,
+          url: proofs['deliveryVideo'],
+          isVideo: true,
+        ),
+      );
+    }
+
+    if (mediaItems.isEmpty) return const SizedBox.shrink();
+
+    List<Widget> proofItems = [];
+    for (int i = 0; i < mediaItems.length; i++) {
+      proofItems.add(
+        _buildSmallProofCard(
+          mediaItems[i].title,
+          mediaItems[i].url,
+          mediaItems[i].isVideo,
+          i,
+          mediaItems,
+        ),
+      );
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1103,14 +1142,22 @@ class _OrderCardState extends State<_OrderCard> {
     );
   }
 
-  Widget _buildSmallProofCard(String title, String url, bool isVideo) {
+  Widget _buildSmallProofCard(
+    String title,
+    String url,
+    bool isVideo,
+    int index,
+    List<ProofMediaItem> allMedia,
+  ) {
     return GestureDetector(
       onTap: () {
-        if (isVideo) {
-          _showVideoPreview(url);
-        } else {
-          _showImagePreview(url);
-        }
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) =>
+                ProofMediaViewerPage(mediaItems: allMedia, initialIndex: index),
+          ),
+        );
       },
       child: Column(
         children: [
@@ -1179,83 +1226,7 @@ class _OrderCardState extends State<_OrderCard> {
     );
   }
 
-  void _showImagePreview(String url) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return Dialog(
-          backgroundColor: Colors.transparent,
-          insetPadding: EdgeInsets.zero,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              InteractiveViewer(
-                child: CachedNetworkImage(imageUrl: url, fit: BoxFit.contain),
-              ),
-              PositionedDirectional(
-                top: 40,
-                start: 20,
-                child: GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.grey[200],
-                    ),
-                    child: const Icon(
-                      Icons.arrow_back,
-                      size: 20,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
-
-  void _showVideoPreview(String url) {
-    showDialog(
-      context: context,
-      builder: (context) {
-        return Dialog(
-          backgroundColor: Colors.black,
-          insetPadding: EdgeInsets.zero,
-          child: Stack(
-            fit: StackFit.expand,
-            children: [
-              _VideoPlayerWidget(url: url),
-              PositionedDirectional(
-                top: 40,
-                start: 20,
-                child: GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: Container(
-                    width: 40,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.grey[200],
-                    ),
-                    child: const Icon(
-                      Icons.arrow_back,
-                      size: 20,
-                      color: Colors.black,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        );
-      },
-    );
-  }
+  
 
   void _showRateOrderBottomSheet(BuildContext context, String orderId) {
     int rating = 0;

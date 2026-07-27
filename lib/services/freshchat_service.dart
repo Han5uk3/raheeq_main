@@ -137,32 +137,33 @@ class FreshchatService {
   }
 
   static Future<void> identifyUser(User user) async {
-    log(
-      "Starting identifyUser flow for user: ${user.id}, existing restoreId: ${user.freshchatRestoreId}",
-      name: "FreshchatService",
-    );
+    // log(
+    //   "Starting identifyUser flow for user: ${user.id}, existing restoreId: ${user.freshchatRestoreId}",
+    //   name: "FreshchatService",
+    // );
     try {
       final restoreId = user.freshchatRestoreId ?? "";
-      log(
-        "Identifying user in SDK with externalId: ${user.id} and restoreId: $restoreId",
-        name: "FreshchatService",
-      );
+      // log(
+      //   "Identifying user in SDK with externalId: ${user.id} and restoreId: $restoreId",
+      //   name: "FreshchatService",
+      // );
       Freshchat.identifyUser(externalId: user.id, restoreId: restoreId);
 
-      log(
-        "Updating Freshchat user profile details for user: ${user.email}...",
-        name: "FreshchatService",
-      );
+      // log(
+      //   "Updating Freshchat user profile details for user: ${user.email}...",
+      //   name: "FreshchatService",
+      // );
       FreshchatUser freshchatUser = await Freshchat.getUser;
       freshchatUser.setFirstName(user.firstName);
       freshchatUser.setLastName(user.lastName);
       freshchatUser.setEmail(user.email);
       freshchatUser.setPhone(user.countryCode, user.phoneNumber);
       Freshchat.setUser(freshchatUser);
-      log(
-        "Freshchat user profile details updated successfully.",
-        name: "FreshchatService",
-      );
+      // log(
+      //   "Freshchat user profile details updated successfully.",
+      //   name: "FreshchatService",
+      // );
+      log("AccessToken : ${AuthStorage.accessToken}");
     } catch (e) {
       log(
         "Failed to identify Freshchat user: $e",

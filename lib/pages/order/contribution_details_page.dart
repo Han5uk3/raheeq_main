@@ -1,7 +1,9 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter_paytabs_bridge/PaymentSdkTransactionClass.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:intl/intl.dart' show DateFormat;
+import 'package:raheeq_main/pages/order/payment_success.dart';
 import 'package:raheeq_main/services/network_monitor.dart';
 import 'package:raheeq_main/services/snackbar_insets_services.dart';
 import 'package:shimmer/shimmer.dart';
@@ -452,7 +454,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-            builder: (_) => PaymentStatusPage(
+            builder: (_) => PaymentSuccessPage(
               status: PaymentStatus.success,
               isAr: isAr,
               orderId: orderNumber?.toString() ?? orderId?.toString(),
@@ -488,14 +490,14 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
             : "+966500000000";
 
         final billingDetails = BillingDetails(
-          userName,
+          "",
           userEmail,
           userPhone,
-          "st. 12",
-          "sa",
-          "Riyadh",
-          "Riyadh",
-          "12345",
+          "",
+          "",
+          "",
+          "",
+          "",
         );
 
         final shippingDetails = ShippingDetails(
@@ -519,8 +521,8 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
           serverKey: paymentConfig['serverKey'],
           clientKey: paymentConfig['clientKey'],
           cartId: paymentConfig['cartId'].toString(),
-          cartDescription: "Donation Order",
-          merchantName: paymentConfig['merchantName'] ?? "Raheeq",
+          cartDescription: paymentConfig['cartDescription'],
+          merchantName: paymentConfig['merchantName'] ?? "Rahiq",
           screentTitle: AppLocalizations.of(context)!.pay_with_card,
           amount: amount > 0 ? amount : 1.0,
           showBillingInfo: false,
@@ -528,7 +530,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
           currencyCode: paymentConfig['currency'] ?? "SAR",
           merchantCountryCode: "SA",
           billingDetails: billingDetails,
-          shippingDetails: shippingDetails,
+          // shippingDetails: shippingDetails,
           alternativePaymentMethods: [],
           linkBillingNameWithCardHolderName: true,
           tokeniseType: PaymentSdkTokeniseType.NONE,
@@ -546,7 +548,6 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
 
         final theme = IOSThemeConfigurations();
         theme.logoImage = "assets/app_logo/logo.png";
-
         theme.primaryColor = "FFFFFF";
         theme.primaryColorDark = "FFFFFF";
 
@@ -623,7 +624,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
-                      builder: (_) => PaymentStatusPage(
+                      builder: (_) => PaymentSuccessPage(
                         status: PaymentStatus.success,
                         isAr: isAr,
                         orderId:
@@ -763,6 +764,16 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                 _isProcessingPayment = false;
               });
             }
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => PaymentStatusPage(
+                  status: PaymentStatus.cancelled,
+                  isAr: isAr,
+                  onRetry: () => Navigator.pop(context),
+                ),
+              ),
+            );
           }
         }
 
@@ -2019,9 +2030,9 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                     const SizedBox(height: 4),
                                     Text(
                                       "${AppLocalizations.of(context)!.quantity}: $qty",
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 12,
-                                        color: Colors.grey,
+                                        color: Colors.grey.shade700,
                                       ),
                                     ),
                                     if (templateTitle
@@ -2240,18 +2251,24 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
             child: Column(
               children: [
                 Align(
-                  alignment: isAr
-                      ? Alignment.centerLeft
-                      : Alignment.centerRight,
+                  alignment: AlignmentDirectional.topStart,
                   child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: IconButton(
-                      icon: const Icon(
-                        Icons.close,
-                        color: Colors.white,
-                        size: 30,
+                    padding: const EdgeInsets.all(16.0),
+                    child: GestureDetector(
+                      onTap: () => Navigator.pop(ctx),
+                      child: Container(
+                        width: 40,
+                        height: 40,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.grey[200],
+                        ),
+                        child: const Icon(
+                          Icons.arrow_back,
+                          size: 20,
+                          color: Colors.black,
+                        ),
                       ),
-                      onPressed: () => Navigator.pop(ctx),
                     ),
                   ),
                 ),
@@ -2324,19 +2341,23 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
         ),
         child: Row(
           children: [
-            Container(
-              padding: EdgeInsetsDirectional.only(start: 24, end: 12),
-              decoration: BoxDecoration(
-                color: AppColors.buttonBlueDark,
-                borderRadius: BorderRadiusDirectional.only(
-                  topStart: Radius.circular(20),
-                  bottomStart: Radius.circular(20),
+            ClipRRect(
+              borderRadius: BorderRadiusDirectional.all(Radius.circular(20)),
+              child: Container(
+                // padding: EdgeInsetsDirectional.only(start: 24, end: 12),
+                padding: EdgeInsets.all(0),
+                decoration: BoxDecoration(
+                  color: AppColors.buttonBlueDark,
+                  borderRadius: BorderRadiusDirectional.all(
+                    Radius.circular(20),
+                  ),
                 ),
-              ),
-              child: Image.asset(
-                "assets/others/giftcard.png",
-                width: 130,
-                height: 140,
+                child: Image.asset(
+                  "assets/others/giftcard.png",
+                  width: 155,
+
+                  fit: BoxFit.contain,
+                ),
               ),
             ),
             const SizedBox(width: 14),

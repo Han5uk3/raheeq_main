@@ -18,7 +18,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   const CustomAppBar({
     super.key,
     required this.title,
-    this.height = 90.0,
+    this.height = 70.0,
     this.subtitle,
     this.leading,
     this.actions,
@@ -69,7 +69,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             Text(
               subtitle!,
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 12,
                 fontWeight: FontWeight.w400,
 
                 color: AppColors.headersubtitlecolor,

@@ -96,7 +96,15 @@ class AuthStorage {
 
     // Programmatically push to Login on session failure
     navigatorKey.currentState?.pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => const Login()),
+      PageRouteBuilder(
+        pageBuilder: (context, animation, secondaryAnimation) => const Login(),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          return FadeTransition(
+            opacity: animation,
+            child: child,
+          );
+        },
+      ),
       (route) => false,
     );
   }

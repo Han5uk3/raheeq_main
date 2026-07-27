@@ -12,6 +12,7 @@ import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/pages/home/home_screen.dart';
 import 'package:raheeq_main/pages/authentication/login.dart';
+import 'package:raheeq_main/utils/phone_formatter.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/utils/rtl_helpers.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
@@ -899,6 +900,16 @@ class _RegistrationState extends State<Registration> {
                         onSelect: (Country country) {
                           setState(() {
                             _selectedCountry = country;
+                            final formatted = GlobalPhoneFormatter.formatText(
+                              _phoneController.text,
+                              country,
+                            );
+                            if (_phoneController.text != formatted) {
+                              _phoneController.value = TextEditingValue(
+                                text: formatted,
+                                selection: TextSelection.collapsed(offset: formatted.length),
+                              );
+                            }
                           });
                         },
                         countryListTheme: CountryListThemeData(
@@ -983,33 +994,13 @@ class _RegistrationState extends State<Registration> {
                       controller: _phoneController,
                       keyboardType: TextInputType.phone,
                       inputFormatters: [
+                        GlobalPhoneFormatter(
+                          getCurrentCountry: () => _selectedCountry,
+                          onCountryDetected: (country) {
+                            if (mounted) setState(() => _selectedCountry = country);
+                          },
+                        ),
                         FilteringTextInputFormatter.digitsOnly,
-                        TextInputFormatter.withFunction((oldValue, newValue) {
-                          int maxLength = 15;
-                          if (_selectedCountry.phoneCode == '966') {
-                            if (newValue.text.startsWith('0')) {
-                              maxLength = 10;
-                            } else if (newValue.text.startsWith('5')) {
-                              maxLength = 9;
-                            } else {
-                              maxLength = 10;
-                            }
-                          }
-                          if (newValue.text.length > maxLength) {
-                            if (oldValue.text.length < maxLength) {
-                              return TextEditingValue(
-                                text: newValue.text.substring(0, maxLength),
-                                selection: TextSelection.collapsed(
-                                  offset: newValue.selection.end > maxLength
-                                      ? maxLength
-                                      : newValue.selection.end,
-                                ),
-                              );
-                            }
-                            return oldValue;
-                          }
-                          return newValue;
-                        }),
                       ],
                       onChanged: (value) {
                         state.didChange(value);

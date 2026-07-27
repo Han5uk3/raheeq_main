@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/pages/home/pages/home_tab.dart';
+import 'package:raheeq_main/pages/home/pages/orders_tab.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/pages/home/home_screen.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 
-enum PaymentStatus { success, failed, pendingApproval, serverError }
+enum PaymentStatus { success, failed, pendingApproval, serverError, cancelled }
 
 class PaymentStatusPage extends StatefulWidget {
   final PaymentStatus status;
@@ -104,6 +105,15 @@ class _PaymentStatusPageState extends State<PaymentStatusPage>
         color = Colors.orange;
         lightColor = Colors.orange.withValues(alpha: 0.1);
         fallbackIcon = Icons.cloud_off;
+        break;
+      case PaymentStatus.cancelled:
+        title = AppLocalizations.of(context)!.status_cancelled;
+        description =
+            widget.message ??
+            AppLocalizations.of(context)!.payment_was_cancelled;
+        color = Colors.redAccent;
+        lightColor = Colors.redAccent.withValues(alpha: 0.1);
+        fallbackIcon = Icons.cancel_outlined;
         break;
     }
 
@@ -265,7 +275,8 @@ class _PaymentStatusPageState extends State<PaymentStatusPage>
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          if (widget.status == PaymentStatus.failed &&
+                          if ((widget.status == PaymentStatus.failed ||
+                                  widget.status == PaymentStatus.cancelled) &&
                               widget.onRetry != null) ...[
                             _buildPrimaryButton(
                               context,
@@ -275,51 +286,30 @@ class _PaymentStatusPageState extends State<PaymentStatusPage>
                             ),
                             const SizedBox(height: 16),
                           ],
-                          if (widget.status ==
-                              PaymentStatus.pendingApproval) ...[
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: _buildSecondaryButton(
-                                    context,
-                                    text: AppLocalizations.of(context)!.orders,
-                                    onPressed: () {
-                                      HomeTab.clearBasket();
-                                      HomeScreen.switchTabNotifier.value = 1;
-                                      Navigator.of(
-                                        context,
-                                      ).popUntil((route) => route.isFirst);
-                                    },
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                Expanded(
-                                  child: _buildPrimaryButton(
-                                    color: AppColors.buttonBlueDark,
-                                    context,
-                                    text: AppLocalizations.of(
-                                      context,
-                                    )!.back_to_home,
-                                    onPressed: () {
-                                      HomeTab.clearBasket();
-                                      Navigator.of(
-                                        context,
-                                      ).popUntil((route) => route.isFirst);
-                                    },
-                                  ),
-                                ),
-                              ],
+                          if (widget.status == PaymentStatus.success ||
+                              widget.status ==
+                                  PaymentStatus.pendingApproval) ...[
+                            _buildSecondaryButton(
+                              context,
+                              text: AppLocalizations.of(
+                                context,
+                              )!.back_to_orders,
+                              onPressed: () {
+                                HomeTab.clearBasket();
+                                OrdersTab.switchInnerTabNotifier.value = 0;
+                                HomeScreen.switchTabNotifier.value = 1;
+                                Navigator.of(
+                                  context,
+                                ).popUntil((route) => route.isFirst);
+                              },
                             ),
                           ] else ...[
                             _buildSecondaryButton(
                               context,
                               text: AppLocalizations.of(context)!.back_to_home,
                               onPressed: () {
-                                if (widget.status == PaymentStatus.success ||
-                                    widget.status ==
-                                        PaymentStatus.serverError ||
-                                    widget.status ==
-                                        PaymentStatus.pendingApproval) {
+                                if (widget.status ==
+                                    PaymentStatus.serverError) {
                                   HomeTab.clearBasket();
                                 }
                                 Navigator.of(

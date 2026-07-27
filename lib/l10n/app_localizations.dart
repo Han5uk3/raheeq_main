@@ -887,7 +887,7 @@ abstract class AppLocalizations {
   /// No description provided for @starting_from.
   ///
   /// In en, this message translates to:
-  /// **'Starting from'**
+  /// **'Price'**
   String get starting_from;
 
   /// No description provided for @high_need.
@@ -1672,6 +1672,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Back to Home'**
   String get back_to_home;
+
+  /// No description provided for @back_to_orders.
+  ///
+  /// In en, this message translates to:
+  /// **'Back to Orders'**
+  String get back_to_orders;
 
   /// No description provided for @retry_payment.
   ///

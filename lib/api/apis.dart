@@ -6,6 +6,7 @@ import 'dart:developer';
 import 'dart:convert';
 import 'dart:async';
 import '../storage/auth_storage.dart';
+import '../storage/app_storage.dart';
 import 'package:raheeq_main/main.dart';
 
 import 'package:raheeq_main/services/notification_service.dart';
@@ -232,6 +233,9 @@ class ApiService {
     _dio.interceptors.add(
       InterceptorsWrapper(
         onRequest: (options, handler) async {
+          final locale = AppStorage.localeCode;
+          options.headers["Accept-Language"] = locale.isNotEmpty ? locale : 'ar';
+
           if (_isAuthExempt(options.path)) {
             return handler.next(options);
           }
@@ -577,7 +581,10 @@ class ApiService {
       final dioRefresh = Dio(
         BaseOptions(
           baseUrl: baseUrl,
-          headers: {'Content-Type': 'application/json'},
+          headers: {
+            'Content-Type': 'application/json',
+            'Accept-Language': AppStorage.localeCode.isNotEmpty ? AppStorage.localeCode : 'ar',
+          },
           connectTimeout: const Duration(seconds: 10),
           receiveTimeout: const Duration(seconds: 10),
         ),
@@ -719,16 +726,9 @@ class ApiService {
     }
   }
 
-  /// Get Home page data
-  Future<Response> getHome({String? etag}) async {
+  Future<Response> getHome() async {
     try {
-      final options = Options(
-        validateStatus: (status) => status != null && status < 400,
-      );
-      if (etag != null && etag.isNotEmpty) {
-        options.headers = {'If-None-Match': etag};
-      }
-      final response = await _dio.get('/home', options: options);
+      final response = await _dio.get('/home');
       return response;
     } catch (e) {
       rethrow;
