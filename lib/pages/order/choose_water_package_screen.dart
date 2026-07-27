@@ -284,48 +284,49 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
 
           const SizedBox(height: 20),
 
-          // Horizontal slot list
-          SizedBox(
-            height: 240, // Increased height slightly to accommodate scrollbar
-            child: Scrollbar(
-              controller: _scrollController,
-              interactive: true,
-              thumbVisibility: true,
-              thickness: 4.0,
-              radius: const Radius.circular(4.0),
-              child: Padding(
-                padding: const EdgeInsets.only(bottom: 15.0), // Dedicated space for scrollbar, prevents overlap
-                child: ListView.builder(
-                  controller: _scrollController,
-                  physics: const ClampingScrollPhysics(),
-                  scrollDirection: Axis.horizontal,
-                  clipBehavior: Clip.none,
-                  itemCount: slots.length,
-                itemBuilder: (context, index) {
-                  final slot = slots[index];
-                  final isSelected = _isSlotSelected(slot);
+          // Horizontal slot list. The row sizes itself to the tallest card and
+          // stretches every other card to match, so no card carries dead space.
+          Scrollbar(
+            controller: _scrollController,
+            interactive: true,
+            thumbVisibility: true,
+            thickness: 4.0,
+            radius: const Radius.circular(4.0),
+            child: Padding(
+              padding: const EdgeInsets.only(
+                bottom: 15.0,
+              ), // Dedicated space for scrollbar, prevents overlap
+              child: SingleChildScrollView(
+                controller: _scrollController,
+                physics: const ClampingScrollPhysics(),
+                scrollDirection: Axis.horizontal,
+                clipBehavior: Clip.none,
+                child: IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: List.generate(slots.length, (index) {
+                      final slot = slots[index];
+                      final isSelected = _isSlotSelected(slot);
 
-                  return Padding(
-                    padding: EdgeInsetsDirectional.only(
-                      bottom: 10,
-                      start: index == 0 ? 16.0 : 2.0,
-                      end: index == slots.length - 1 ? 16.0 : 2.0,
-                    ),
-                    child: Align(
-                      alignment: Alignment.topCenter,
-                      child: _buildSlotCard(
-                        slot: slot,
-                        isSelected: isSelected,
-                        onTap: () => _toggleSlot(slot),
-                        isAr: isAr,
-                      ),
-                    ),
-                  );
-                },
+                      return Padding(
+                        padding: EdgeInsetsDirectional.only(
+                          bottom: 10,
+                          start: index == 0 ? 16.0 : 2.0,
+                          end: index == slots.length - 1 ? 16.0 : 2.0,
+                        ),
+                        child: _buildSlotCard(
+                          slot: slot,
+                          isSelected: isSelected,
+                          onTap: () => _toggleSlot(slot),
+                          isAr: isAr,
+                        ),
+                      );
+                    }),
+                  ),
+                ),
               ),
             ),
           ),
-        ),
 
           // Continue button
           Container(
@@ -382,7 +383,6 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
       onTap: onTap,
       child: SizedBox(
         width: 125,
-        height: 215,
         child: Card(
           color: Colors.white,
           elevation: isSelected ? 4 : 1,
