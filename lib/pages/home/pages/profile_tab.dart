@@ -669,11 +669,11 @@ class _ProfileTabState extends State<ProfileTab> {
                   color: const Color(0xFFF2F4F5),
                   borderRadius: BorderRadius.circular(10),
                 ),
-                child: Transform.scale(
-                  scaleX: isRtl(context) ? -1 : 1,
-                  child: Badge(
-                    isLabelVisible: badgeCount > 0,
-                    label: Text('$badgeCount'),
+                child: Badge(
+                  isLabelVisible: badgeCount > 0,
+                  label: Text('$badgeCount'),
+                  child: Transform.scale(
+                    scaleX: isRtl(context) ? -1 : 1,
                     child: Icon(
                       icon,
                       color: AppColors.buttonBlueDark,

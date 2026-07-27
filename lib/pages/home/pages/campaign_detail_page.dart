@@ -34,6 +34,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
   Product? _selectedProduct;
   Map<String, int> _selectedQuantities = {};
   Map<String, bool> _isCustomMap = {};
+  Map<String, String> _customQuantityText = {};
   final TextEditingController _customController = TextEditingController();
   final FocusNode _customFocusNode = FocusNode();
   Map<String, String> _productNotes = {};
@@ -46,6 +47,23 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
   bool _canScrollRight = true;
 
   bool get _hasAnySelection => _selectedQuantities.values.any((qty) => qty > 0);
+
+  /// Products where the user typed a custom quantity below the product's
+  /// minimum allowed quantity. These are silently excluded from
+  /// `_selectedQuantities`, so they must be checked separately before checkout.
+  List<Product> _getBelowMinimumProducts() {
+    final invalid = <Product>[];
+    for (final product in widget.campaign.products) {
+      if (_isCustomMap[product.id] != true) continue;
+      final text = _customQuantityText[product.id];
+      if (text == null || text.isEmpty) continue;
+      final parsed = int.tryParse(text);
+      if (parsed != null && parsed < product.minQuantity) {
+        invalid.add(product);
+      }
+    }
+    return invalid;
+  }
 
   @override
   void initState() {
@@ -133,8 +151,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
       _customFocusNode.unfocus();
       _noteFocusNode.unfocus();
       if (_isCustomMap[product.id] == true) {
-        _customController.text =
-            _selectedQuantities[product.id]?.toString() ?? '';
+        _customController.text = _customQuantityText[product.id] ?? '';
       } else {
         _customController.clear();
       }
@@ -147,6 +164,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
   }
 
   void _selectQuantity(int quantity) {
+    if (quantity < _selectedProduct!.minQuantity) return;
     setState(() {
       if (_selectedQuantities[_selectedProduct!.id] == quantity &&
           _isCustomMap[_selectedProduct!.id] != true) {
@@ -154,6 +172,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
       } else {
         _selectedQuantities[_selectedProduct!.id] = quantity;
         _isCustomMap[_selectedProduct!.id] = false;
+        _customQuantityText.remove(_selectedProduct!.id);
         _customFocusNode.unfocus();
         _customController.clear();
       }
@@ -561,7 +580,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
 
   Widget _buildQuantitySection(BuildContext context, bool isAr) {
     final product = _selectedProduct!;
-    final presets = product.presetQuantities.toList()..sort();
+    final presets = product.validQuantities;
     final min = product.minQuantity;
 
     String itemName(int qty) {
@@ -758,6 +777,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                 onTap: () {
                   setState(() {
                     _isCustomMap[product.id] = true;
+                    _customQuantityText[product.id] = _customController.text;
                     final parsed = int.tryParse(_customController.text);
                     if (parsed != null && parsed >= min) {
                       _selectedQuantities[product.id] = parsed;
@@ -767,6 +787,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                   });
                 },
                 onChanged: (val) {
+                  _customQuantityText[product.id] = val;
                   final parsed = int.tryParse(val);
                   if (parsed != null && parsed >= min) {
                     setState(() {
@@ -936,37 +957,29 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
         buttonText: AppLocalizations.of(context)!.confirm_pay,
         onButtonTap: () {
           FocusManager.instance.primaryFocus?.unfocus();
-          if (_hasAnySelection) {
+          final belowMinimumProducts = _getBelowMinimumProducts();
+          if (belowMinimumProducts.isNotEmpty) {
+            final message = belowMinimumProducts
+                .map(
+                  (product) =>
+                      '${product.localizedName(isAr)}: ${AppLocalizations.of(context)!.minimum_quantity_is(product.minQuantity.toString())}',
+                )
+                .join('\n');
+            CustomSnackbar.show(context: context, message: message, isError: true);
+          } else if (_hasAnySelection) {
             if (widget.campaign.canSubscribe) {
               _showDonationTypeDialog(context, isAr);
             } else {
               _processOneTimeCheckout(context, isAr);
             }
           } else {
-            final min = _selectedProduct?.minQuantity ?? 1;
-            final customText = _customController.text;
-            final parsed = int.tryParse(customText);
-
-            if (_isCustomMap[_selectedProduct?.id] == true &&
-                customText.isNotEmpty &&
-                parsed != null &&
-                parsed < min) {
-              CustomSnackbar.show(
-                context: context,
-                message: AppLocalizations.of(
-                  context,
-                )!.minimum_quantity_is(min.toString()),
-                isError: true,
-              );
-            } else {
-              CustomSnackbar.show(
-                context: context,
-                message: AppLocalizations.of(
-                  context,
-                )!.select_a_product_to_continue,
-                isError: true,
-              );
-            }
+            CustomSnackbar.show(
+              context: context,
+              message: AppLocalizations.of(
+                context,
+              )!.select_a_product_to_continue,
+              isError: true,
+            );
           }
         },
       ),

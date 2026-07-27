@@ -19,6 +19,9 @@ import '../../../utils/map_marker_icon.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 
+const double _selectedTileHeight = 56;
+const double _selectedTileGap = 8;
+
 class SpecificMosquePage extends StatefulWidget {
   final String slug;
   final List<Place> initialSelections;
@@ -554,55 +557,75 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
         ),
       );
     } else {
-      return Container(
-        height: 50,
-        padding: const EdgeInsets.symmetric(horizontal: 16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: AppColors.buttonBlueDark),
+      // DropdownMenu anchors its popup below the button, unlike DropdownButton
+      // which overlays the menu on top of it.
+      return DropdownMenu<Map<String, dynamic>>(
+        expandedInsets: EdgeInsets.zero,
+        initialSelection: _selectedCity,
+        requestFocusOnTap: false,
+        enableSearch: false,
+        menuHeight: 260,
+        hintText: AppLocalizations.of(context)!.select_city,
+        textStyle: const TextStyle(
+          color: AppColors.buttonBlueDark,
+          fontSize: 14,
         ),
-        child: DropdownButtonHideUnderline(
-          child: DropdownButton<Map<String, dynamic>>(
-            isExpanded: true,
-            dropdownColor: Colors.white,
+        trailingIcon: const Icon(
+          Icons.arrow_drop_down,
+          color: AppColors.buttonBlueDark,
+        ),
+        selectedTrailingIcon: const Icon(
+          Icons.arrow_drop_up,
+          color: AppColors.buttonBlueDark,
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: Colors.white,
+          constraints: const BoxConstraints(minHeight: 50, maxHeight: 50),
+          contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+          hintStyle: TextStyle(
+            color: AppColors.buttonBlueDark.withValues(alpha: 0.8),
+            fontSize: 14,
+          ),
+          enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(16),
-            icon: const Icon(
-              Icons.arrow_drop_down,
+            borderSide: const BorderSide(color: AppColors.buttonBlueDark),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(16),
+            borderSide: const BorderSide(
               color: AppColors.buttonBlueDark,
+              width: 1.5,
             ),
-            hint: Text(
-              AppLocalizations.of(context)!.select_city,
-              style: TextStyle(color: AppColors.buttonBlueDark, fontSize: 14),
-            ),
-            value: _selectedCity,
-            items: _cityFilters.map((city) {
-              return DropdownMenuItem<Map<String, dynamic>>(
-                value: city,
-                child: Text(
-                  isAr ? city['nameAr'] : city['name'],
-                  style: TextStyle(
-                    color: AppColors.buttonBlueDark,
-                    fontSize: 14,
-                  ),
-                ),
-              );
-            }).toList(),
-            onChanged: (val) {
-              setState(() {
-                _selectedCity = val;
-              });
-              if (val != null && _mapController != null) {
-                _mapController!.animateCamera(
-                  CameraUpdate.newLatLngZoom(
-                    LatLng(val['lat'], val['lng']),
-                    12.0,
-                  ),
-                );
-              }
-            },
           ),
         ),
+        menuStyle: MenuStyle(
+          backgroundColor: const WidgetStatePropertyAll(Colors.white),
+          surfaceTintColor: const WidgetStatePropertyAll(Colors.white),
+          shape: WidgetStatePropertyAll(
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          ),
+        ),
+        dropdownMenuEntries: _cityFilters.map((city) {
+          return DropdownMenuEntry<Map<String, dynamic>>(
+            value: city,
+            label: isAr ? city['nameAr'] : city['name'],
+            style: MenuItemButton.styleFrom(
+              foregroundColor: AppColors.buttonBlueDark,
+              textStyle: const TextStyle(fontSize: 14),
+            ),
+          );
+        }).toList(),
+        onSelected: (val) {
+          setState(() {
+            _selectedCity = val;
+          });
+          if (val != null && _mapController != null) {
+            _mapController!.animateCamera(
+              CameraUpdate.newLatLngZoom(LatLng(val['lat'], val['lng']), 12.0),
+            );
+          }
+        },
       );
     }
   }
@@ -768,46 +791,67 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          SizedBox(
-            height: 40,
-            child: ListView.builder(
+          // Caps the list at 4 tiles tall, scrolling beyond that.
+          ConstrainedBox(
+            constraints: const BoxConstraints(
+              maxHeight: 4 * _selectedTileHeight + 3 * _selectedTileGap,
+            ),
+            child: ListView.separated(
+              shrinkWrap: true,
               physics: const ClampingScrollPhysics(),
-              scrollDirection: Axis.horizontal,
+              padding: EdgeInsets.zero,
               itemCount: _selectedItemsList.length,
+              separatorBuilder: (context, index) =>
+                  const SizedBox(height: _selectedTileGap),
               itemBuilder: (context, index) {
                 final item = _selectedItemsList[index];
+                final isFavorite = _favoriteMosqueIds.contains(item.id);
                 return Container(
-                  margin: const EdgeInsetsDirectional.only(end: 8),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
+                  height: _selectedTileHeight,
+                  padding: const EdgeInsetsDirectional.only(start: 12, end: 4),
                   decoration: BoxDecoration(
-                    color: AppColors.buttonBlueDark.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: AppColors.buttonBlueDark),
+                    color: AppColors.buttonBlueDark.withValues(alpha: 0.08),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color: AppColors.buttonBlueDark.withValues(alpha: 0.4),
+                    ),
                   ),
                   child: Row(
-                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(
-                        item.localizedName(isAr),
-                        style: const TextStyle(
-                          color: AppColors.buttonBlueDark,
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
+                      Expanded(
+                        child: Text(
+                          item.localizedName(isAr),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                          style: const TextStyle(
+                            color: AppColors.buttonBlueDark,
+                            fontSize: 14,
+                            fontWeight: FontWeight.w600,
+                          ),
                         ),
                       ),
-                      const SizedBox(width: 4),
-                      GestureDetector(
-                        onTap: () {
+                      if (widget.slug != 'orphanages')
+                        IconButton(
+                          visualDensity: VisualDensity.compact,
+                          onPressed: () => _toggleFavorite(item.id),
+                          icon: Icon(
+                            isFavorite ? Icons.favorite : Icons.favorite_border,
+                            size: 22,
+                            color: isFavorite
+                                ? Colors.redAccent
+                                : AppColors.buttonBlueDark,
+                          ),
+                        ),
+                      IconButton(
+                        visualDensity: VisualDensity.compact,
+                        onPressed: () {
                           setState(() {
                             _selectedItemsList.remove(item);
                           });
                         },
-                        child: const Icon(
-                          Icons.close,
-                          size: 16,
+                        icon: const Icon(
+                          Icons.close_rounded,
+                          size: 22,
                           color: AppColors.buttonBlueDark,
                         ),
                       ),
