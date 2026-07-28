@@ -1,4 +1,3 @@
-
 class OrderResponseModel {
   final String id;
   final String subOrderNumber;
@@ -66,8 +65,11 @@ class OrderResponseModel {
       completedAt: json['completedAt'] != null
           ? DateTime.tryParse(json['completedAt'])
           : ((json['deliveryProof'] ?? json['proofs']) != null &&
-                    (json['deliveryProof'] ?? json['proofs'])['deliveredAt'] != null
-                ? DateTime.tryParse((json['deliveryProof'] ?? json['proofs'])['deliveredAt'])
+                    (json['deliveryProof'] ?? json['proofs'])['deliveredAt'] !=
+                        null
+                ? DateTime.tryParse(
+                    (json['deliveryProof'] ?? json['proofs'])['deliveredAt'],
+                  )
                 : null),
       confirmedAt: json['confirmedAt'] != null
           ? DateTime.tryParse(json['confirmedAt'])
@@ -110,7 +112,9 @@ class OrderResponseModel {
               : null),
       deliveredLocationDetails: json['deliveredLocationDetails'],
       isChillerAvailable: json['isChillerAvailable'],
-      review: json['review'] != null ? OrderReviewModel.fromJson(json['review']) : null,
+      review: json['review'] != null
+          ? OrderReviewModel.fromJson(json['review'])
+          : null,
       deliveredToDifferentMosque: json['deliveredToDifferentMosque'],
       differentMosqueReason: json['differentMosqueReason'],
     );
@@ -149,6 +153,10 @@ class OrderProduct {
   final int serialNumber;
   final String name;
   final String nameAr;
+  final String? subtitle;
+  final String? subtitleAr;
+  final String? message;
+  final String messageAr;
   final String image;
   final int quantity;
 
@@ -159,6 +167,10 @@ class OrderProduct {
     required this.nameAr,
     required this.image,
     required this.quantity,
+    this.subtitle,
+    this.subtitleAr,
+    this.message,
+    required this.messageAr,
   });
 
   factory OrderProduct.fromJson(Map<String, dynamic> json) {
@@ -169,6 +181,11 @@ class OrderProduct {
       nameAr: json['nameAr'] ?? '',
       image: json['image'] ?? '',
       quantity: json['quantity'] ?? 0,
+      subtitle: json['subtitle'] ?? '',
+      subtitleAr: json['subtitleAr'] ?? '',
+      message: json['message'] ?? '',
+      messageAr: json['messageAr'] ?? '',
+
     );
   }
 }
@@ -232,10 +249,7 @@ class OrderReviewModel {
   final int rating;
   final String reviewText;
 
-  OrderReviewModel({
-    required this.rating,
-    required this.reviewText,
-  });
+  OrderReviewModel({required this.rating, required this.reviewText});
 
   factory OrderReviewModel.fromJson(Map<String, dynamic> json) {
     return OrderReviewModel(

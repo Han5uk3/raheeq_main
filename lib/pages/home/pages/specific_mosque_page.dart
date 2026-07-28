@@ -1,4 +1,5 @@
 import 'dart:developer';
+import 'dart:math' as math;
 
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/pages/home/widgets/mosque_card.dart';
@@ -21,6 +22,14 @@ import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 
 const double _selectedTileHeight = 56;
 const double _selectedTileGap = 8;
+const int _maxVisibleSelectedTiles = 4;
+// Material's scrollbar thickness (8) plus its cross axis margin (2), rounded up.
+const double _scrollbarGutter = 12;
+
+const TextStyle _cityMenuTextStyle = TextStyle(fontSize: 14);
+// MenuItemButton's default horizontal padding (12 + 12) plus DropdownMenu's
+// input start gap (4), with a little slack so the widest label never wraps.
+const double _cityMenuHorizontalPadding = 34;
 
 class SpecificMosquePage extends StatefulWidget {
   final String slug;
@@ -52,6 +61,7 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
   late TabController _tabController;
   final TextEditingController _searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
+  final ScrollController _selectedItemsScrollController = ScrollController();
   int _currentPage = 1;
   bool _isLoadingMore = false;
   bool _hasMore = true;
@@ -238,6 +248,7 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
   @override
   void dispose() {
     _scrollController.dispose();
+    _selectedItemsScrollController.dispose();
     _tabController.dispose();
     _searchController.dispose();
     super.dispose();
@@ -557,10 +568,37 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
         ),
       );
     } else {
+      final entries = _cityFilters.map((city) {
+        return DropdownMenuEntry<Map<String, dynamic>>(
+          value: city,
+          label: (isAr ? city['nameAr'] : city['name']) as String,
+          style: MenuItemButton.styleFrom(
+            foregroundColor: AppColors.buttonBlueDark,
+            textStyle: _cityMenuTextStyle,
+          ),
+        );
+      }).toList();
+
+      // The button spans the full width (expandedInsets), which would otherwise
+      // also be the popup's minimum width. Measuring the longest label lets the
+      // popup shrink to just fit it.
+      final textDirection = Directionality.of(context);
+      final textScaler = MediaQuery.textScalerOf(context);
+      double longestLabelWidth = 0;
+      for (final entry in entries) {
+        final painter = TextPainter(
+          text: TextSpan(text: entry.label, style: _cityMenuTextStyle),
+          textDirection: textDirection,
+          textScaler: textScaler,
+        )..layout();
+        longestLabelWidth = math.max(longestLabelWidth, painter.width);
+      }
+
       // DropdownMenu anchors its popup below the button, unlike DropdownButton
       // which overlays the menu on top of it.
       return DropdownMenu<Map<String, dynamic>>(
         expandedInsets: EdgeInsets.zero,
+        width: longestLabelWidth + _cityMenuHorizontalPadding,
         initialSelection: _selectedCity,
         requestFocusOnTap: false,
         enableSearch: false,
@@ -606,16 +644,7 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
             RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           ),
         ),
-        dropdownMenuEntries: _cityFilters.map((city) {
-          return DropdownMenuEntry<Map<String, dynamic>>(
-            value: city,
-            label: isAr ? city['nameAr'] : city['name'],
-            style: MenuItemButton.styleFrom(
-              foregroundColor: AppColors.buttonBlueDark,
-              textStyle: const TextStyle(fontSize: 14),
-            ),
-          );
-        }).toList(),
+        dropdownMenuEntries: entries,
         onSelected: (val) {
           setState(() {
             _selectedCity = val;
@@ -775,6 +804,8 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
   }
 
   Widget _buildBottomBar(bool isAr) {
+    // Beyond four tiles the list scrolls, so the thumb earns its keep.
+    final isScrollable = _selectedItemsList.length > _maxVisibleSelectedTiles;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -794,71 +825,88 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
           // Caps the list at 4 tiles tall, scrolling beyond that.
           ConstrainedBox(
             constraints: const BoxConstraints(
-              maxHeight: 4 * _selectedTileHeight + 3 * _selectedTileGap,
+              maxHeight:
+                  _maxVisibleSelectedTiles * _selectedTileHeight +
+                  (_maxVisibleSelectedTiles - 1) * _selectedTileGap,
             ),
-            child: ListView.separated(
-              shrinkWrap: true,
-              physics: const ClampingScrollPhysics(),
-              padding: EdgeInsets.zero,
-              itemCount: _selectedItemsList.length,
-              separatorBuilder: (context, index) =>
-                  const SizedBox(height: _selectedTileGap),
-              itemBuilder: (context, index) {
-                final item = _selectedItemsList[index];
-                final isFavorite = _favoriteMosqueIds.contains(item.id);
-                return Container(
-                  height: _selectedTileHeight,
-                  padding: const EdgeInsetsDirectional.only(start: 12, end: 4),
-                  decoration: BoxDecoration(
-                    color: AppColors.buttonBlueDark.withValues(alpha: 0.08),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: AppColors.buttonBlueDark.withValues(alpha: 0.4),
+            // The scrollbar sides with the text direction on its own: right in
+            // English, left in Arabic.
+            child: Scrollbar(
+              controller: _selectedItemsScrollController,
+              thumbVisibility: isScrollable,
+              child: ListView.separated(
+                controller: _selectedItemsScrollController,
+                shrinkWrap: true,
+                physics: const ClampingScrollPhysics(),
+                // Keep the tiles clear of the thumb once it is showing.
+                padding: isScrollable
+                    ? const EdgeInsetsDirectional.only(end: _scrollbarGutter)
+                    : EdgeInsets.zero,
+                itemCount: _selectedItemsList.length,
+                separatorBuilder: (context, index) =>
+                    const SizedBox(height: _selectedTileGap),
+                itemBuilder: (context, index) {
+                  final item = _selectedItemsList[index];
+                  final isFavorite = _favoriteMosqueIds.contains(item.id);
+                  return Container(
+                    height: _selectedTileHeight,
+                    padding: const EdgeInsetsDirectional.only(
+                      start: 12,
+                      end: 4,
                     ),
-                  ),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Text(
-                          item.localizedName(isAr),
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            color: AppColors.buttonBlueDark,
-                            fontSize: 14,
-                            fontWeight: FontWeight.w600,
+                    decoration: BoxDecoration(
+                      color: AppColors.buttonBlueDark.withValues(alpha: 0.08),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: AppColors.buttonBlueDark.withValues(alpha: 0.4),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            item.localizedName(isAr),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: const TextStyle(
+                              color: AppColors.buttonBlueDark,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
-                      ),
-                      if (widget.slug != 'orphanages')
+                        if (widget.slug != 'orphanages')
+                          IconButton(
+                            visualDensity: VisualDensity.compact,
+                            onPressed: () => _toggleFavorite(item.id),
+                            icon: Icon(
+                              isFavorite
+                                  ? Icons.favorite
+                                  : Icons.favorite_border,
+                              size: 22,
+                              color: isFavorite
+                                  ? Colors.redAccent
+                                  : AppColors.buttonBlueDark,
+                            ),
+                          ),
                         IconButton(
                           visualDensity: VisualDensity.compact,
-                          onPressed: () => _toggleFavorite(item.id),
-                          icon: Icon(
-                            isFavorite ? Icons.favorite : Icons.favorite_border,
+                          onPressed: () {
+                            setState(() {
+                              _selectedItemsList.remove(item);
+                            });
+                          },
+                          icon: const Icon(
+                            Icons.close_rounded,
                             size: 22,
-                            color: isFavorite
-                                ? Colors.redAccent
-                                : AppColors.buttonBlueDark,
+                            color: AppColors.buttonBlueDark,
                           ),
                         ),
-                      IconButton(
-                        visualDensity: VisualDensity.compact,
-                        onPressed: () {
-                          setState(() {
-                            _selectedItemsList.remove(item);
-                          });
-                        },
-                        icon: const Icon(
-                          Icons.close_rounded,
-                          size: 22,
-                          color: AppColors.buttonBlueDark,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
+                      ],
+                    ),
+                  );
+                },
+              ),
             ),
           ),
           const SizedBox(height: 12),

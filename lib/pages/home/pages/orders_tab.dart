@@ -721,8 +721,8 @@ class _OrderCardState extends State<_OrderCard> {
       if (widget.order.target!.type == 'CAMPAIGN' &&
           widget.order.product != null) {
         final productName = isAr
-            ? widget.order.product!.nameAr
-            : widget.order.product!.name;
+            ? widget.order.product!.subtitleAr ?? ""
+            : widget.order.product!.subtitle ?? "";
         locationTitle += ' - $productName';
       }
     } else if (widget.order.product != null) {
@@ -999,47 +999,7 @@ class _OrderCardState extends State<_OrderCard> {
                   ),
                 ],
               ),
-              if (widget.order.invoiceUrl != null &&
-                  widget.order.invoiceUrl!.isNotEmpty) ...[
-                SizedBox(height: _s(12)),
-                SizedBox(
-                  width: double.infinity,
-                  child: OutlinedButton(
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: AppColors.buttonBlueDark),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      padding: EdgeInsets.symmetric(vertical: _s(8)),
-                    ),
-                    onPressed: () async {
-                      final url = Uri.parse(widget.order.invoiceUrl!);
-                      try {
-                        await launchUrl(
-                          url,
-                          mode: LaunchMode.externalApplication,
-                        );
-                      } catch (e) {
-                        if (mounted) {
-                          CustomSnackbar.show(
-                            context: context,
-                            message: AppLocalizations.of(
-                              context,
-                            )!.could_not_open_invoice,
-                          );
-                        }
-                      }
-                    },
-                    child: Text(
-                      AppLocalizations.of(context)!.view_receipt,
-                      style: TextStyle(
-                        color: AppColors.buttonBlueDark,
-                        fontSize: _s(13),
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+             
             ],
           ),
         ),

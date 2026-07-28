@@ -15,6 +15,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_paytabs_bridge/flutter_paytabs_bridge.dart';
 import 'package:flutter_paytabs_bridge/IOSThemeConfiguration.dart';
 import 'package:flutter_paytabs_bridge/PaymentSdkTokeniseType.dart';
+import 'package:flutter_paytabs_bridge/PaymentSdkLocale.dart';
 import 'package:flutter_paytabs_bridge/PaymentSdkApms.dart';
 import 'package:raheeq_main/pages/order/payment_status_page.dart';
 import 'package:raheeq_main/pages/order/choose_iban_account_bottom_sheet.dart';
@@ -493,11 +494,12 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
           "",
           userEmail,
           userPhone,
-          "",
-          "",
-          "",
-          "",
-          "",
+       
+          "st. 12",
+          "sa",
+          "Riyadh",
+          "Riyadh",
+          "12345"
         );
 
         final shippingDetails = ShippingDetails(
@@ -524,13 +526,16 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
           cartDescription: paymentConfig['cartDescription'],
           merchantName: paymentConfig['merchantName'] ?? "Rahiq",
           screentTitle: AppLocalizations.of(context)!.pay_with_card,
+          // Without this the SDK falls back to the device language, which can
+          // differ from the language picked inside the app.
+          locale: isAr ? PaymentSdkLocale.AR : PaymentSdkLocale.EN,
           amount: amount > 0 ? amount : 1.0,
           showBillingInfo: false,
           forceShippingInfo: false,
           currencyCode: paymentConfig['currency'] ?? "SAR",
           merchantCountryCode: "SA",
           billingDetails: billingDetails,
-          // shippingDetails: shippingDetails,
+          shippingDetails: shippingDetails,
           alternativePaymentMethods: [],
           linkBillingNameWithCardHolderName: true,
           tokeniseType: PaymentSdkTokeniseType.NONE,

@@ -48,35 +48,34 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
         'Feedback API response: statusCode=${res.statusCode}, data=${res.data}',
         name: 'SuggestionsPage',
       );
-      if (res.statusCode == 200) {
+      // The API can reply 200 or 201 on success, so key off the `success`
+      // flag rather than a specific status code.
+      if (res.data is Map && res.data['success'] == true) {
         if (mounted) {
+          final message = res.data['message'];
           CustomSnackbar.show(
             context: context,
-            message: (res.data is Map && res.data['message'] != null)
-                ? res.data['message']
+            message: (message is String && message.isNotEmpty)
+                ? message
                 : AppLocalizations.of(context)!.feedback_submitted_successfully,
           );
           _suggestionController.clear();
+          Navigator.pop(context);
         }
       }
     } catch (e) {
       if (mounted) {
-        String errorMessage = '';
+        String errorMessage;
+        final responseMessage = e is DioException && e.response?.data is Map
+            ? e.response?.data['message']
+            : null;
 
-        if (e.toString().contains('connection error')) {
+        if (responseMessage is String && responseMessage.isNotEmpty) {
+          errorMessage = responseMessage;
+        } else if (e.toString().contains('connection error')) {
           errorMessage = AppLocalizations.of(context)!.internet_error;
-        } else if (e is DioException &&
-            e.response?.data is Map &&
-            e.response?.data['message'] != null &&
-            e.response?.data['message'] == 'Feedback submitted successfully') {
-          errorMessage = AppLocalizations.of(
-            context,
-          )!.feedback_submitted_successfully;
-        } else if (e is DioException &&
-            e.response?.data is Map &&
-            e.response?.data['message'] != null &&
-            e.response?.data['message'] != 'Feedback submitted successfully') {
-          errorMessage = e.response?.data['message'];
+        } else {
+          errorMessage = AppLocalizations.of(context)!.error_occurred_try_again;
         }
         CustomSnackbar.show(
           context: context,

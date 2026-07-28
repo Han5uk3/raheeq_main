@@ -39,6 +39,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
     try {
       final response = await ApiService().getNotifications();
+      log('Get All Notifications Response: ${response.data}');
       if (response.statusCode == 200 && response.data['success'] == true) {
         final data = response.data['data'] as List;
         setState(() {
@@ -101,23 +102,7 @@ class _NotificationsPageState extends State<NotificationsPage> {
         if (response.statusCode == 200) {
           if (mounted) {
             setState(() {
-              final index = _notifications.indexWhere(
-                (n) => n.id == notification.id,
-              );
-              if (index != -1) {
-                _notifications[index] = NotificationModel(
-                  id: notification.id,
-                  title: notification.title,
-                  body: notification.body,
-                  category: notification.category,
-                  userId: notification.userId,
-                  driverId: notification.driverId,
-                  adminId: notification.adminId,
-                  data: notification.data,
-                  isRead: true,
-                  createdAt: notification.createdAt,
-                );
-              }
+              notification.isRead = true;
             });
           }
         }

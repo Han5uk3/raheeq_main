@@ -244,7 +244,7 @@ class _HomeTabState extends State<HomeTab>
     });
   }
 
-Future<void> _fetchHomeData({bool forceRefresh = false}) async {
+  Future<void> _fetchHomeData({bool forceRefresh = false}) async {
     final int myGeneration = ++_fetchGeneration;
 
     try {
@@ -404,7 +404,6 @@ Future<void> _fetchHomeData({bool forceRefresh = false}) async {
               _isLoading = false;
               _impactData = _cachedImpactData;
             });
-            
           }
           return;
         }
@@ -2269,141 +2268,148 @@ Future<void> _fetchHomeData({bool forceRefresh = false}) async {
           ),
         ),
         const SizedBox(height: 16),
-        SizedBox(
-          height: 190, // Increased height slightly to accommodate scrollbar
-          child: ListView.builder(
+        // Horizontal product list. The row sizes itself to the tallest card and
+        // stretches every other card to match, so no card carries dead space.
+        Padding(
+          padding: const EdgeInsets.only(bottom: 16.0),
+          child: SingleChildScrollView(
             physics: const ClampingScrollPhysics(),
-            padding: const EdgeInsets.only(
-              bottom: 16.0,
-            ), // Padding for scrollbar
             scrollDirection: Axis.horizontal,
-            itemCount: _essentialProducts.length,
-            itemBuilder: (context, index) {
-              final product = _essentialProducts[index];
-              final name = product.localizedName(isAr);
+            clipBehavior: Clip.none,
+            child: IntrinsicHeight(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: List.generate(_essentialProducts.length, (index) {
+                  final product = _essentialProducts[index];
+                  final name = product.localizedName(isAr);
 
-              final subtitle = product.localizedSubtitle(isAr);
+                  final subtitle = product.localizedSubtitle(isAr);
 
-              final price = product.price;
+                  final price = product.price;
 
-              final existingIndex = _selectedItems.indexWhere(
-                (item) =>
-                    item.category.slug == 'essential_supplies' &&
-                    item.specificData is EssentialSelection &&
-                    (item.specificData as EssentialSelection).product.id ==
-                        product.id,
-              );
-              final isSelected = existingIndex != -1;
-
-              return GestureDetector(
-                onTap: () async {
-                  if (isSelected) {
-                    setState(() {
-                      _selectedItems.removeWhere(
-                        (item) =>
-                            item.category.slug == 'essential_supplies' &&
-                            item.specificData is EssentialSelection &&
-                            (item.specificData as EssentialSelection)
-                                    .product
-                                    .id ==
-                                product.id,
-                      );
-                    });
-                    return;
-                  }
-
-                  if (_selectedItems.isNotEmpty &&
-                      _selectedItems.any(
-                        (item) => item.category.slug != 'essential_supplies',
-                      )) {
-                    final shouldProceed = await _showClearBasketDialog(
-                      context,
-                      name,
-                      isAr,
-                    );
-                    if (!shouldProceed) {
-                      return;
-                    }
-                    setState(() {
-                      _selectedItems.clear();
-                    });
-                  }
-
-                  final result = await showDialog<String>(
-                    context: context,
-                    builder: (_) => OptionSelectorDialog(
-                      title: AppLocalizations.of(context)!.mosques,
-                      showClearOption: false,
-                    ),
+                  final existingIndex = _selectedItems.indexWhere(
+                    (item) =>
+                        item.category.slug == 'essential_supplies' &&
+                        item.specificData is EssentialSelection &&
+                        (item.specificData as EssentialSelection).product.id ==
+                            product.id,
                   );
+                  final isSelected = existingIndex != -1;
 
-                  if (result == 'most_in_need') {
-                    setState(() {
-                      _selectedItems.add(
-                        SelectedCategoryItem(
-                          category: _essentialCategory,
-                          optionType: 'most_in_need',
-                          specificData: EssentialSelection(product: product),
+                  return GestureDetector(
+                    onTap: () async {
+                      if (isSelected) {
+                        setState(() {
+                          _selectedItems.removeWhere(
+                            (item) =>
+                                item.category.slug == 'essential_supplies' &&
+                                item.specificData is EssentialSelection &&
+                                (item.specificData as EssentialSelection)
+                                        .product
+                                        .id ==
+                                    product.id,
+                          );
+                        });
+                        return;
+                      }
+
+                      if (_selectedItems.isNotEmpty &&
+                          _selectedItems.any(
+                            (item) =>
+                                item.category.slug != 'essential_supplies',
+                          )) {
+                        final shouldProceed = await _showClearBasketDialog(
+                          context,
+                          name,
+                          isAr,
+                        );
+                        if (!shouldProceed) {
+                          return;
+                        }
+                        setState(() {
+                          _selectedItems.clear();
+                        });
+                      }
+
+                      final result = await showDialog<String>(
+                        context: context,
+                        builder: (_) => OptionSelectorDialog(
+                          title: AppLocalizations.of(context)!.mosques,
+                          showClearOption: false,
                         ),
                       );
-                    });
-                  } else if (result == 'specific') {
-                    final specificItems = await Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => SpecificMosquePage(
-                          isEssentialProduct: true,
-                          slug: 'mosques_in_need',
-                          initialSelections: const [],
-                          title: name,
-                        ),
-                      ),
-                    );
-                    if (specificItems != null &&
-                        specificItems is List<Place> &&
-                        specificItems.isNotEmpty) {
-                      setState(() {
-                        for (final specificItem in specificItems) {
+
+                      if (result == 'most_in_need') {
+                        setState(() {
                           _selectedItems.add(
                             SelectedCategoryItem(
                               category: _essentialCategory,
-                              optionType: 'specific',
+                              optionType: 'most_in_need',
                               specificData: EssentialSelection(
                                 product: product,
-                                place: specificItem,
                               ),
                             ),
                           );
-                        }
-                      });
-                    }
-                  }
-                },
-                child: _buildEssentialMosqueItem(
-                  name,
-                  index,
-                  isSelected,
-                  product,
-                  subtitle,
-                  () {
-                    if (isSelected) {
-                      setState(() {
-                        _selectedItems.removeWhere(
-                          (item) =>
-                              item.category.slug == 'essential_supplies' &&
-                              item.specificData is EssentialSelection &&
-                              (item.specificData as EssentialSelection)
-                                      .product
-                                      .id ==
-                                  product.id,
+                        });
+                      } else if (result == 'specific') {
+                        final specificItems = await Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => SpecificMosquePage(
+                              isEssentialProduct: true,
+                              slug: 'mosques_in_need',
+                              initialSelections: const [],
+                              title: name,
+                            ),
+                          ),
                         );
-                      });
-                      return;
-                    }
-                  },
-                  price,
-                ),
-              );
-            },
+                        if (specificItems != null &&
+                            specificItems is List<Place> &&
+                            specificItems.isNotEmpty) {
+                          setState(() {
+                            for (final specificItem in specificItems) {
+                              _selectedItems.add(
+                                SelectedCategoryItem(
+                                  category: _essentialCategory,
+                                  optionType: 'specific',
+                                  specificData: EssentialSelection(
+                                    product: product,
+                                    place: specificItem,
+                                  ),
+                                ),
+                              );
+                            }
+                          });
+                        }
+                      }
+                    },
+                    child: _buildEssentialMosqueItem(
+                      name,
+                      index,
+                      isSelected,
+                      product,
+                      subtitle,
+                      () {
+                        if (isSelected) {
+                          setState(() {
+                            _selectedItems.removeWhere(
+                              (item) =>
+                                  item.category.slug == 'essential_supplies' &&
+                                  item.specificData is EssentialSelection &&
+                                  (item.specificData as EssentialSelection)
+                                          .product
+                                          .id ==
+                                      product.id,
+                            );
+                          });
+                          return;
+                        }
+                      },
+                      price,
+                    ),
+                  );
+                }),
+              ),
+            ),
           ),
         ),
       ],
@@ -2429,6 +2435,9 @@ Future<void> _fetchHomeData({bool forceRefresh = false}) async {
       ),
       child: Stack(
         clipBehavior: Clip.none,
+        // Hand the row's stretched height down to the card so every card in the
+        // list ends up the same size.
+        fit: StackFit.passthrough,
         children: [
           Card(
             margin: EdgeInsets.all(0),
@@ -2500,7 +2509,7 @@ Future<void> _fetchHomeData({bool forceRefresh = false}) async {
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        // Subtitle row
+               
                         Center(
                           child: Text(
                             textAlign: TextAlign.center,
@@ -2514,19 +2523,13 @@ Future<void> _fetchHomeData({bool forceRefresh = false}) async {
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-                        
-              
-                        // Product name
-                                    
-                       
-                                    
-                              
-                      
-                        
+
+                
                       ],
                     ),
                   ),
-                  if (subtitle != "")
+                  if (subtitle != "") ...{
+                    SizedBox(height: 4),
                     Center(
                       child: Text(
                         subtitle,
@@ -2539,6 +2542,8 @@ Future<void> _fetchHomeData({bool forceRefresh = false}) async {
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
+                  },
+                
                   Center(
                     child: Text(
                       textAlign: TextAlign.center,
@@ -2550,8 +2555,6 @@ Future<void> _fetchHomeData({bool forceRefresh = false}) async {
                       ),
                     ),
                   ),
-                  
-                
                 ],
               ),
             ),
