@@ -2509,7 +2509,6 @@ class _HomeTabState extends State<HomeTab>
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-               
                         Center(
                           child: Text(
                             textAlign: TextAlign.center,
@@ -2523,8 +2522,6 @@ class _HomeTabState extends State<HomeTab>
                             overflow: TextOverflow.ellipsis,
                           ),
                         ),
-
-                
                       ],
                     ),
                   ),
@@ -2543,7 +2540,6 @@ class _HomeTabState extends State<HomeTab>
                       ),
                     ),
                   },
-                
                   Center(
                     child: Text(
                       textAlign: TextAlign.center,
@@ -2553,6 +2549,8 @@ class _HomeTabState extends State<HomeTab>
                         fontWeight: FontWeight.bold,
                         color: AppColors.buttonBlueDark,
                       ),
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ],
