@@ -455,22 +455,17 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
                         overflow: TextOverflow.ellipsis,
                       ),
 
-                      const Spacer(),
+                      const SizedBox(height: 8),
                       // Subtitle row
                       Text(
                         (isAr
                             ? product.messageAr ?? ""
                             : product.message ?? ""),
-                        style: TextStyle(
-                         
-                          
-                          fontSize: 10,
-                          color: Colors.grey.shade700,
-                        ),
+                        style: TextStyle(fontSize: 10, color: Colors.grey.shade700),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
-                      SizedBox(height: 5),
+                      const SizedBox(height: 5),
                       // Price
                       Text(
                         '\u202A${AppLocalizations.of(context)!.sar_currency} ${totalPrice.toStringAsFixed(0)}\u202C',
@@ -479,6 +474,8 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
                           fontWeight: FontWeight.bold,
                           color: AppColors.buttonBlueDark,
                         ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),

@@ -1,5 +1,4 @@
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter_paytabs_bridge/PaymentSdkTransactionClass.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:intl/intl.dart' show DateFormat;
@@ -491,10 +490,9 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
             : "+966500000000";
 
         final billingDetails = BillingDetails(
-          "",
+          AuthStorage.user?.fullName ?? "Customer",
           userEmail,
           userPhone,
-       
           "st. 12",
           "sa",
           "Riyadh",
