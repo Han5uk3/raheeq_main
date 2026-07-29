@@ -642,7 +642,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get subtotal => 'Subtotal';
 
   @override
-  String get contribution_details => 'Contribution Details';
+  String get contribution_details => 'Order Details';
 
   @override
   String get apply => 'Apply';

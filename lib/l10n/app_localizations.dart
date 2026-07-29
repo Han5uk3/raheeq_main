@@ -1314,7 +1314,7 @@ abstract class AppLocalizations {
   /// No description provided for @contribution_details.
   ///
   /// In en, this message translates to:
-  /// **'Contribution Details'**
+  /// **'Order Details'**
   String get contribution_details;
 
   /// No description provided for @apply.

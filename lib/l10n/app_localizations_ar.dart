@@ -641,7 +641,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get subtotal => 'المجموع الفرعي';
 
   @override
-  String get contribution_details => 'تفاصيل المساهمة';
+  String get contribution_details => 'تفاصيل الطلب';
 
   @override
   String get apply => 'تطبيق';
