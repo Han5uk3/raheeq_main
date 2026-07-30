@@ -62,18 +62,20 @@ class _ProofMediaViewerPageState extends State<ProofMediaViewerPage> {
       );
 
       final uri = Uri.parse(url);
-      final filename = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : 'downloaded_file';
-      
+      final filename = uri.pathSegments.isNotEmpty
+          ? uri.pathSegments.last
+          : 'downloaded_file';
+
       final tempDir = await getTemporaryDirectory();
       final filePath = '${tempDir.path}/$filename';
-      
+
       final dio = Dio();
       await dio.download(url, filePath);
-      
+
       if (mounted) Navigator.pop(context); // hide loading
-      
+
       final result = await OpenFilex.open(filePath);
-      
+
       if (result.type != ResultType.done && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text('Could not open file: ${result.message}')),
@@ -130,78 +132,76 @@ class _ProofMediaViewerPageState extends State<ProofMediaViewerPage> {
           ),
         ],
       ),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: PageView.builder(
-                controller: _pageController,
-                itemCount: widget.mediaItems.length,
-                onPageChanged: (index) {
-                  setState(() {
-                    _currentIndex = index;
-                  });
-                },
-                itemBuilder: (context, index) {
-                  final item = widget.mediaItems[index];
-                  if (item.isVideo) {
-                    return _VideoPlayerItem(url: item.url);
-                  } else {
-                    return InteractiveViewer(
-                      child: Center(
-                        child: CachedNetworkImage(
-                          imageUrl: item.url,
-                          fit: BoxFit.contain,
-                          placeholder: (context, url) => const Center(
-                            child: WaterLoadingIndicator(
-                              waveColor1: Colors.white,
-                            ),
+      body: Column(
+        children: [
+          Expanded(
+            child: PageView.builder(
+              controller: _pageController,
+              itemCount: widget.mediaItems.length,
+              onPageChanged: (index) {
+                setState(() {
+                  _currentIndex = index;
+                });
+              },
+              itemBuilder: (context, index) {
+                final item = widget.mediaItems[index];
+                if (item.isVideo) {
+                  return _VideoPlayerItem(url: item.url);
+                } else {
+                  return InteractiveViewer(
+                    child: Center(
+                      child: CachedNetworkImage(
+                        imageUrl: item.url,
+                        fit: BoxFit.contain,
+                        placeholder: (context, url) => const Center(
+                          child: WaterLoadingIndicator(
+                            waveColor1: Colors.white,
                           ),
-                          errorWidget: (context, url, error) => const Center(
-                            child: Icon(
-                              Icons.broken_image,
-                              color: Colors.white,
-                              size: 50,
-                            ),
+                        ),
+                        errorWidget: (context, url, error) => const Center(
+                          child: Icon(
+                            Icons.broken_image,
+                            color: Colors.white,
+                            size: 50,
                           ),
                         ),
                       ),
-                    );
-                  }
-                },
-              ),
-            ),
-            if (widget.mediaItems.length > 1) ...[
-              const SizedBox(height: 16),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: List.generate(widget.mediaItems.length, (index) {
-                  bool isActive = _currentIndex == index;
-                  return AnimatedContainer(
-                    duration: const Duration(milliseconds: 300),
-                    margin: const EdgeInsets.symmetric(horizontal: 4),
-                    height: 6,
-                    width: isActive ? 32 : 12,
-                    decoration: BoxDecoration(
-                      color: isActive ? Colors.white : Colors.white38,
-                      borderRadius: BorderRadius.circular(3),
-                      boxShadow: isActive
-                          ? [
-                              BoxShadow(
-                                color: Colors.black.withValues(alpha: 0.3),
-                                blurRadius: 4,
-                                offset: const Offset(0, 2),
-                              ),
-                            ]
-                          : [],
                     ),
                   );
-                }),
-              ),
-              const SizedBox(height: 16),
-            ],
+                }
+              },
+            ),
+          ),
+          if (widget.mediaItems.length > 1) ...[
+            const SizedBox(height: 16),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: List.generate(widget.mediaItems.length, (index) {
+                bool isActive = _currentIndex == index;
+                return AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  height: 6,
+                  width: isActive ? 32 : 12,
+                  decoration: BoxDecoration(
+                    color: isActive ? Colors.white : Colors.white38,
+                    borderRadius: BorderRadius.circular(3),
+                    boxShadow: isActive
+                        ? [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: 0.3),
+                              blurRadius: 4,
+                              offset: const Offset(0, 2),
+                            ),
+                          ]
+                        : [],
+                  ),
+                );
+              }),
+            ),
+            const SizedBox(height: 16),
           ],
-        ),
+        ],
       ),
     );
   }

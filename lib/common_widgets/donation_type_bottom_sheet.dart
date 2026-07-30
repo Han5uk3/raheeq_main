@@ -106,110 +106,101 @@ class _DonationTypeBottomSheetState extends State<DonationTypeBottomSheet> {
       ),
       child: Padding(
         padding: const EdgeInsets.all(24.0),
-        child: SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Row(
-                children: [
-                  GestureDetector(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    FocusManager.instance.primaryFocus?.unfocus();
+                    SystemChannels.textInput.invokeMethod('TextInput.hide');
+                    Navigator.pop(context);
+                  },
+                  child: Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.grey[200],
+                    ),
+                    child: Icon(
+                      backArrowIcon(context),
+                      size: 20,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        AppLocalizations.of(context)!.choose_donation_type_108,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+
+                      Text(
+                        AppLocalizations.of(
+                          context,
+                        )!.support_once_or_make_a_lasting_impact,
+                        style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 32),
+            Row(
+              children: [
+                Expanded(
+                  child: _buildDonationOption(
+                    isAr: isAr,
+                    title: AppLocalizations.of(context)!.one_time,
+                    subtitle: AppLocalizations.of(context)!.single_donation,
+                    icon: Icons.calendar_today_outlined,
+                    isSelected: _selectedType == 'one_time',
                     onTap: () {
+                      setState(() {
+                        _selectedType = 'one_time';
+                      });
                       FocusManager.instance.primaryFocus?.unfocus();
                       SystemChannels.textInput.invokeMethod('TextInput.hide');
                       Navigator.pop(context);
+                      widget.onOneTimeSelected();
                     },
-                    child: Container(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.grey[200],
-                      ),
-                      child: Icon(
-                        backArrowIcon(context),
-                        size: 20,
-                        color: Colors.black,
-                      ),
-                    ),
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          AppLocalizations.of(
-                            context,
-                          )!.choose_donation_type_108,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
-                        ),
-
-                        Text(
-                          AppLocalizations.of(
-                            context,
-                          )!.support_once_or_make_a_lasting_impact,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Colors.grey[500],
-                          ),
-                        ),
-                      ],
-                    ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: _buildDonationOption(
+                    isAr: isAr,
+                    title: AppLocalizations.of(context)!.subscription,
+                    subtitle: AppLocalizations.of(context)!.recurring_donation,
+                    icon: Icons.sync,
+                    isSelected: _selectedType == 'monthly',
+                    onTap: () {
+                      setState(() {
+                        _selectedType = 'monthly';
+                      });
+                      FocusManager.instance.primaryFocus?.unfocus();
+                      SystemChannels.textInput.invokeMethod('TextInput.hide');
+                      Navigator.pop(context);
+                      widget.onMonthlySelected();
+                    },
                   ),
-                ],
-              ),
-
-              const SizedBox(height: 32),
-              Row(
-                children: [
-                  Expanded(
-                    child: _buildDonationOption(
-                      isAr: isAr,
-                      title: AppLocalizations.of(context)!.one_time,
-                      subtitle: AppLocalizations.of(context)!.single_donation,
-                      icon: Icons.calendar_today_outlined,
-                      isSelected: _selectedType == 'one_time',
-                      onTap: () {
-                        setState(() {
-                          _selectedType = 'one_time';
-                        });
-                        FocusManager.instance.primaryFocus?.unfocus();
-                        SystemChannels.textInput.invokeMethod('TextInput.hide');
-                        Navigator.pop(context);
-                        widget.onOneTimeSelected();
-                      },
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: _buildDonationOption(
-                      isAr: isAr,
-                      title: AppLocalizations.of(context)!.subscription,
-                      subtitle: AppLocalizations.of(
-                        context,
-                      )!.recurring_donation,
-                      icon: Icons.sync,
-                      isSelected: _selectedType == 'monthly',
-                      onTap: () {
-                        setState(() {
-                          _selectedType = 'monthly';
-                        });
-                        FocusManager.instance.primaryFocus?.unfocus();
-                        SystemChannels.textInput.invokeMethod('TextInput.hide');
-                        Navigator.pop(context);
-                        widget.onMonthlySelected();
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

@@ -497,7 +497,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
           "sa",
           "Riyadh",
           "Riyadh",
-          "12345"
+          "12345",
         );
 
         final shippingDetails = ShippingDetails(
@@ -2250,58 +2250,56 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
         child: SizedBox(
           width: double.infinity,
           height: double.infinity,
-          child: SafeArea(
-            child: Column(
-              children: [
-                Align(
-                  alignment: AlignmentDirectional.topStart,
-                  child: Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: GestureDetector(
-                      onTap: () => Navigator.pop(ctx),
-                      child: Container(
-                        width: 40,
-                        height: 40,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.grey[200],
-                        ),
-                        child: const Icon(
-                          Icons.arrow_back,
-                          size: 20,
-                          color: Colors.black,
-                        ),
+          child: Column(
+            children: [
+              Align(
+                alignment: AlignmentDirectional.topStart,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: GestureDetector(
+                    onTap: () => Navigator.pop(ctx),
+                    child: Container(
+                      width: 40,
+                      height: 40,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Colors.grey[200],
+                      ),
+                      child: const Icon(
+                        Icons.arrow_back,
+                        size: 20,
+                        color: Colors.black,
                       ),
                     ),
                   ),
                 ),
-                Expanded(
-                  child: InteractiveViewer(
-                    minScale: 1.0,
-                    maxScale: 5.0,
+              ),
+              Expanded(
+                child: InteractiveViewer(
+                  minScale: 1.0,
+                  maxScale: 5.0,
 
-                    child: CachedNetworkImage(
-                      imageUrl: imageUrl,
-                      fit: BoxFit.contain,
-                      placeholder: (context, url) => Shimmer.fromColors(
-                        baseColor: Colors.grey[300]!,
-                        highlightColor: Colors.grey[100]!,
-                        child: Container(
-                          color: Colors.white,
-                          width: double.infinity,
-                          height: double.infinity,
-                        ),
+                  child: CachedNetworkImage(
+                    imageUrl: imageUrl,
+                    fit: BoxFit.contain,
+                    placeholder: (context, url) => Shimmer.fromColors(
+                      baseColor: Colors.grey[300]!,
+                      highlightColor: Colors.grey[100]!,
+                      child: Container(
+                        color: Colors.white,
+                        width: double.infinity,
+                        height: double.infinity,
                       ),
-                      errorWidget: (_, __, ___) => const Icon(
-                        Icons.broken_image,
-                        size: 60,
-                        color: Colors.grey,
-                      ),
+                    ),
+                    errorWidget: (_, __, ___) => const Icon(
+                      Icons.broken_image,
+                      size: 60,
+                      color: Colors.grey,
                     ),
                   ),
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
         ),
       ),

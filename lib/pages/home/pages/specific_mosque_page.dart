@@ -95,7 +95,8 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
     if (mounted) {
       setState(() {
         if (mapPinIcon != null) _mapPinIcon = mapPinIcon;
-        if (mapPinSelectedIcon != null) _mapPinSelectedIcon = mapPinSelectedIcon;
+        if (mapPinSelectedIcon != null)
+          _mapPinSelectedIcon = mapPinSelectedIcon;
       });
     }
   }
@@ -584,10 +585,17 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
       // popup shrink to just fit it.
       final textDirection = Directionality.of(context);
       final textScaler = MediaQuery.textScalerOf(context);
+      // Measure at the weight the labels actually render at, or the popup ends
+      // up too narrow for them once the bold text setting is on.
+      final measuredStyle = MediaQuery.boldTextOf(context)
+          ? _cityMenuTextStyle.merge(
+              const TextStyle(fontWeight: FontWeight.bold),
+            )
+          : _cityMenuTextStyle;
       double longestLabelWidth = 0;
       for (final entry in entries) {
         final painter = TextPainter(
-          text: TextSpan(text: entry.label, style: _cityMenuTextStyle),
+          text: TextSpan(text: entry.label, style: measuredStyle),
           textDirection: textDirection,
           textScaler: textScaler,
         )..layout();
@@ -733,7 +741,10 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
         markerId: MarkerId(item.id),
         position: LatLng(item.latitude, item.longitude),
         icon: _selectedItemsList.any((m) => m.id == item.id)
-            ? (_mapPinSelectedIcon ?? BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen))
+            ? (_mapPinSelectedIcon ??
+                  BitmapDescriptor.defaultMarkerWithHue(
+                    BitmapDescriptor.hueGreen,
+                  ))
             : (_mapPinIcon ?? BitmapDescriptor.defaultMarkerWithHue(207.0)),
         infoWindow: InfoWindow(
           title: item.localizedName(isAr),

@@ -161,186 +161,183 @@ class _ComplaintsPageState extends State<ComplaintsPage> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
       builder: (ctx) {
-        return SafeArea(
-          child: Column(
-            children: [
-              Expanded(
-                child: _orders.isEmpty
-                    ? Center(
-                        child: Text(
-                          AppLocalizations.of(context)!.no_orders_found,
-                        ),
-                      )
-                    : ListView.builder(
-                        physics: const ClampingScrollPhysics(),
-                        itemCount: _orders.length,
-                        itemBuilder: (ctx, index) {
-                          final order = _orders[index];
-                          final isAr =
-                              Localizations.localeOf(context).languageCode ==
-                              'ar';
+        return Column(
+          children: [
+            Expanded(
+              child: _orders.isEmpty
+                  ? Center(
+                      child: Text(
+                        AppLocalizations.of(context)!.no_orders_found,
+                      ),
+                    )
+                  : ListView.builder(
+                      physics: const ClampingScrollPhysics(),
+                      itemCount: _orders.length,
+                      itemBuilder: (ctx, index) {
+                        final order = _orders[index];
+                        final isAr =
+                            Localizations.localeOf(context).languageCode ==
+                            'ar';
 
-                          String itemName = '';
-                          if (order.product != null) {
-                            itemName = isAr
-                                ? (order.product!.nameAr.isNotEmpty
-                                      ? order.product!.nameAr
-                                      : order.product!.name)
-                                : (order.product!.name.isNotEmpty
-                                      ? order.product!.name
-                                      : order.product!.nameAr);
-                          }
+                        String itemName = '';
+                        if (order.product != null) {
+                          itemName = isAr
+                              ? (order.product!.nameAr.isNotEmpty
+                                    ? order.product!.nameAr
+                                    : order.product!.name)
+                              : (order.product!.name.isNotEmpty
+                                    ? order.product!.name
+                                    : order.product!.nameAr);
+                        }
 
-                          String category = '';
-                          if (order.target != null) {
-                            category = isAr
-                                ? (order.target!.labelAr.isNotEmpty
-                                      ? order.target!.labelAr
-                                      : order.target!.label)
-                                : (order.target!.label.isNotEmpty
-                                      ? order.target!.label
-                                      : order.target!.labelAr);
-                          }
+                        String category = '';
+                        if (order.target != null) {
+                          category = isAr
+                              ? (order.target!.labelAr.isNotEmpty
+                                    ? order.target!.labelAr
+                                    : order.target!.label)
+                              : (order.target!.label.isNotEmpty
+                                    ? order.target!.label
+                                    : order.target!.labelAr);
+                        }
 
-                          final dateFormat = DateFormat(
-                            'MMM dd, yyyy - hh:mm a',
-                          );
-                          return Card(
-                            color: Colors.white,
-                            margin: const EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 8,
-                            ),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                              side: const BorderSide(color: Colors.white),
-                            ),
-                            elevation: 3,
-                            child: InkWell(
-                              borderRadius: BorderRadius.circular(12),
-                              onTap: () {
-                                setState(() {
-                                  _selectedOrder = order;
-                                });
-                                Navigator.pop(ctx);
-                              },
-                              child: Padding(
-                                padding: const EdgeInsets.all(12.0),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Row(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Expanded(
+                        final dateFormat = DateFormat('MMM dd, yyyy - hh:mm a');
+                        return Card(
+                          color: Colors.white,
+                          margin: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                            side: const BorderSide(color: Colors.white),
+                          ),
+                          elevation: 3,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(12),
+                            onTap: () {
+                              setState(() {
+                                _selectedOrder = order;
+                              });
+                              Navigator.pop(ctx);
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(12.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          itemName.isNotEmpty
+                                              ? itemName
+                                              : order.id,
+                                          style: const TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                      ),
+                                      if (order.subOrderNumber.isNotEmpty)
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 4,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: const Color(0xFFF0F4F8),
+                                            borderRadius: BorderRadius.circular(
+                                              8,
+                                            ),
+                                          ),
                                           child: Text(
-                                            itemName.isNotEmpty
-                                                ? itemName
-                                                : order.id,
+                                            '#${order.subOrderNumber}',
                                             style: const TextStyle(
+                                              fontSize: 12,
                                               fontWeight: FontWeight.bold,
-                                              fontSize: 16,
+                                              color: AppColors.buttonBlueDark,
                                             ),
                                           ),
                                         ),
-                                        if (order.subOrderNumber.isNotEmpty)
-                                          Container(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 8,
-                                              vertical: 4,
-                                            ),
-                                            decoration: BoxDecoration(
-                                              color: const Color(0xFFF0F4F8),
-                                              borderRadius:
-                                                  BorderRadius.circular(8),
-                                            ),
-                                            child: Text(
-                                              '#${order.subOrderNumber}',
-                                              style: const TextStyle(
-                                                fontSize: 12,
-                                                fontWeight: FontWeight.bold,
-                                                color: AppColors.buttonBlueDark,
-                                              ),
-                                            ),
-                                          ),
-                                      ],
-                                    ),
-                                    const SizedBox(height: 8),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 8),
+                                  Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.access_time,
+                                        size: 16,
+                                        color: Colors.grey,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        dateFormat.format(
+                                          order.createdAt.toLocal(),
+                                        ),
+                                        style: const TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: 13,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  if (category.isNotEmpty) ...[
+                                    const SizedBox(height: 4),
                                     Row(
                                       children: [
                                         const Icon(
-                                          Icons.access_time,
+                                          Icons.location_on_outlined,
                                           size: 16,
                                           color: Colors.grey,
                                         ),
                                         const SizedBox(width: 4),
-                                        Text(
-                                          dateFormat.format(
-                                            order.createdAt.toLocal(),
-                                          ),
-                                          style: const TextStyle(
-                                            color: Colors.grey,
-                                            fontSize: 13,
+                                        Expanded(
+                                          child: Text(
+                                            category,
+                                            style: const TextStyle(
+                                              color: Colors.grey,
+                                              fontSize: 13,
+                                            ),
                                           ),
                                         ),
                                       ],
                                     ),
-                                    if (category.isNotEmpty) ...[
-                                      const SizedBox(height: 4),
-                                      Row(
-                                        children: [
-                                          const Icon(
-                                            Icons.location_on_outlined,
-                                            size: 16,
-                                            color: Colors.grey,
-                                          ),
-                                          const SizedBox(width: 4),
-                                          Expanded(
-                                            child: Text(
-                                              category,
-                                              style: const TextStyle(
-                                                color: Colors.grey,
-                                                fontSize: 13,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                    if (order.product?.quantity != null &&
-                                        order.product!.quantity > 0) ...[
-                                      const SizedBox(height: 4),
-                                      Row(
-                                        children: [
-                                          const Icon(
-                                            Icons.shopping_basket_outlined,
-                                            size: 16,
-                                            color: Colors.grey,
-                                          ),
-                                          const SizedBox(width: 4),
-                                          Expanded(
-                                            child: Text(
-                                              'x${order.product!.quantity}',
-                                              style: const TextStyle(
-                                                color: Colors.grey,
-                                                fontSize: 13,
-                                              ),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
                                   ],
-                                ),
+                                  if (order.product?.quantity != null &&
+                                      order.product!.quantity > 0) ...[
+                                    const SizedBox(height: 4),
+                                    Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.shopping_basket_outlined,
+                                          size: 16,
+                                          color: Colors.grey,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Expanded(
+                                          child: Text(
+                                            'x${order.product!.quantity}',
+                                            style: const TextStyle(
+                                              color: Colors.grey,
+                                              fontSize: 13,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ],
                               ),
                             ),
-                          );
-                        },
-                      ),
-              ),
-            ],
-          ),
+                          ),
+                        );
+                      },
+                    ),
+            ),
+          ],
         );
       },
     );

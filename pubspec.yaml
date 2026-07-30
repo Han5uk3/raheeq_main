@@ -78,3 +78,22 @@ flutter:
     - family: SaudiRiyal
       fonts:
         - asset: assets/fonts/saudi_riyal.ttf
+    # The app renders entirely at w700, so only the bold faces are bundled.
+    #
+    # One face per family, deliberately: a family holding a single face renders
+    # every requested FontWeight with that face, which is what stops the inline
+    # w500/w600 styles scattered through the app from opting out. Adding the
+    # regular faces back into these same families would undo that — a w500 style
+    # would then resolve to the regular face and stop being bold.
+    - family: ManropeBold
+      fonts:
+        - asset: assets/fonts/Manrope-Bold.ttf
+          weight: 700
+    # Manrope has no Arabic glyphs, so Arabic needs its own bundled face; left
+    # to the OS fallback it had no bold face available and could never bolden.
+    # Noto Sans Arabic rather than Noto Naskh: at the same nominal w700 its bold
+    # renders visibly darker.
+    - family: NotoSansArabicBold
+      fonts:
+        - asset: assets/fonts/NotoSansArabic-Bold.ttf
+          weight: 700

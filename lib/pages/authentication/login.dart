@@ -413,14 +413,21 @@ class _LoginState extends State<Login> {
                                           onSelect: (Country country) {
                                             setState(() {
                                               _selectedCountry = country;
-                                              final formatted = GlobalPhoneFormatter.formatText(
-                                                _phoneController.text,
-                                                country,
-                                              );
-                                              if (_phoneController.text != formatted) {
-                                                _phoneController.value = TextEditingValue(
+                                              final formatted =
+                                                  GlobalPhoneFormatter.formatText(
+                                                    _phoneController.text,
+                                                    country,
+                                                  );
+                                              if (_phoneController.text !=
+                                                  formatted) {
+                                                _phoneController
+                                                    .value = TextEditingValue(
                                                   text: formatted,
-                                                  selection: TextSelection.collapsed(offset: formatted.length),
+                                                  selection:
+                                                      TextSelection.collapsed(
+                                                        offset:
+                                                            formatted.length,
+                                                      ),
                                                 );
                                               }
                                             });
@@ -518,9 +525,13 @@ class _LoginState extends State<Login> {
                                     keyboardType: TextInputType.phone,
                                     inputFormatters: [
                                       GlobalPhoneFormatter(
-                                        getCurrentCountry: () => _selectedCountry,
+                                        getCurrentCountry: () =>
+                                            _selectedCountry,
                                         onCountryDetected: (country) {
-                                          if (mounted) setState(() => _selectedCountry = country);
+                                          if (mounted)
+                                            setState(
+                                              () => _selectedCountry = country,
+                                            );
                                         },
                                       ),
                                       FilteringTextInputFormatter.digitsOnly,

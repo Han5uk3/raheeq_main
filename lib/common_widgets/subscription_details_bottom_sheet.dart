@@ -409,136 +409,132 @@ class _SubscriptionDetailsBottomSheetState
           topRight: Radius.circular(24),
         ),
       ),
-      child: SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: Row(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: Row(
+              children: [
+                GestureDetector(
+                  onTap: () {
+                    FocusManager.instance.primaryFocus?.unfocus();
+                    SystemChannels.textInput.invokeMethod('TextInput.hide');
+                    Navigator.pop(context);
+                    if (widget.onBack != null) {
+                      widget.onBack!();
+                    }
+                  },
+                  child: Container(
+                    width: 50,
+                    height: 50,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.grey[200],
+                    ),
+                    child: Icon(
+                      backArrowIcon(context),
+                      size: 20,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        AppLocalizations.of(context)!.customize_plan,
+                        style: const TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        widget.plan.localizedName(isAr),
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: AppColors.buttonBlueDark,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          Flexible(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
                 children: [
-                  GestureDetector(
-                    onTap: () {
-                      FocusManager.instance.primaryFocus?.unfocus();
-                      SystemChannels.textInput.invokeMethod('TextInput.hide');
-                      Navigator.pop(context);
-                      if (widget.onBack != null) {
-                        widget.onBack!();
-                      }
-                    },
-                    child: Container(
-                      width: 50,
-                      height: 50,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.grey[200],
-                      ),
-                      child: Icon(
-                        backArrowIcon(context),
-                        size: 20,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          AppLocalizations.of(context)!.customize_plan,
-                          style: const TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black87,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          widget.plan.localizedName(isAr),
-                          style: TextStyle(
-                            fontSize: 14,
-                            color: AppColors.buttonBlueDark,
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  if (freq == SubscriptionFrequency.everyDay) ...[
+                    _buildDatePicker(context, isAr, true),
+                    const SizedBox(height: 12),
+                    _buildDatePicker(context, isAr, false),
+                  ] else if (freq == SubscriptionFrequency.onceAWeek ||
+                      freq == SubscriptionFrequency.twiceAWeek) ...[
+                    _buildMonthSelector(context, isAr),
+                    const SizedBox(height: 16),
+                    const Divider(),
+                    const SizedBox(height: 16),
+                    _buildDaysOfWeekSelector(context, isAr),
+                  ] else if (freq == SubscriptionFrequency.monthly) ...[
+                    _buildMonthSelector(context, isAr),
+                    const SizedBox(height: 16),
+                    const Divider(),
+                    const SizedBox(height: 16),
+                    _buildDatePicker(context, isAr, true),
+                  ],
+                  const SizedBox(height: 32),
                 ],
               ),
             ),
-            Flexible(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 24.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    if (freq == SubscriptionFrequency.everyDay) ...[
-                      _buildDatePicker(context, isAr, true),
-                      const SizedBox(height: 12),
-                      _buildDatePicker(context, isAr, false),
-                    ] else if (freq == SubscriptionFrequency.onceAWeek ||
-                        freq == SubscriptionFrequency.twiceAWeek) ...[
-                      _buildMonthSelector(context, isAr),
-                      const SizedBox(height: 16),
-                      const Divider(),
-                      const SizedBox(height: 16),
-                      _buildDaysOfWeekSelector(context, isAr),
-                    ] else if (freq == SubscriptionFrequency.monthly) ...[
-                      _buildMonthSelector(context, isAr),
-                      const SizedBox(height: 16),
-                      const Divider(),
-                      const SizedBox(height: 16),
-                      _buildDatePicker(context, isAr, true),
-                    ],
-                    const SizedBox(height: 32),
-                  ],
-                ),
-              ),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: SizedBox(
-                width: double.infinity,
-                height: 56,
-                child: ElevatedButton(
-                  onPressed: _isCreatingCheckout
-                      ? null
-                      : () {
-                          FocusManager.instance.primaryFocus?.unfocus();
-                          SystemChannels.textInput.invokeMethod(
-                            'TextInput.hide',
-                          );
-                          _onContinue(context);
-                        },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.buttonBlueDark,
-                    disabledBackgroundColor: AppColors.buttonBlueDark,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(28),
-                    ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: SizedBox(
+              width: double.infinity,
+              height: 56,
+              child: ElevatedButton(
+                onPressed: _isCreatingCheckout
+                    ? null
+                    : () {
+                        FocusManager.instance.primaryFocus?.unfocus();
+                        SystemChannels.textInput.invokeMethod('TextInput.hide');
+                        _onContinue(context);
+                      },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.buttonBlueDark,
+                  disabledBackgroundColor: AppColors.buttonBlueDark,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(28),
                   ),
-                  child: _isCreatingCheckout
-                      ? const WaterLoadingIndicator(
-                          size: 24,
-                          waveColor1: AppColors.white,
-                        )
-                      : Text(
-                          AppLocalizations.of(context)!.continue_btn,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
                 ),
+                child: _isCreatingCheckout
+                    ? const WaterLoadingIndicator(
+                        size: 24,
+                        waveColor1: AppColors.white,
+                      )
+                    : Text(
+                        AppLocalizations.of(context)!.continue_btn,
+                        style: const TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
+                      ),
               ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

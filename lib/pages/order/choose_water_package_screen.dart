@@ -8,6 +8,92 @@ import 'package:raheeq_main/models/selected_category_item.dart';
 import 'package:raheeq_main/pages/order/order_details_page.dart';
 import 'package:raheeq_main/utils/colors.dart';
 
+// Every text row in a card reserves the same height across the whole list, so
+// one card whose text wraps cannot shift the rows on the cards beside it — the
+// list sizes every card to the tallest, and without this the slack collects
+// under the price instead. The reserved height is measured, not assumed: a row
+// only takes two lines when some card actually needs two.
+//
+// Line height is pinned rather than left to the font so that the reserved box
+// and the rendered text always agree.
+const double _slotLineHeight = 1.25;
+const int _slotMaxLines = 2;
+
+const double _slotTitleFontSize = 12;
+const double _slotSubtitleFontSize = 10;
+const double _slotPriceFontSize = 14;
+
+const double _slotCardWidth = 125;
+const double _slotCardMargin = 4; // Card's own default margin
+const double _slotContentPadding = 12; // horizontal padding inside the card
+
+/// Width the card's text actually gets to lay out in.
+const double _slotTextWidth =
+    _slotCardWidth - (_slotCardMargin * 2) - (_slotContentPadding * 2);
+
+/// How many lines each text row of a card reserves. Shared by every card in the
+/// list so their rows line up.
+class _SlotTextLines {
+  final int title;
+  final int subtitle;
+  final int price;
+
+  const _SlotTextLines({
+    required this.title,
+    required this.subtitle,
+    required this.price,
+  });
+}
+
+/// Lines the longest of [texts] needs at [_slotTextWidth], capped at
+/// [_slotMaxLines]. Returns 0 when every entry is blank, so a row that no card
+/// fills reserves nothing at all.
+int _measureLines(BuildContext context, List<String> texts, TextStyle style) {
+  // Measure through the inherited style so the family, fallbacks and the bold
+  // setting all match what Text will actually render.
+  var effective = DefaultTextStyle.of(context).style.merge(style);
+  if (MediaQuery.boldTextOf(context)) {
+    effective = effective.merge(const TextStyle(fontWeight: FontWeight.bold));
+  }
+  final textScaler = MediaQuery.textScalerOf(context);
+  final textDirection = Directionality.of(context);
+
+  var lines = 0;
+  for (final text in texts) {
+    if (text.trim().isEmpty) continue;
+    final painter = TextPainter(
+      text: TextSpan(text: text, style: effective),
+      textDirection: textDirection,
+      textScaler: textScaler,
+      maxLines: _slotMaxLines,
+    )..layout(maxWidth: _slotTextWidth);
+    final measured = painter.computeLineMetrics().length;
+    painter.dispose();
+    if (measured > lines) lines = measured;
+    if (lines >= _slotMaxLines) break;
+  }
+  return lines;
+}
+
+/// Height of a text row reserving [lines] lines at [fontSize].
+double _slotBlockHeight(BuildContext context, double fontSize, int lines) =>
+    MediaQuery.textScalerOf(context).scale(fontSize) * _slotLineHeight * lines;
+
+// The card's three strings. Measuring and rendering both go through these, so
+// the reserved height cannot drift away from what is drawn.
+
+String _slotTitleText(_ProductSlot slot, bool isAr) =>
+    '${slot.quantity} ${slot.product.localizedName(isAr)}';
+
+String _slotSubtitleText(_ProductSlot slot, bool isAr) =>
+    (isAr ? slot.product.messageAr : slot.product.message) ?? '';
+
+String _slotPriceText(BuildContext context, _ProductSlot slot) {
+  final total = slot.product.price * slot.quantity;
+  return '\u202A${AppLocalizations.of(context)!.sar_currency} '
+      '${total.toStringAsFixed(0)}\u202C';
+}
+
 // A lightweight model to represent one "slot" in the horizontal list
 class _ProductSlot {
   final Product product;
@@ -226,6 +312,37 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
 
     final slots = _slots;
 
+    // Measured once for the whole list: every card reserves the same number of
+    // lines per row, and a row only grows to two lines if some card needs two.
+    final lines = _SlotTextLines(
+      title: _measureLines(
+        context,
+        [for (final s in slots) _slotTitleText(s, isAr)],
+        const TextStyle(
+          fontSize: _slotTitleFontSize,
+          height: _slotLineHeight,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+      subtitle: _measureLines(
+        context,
+        [for (final s in slots) _slotSubtitleText(s, isAr)],
+        const TextStyle(
+          fontSize: _slotSubtitleFontSize,
+          height: _slotLineHeight,
+        ),
+      ),
+      price: _measureLines(
+        context,
+        [for (final s in slots) _slotPriceText(context, s)],
+        const TextStyle(
+          fontSize: _slotPriceFontSize,
+          height: _slotLineHeight,
+          fontWeight: FontWeight.bold,
+        ),
+      ),
+    );
+
     return Container(
       decoration: const BoxDecoration(
         color: Colors.white,
@@ -319,6 +436,7 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
                           isSelected: isSelected,
                           onTap: () => _toggleSlot(slot),
                           isAr: isAr,
+                          lines: lines,
                         ),
                       );
                     }),
@@ -369,20 +487,43 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
     );
   }
 
+  /// One text row of a card, occupying exactly [lines] lines whether or not the
+  /// text fills them. Top-aligned so first lines stay level across cards.
+  Widget _slotTextRow({
+    required String text,
+    required double fontSize,
+    required int lines,
+    required TextStyle style,
+  }) {
+    return SizedBox(
+      height: _slotBlockHeight(context, fontSize, lines),
+      width: double.infinity,
+      child: Align(
+        alignment: Alignment.topCenter,
+        child: Text(
+          text,
+          style: style.copyWith(fontSize: fontSize, height: _slotLineHeight),
+          maxLines: lines,
+          overflow: TextOverflow.ellipsis,
+          textAlign: TextAlign.center,
+        ),
+      ),
+    );
+  }
+
   Widget _buildSlotCard({
     required _ProductSlot slot,
     required bool isSelected,
     required VoidCallback onTap,
     required bool isAr,
+    required _SlotTextLines lines,
   }) {
     final product = slot.product;
-    final unitPrice = product.price;
-    final totalPrice = unitPrice * slot.quantity;
 
     return GestureDetector(
       onTap: onTap,
       child: SizedBox(
-        width: 125,
+        width: _slotCardWidth,
         child: Card(
           color: Colors.white,
           elevation: isSelected ? 4 : 1,
@@ -444,48 +585,38 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       // Product name
-                      Center(
-                        child: Text(
-                          "${slot.quantity} ${product.localizedName(isAr)}",
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+                      _slotTextRow(
+                        text: _slotTitleText(slot, isAr),
+                        fontSize: _slotTitleFontSize,
+                        lines: lines.title,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
                         ),
                       ),
 
-                      const SizedBox(height: 8),
-                      // Subtitle row
-                      Center(
-                        child: Text(
-                          (isAr
-                              ? product.messageAr ?? ""
-                              : product.message ?? ""),
-                          style: TextStyle(
-                            fontSize: 10,
-                            color: Colors.grey.shade700,
-                          ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
+                      if (lines.subtitle > 0) ...[
+                        const SizedBox(height: 8),
+                        _slotTextRow(
+                          text: _slotSubtitleText(slot, isAr),
+                          fontSize: _slotSubtitleFontSize,
+                          lines: lines.subtitle,
+                          style: TextStyle(color: Colors.grey.shade700),
                         ),
-                      ),
-                      const SizedBox(height: 5),
-                      // Price
-                      Center(
-                        child: Text(
-                          '\u202A${AppLocalizations.of(context)!.sar_currency} ${totalPrice.toStringAsFixed(0)}\u202C',
+                      ],
+
+                      if (lines.price > 0) ...[
+                        const SizedBox(height: 5),
+                        _slotTextRow(
+                          text: _slotPriceText(context, slot),
+                          fontSize: _slotPriceFontSize,
+                          lines: lines.price,
                           style: const TextStyle(
-                            fontSize: 14,
                             fontWeight: FontWeight.bold,
                             color: AppColors.buttonBlueDark,
                           ),
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
                         ),
-                      ),
+                      ],
                     ],
                   ),
                 ),

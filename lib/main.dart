@@ -18,11 +18,28 @@ import 'package:raheeq_main/services/notification_service.dart';
 import 'package:raheeq_main/storage/app_storage.dart';
 import 'package:raheeq_main/services/freshchat_service.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:raheeq_main/utils/colors.dart';
 
 final ValueNotifier<Locale> localeNotifier = ValueNotifier(const Locale('ar'));
+
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
+
+// The whole app renders at w700. Two things are needed and both are load-
+// bearing:
+//
+//  - these families, each holding exactly one face (see pubspec.yaml). A
+//    single-face family renders every requested [FontWeight] with that face,
+//    which is what stops the inline w500/w600 styles scattered through the app
+//    from opting out. Pointing at a normal multi-weight family would undo it.
+//  - [MediaQueryData.boldText] below, so text that falls through to the
+//    fallback fonts is asked for bold as well.
+//
+// Manrope carries no Arabic glyphs, so Arabic needs its own bundled face; left
+// to the OS fallback there was no bold face available and Arabic could never
+// bolden. Noto Sans Arabic rather than Noto Naskh because at the same nominal
+// w700 its bold renders visibly darker.
+const String _latinFontFamily = 'ManropeBold';
+const String _arabicFontFamily = 'NotoSansArabicBold';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -135,6 +152,7 @@ class MainApp extends StatelessWidget {
                       mediaQueryData.textScaler,
                       true,
                     ),
+                    boldText: true,
                   ),
                   child: child!,
                 ),
@@ -154,8 +172,15 @@ class MainApp extends StatelessWidget {
             ],
             theme: () {
               var theme = ThemeData(
-                fontFamily: GoogleFonts.manrope().fontFamily,
-                fontFamilyFallback: const ['SaudiRiyal', 'SF Pro'],
+                fontFamily: _latinFontFamily,
+                // Arabic goes last so the riyal glyph and the existing Latin
+                // fallback keep resolving exactly as they did before; Arabic
+                // letters appear in none of those, so they fall through.
+                fontFamilyFallback: const [
+                  'SaudiRiyal',
+                  'SF Pro',
+                  _arabicFontFamily,
+                ],
                 appBarTheme: AppBarTheme(
                   backgroundColor: AppColors.buttonBlueDark,
                   foregroundColor: Colors.white,
