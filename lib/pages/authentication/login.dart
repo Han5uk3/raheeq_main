@@ -1,12 +1,14 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
+import 'dart:async';
 import 'dart:io';
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:raheeq_main/utils/otp_autofill.dart';
 import 'package:raheeq_main/utils/phone_formatter.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:raheeq_main/common_widgets/language_switch.dart';
@@ -658,6 +660,15 @@ class _LoginState extends State<Login> {
                                     log("apiservice called");
                                     setState(() => _isLoading = true);
                                     try {
+                                      // Arm the SMS retriever before the OTP is
+                                      // requested. It only matches messages
+                                      // that arrive after it starts listening,
+                                      // so arming it on the OTP screen (after
+                                      // this request returns and the route is
+                                      // pushed) loses the race whenever the SMS
+                                      // beats the navigation.
+                                      unawaited(OtpAutofill.instance.arm());
+
                                       final response = await ApiService()
                                           .requestOtp(
                                             phoneNumber: apiPhoneText,

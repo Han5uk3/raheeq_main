@@ -14,31 +14,61 @@ import 'package:raheeq_main/pages/home/home_screen.dart';
 import 'package:raheeq_main/storage/auth_storage.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/utils/rtl_helpers.dart';
+import 'package:raheeq_main/utils/otp_autofill.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 
-import 'package:smart_auth/smart_auth.dart';
-
+/// The native receiver unregisters itself after every broadcast, so the
+/// listener has to be re-armed or autofill dies after the first SMS — and after
+/// the retriever's 5 minute timeout — leaving resend unable to fill.
 class SmsRetrieverImpl implements SmsRetriever {
-  const SmsRetrieverImpl(this.smartAuth);
+  SmsRetrieverImpl();
 
-  final SmartAuth smartAuth;
+  /// A listen that returns this fast never waited for a broadcast, so the
+  /// platform call itself failed. A genuine listen blocks until the SMS lands
+  /// or the retriever times out, and so never counts against the budget below.
+  static const _minListenDuration = Duration(seconds: 1);
+  static const _maxConsecutiveFailures = 3;
+
+  bool _disposed = false;
+  int _consecutiveFailures = 0;
+  int _generation = 0;
 
   @override
   Future<void> dispose() async {
-    await smartAuth.removeSmsRetrieverApiListener();
+    _disposed = true;
+    await OtpAutofill.instance.cancel(_generation);
   }
 
   @override
   Future<String?> getSmsCode() async {
-    final res = await smartAuth.getSmsWithRetrieverApi(matcher: '\\d{4}');
-    if (res.hasData) {
-      return res.data?.code;
+    final startedAt = DateTime.now();
+    final listener = OtpAutofill.instance.arm();
+    _generation = OtpAutofill.instance.generation;
+
+    final code = await listener;
+    final failedImmediately =
+        code == null &&
+        DateTime.now().difference(startedAt) < _minListenDuration;
+    _consecutiveFailures = failedImmediately ? _consecutiveFailures + 1 : 0;
+
+    return code;
+  }
+
+  /// Re-arms if the listener died without Pinput's loop restarting it — the
+  /// plugin unregisters its receiver when the activity detaches, which can
+  /// happen silently while the user is away in the SMS app.
+  Future<String?> rearmIfNeeded() {
+    if (_disposed || !listenForMultipleSms || OtpAutofill.instance.isArmed) {
+      return Future.value(null);
     }
-    return null;
+    return getSmsCode();
   }
 
   @override
-  bool get listenForMultipleSms => false;
+  bool get listenForMultipleSms =>
+      !_disposed &&
+      OtpAutofill.instance.isSupported &&
+      _consecutiveFailures < _maxConsecutiveFailures;
 }
 
 class OTP extends StatefulWidget {
@@ -56,9 +86,10 @@ class OTP extends StatefulWidget {
   State<OTP> createState() => _OTPState();
 }
 
-class _OTPState extends State<OTP> {
+class _OTPState extends State<OTP> with WidgetsBindingObserver {
   final _pinController = TextEditingController();
   final _focusNode = FocusNode();
+  final _smsRetriever = SmsRetrieverImpl();
 
   Timer? _timer;
   int _secondsRemaining = 60;
@@ -69,15 +100,32 @@ class _OTPState extends State<OTP> {
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _startTimer();
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
     _timer?.cancel();
     _pinController.dispose();
     _focusNode.dispose();
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _rearmAutofill();
+    }
+  }
+
+  /// Backstop for a listener that died while the app was away. Pinput drives
+  /// autofill normally; this only fills in if nothing is listening on resume.
+  Future<void> _rearmAutofill() async {
+    final code = await _smsRetriever.rearmIfNeeded();
+    if (!mounted || code == null || code.length != 4) return;
+    if (_pinController.text.isEmpty) _pinController.text = code;
   }
 
   void _startTimer() {
@@ -384,9 +432,7 @@ class _OTPState extends State<OTP> {
                           child: Directionality(
                             textDirection: TextDirection.ltr,
                             child: Pinput(
-                              smsRetriever: SmsRetrieverImpl(
-                                SmartAuth.instance,
-                              ),
+                              smsRetriever: _smsRetriever,
                               length: 4,
                               controller: _pinController,
                               focusNode: _focusNode,
@@ -473,6 +519,11 @@ class _OTPState extends State<OTP> {
                                           ),
                                         ),
                                       );
+
+                                      // Arm before requesting, otherwise the
+                                      // SMS can arrive before the retriever
+                                      // starts listening and is lost.
+                                      unawaited(OtpAutofill.instance.arm());
 
                                       final response = await ApiService()
                                           .requestOtp(
