@@ -282,8 +282,8 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                                                 )!.enter_phone_number_hint,
                                                 enabled: false,
                                               ),
-                                              const SizedBox(height: 16),
-                                              _buildGenderDropdown(),
+                                              // const SizedBox(height: 16),
+                                              // _buildGenderDropdown(),
                                               const SizedBox(height: 48),
                                             ],
                                           );

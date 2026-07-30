@@ -670,7 +670,7 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String
   get gift_your_loved_ones_the_blessing_of_providing_water_in_the_holiest_places =>
-      'أهدِ من تحب سقيا في أطهر البقاع';
+      'أهدِ من تحب سُقيا في أطهر البقاع، وتصله بطاقة الإهداء وفيديو التوزيع.';
 
   @override
   String get donation_type => 'نوع الطلب';

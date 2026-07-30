@@ -266,7 +266,7 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
                 ),
                 const SizedBox(width: 16),
                 Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Text(
                       title,
@@ -310,7 +310,7 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
 
                       return Padding(
                         padding: EdgeInsetsDirectional.only(
-                          bottom: 10,
+                          bottom: 16,
                           start: index == 0 ? 16.0 : 2.0,
                           end: index == slots.length - 1 ? 16.0 : 2.0,
                         ),
@@ -441,41 +441,50 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
 
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       // Product name
-                      Text(
-                        "${slot.quantity} ${product.localizedName(isAr)}",
-                        style: const TextStyle(
-                          fontSize: 12,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
+                      Center(
+                        child: Text(
+                          "${slot.quantity} ${product.localizedName(isAr)}",
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
                       ),
 
                       const SizedBox(height: 8),
                       // Subtitle row
-                      Text(
-                        (isAr
-                            ? product.messageAr ?? ""
-                            : product.message ?? ""),
-                        style: TextStyle(fontSize: 10, color: Colors.grey.shade700),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
+                      Center(
+                        child: Text(
+                          (isAr
+                              ? product.messageAr ?? ""
+                              : product.message ?? ""),
+                          style: TextStyle(
+                            fontSize: 10,
+                            color: Colors.grey.shade700,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                       const SizedBox(height: 5),
                       // Price
-                      Text(
-                        '\u202A${AppLocalizations.of(context)!.sar_currency} ${totalPrice.toStringAsFixed(0)}\u202C',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.buttonBlueDark,
+                      Center(
+                        child: Text(
+                          '\u202A${AppLocalizations.of(context)!.sar_currency} ${totalPrice.toStringAsFixed(0)}\u202C',
+                          style: const TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.buttonBlueDark,
+                          ),
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
                         ),
-                        maxLines: 2,
-                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
