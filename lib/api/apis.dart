@@ -672,6 +672,22 @@ class ApiService {
     }
   }
 
+  /// Permanently delete the current user's account
+  Future<Response> deleteAccount() async {
+    try {
+      log('API REQUEST: DELETE /me', name: 'AccountAPI');
+      final response = await _dio.delete('/me');
+      log(
+        'API RESPONSE [${response.statusCode}]: ${response.data}',
+        name: 'AccountAPI',
+      );
+      return response;
+    } catch (e) {
+      log('Error deleting account: $e', name: 'AccountAPI', error: e);
+      rethrow;
+    }
+  }
+
   /// Generate Freshchat JWT Token
   Future<Response> generateFreshchatToken(String freshchatUuid) async {
     try {

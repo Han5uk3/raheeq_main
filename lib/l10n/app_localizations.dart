@@ -221,7 +221,7 @@ abstract class AppLocalizations {
   /// No description provided for @login_terms_suffix.
   ///
   /// In en, this message translates to:
-  /// **' of the Yanabee app.'**
+  /// **' of the Rahiq app.'**
   String get login_terms_suffix;
 
   /// No description provided for @login.
@@ -301,6 +301,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Are you sure you want to log out of Rahiq?'**
   String get logout_confirmation;
+
+  /// No description provided for @delete_account.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete Account'**
+  String get delete_account;
+
+  /// No description provided for @delete_account_confirmation.
+  ///
+  /// In en, this message translates to:
+  /// **'Are you sure you want to permanently delete your account? All your data will be lost and this action cannot be undone.'**
+  String get delete_account_confirmation;
 
   /// No description provided for @cancel.
   ///

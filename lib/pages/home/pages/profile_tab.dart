@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:raheeq_main/api/apis.dart';
@@ -219,6 +220,145 @@ class _ProfileTabState extends State<ProfileTab> {
 
       // Clear storage (this will automatically pop routes and redirect to Login via navigatorKey)
       await AuthStorage.clear();
+    }
+  }
+
+  Future<void> _deleteAccount() async {
+    final confirmed = await showModalBottomSheet<bool>(
+      context: context,
+      backgroundColor: Colors.white,
+      showDragHandle: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+      ),
+      builder: (context) {
+        return Padding(
+          padding: const EdgeInsets.fromLTRB(24, 8, 24, 40),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.red.withValues(alpha: 0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.delete_forever_rounded,
+                  color: Colors.redAccent,
+                  size: 24,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                AppLocalizations.of(context)!.delete_account,
+                style: const TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
+                  color: Colors.black87,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 8),
+              Text(
+                AppLocalizations.of(context)!.delete_account_confirmation,
+                style: const TextStyle(
+                  fontSize: 14,
+                  color: Colors.black,
+                  height: 1.4,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 32),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextButton(
+                      onPressed: () => Navigator.pop(context, false),
+                      style: TextButton.styleFrom(
+                        backgroundColor: AppColors.buttonBlueDark,
+                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      child: Text(
+                        AppLocalizations.of(context)!.cancel,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.pop(context, true),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                      ),
+                      child: Text(
+                        AppLocalizations.of(context)!.delete_account,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        );
+      },
+    );
+
+    if (confirmed != true) return;
+
+    setState(() {
+      _isSaving = true;
+    });
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      barrierColor: Colors.transparent,
+      builder: (_) => const PopScope(canPop: false, child: SizedBox.expand()),
+    );
+
+    try {
+      await ApiService().deleteAccount();
+
+      if (mounted) {
+        Navigator.of(context).pop(); // dismiss the loading dialog
+      }
+
+      // Clear storage (this will automatically pop routes and redirect to Login via navigatorKey)
+      await AuthStorage.clear();
+    } catch (e) {
+      if (mounted) {
+        Navigator.of(context).pop(); // dismiss the loading dialog
+        setState(() {
+          _isSaving = false;
+        });
+
+        String message = AppLocalizations.of(context)!.error_occurred_try_again;
+        if (e is DioException &&
+            e.response?.data is Map &&
+            e.response?.data['message'] != null) {
+          message = e.response!.data['message'].toString();
+        }
+        CustomSnackbar.show(context: context, message: message, isError: true);
+      }
     }
   }
 
@@ -475,7 +615,25 @@ class _ProfileTabState extends State<ProfileTab> {
                           ),
                         ],
                       ),
+                      const SizedBox(height: 16),
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          onPressed: _deleteAccount,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.red,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25),
+                            ),
+                            fixedSize: Size(double.infinity, 50),
+                          ),
 
+                          child: Text(
+                            AppLocalizations.of(context)!.delete_account,
+                          ),
+                        ),
+                      ),
                       const SizedBox(height: 16),
 
                       SizedBox(
@@ -652,6 +810,9 @@ class _ProfileTabState extends State<ProfileTab> {
     required String title,
     required VoidCallback onTap,
     int badgeCount = 0,
+    Color? iconColor,
+    Color? iconBackgroundColor,
+    Color? titleColor,
   }) {
     return Material(
       borderRadius: BorderRadius.circular(10),
@@ -666,7 +827,7 @@ class _ProfileTabState extends State<ProfileTab> {
                 padding: const EdgeInsets.all(10),
 
                 decoration: BoxDecoration(
-                  color: const Color(0xFFF2F4F5),
+                  color: iconBackgroundColor ?? const Color(0xFFF2F4F5),
                   borderRadius: BorderRadius.circular(10),
                 ),
                 child: Badge(
@@ -676,7 +837,7 @@ class _ProfileTabState extends State<ProfileTab> {
                     scaleX: isRtl(context) ? -1 : 1,
                     child: Icon(
                       icon,
-                      color: AppColors.buttonBlueDark,
+                      color: iconColor ?? AppColors.buttonBlueDark,
                       size: 22,
                     ),
                   ),
@@ -691,7 +852,7 @@ class _ProfileTabState extends State<ProfileTab> {
                       title,
                       style: TextStyle(
                         fontSize: isRtl(context) ? 15 : 14,
-                        color: Colors.black,
+                        color: titleColor ?? Colors.black,
                         fontWeight: FontWeight.w400,
                       ),
                     ),

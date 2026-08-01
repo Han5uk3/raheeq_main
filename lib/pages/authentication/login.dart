@@ -324,6 +324,7 @@ class _LoginState extends State<Login> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.white,
+      resizeToAvoidBottomInset: false,
       appBar: AppBar(
         backgroundColor: AppColors.buttonBlueDark,
         shape: Border.all(width: 0, color: AppColors.buttonBlueDark),
@@ -662,7 +663,7 @@ class _LoginState extends State<Login> {
                                               );
                                               return;
                                             }
-
+              
                                             if (!RegExp(
                                               r'^\d+$',
                                             ).hasMatch(phoneText)) {
@@ -675,7 +676,7 @@ class _LoginState extends State<Login> {
                                               );
                                               return;
                                             }
-
+              
                                             if (_selectedCountry.phoneCode ==
                                                 '966') {
                                               if (phoneText.startsWith('0') &&
@@ -743,7 +744,7 @@ class _LoginState extends State<Login> {
                                                 return;
                                               }
                                             }
-
+              
                                             String apiPhoneText = phoneText;
                                             if (_selectedCountry.phoneCode ==
                                                     '966' &&
@@ -764,7 +765,7 @@ class _LoginState extends State<Login> {
                                               unawaited(
                                                 OtpAutofill.instance.arm(),
                                               );
-
+              
                                               final response =
                                                   await ApiService().requestOtp(
                                                     phoneNumber: apiPhoneText,
@@ -969,10 +970,7 @@ class _LoginState extends State<Login> {
                 ),
               ),
             ),
-            Padding(
-              padding: const EdgeInsets.only(bottom: 12),
-              child: _buildTermsNotice(context),
-            ),
+            _buildTermsNotice(context),
           ],
         ),
       ),

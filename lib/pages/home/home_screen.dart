@@ -125,6 +125,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: _buildPages(context)[_currentIndex],
               ),
       ),
+    
       bottomNavigationBar: CustomBottomNavBar(
         currentIndex: _currentIndex,
         items: [
@@ -147,10 +148,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ],
         onTap: (index) {
           if (index == 2) {
-            // log(
-            //   "Attempting to open Freshchat conversations from bottom nav with tags: ['chat_with_us'] and title: 'Rahiq Support'",
-            //   name: "FreshchatService",
-            // );
+          
             FreshchatService.showConversations(
               context,
               tags: const ["chat_with_us"],

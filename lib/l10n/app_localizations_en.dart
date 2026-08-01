@@ -72,7 +72,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get login_terms_prefix => 'By signing in, you agree to the ';
 
   @override
-  String get login_terms_suffix => ' of the Yanabee app.';
+  String get login_terms_suffix => ' of the Rahiq app.';
 
   @override
   String get login => 'Login';
@@ -114,6 +114,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get logout_confirmation =>
       'Are you sure you want to log out of Rahiq?';
+
+  @override
+  String get delete_account => 'Delete Account';
+
+  @override
+  String get delete_account_confirmation =>
+      'Are you sure you want to permanently delete your account? All your data will be lost and this action cannot be undone.';
 
   @override
   String get cancel => 'Cancel';

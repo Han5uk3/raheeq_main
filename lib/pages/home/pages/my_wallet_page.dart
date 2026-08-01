@@ -427,7 +427,7 @@ class _MyWalletPageState extends State<MyWalletPage> {
           ),
           const SizedBox(width: 8),
           Text(
-            "${isCredit ? '+' : '-'}$amount SAR",
+            '${isCredit ? '+' : '-'}\u202A${AppLocalizations.of(context)!.sar_currency} $amount\u202C',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 15,

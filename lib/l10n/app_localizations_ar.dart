@@ -72,7 +72,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get login_terms_prefix => 'بتسجيلك في انت توافق على ';
 
   @override
-  String get login_terms_suffix => ' لتطبيق ينابيع.';
+  String get login_terms_suffix => ' لتطبيق رحيق.';
 
   @override
   String get login => 'تسجيل الدخول';
@@ -114,6 +114,13 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get logout_confirmation =>
       'هل أنت متأكد أنك تريد تسجيل الخروج من رحيق؟';
+
+  @override
+  String get delete_account => 'حذف الحساب';
+
+  @override
+  String get delete_account_confirmation =>
+      'هل أنت متأكد أنك تريد حذف حسابك نهائيًا؟ ستفقد جميع بياناتك ولا يمكن التراجع عن هذا الإجراء.';
 
   @override
   String get cancel => 'إلغاء';
