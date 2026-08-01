@@ -421,16 +421,7 @@ class _MyWalletPageState extends State<MyWalletPage> {
                   formattedDate,
                   style: TextStyle(color: Colors.grey[600], fontSize: 12),
                 ),
-                if (tx.reference != null && tx.reference!.trim().isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: Text(
-                      tx.reference!,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(color: Colors.grey[500], fontSize: 12),
-                    ),
-                  ),
+              
               ],
             ),
           ),
