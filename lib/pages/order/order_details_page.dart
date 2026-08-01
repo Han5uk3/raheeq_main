@@ -593,6 +593,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage>
           ),
         ),
         body: SingleChildScrollView(
+          physics: ClampingScrollPhysics(),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [

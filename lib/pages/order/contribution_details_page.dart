@@ -843,7 +843,10 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
       type = planFrequency.toString().toUpperCase();
     }
 
-    final dateFormat = DateFormat('MMM dd, yyyy');
+    final dateFormat = DateFormat(
+      'dd MMMM yyyy',
+      Localizations.localeOf(context).languageCode,
+    );
 
     List<Widget> rows = [];
 

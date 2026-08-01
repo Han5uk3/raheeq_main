@@ -23,6 +23,22 @@ class SubscriptionPlansBottomSheet extends StatefulWidget {
       _SubscriptionPlansBottomSheetState();
 }
 
+String _frequencyLabel(BuildContext context, SubscriptionFrequency frequency) {
+  final l10n = AppLocalizations.of(context)!;
+  switch (frequency) {
+    case SubscriptionFrequency.everyDay:
+      return l10n.everyday;
+    case SubscriptionFrequency.onceAWeek:
+      return l10n.once_a_week;
+    case SubscriptionFrequency.twiceAWeek:
+      return l10n.twice_a_week;
+    case SubscriptionFrequency.monthly:
+      return l10n.once_a_month;
+    case SubscriptionFrequency.unknown:
+      return l10n.custom;
+  }
+}
+
 class _SubscriptionPlansBottomSheetState
     extends State<SubscriptionPlansBottomSheet> {
   bool _isLoadingPlans = true;
@@ -287,9 +303,13 @@ class _SubscriptionPlansBottomSheetState
                                               height: 1.2,
                                             ),
                                           ),
+                                    
                                           const SizedBox(height: 4),
                                           Text(
-                                            plan.localizedDescription(isAr),
+                                            _frequencyLabel(
+                                              context,
+                                              plan.frequency,
+                                            ),
                                             maxLines: 2,
                                             overflow: TextOverflow.ellipsis,
                                             style: TextStyle(
