@@ -69,6 +69,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get privacy_policy => 'سياسة الخصوصية';
 
   @override
+  String get login_terms_prefix => 'بتسجيلك في انت توافق على ';
+
+  @override
+  String get login_terms_suffix => ' لتطبيق ينابيع.';
+
+  @override
   String get login => 'تسجيل الدخول';
 
   @override

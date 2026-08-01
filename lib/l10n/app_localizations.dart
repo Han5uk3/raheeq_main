@@ -212,6 +212,18 @@ abstract class AppLocalizations {
   /// **'Privacy Policy'**
   String get privacy_policy;
 
+  /// No description provided for @login_terms_prefix.
+  ///
+  /// In en, this message translates to:
+  /// **'By signing in, you agree to the '**
+  String get login_terms_prefix;
+
+  /// No description provided for @login_terms_suffix.
+  ///
+  /// In en, this message translates to:
+  /// **' of the Yanabee app.'**
+  String get login_terms_suffix;
+
   /// No description provided for @login.
   ///
   /// In en, this message translates to:

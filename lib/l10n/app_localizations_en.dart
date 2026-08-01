@@ -69,6 +69,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get privacy_policy => 'Privacy Policy';
 
   @override
+  String get login_terms_prefix => 'By signing in, you agree to the ';
+
+  @override
+  String get login_terms_suffix => ' of the Yanabee app.';
+
+  @override
   String get login => 'Login';
 
   @override

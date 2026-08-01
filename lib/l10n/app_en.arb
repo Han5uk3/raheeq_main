@@ -25,6 +25,8 @@
   "terms_conditions": "Terms & Conditions",
   "and": " and ",
   "privacy_policy": "Privacy Policy",
+  "login_terms_prefix": "By signing in, you agree to the ",
+  "login_terms_suffix": " of the Yanabee app.",
   "login": "Login",
   "enter_phone": "Enter Your Mobile Number",
   "otp_message": "Enter your mobile number to continue.\nWe will send an OTP for verification.",

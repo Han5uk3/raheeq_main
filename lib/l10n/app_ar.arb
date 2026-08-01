@@ -23,6 +23,8 @@
   "select_mosques_to_deliver_to":"اختر المساجد للتوصيل إليها",
   "and": " و ",
   "privacy_policy": "سياسة الخصوصية",
+  "login_terms_prefix": "بتسجيلك في انت توافق على ",
+  "login_terms_suffix": " لتطبيق ينابيع.",
   "login": "تسجيل الدخول",
   "enter_phone": "أدخل رقم هاتفك المحمول",
   "otp_message": "أدخل رقم هاتفك المحمول للمتابعة.\nسنرسل رمز تحقق (OTP) للتأكيد.",

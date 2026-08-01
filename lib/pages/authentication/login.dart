@@ -5,9 +5,11 @@ import 'dart:async';
 import 'dart:io';
 import 'dart:developer';
 
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:package_info_plus/package_info_plus.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 import 'package:raheeq_main/utils/otp_autofill.dart';
 import 'package:raheeq_main/utils/phone_formatter.dart';
 import 'package:country_picker/country_picker.dart';
@@ -51,11 +53,47 @@ class _LoginState extends State<Login> {
   );
 
   final TextEditingController _phoneController = TextEditingController();
+  final TapGestureRecognizer _termsTapRecognizer = TapGestureRecognizer();
 
   @override
   void dispose() {
     _phoneController.dispose();
+    _termsTapRecognizer.dispose();
     super.dispose();
+  }
+
+  Future<void> _openTermsAndConditions() async {
+    final url = Uri.parse("https://suqyarahiq.com/terms-and-conditions.html");
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  Widget _buildTermsNotice(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      child: RichText(
+        textAlign: TextAlign.center,
+        text: TextSpan(
+          style: TextStyle(fontSize: 12.5, color: Colors.grey[600]),
+          children: [
+            TextSpan(text: l10n.login_terms_prefix),
+            TextSpan(
+              text: l10n.terms_conditions,
+              style: const TextStyle(
+                color: AppColors.buttonBlueDark,
+                decoration: TextDecoration.underline,
+                decorationColor: AppColors.buttonBlueDark,
+                fontWeight: FontWeight.w600,
+              ),
+              recognizer: _termsTapRecognizer..onTap = _openTermsAndConditions,
+            ),
+            TextSpan(text: l10n.login_terms_suffix),
+          ],
+        ),
+      ),
+    );
   }
 
   Future<void> _handleGoogleSignIn() async {
@@ -305,551 +343,635 @@ class _LoginState extends State<Login> {
           ),
         ],
       ),
-      body: SingleChildScrollView(
-        physics: const ClampingScrollPhysics(),
+      body: SafeArea(
         child: Column(
           children: [
-            Stack(
-              children: [
-                ClipRRect(
-                  borderRadius: const BorderRadius.only(
-                    bottomLeft: Radius.circular(40),
-                    bottomRight: Radius.circular(40),
-                  ),
-                  child: Container(
-                    padding: const EdgeInsetsDirectional.only(
-                      start: 20,
-                      end: 20,
-                      bottom: 35,
-                    ),
-                    height: MediaQuery.of(context).size.height * 0.35,
-                    width: MediaQuery.of(context).size.width,
-                    decoration: BoxDecoration(
-                      color: AppColors.buttonBlueDark,
-                      borderRadius: const BorderRadius.only(
-                        bottomLeft: Radius.circular(40),
-                        bottomRight: Radius.circular(40),
-                      ),
-                    ),
-                    child: Image.asset(
-                      'assets/login/new_login.png',
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsetsDirectional.only(
-                    top: MediaQuery.of(context).size.height * 0.35 - 50,
-                    start: 24,
-                    end: 24,
-                    bottom: 40,
-                  ),
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(25),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.buttonBlueDark.withValues(
-                            alpha: 0.15,
-                          ),
-                          blurRadius: 50,
-                          offset: const Offset(0, 25),
-                          spreadRadius: -10,
-                        ),
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.05),
-                          blurRadius: 20,
-                          offset: const Offset(0, 10),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
+            Expanded(
+              child: SingleChildScrollView(
+                physics: const ClampingScrollPhysics(),
+                child: Column(
+                  children: [
+                    Stack(
                       children: [
-                        // Phone Input Section
-                        Directionality(
-                          textDirection: TextDirection.ltr,
+                        ClipRRect(
+                          borderRadius: const BorderRadius.only(
+                            bottomLeft: Radius.circular(40),
+                            bottomRight: Radius.circular(40),
+                          ),
                           child: Container(
+                            padding: const EdgeInsetsDirectional.only(
+                              start: 20,
+                              end: 20,
+                              bottom: 35,
+                            ),
+                            height: MediaQuery.of(context).size.height * 0.35,
+                            width: MediaQuery.of(context).size.width,
+                            decoration: BoxDecoration(
+                              color: AppColors.buttonBlueDark,
+                              borderRadius: const BorderRadius.only(
+                                bottomLeft: Radius.circular(40),
+                                bottomRight: Radius.circular(40),
+                              ),
+                            ),
+                            child: Image.asset(
+                              'assets/login/new_login.png',
+                              fit: BoxFit.contain,
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsetsDirectional.only(
+                            top: MediaQuery.of(context).size.height * 0.35 - 50,
+                            start: 24,
+                            end: 24,
+                            bottom: 40,
+                          ),
+                          child: Container(
+                            padding: const EdgeInsets.all(8),
                             decoration: BoxDecoration(
                               color: Colors.white,
                               borderRadius: BorderRadius.circular(25),
-                              border: Border.all(
-                                color: AppColors.indicatorGrey,
-                              ),
                               boxShadow: [
                                 BoxShadow(
-                                  color: Colors.black.withValues(alpha: 0.02),
-                                  blurRadius: 10,
-                                  offset: const Offset(0, 4),
+                                  color: AppColors.buttonBlueDark.withValues(
+                                    alpha: 0.15,
+                                  ),
+                                  blurRadius: 50,
+                                  offset: const Offset(0, 25),
+                                  spreadRadius: -10,
+                                ),
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.05),
+                                  blurRadius: 20,
+                                  offset: const Offset(0, 10),
                                 ),
                               ],
                             ),
-                            padding: const EdgeInsets.symmetric(horizontal: 16),
-                            child: Row(
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
                               children: [
-                                Theme(
-                                  data: Theme.of(context).copyWith(
-                                    textSelectionTheme: TextSelectionThemeData(
-                                      cursorColor: AppColors.buttonBlueDark,
+                                // Phone Input Section
+                                Directionality(
+                                  textDirection: TextDirection.ltr,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(25),
+                                      border: Border.all(
+                                        color: AppColors.indicatorGrey,
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withValues(
+                                            alpha: 0.02,
+                                          ),
+                                          blurRadius: 10,
+                                          offset: const Offset(0, 4),
+                                        ),
+                                      ],
                                     ),
-                                  ),
-                                  child: Builder(
-                                    builder: (context) => InkWell(
-                                      onTap: () {
-                                        showCountryPicker(
-                                          favorite: [
-                                            "SA",
-                                            "AE",
-                                            "KW",
-                                            "BH",
-                                            "QA",
-                                            "OM",
-                                            "SD",
-                                          ],
-                                          context: context,
-                                          showPhoneCode: true,
-                                          onSelect: (Country country) {
-                                            setState(() {
-                                              _selectedCountry = country;
-                                              final formatted =
-                                                  GlobalPhoneFormatter.formatText(
-                                                    _phoneController.text,
-                                                    country,
-                                                  );
-                                              if (_phoneController.text !=
-                                                  formatted) {
-                                                _phoneController
-                                                    .value = TextEditingValue(
-                                                  text: formatted,
-                                                  selection:
-                                                      TextSelection.collapsed(
-                                                        offset:
-                                                            formatted.length,
-                                                      ),
-                                                );
-                                              }
-                                            });
-                                          },
-                                          countryListTheme: CountryListThemeData(
-                                            bottomSheetHeight:
-                                                MediaQuery.of(
-                                                  context,
-                                                ).size.height *
-                                                0.7,
-                                            borderRadius:
-                                                const BorderRadius.only(
-                                                  topLeft: Radius.circular(30),
-                                                  topRight: Radius.circular(30),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Theme(
+                                          data: Theme.of(context).copyWith(
+                                            textSelectionTheme:
+                                                TextSelectionThemeData(
+                                                  cursorColor:
+                                                      AppColors.buttonBlueDark,
                                                 ),
-
-                                            inputDecoration: InputDecoration(
+                                          ),
+                                          child: Builder(
+                                            builder: (context) => InkWell(
+                                              onTap: () {
+                                                showCountryPicker(
+                                                  favorite: [
+                                                    "SA",
+                                                    "AE",
+                                                    "KW",
+                                                    "BH",
+                                                    "QA",
+                                                    "OM",
+                                                    "SD",
+                                                  ],
+                                                  context: context,
+                                                  showPhoneCode: true,
+                                                  onSelect: (Country country) {
+                                                    setState(() {
+                                                      _selectedCountry =
+                                                          country;
+                                                      final formatted =
+                                                          GlobalPhoneFormatter.formatText(
+                                                            _phoneController
+                                                                .text,
+                                                            country,
+                                                          );
+                                                      if (_phoneController
+                                                              .text !=
+                                                          formatted) {
+                                                        _phoneController
+                                                            .value = TextEditingValue(
+                                                          text: formatted,
+                                                          selection:
+                                                              TextSelection.collapsed(
+                                                                offset:
+                                                                    formatted
+                                                                        .length,
+                                                              ),
+                                                        );
+                                                      }
+                                                    });
+                                                  },
+                                                  countryListTheme: CountryListThemeData(
+                                                    bottomSheetHeight:
+                                                        MediaQuery.of(
+                                                          context,
+                                                        ).size.height *
+                                                        0.7,
+                                                    borderRadius:
+                                                        const BorderRadius.only(
+                                                          topLeft:
+                                                              Radius.circular(
+                                                                30,
+                                                              ),
+                                                          topRight:
+                                                              Radius.circular(
+                                                                30,
+                                                              ),
+                                                        ),
+                                                    inputDecoration: InputDecoration(
+                                                      hintText:
+                                                          AppLocalizations.of(
+                                                            context,
+                                                          )!.search,
+                                                      prefixIcon: const Icon(
+                                                        Icons.search,
+                                                      ),
+                                                      enabledBorder: OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              15,
+                                                            ),
+                                                        borderSide: BorderSide(
+                                                          color: AppColors
+                                                              .buttonBlueDark,
+                                                        ),
+                                                      ),
+                                                      focusedBorder: OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              15,
+                                                            ),
+                                                        borderSide: BorderSide(
+                                                          color: AppColors
+                                                              .buttonBlueDark,
+                                                        ),
+                                                      ),
+                                                      border: OutlineInputBorder(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              15,
+                                                            ),
+                                                        borderSide: BorderSide(
+                                                          color: Colors.grey
+                                                              .withValues(
+                                                                alpha: 0.2,
+                                                              ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                );
+                                              },
+                                              child: Row(
+                                                children: [
+                                                  CircleAvatar(
+                                                    radius: 14,
+                                                    backgroundColor:
+                                                        Colors.grey[200],
+                                                    backgroundImage:
+                                                        CachedNetworkImageProvider(
+                                                          "https://flagcdn.com/w80/${_selectedCountry.countryCode.toLowerCase()}.png",
+                                                        ),
+                                                  ),
+                                                  const SizedBox(width: 8),
+                                                  Directionality(
+                                                    textDirection:
+                                                        TextDirection.ltr,
+                                                    child: Text(
+                                                      "+${_selectedCountry.phoneCode}",
+                                                      style: const TextStyle(
+                                                        fontSize: 14,
+                                                        fontWeight:
+                                                            FontWeight.w600,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  const Icon(
+                                                    Icons.keyboard_arrow_down,
+                                                    size: 18,
+                                                    color: Colors.grey,
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Container(
+                                          height: 24,
+                                          width: 1,
+                                          color: Colors.grey[300],
+                                        ),
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: TextField(
+                                            cursorColor:
+                                                AppColors.buttonBlueDark,
+                                            controller: _phoneController,
+                                            keyboardType: TextInputType.phone,
+                                            inputFormatters: [
+                                              GlobalPhoneFormatter(
+                                                getCurrentCountry: () =>
+                                                    _selectedCountry,
+                                                onCountryDetected: (country) {
+                                                  if (mounted) {
+                                                    setState(
+                                                      () => _selectedCountry =
+                                                          country,
+                                                    );
+                                                  }
+                                                },
+                                              ),
+                                              FilteringTextInputFormatter
+                                                  .digitsOnly,
+                                            ],
+                                            decoration: InputDecoration(
                                               hintText: AppLocalizations.of(
                                                 context,
-                                              )!.search,
-                                              prefixIcon: const Icon(
-                                                Icons.search,
-                                              ),
-                                              enabledBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(15),
-                                                borderSide: BorderSide(
-                                                  color:
-                                                      AppColors.buttonBlueDark,
-                                                ),
-                                              ),
-                                              focusedBorder: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(15),
-                                                borderSide: BorderSide(
-                                                  color:
-                                                      AppColors.buttonBlueDark,
-                                                ),
-                                              ),
-                                              border: OutlineInputBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(15),
-                                                borderSide: BorderSide(
-                                                  color: Colors.grey.withValues(
-                                                    alpha: 0.2,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                      child: Row(
-                                        children: [
-                                          CircleAvatar(
-                                            radius: 14,
-                                            backgroundColor: Colors.grey[200],
-                                            backgroundImage:
-                                                CachedNetworkImageProvider(
-                                                  "https://flagcdn.com/w80/${_selectedCountry.countryCode.toLowerCase()}.png",
-                                                ),
-                                          ),
-                                          const SizedBox(width: 8),
-                                          Directionality(
-                                            textDirection: TextDirection.ltr,
-                                            child: Text(
-                                              "+${_selectedCountry.phoneCode}",
-                                              style: const TextStyle(
+                                              )!.enter_phone,
+                                              hintStyle: TextStyle(
+                                                color: AppColors.black
+                                                    .withValues(alpha: 0.8),
                                                 fontSize: 14,
-                                                fontWeight: FontWeight.w600,
                                               ),
+                                              border: InputBorder.none,
+                                            ),
+                                            style: const TextStyle(
+                                              color: AppColors.black,
+                                              fontSize: 14,
                                             ),
                                           ),
-                                          const Icon(
-                                            Icons.keyboard_arrow_down,
-                                            size: 18,
-                                            color: Colors.grey,
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                Container(
-                                  height: 24,
-                                  width: 1,
-                                  color: Colors.grey[300],
-                                ),
-                                const SizedBox(width: 12),
-                                Expanded(
-                                  child: TextField(
-                                    cursorColor: AppColors.buttonBlueDark,
-                                    controller: _phoneController,
-                                    keyboardType: TextInputType.phone,
-                                    inputFormatters: [
-                                      GlobalPhoneFormatter(
-                                        getCurrentCountry: () =>
-                                            _selectedCountry,
-                                        onCountryDetected: (country) {
-                                          if (mounted)
-                                            setState(
-                                              () => _selectedCountry = country,
-                                            );
-                                        },
-                                      ),
-                                      FilteringTextInputFormatter.digitsOnly,
-                                    ],
-                                    decoration: InputDecoration(
-                                      hintText: AppLocalizations.of(
-                                        context,
-                                      )!.enter_phone,
-                                      hintStyle: TextStyle(
-                                        color: AppColors.black.withValues(
-                                          alpha: 0.8,
                                         ),
-                                        fontSize: 14,
-                                      ),
-                                      border: InputBorder.none,
-                                    ),
-                                    style: const TextStyle(
-                                      color: AppColors.black,
-                                      fontSize: 14,
+                                      ],
                                     ),
                                   ),
                                 ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  AppLocalizations.of(context)!.otp_message,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    fontSize: 13,
+                                    color: Colors.grey[600],
+                                    height: 1.4,
+                                    fontWeight: FontWeight.w400,
+                                  ),
+                                ),
+                                const SizedBox(height: 32),
+                                SizedBox(
+                                  width: double.infinity,
+                                  child: ElevatedButton(
+                                    onPressed:
+                                        (_isLoading ||
+                                            _socialLoadingProvider != null)
+                                        ? null
+                                        : () async {
+                                            String phoneText = _phoneController
+                                                .text
+                                                .trim();
+                                            if (phoneText.isEmpty) {
+                                              CustomSnackbar.show(
+                                                context: context,
+                                                message: AppLocalizations.of(
+                                                  context,
+                                                )!.enter_phone,
+                                                isError: true,
+                                              );
+                                              return;
+                                            }
+
+                                            if (!RegExp(
+                                              r'^\d+$',
+                                            ).hasMatch(phoneText)) {
+                                              CustomSnackbar.show(
+                                                context: context,
+                                                message: AppLocalizations.of(
+                                                  context,
+                                                )!.invalid_phone_number,
+                                                isError: true,
+                                              );
+                                              return;
+                                            }
+
+                                            if (_selectedCountry.phoneCode ==
+                                                '966') {
+                                              if (phoneText.startsWith('0') &&
+                                                  phoneText.length != 10) {
+                                                CustomSnackbar.show(
+                                                  context: context,
+                                                  message: AppLocalizations.of(
+                                                    context,
+                                                  )!.enter_valid_number_gc,
+                                                  isError: true,
+                                                );
+                                                return;
+                                              } else if (phoneText.startsWith(
+                                                    '5',
+                                                  ) &&
+                                                  phoneText.length != 9) {
+                                                CustomSnackbar.show(
+                                                  context: context,
+                                                  message: AppLocalizations.of(
+                                                    context,
+                                                  )!.enter_valid_number_gc,
+                                                  isError: true,
+                                                );
+                                                return;
+                                              } else if (!phoneText.startsWith(
+                                                    '0',
+                                                  ) &&
+                                                  !phoneText.startsWith('5')) {
+                                                CustomSnackbar.show(
+                                                  context: context,
+                                                  message: AppLocalizations.of(
+                                                    context,
+                                                  )!.enter_valid_number_gc,
+                                                  isError: true,
+                                                );
+                                                return;
+                                              }
+                                            } else {
+                                              try {
+                                                final phone = PhoneNumber.parse(
+                                                  '+${_selectedCountry.phoneCode}$phoneText',
+                                                );
+                                                if (!phone.isValid(
+                                                      type: PhoneNumberType
+                                                          .mobile,
+                                                    ) &&
+                                                    !phone.isValid()) {
+                                                  CustomSnackbar.show(
+                                                    context: context,
+                                                    message: AppLocalizations.of(
+                                                      context,
+                                                    )!.enter_valid_number_gc,
+                                                    isError: true,
+                                                  );
+                                                  return;
+                                                }
+                                              } catch (e) {
+                                                CustomSnackbar.show(
+                                                  context: context,
+                                                  message: AppLocalizations.of(
+                                                    context,
+                                                  )!.invalid_phone_format,
+                                                  isError: true,
+                                                );
+                                                return;
+                                              }
+                                            }
+
+                                            String apiPhoneText = phoneText;
+                                            if (_selectedCountry.phoneCode ==
+                                                    '966' &&
+                                                apiPhoneText.startsWith('0')) {
+                                              apiPhoneText = apiPhoneText
+                                                  .substring(1);
+                                            }
+                                            log("apiservice called");
+                                            setState(() => _isLoading = true);
+                                            try {
+                                              // Arm the SMS retriever before the OTP is
+                                              // requested. It only matches messages
+                                              // that arrive after it starts listening,
+                                              // so arming it on the OTP screen (after
+                                              // this request returns and the route is
+                                              // pushed) loses the race whenever the SMS
+                                              // beats the navigation.
+                                              unawaited(
+                                                OtpAutofill.instance.arm(),
+                                              );
+
+                                              final response =
+                                                  await ApiService().requestOtp(
+                                                    phoneNumber: apiPhoneText,
+                                                    countryCode:
+                                                        '+${_selectedCountry.phoneCode}',
+                                                  );
+                                              log("context not mounted");
+                                              if (!context.mounted) return;
+                                              log("context mounted");
+                                              if (response.statusCode == 200 &&
+                                                  response.data['success'] ==
+                                                      true) {
+                                                final receivedOtp = response
+                                                    .data['data']?['otp']
+                                                    ?.toString();
+                                                await Navigator.push(
+                                                  context,
+                                                  MaterialPageRoute(
+                                                    builder: (context) => OTP(
+                                                      phoneNumber: apiPhoneText,
+                                                      countryCode:
+                                                          '+${_selectedCountry.phoneCode}',
+                                                      receivedOtp: receivedOtp,
+                                                    ),
+                                                  ),
+                                                );
+                                                log("otp sent");
+                                                if (mounted) {
+                                                  setState(
+                                                    () => _isLoading = false,
+                                                  );
+                                                }
+                                                log(
+                                                  "otp sent and state changed",
+                                                );
+                                              } else {
+                                                if (mounted) {
+                                                  setState(
+                                                    () => _isLoading = false,
+                                                  );
+                                                }
+                                                log(
+                                                  "otp not sent and state changed",
+                                                );
+                                                CustomSnackbar.show(
+                                                  context: context,
+                                                  message:
+                                                      response
+                                                          .data['message'] ??
+                                                      AppLocalizations.of(
+                                                        context,
+                                                      )!.failed_to_send_otp,
+                                                  isError: true,
+                                                );
+                                              }
+                                            } catch (e) {
+                                              if (mounted) {
+                                                setState(
+                                                  () => _isLoading = false,
+                                                );
+                                              }
+                                              String errorMessage =
+                                                  AppLocalizations.of(
+                                                    context,
+                                                  )!.failed_to_send_otp;
+                                              if (e is DioException) {
+                                                if (e.type ==
+                                                    DioExceptionType
+                                                        .connectionError) {
+                                                  CustomSnackbar.show(
+                                                    context: context,
+                                                    isError: true,
+                                                    message:
+                                                        AppLocalizations.of(
+                                                          context,
+                                                        )!.internet_error,
+                                                  );
+                                                  return;
+                                                } else if (e
+                                                        .response
+                                                        ?.statusCode ==
+                                                    429) {
+                                                  errorMessage =
+                                                      AppLocalizations.of(
+                                                        context,
+                                                      )!.too_many_attempts;
+                                                } else if (e.response?.data
+                                                        is Map &&
+                                                    e
+                                                            .response
+                                                            ?.data['message'] !=
+                                                        null) {
+                                                  errorMessage = e
+                                                      .response
+                                                      ?.data['message'];
+                                                }
+                                              }
+                                              CustomSnackbar.show(
+                                                context: context,
+                                                message: errorMessage,
+                                                isError: true,
+                                              );
+                                            }
+                                          },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.buttonBlueDark,
+                                      foregroundColor: Colors.white,
+                                      disabledBackgroundColor:
+                                          AppColors.buttonBlueDark,
+                                      disabledForegroundColor: Colors.white,
+                                      elevation: 0,
+                                      padding: const EdgeInsets.symmetric(
+                                        vertical: 16,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(35),
+                                      ),
+                                    ),
+                                    child: _isLoading
+                                        ? const SizedBox(
+                                            height: 24,
+                                            width: 24,
+                                            child: WaterLoadingIndicator(
+                                              waveColor1: AppColors.white,
+                                            ),
+                                          )
+                                        : Text(
+                                            AppLocalizations.of(
+                                              context,
+                                            )!.continue_btn,
+                                            style: const TextStyle(
+                                              fontSize: 16,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                  ),
+                                ),
+                                const SizedBox(height: 32),
+                                // Divider Section
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Divider(
+                                        color: Colors.grey[300],
+                                        thickness: 0.8,
+                                      ),
+                                    ),
+                                    Padding(
+                                      padding: const EdgeInsets.symmetric(
+                                        horizontal: 16,
+                                      ),
+                                      child: Text(
+                                        AppLocalizations.of(context)!.or,
+                                        style: TextStyle(
+                                          color: Colors.grey[400],
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: Divider(
+                                        color: Colors.grey[300],
+                                        thickness: 0.8,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 32),
+                                // Social Login Buttons
+                                _buildSocialButton(
+                                  icon: FontAwesomeIcons.google,
+                                  label: "Sign in with Google",
+                                  onPressed: () => _handleSocialLogin('Google'),
+                                  backgroundColor: Colors.white,
+                                  textColor: Colors.black87,
+                                  borderColor: Colors.grey[300],
+                                  isLoading: _socialLoadingProvider == 'Google',
+                                ),
+                                if (Platform.isIOS) ...{
+                                  const SizedBox(height: 14),
+                                  _buildSocialButton(
+                                    icon: FontAwesomeIcons.apple,
+                                    label: "Sign in with Apple",
+                                    onPressed: () =>
+                                        _handleSocialLogin('Apple'),
+                                    backgroundColor: Colors.black,
+                                    textColor: Colors.white,
+                                    isLoading:
+                                        _socialLoadingProvider == 'Apple',
+                                  ),
+                                },
+                                const SizedBox(height: 24),
                               ],
                             ),
                           ),
                         ),
-                        const SizedBox(height: 16),
-                        Text(
-                          AppLocalizations.of(context)!.otp_message,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            fontSize: 13,
-                            color: Colors.grey[600],
-                            height: 1.4,
-                            fontWeight: FontWeight.w400,
-                          ),
-                        ),
-                        const SizedBox(height: 32),
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton(
-                            onPressed:
-                                (_isLoading || _socialLoadingProvider != null)
-                                ? null
-                                : () async {
-                                    String phoneText = _phoneController.text
-                                        .trim();
-                                    if (phoneText.isEmpty) {
-                                      CustomSnackbar.show(
-                                        context: context,
-                                        message: AppLocalizations.of(
-                                          context,
-                                        )!.enter_phone,
-                                        isError: true,
-                                      );
-                                      return;
-                                    }
-
-                                    if (!RegExp(r'^\d+$').hasMatch(phoneText)) {
-                                      CustomSnackbar.show(
-                                        context: context,
-                                        message: AppLocalizations.of(
-                                          context,
-                                        )!.invalid_phone_number,
-                                        isError: true,
-                                      );
-                                      return;
-                                    }
-
-                                    if (_selectedCountry.phoneCode == '966') {
-                                      if (phoneText.startsWith('0') &&
-                                          phoneText.length != 10) {
-                                        CustomSnackbar.show(
-                                          context: context,
-                                          message: AppLocalizations.of(
-                                            context,
-                                          )!.enter_valid_number_gc,
-                                          isError: true,
-                                        );
-                                        return;
-                                      } else if (phoneText.startsWith('5') &&
-                                          phoneText.length != 9) {
-                                        CustomSnackbar.show(
-                                          context: context,
-                                          message: AppLocalizations.of(
-                                            context,
-                                          )!.enter_valid_number_gc,
-                                          isError: true,
-                                        );
-                                        return;
-                                      } else if (!phoneText.startsWith('0') &&
-                                          !phoneText.startsWith('5')) {
-                                        CustomSnackbar.show(
-                                          context: context,
-                                          message: AppLocalizations.of(
-                                            context,
-                                          )!.enter_valid_number_gc,
-                                          isError: true,
-                                        );
-                                        return;
-                                      }
-                                    } else {
-                                      try {
-                                        final phone = PhoneNumber.parse(
-                                          '+${_selectedCountry.phoneCode}$phoneText',
-                                        );
-                                        if (!phone.isValid(
-                                              type: PhoneNumberType.mobile,
-                                            ) &&
-                                            !phone.isValid()) {
-                                          CustomSnackbar.show(
-                                            context: context,
-                                            message: AppLocalizations.of(
-                                              context,
-                                            )!.enter_valid_number_gc,
-                                            isError: true,
-                                          );
-                                          return;
-                                        }
-                                      } catch (e) {
-                                        CustomSnackbar.show(
-                                          context: context,
-                                          message: AppLocalizations.of(
-                                            context,
-                                          )!.invalid_phone_format,
-                                          isError: true,
-                                        );
-                                        return;
-                                      }
-                                    }
-
-                                    String apiPhoneText = phoneText;
-                                    if (_selectedCountry.phoneCode == '966' &&
-                                        apiPhoneText.startsWith('0')) {
-                                      apiPhoneText = apiPhoneText.substring(1);
-                                    }
-                                    log("apiservice called");
-                                    setState(() => _isLoading = true);
-                                    try {
-                                      // Arm the SMS retriever before the OTP is
-                                      // requested. It only matches messages
-                                      // that arrive after it starts listening,
-                                      // so arming it on the OTP screen (after
-                                      // this request returns and the route is
-                                      // pushed) loses the race whenever the SMS
-                                      // beats the navigation.
-                                      unawaited(OtpAutofill.instance.arm());
-
-                                      final response = await ApiService()
-                                          .requestOtp(
-                                            phoneNumber: apiPhoneText,
-                                            countryCode:
-                                                '+${_selectedCountry.phoneCode}',
-                                          );
-                                      log("context not mounted");
-                                      if (!context.mounted) return;
-                                      log("context mounted");
-                                      if (response.statusCode == 200 &&
-                                          response.data['success'] == true) {
-                                        final receivedOtp = response
-                                            .data['data']?['otp']
-                                            ?.toString();
-                                        await Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => OTP(
-                                              phoneNumber: apiPhoneText,
-                                              countryCode:
-                                                  '+${_selectedCountry.phoneCode}',
-                                              receivedOtp: receivedOtp,
-                                            ),
-                                          ),
-                                        );
-                                        log("otp sent");
-                                        if (mounted) {
-                                          setState(() => _isLoading = false);
-                                        }
-                                        log("otp sent and state changed");
-                                      } else {
-                                        if (mounted) {
-                                          setState(() => _isLoading = false);
-                                        }
-                                        log("otp not sent and state changed");
-                                        CustomSnackbar.show(
-                                          context: context,
-                                          message:
-                                              response.data['message'] ??
-                                              AppLocalizations.of(
-                                                context,
-                                              )!.failed_to_send_otp,
-                                          isError: true,
-                                        );
-                                      }
-                                    } catch (e) {
-                                      if (mounted) {
-                                        setState(() => _isLoading = false);
-                                      }
-                                      String errorMessage = AppLocalizations.of(
-                                        context,
-                                      )!.failed_to_send_otp;
-                                      if (e is DioException) {
-                                        if (e.type ==
-                                            DioExceptionType.connectionError) {
-                                          CustomSnackbar.show(
-                                            context: context,
-                                            isError: true,
-                                            message: AppLocalizations.of(
-                                              context,
-                                            )!.internet_error,
-                                          );
-                                          return;
-                                        } else if (e.response?.statusCode ==
-                                            429) {
-                                          errorMessage = AppLocalizations.of(
-                                            context,
-                                          )!.too_many_attempts;
-                                        } else if (e.response?.data is Map &&
-                                            e.response?.data['message'] !=
-                                                null) {
-                                          errorMessage =
-                                              e.response?.data['message'];
-                                        }
-                                      }
-                                      CustomSnackbar.show(
-                                        context: context,
-                                        message: errorMessage,
-                                        isError: true,
-                                      );
-                                    }
-                                  },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.buttonBlueDark,
-                              foregroundColor: Colors.white,
-                              disabledBackgroundColor: AppColors.buttonBlueDark,
-                              disabledForegroundColor: Colors.white,
-                              elevation: 0,
-                              padding: const EdgeInsets.symmetric(vertical: 16),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(35),
-                              ),
-                            ),
-                            child: _isLoading
-                                ? const SizedBox(
-                                    height: 24,
-                                    width: 24,
-                                    child: WaterLoadingIndicator(
-                                      waveColor1: AppColors.white,
-                                    ),
-                                  )
-                                : Text(
-                                    AppLocalizations.of(context)!.continue_btn,
-                                    style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.w600,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                          ),
-                        ),
-                        const SizedBox(height: 32),
-                        // Divider Section
-                        Row(
-                          children: [
-                            Expanded(
-                              child: Divider(
-                                color: Colors.grey[300],
-                                thickness: 0.8,
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                              ),
-                              child: Text(
-                                AppLocalizations.of(context)!.or,
-                                style: TextStyle(
-                                  color: Colors.grey[400],
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w500,
-                                ),
-                              ),
-                            ),
-                            Expanded(
-                              child: Divider(
-                                color: Colors.grey[300],
-                                thickness: 0.8,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 32),
-                        // Social Login Buttons
-                        _buildSocialButton(
-                          icon: FontAwesomeIcons.google,
-                          label: "Sign in with Google",
-                          onPressed: () => _handleSocialLogin('Google'),
-                          backgroundColor: Colors.white,
-                          textColor: Colors.black87,
-                          borderColor: Colors.grey[300],
-                          isLoading: _socialLoadingProvider == 'Google',
-                        ),
-                        if (Platform.isIOS) ...{
-                          const SizedBox(height: 14),
-                          _buildSocialButton(
-                            icon: FontAwesomeIcons.apple,
-                            label: "Sign in with Apple",
-                            onPressed: () => _handleSocialLogin('Apple'),
-                            backgroundColor: Colors.black,
-                            textColor: Colors.white,
-                            isLoading: _socialLoadingProvider == 'Apple',
-                          ),
-                        },
-                        const SizedBox(height: 32),
                       ],
                     ),
-                  ),
+                  ],
                 ),
-              ],
+              ),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(bottom: 12),
+              child: _buildTermsNotice(context),
             ),
           ],
         ),
