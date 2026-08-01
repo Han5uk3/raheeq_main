@@ -571,6 +571,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get no_orphanages_found => 'No orphanages found';
 
   @override
+  String get no_mosques_available_in_selected_city =>
+      'No mosques available in the selected city';
+
+  @override
+  String get no_meqat_mosques_available_in_selected_city =>
+      'No meqat mosques available in the selected city';
+
+  @override
+  String get no_orphanages_available_in_selected_city =>
+      'No orphanages available in the selected city';
+
+  @override
   String get select_city => 'Select city';
 
   @override

@@ -1173,6 +1173,24 @@ abstract class AppLocalizations {
   /// **'No orphanages found'**
   String get no_orphanages_found;
 
+  /// No description provided for @no_mosques_available_in_selected_city.
+  ///
+  /// In en, this message translates to:
+  /// **'No mosques available in the selected city'**
+  String get no_mosques_available_in_selected_city;
+
+  /// No description provided for @no_meqat_mosques_available_in_selected_city.
+  ///
+  /// In en, this message translates to:
+  /// **'No meqat mosques available in the selected city'**
+  String get no_meqat_mosques_available_in_selected_city;
+
+  /// No description provided for @no_orphanages_available_in_selected_city.
+  ///
+  /// In en, this message translates to:
+  /// **'No orphanages available in the selected city'**
+  String get no_orphanages_available_in_selected_city;
+
   /// No description provided for @select_city.
   ///
   /// In en, this message translates to:

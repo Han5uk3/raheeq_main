@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -616,25 +618,8 @@ class _ProfileTabState extends State<ProfileTab> {
                         ],
                       ),
                       const SizedBox(height: 16),
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: _deleteAccount,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.red,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25),
-                            ),
-                            fixedSize: Size(double.infinity, 50),
-                          ),
-
-                          child: Text(
-                            AppLocalizations.of(context)!.delete_account,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 16),
+                     
+               
 
                       SizedBox(
                         width: double.infinity,
@@ -652,6 +637,28 @@ class _ProfileTabState extends State<ProfileTab> {
                           child: Text(AppLocalizations.of(context)!.logout),
                         ),
                       ),
+                      if (Platform.isIOS) ...[
+                        const SizedBox(height: 16),
+
+                      SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                            onPressed: _deleteAccount,
+                          style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                            foregroundColor: Colors.white,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(25),
+                            ),
+                            fixedSize: Size(double.infinity, 50),
+                          ),
+
+                            child: Text(
+                              AppLocalizations.of(context)!.delete_account,
+                            ),
+                          ),
+                        ),
+                      ],
                       const SizedBox(height: 120),
                     ],
                   ),

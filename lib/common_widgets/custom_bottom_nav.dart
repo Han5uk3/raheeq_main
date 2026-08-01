@@ -23,7 +23,7 @@ class CustomBottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 16, 0),
+      padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 16, 16),
       child: Material(
         elevation: 10,
         color: Colors.transparent,

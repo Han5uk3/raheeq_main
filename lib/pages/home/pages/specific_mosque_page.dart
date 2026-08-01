@@ -6,11 +6,11 @@ import 'package:raheeq_main/pages/home/widgets/mosque_card.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:raheeq_main/storage/app_storage.dart';
+import '../../../models/city.dart';
 import '../../../models/mosque.dart';
 import '../../../models/meqat_mosque.dart';
 import '../../../models/orphanage.dart';
@@ -25,6 +25,7 @@ const double _selectedTileGap = 8;
 const int _maxVisibleSelectedTiles = 4;
 // Material's scrollbar thickness (8) plus its cross axis margin (2), rounded up.
 const double _scrollbarGutter = 12;
+const int _mapItemsLimit = 30;
 
 const TextStyle _cityMenuTextStyle = TextStyle(fontSize: 14);
 // MenuItemButton's default horizontal padding (12 + 12) plus DropdownMenu's
@@ -56,6 +57,9 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
   List<Place> _items = [];
   List<Place> _allMapItems = [];
   bool _isLoadingMapItems = true;
+  bool _isLoadingMoreMapItems = false;
+  bool _hasMoreMapItems = true;
+  int _mapCurrentPage = 1;
   List<Place> _filteredItems = [];
 
   late TabController _tabController;
@@ -66,22 +70,8 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
   bool _isLoadingMore = false;
   bool _hasMore = true;
 
-  Map<String, dynamic>? _selectedCity;
-
-  final List<Map<String, dynamic>> _cityFilters = [
-    {'name': 'Makkah', 'nameAr': 'مكة المكرمة', 'lat': 21.3891, 'lng': 39.8579},
-    {
-      'name': 'Madina',
-      'nameAr': 'المدينة المنورة',
-      'lat': 24.5247,
-      'lng': 39.5692,
-    },
-    {'name': 'Riyadh', 'nameAr': 'الرياض', 'lat': 24.7136, 'lng': 46.6753},
-    {'name': 'Jeddah', 'nameAr': 'جدة', 'lat': 21.4858, 'lng': 39.1925},
-    {'name': 'Sakaka', 'nameAr': 'سكاكا', 'lat': 29.9697, 'lng': 40.2064},
-    {'name': 'Abha', 'nameAr': 'أبها', 'lat': 18.2164, 'lng': 42.5053},
-    {'name': 'Taif', 'nameAr': 'الطائف', 'lat': 21.2643, 'lng': 40.4022},
-  ];
+  City? _selectedCity;
+  List<City> _cities = [];
 
   GoogleMapController? _mapController;
   final List<Place> _selectedItemsList = [];
@@ -138,51 +128,153 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
   Future<void> _initData() async {
     _currentUserPosition = await _getUserLocation();
     await _fetchFavorites();
-    _fetchAllMapItems();
+    _fetchMapItems(reset: true);
+    _fetchCities();
     await _fetchItems();
   }
 
-  Future<void> _fetchAllMapItems() async {
+  Future<void> _fetchCities() async {
+    try {
+      final response = await _apiService.getCities();
+      if (response.statusCode == 200 && response.data['success'] == true) {
+        final List<dynamic> data = response.data['data'] ?? [];
+        if (mounted) {
+          setState(() {
+            _cities = data
+                .map((e) => City.fromJson(e as Map<String, dynamic>))
+                .toList();
+          });
+        }
+      }
+    } catch (e) {
+      // Ignore; the city filter simply stays empty.
+    }
+  }
+
+  // Fetches map markers page by page (capped at `_mapItemsLimit` per
+  // request), continuing in the background until every page for the current
+  // city filter has been loaded. `reset` clears prior results and restarts
+  // from page 1 (used on first load and whenever the selected city changes);
+  // `centerOnFirstResult` re-centers the map on the first item of the first
+  // page once it arrives, which is how city selection is navigated on the
+  // map since cities themselves carry no coordinates.
+  Future<void> _fetchMapItems({
+    bool reset = false,
+    bool centerOnFirstResult = false,
+  }) async {
+    if (reset) {
+      setState(() {
+        _allMapItems = [];
+        _mapCurrentPage = 1;
+        _hasMoreMapItems = true;
+        _isLoadingMapItems = true;
+      });
+    }
+
+    if (_isLoadingMoreMapItems || !_hasMoreMapItems) return;
+    _isLoadingMoreMapItems = true;
+    final int page = _mapCurrentPage;
+
     try {
       dynamic response;
       if (widget.slug == 'orphanages') {
-        response = await _apiService.getOrphanages(page: 1, limit: 1000);
+        response = await _apiService.getOrphanages(
+          page: page,
+          limit: _mapItemsLimit,
+          cityId: _selectedCity?.id,
+        );
       } else if (widget.slug == 'meqat_mosques') {
-        response = await _apiService.getMiqatMosques(page: 1, limit: 1000);
+        response = await _apiService.getMiqatMosques(
+          page: page,
+          limit: _mapItemsLimit,
+          cityId: _selectedCity?.id,
+        );
       } else {
         response = await _apiService.getMosques(
-          page: 1,
-          limit: 1000,
+          page: page,
+          limit: _mapItemsLimit,
           latitude: _currentUserPosition?.latitude ?? AppStorage.userLatitude,
           longitude:
               _currentUserPosition?.longitude ?? AppStorage.userLongitude,
+          cityId: _selectedCity?.id,
         );
       }
 
       if (response.statusCode == 200 && response.data['success'] == true) {
         final List<dynamic> data = response.data['data'] ?? [];
+        final Map<String, dynamic>? meta = response.data['meta'];
+
+        List<Place> newItems;
+        if (widget.slug == 'orphanages') {
+          newItems = data
+              .map((e) => Orphanage.fromJson(e as Map<String, dynamic>))
+              .toList();
+        } else if (widget.slug == 'meqat_mosques') {
+          newItems = data
+              .map((e) => MeqatMosque.fromJson(e as Map<String, dynamic>))
+              .toList();
+        } else {
+          newItems = data
+              .map((e) => Mosque.fromJson(e as Map<String, dynamic>))
+              .toList();
+        }
+
         if (mounted) {
           setState(() {
-            if (widget.slug == 'orphanages') {
-              _allMapItems = data
-                  .map((e) => Orphanage.fromJson(e as Map<String, dynamic>))
-                  .toList();
-            } else if (widget.slug == 'meqat_mosques') {
-              _allMapItems = data
-                  .map((e) => MeqatMosque.fromJson(e as Map<String, dynamic>))
-                  .toList();
+            _allMapItems = [..._allMapItems, ...newItems];
+            if (meta != null) {
+              final int totalPages = meta['totalPages'] ?? 1;
+              _hasMoreMapItems = page < totalPages;
             } else {
-              _allMapItems = data
-                  .map((e) => Mosque.fromJson(e as Map<String, dynamic>))
-                  .toList();
+              _hasMoreMapItems = newItems.length == _mapItemsLimit;
             }
             _isLoadingMapItems = false;
           });
         }
+
+        if (page == 1 && centerOnFirstResult) {
+          if (newItems.isNotEmpty && mounted && _mapController != null) {
+            final first = newItems.first;
+            _mapController!.animateCamera(
+              CameraUpdate.newLatLngZoom(
+                LatLng(first.latitude, first.longitude),
+                12.0,
+              ),
+            );
+          } else if (newItems.isEmpty && mounted) {
+            String emptyMessage;
+            if (widget.slug == 'orphanages') {
+              emptyMessage = AppLocalizations.of(
+                context,
+              )!.no_orphanages_available_in_selected_city;
+            } else if (widget.slug == 'meqat_mosques') {
+              emptyMessage = AppLocalizations.of(
+                context,
+              )!.no_meqat_mosques_available_in_selected_city;
+            } else {
+              emptyMessage = AppLocalizations.of(
+                context,
+              )!.no_mosques_available_in_selected_city;
+            }
+            CustomSnackbar.show(
+              context: context,
+              message: emptyMessage,
+              isError: true,
+            );
+          }
+        }
+
+        _isLoadingMoreMapItems = false;
+        if (_hasMoreMapItems) {
+          _mapCurrentPage = page + 1;
+          _fetchMapItems(centerOnFirstResult: centerOnFirstResult);
+        }
       } else {
+        _isLoadingMoreMapItems = false;
         if (mounted) setState(() => _isLoadingMapItems = false);
       }
     } catch (e) {
+      _isLoadingMoreMapItems = false;
       if (mounted) setState(() => _isLoadingMapItems = false);
     }
   }
@@ -569,10 +661,10 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
         ),
       );
     } else {
-      final entries = _cityFilters.map((city) {
-        return DropdownMenuEntry<Map<String, dynamic>>(
+      final entries = _cities.map((city) {
+        return DropdownMenuEntry<City>(
           value: city,
-          label: (isAr ? city['nameAr'] : city['name']) as String,
+          label: city.localizedName(isAr),
           style: MenuItemButton.styleFrom(
             foregroundColor: AppColors.buttonBlueDark,
             textStyle: _cityMenuTextStyle,
@@ -604,7 +696,7 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
 
       // DropdownMenu anchors its popup below the button, unlike DropdownButton
       // which overlays the menu on top of it.
-      return DropdownMenu<Map<String, dynamic>>(
+      return DropdownMenu<City>(
         expandedInsets: EdgeInsets.zero,
         width: longestLabelWidth + _cityMenuHorizontalPadding,
         initialSelection: _selectedCity,
@@ -657,11 +749,7 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
           setState(() {
             _selectedCity = val;
           });
-          if (val != null && _mapController != null) {
-            _mapController!.animateCamera(
-              CameraUpdate.newLatLngZoom(LatLng(val['lat'], val['lng']), 12.0),
-            );
-          }
+          _fetchMapItems(reset: true, centerOnFirstResult: true);
         },
       );
     }
@@ -732,10 +820,6 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
   }
 
   Widget _buildMapTab(bool isAr) {
-    if (_isLoadingMapItems) {
-      return const Center(child: WaterLoadingIndicator(size: 30));
-    }
-
     final Set<Marker> markers = _allMapItems.map((item) {
       return Marker(
         markerId: MarkerId(item.id),
@@ -779,10 +863,11 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
           markers: markers,
           onMapCreated: (controller) {
             _mapController = controller;
-            if (_selectedCity != null) {
+            if (_selectedCity != null && _allMapItems.isNotEmpty) {
+              final first = _allMapItems.first;
               _mapController!.animateCamera(
                 CameraUpdate.newLatLngZoom(
-                  LatLng(_selectedCity!['lat'], _selectedCity!['lng']),
+                  LatLng(first.latitude, first.longitude),
                   12.0,
                 ),
               );
@@ -810,6 +895,14 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
             ),
           ),
         ),
+        // Overlaid rather than swapped in for the GoogleMap so the map
+        // widget (and its controller) stays mounted across city changes.
+        if (_isLoadingMapItems)
+          Shimmer.fromColors(
+            baseColor: Colors.grey[300]!,
+            highlightColor: Colors.grey[100]!,
+            child: Container(color: Colors.white),
+          ),
       ],
     );
   }

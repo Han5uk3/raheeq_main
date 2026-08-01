@@ -570,6 +570,18 @@ class AppLocalizationsAr extends AppLocalizations {
   String get no_orphanages_found => 'لا توجد دور أيتام';
 
   @override
+  String get no_mosques_available_in_selected_city =>
+      'لا توجد مساجد متاحة في المدينة المحددة';
+
+  @override
+  String get no_meqat_mosques_available_in_selected_city =>
+      'لا توجد مواقيت متاحة في المدينة المحددة';
+
+  @override
+  String get no_orphanages_available_in_selected_city =>
+      'لا توجد دور أيتام متاحة في المدينة المحددة';
+
+  @override
   String get select_city => 'اختر المدينة';
 
   @override

@@ -841,11 +841,13 @@ class ApiService {
     int limit = 100,
     double? latitude,
     double? longitude,
+    String? cityId,
   }) async {
     try {
       final queryParameters = <String, dynamic>{'page': page, 'limit': limit};
       if (latitude != null) queryParameters['latitude'] = latitude;
       if (longitude != null) queryParameters['longitude'] = longitude;
+      if (cityId != null) queryParameters['cityId'] = cityId;
 
       final response = await _dio.get(
         '/mosques',
@@ -875,11 +877,18 @@ class ApiService {
   }
 
   /// Get Orphanages data
-  Future<Response> getOrphanages({int page = 1, int limit = 10}) async {
+  Future<Response> getOrphanages({
+    int page = 1,
+    int limit = 10,
+    String? cityId,
+  }) async {
     try {
+      final queryParameters = <String, dynamic>{'page': page, 'limit': limit};
+      if (cityId != null) queryParameters['cityId'] = cityId;
+
       final response = await _dio.get(
         '/orphanages',
-        queryParameters: {'page': page, 'limit': limit},
+        queryParameters: queryParameters,
       );
       return response;
     } catch (e) {
@@ -888,11 +897,18 @@ class ApiService {
   }
 
   /// Get Miqat Mosques data
-  Future<Response> getMiqatMosques({int page = 1, int limit = 10}) async {
+  Future<Response> getMiqatMosques({
+    int page = 1,
+    int limit = 10,
+    String? cityId,
+  }) async {
     try {
+      final queryParameters = <String, dynamic>{'page': page, 'limit': limit};
+      if (cityId != null) queryParameters['cityId'] = cityId;
+
       final response = await _dio.get(
         '/mosques/miqat',
-        queryParameters: {'page': page, 'limit': limit},
+        queryParameters: queryParameters,
       );
       return response;
     } catch (e) {
