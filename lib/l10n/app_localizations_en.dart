@@ -349,7 +349,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get support_once_or_make_a_lasting_impact =>
-      'Support once or make a lasting impact';
+      'Order once or make a lasting impact';
 
   @override
   String get choose_donation_type => 'Choose order destination';

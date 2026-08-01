@@ -1029,11 +1029,23 @@ class ApiService {
   }
 
   /// Get Wallet Data
-  Future<Response> getWallet() async {
+  Future<Response> getWallet({int page = 1, int limit = 10}) async {
     try {
-      final response = await _dio.get('/wallet');
+      log(
+        'API REQUEST: GET /wallet (page: $page, limit: $limit)',
+        name: 'WalletAPI',
+      );
+      final response = await _dio.get(
+        '/wallet',
+        queryParameters: {'page': page, 'limit': limit},
+      );
+      log(
+        'API RESPONSE [${response.statusCode}]: ${response.data}',
+        name: 'WalletAPI',
+      );
       return response;
     } catch (e) {
+      log('Error fetching wallet: $e', name: 'WalletAPI', error: e);
       rethrow;
     }
   }

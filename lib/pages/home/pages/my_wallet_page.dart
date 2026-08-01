@@ -1,13 +1,13 @@
-import 'package:dio/dio.dart';
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:raheeq_main/api/apis.dart';
+import 'package:raheeq_main/models/wallet_model.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
-import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
-import 'package:raheeq_main/pages/home/pages/transactions_history_page.dart';
 
 class MyWalletPage extends StatefulWidget {
   const MyWalletPage({super.key});
@@ -17,33 +17,77 @@ class MyWalletPage extends StatefulWidget {
 }
 
 class _MyWalletPageState extends State<MyWalletPage> {
+  static const int _pageSize = 10;
+
+  final ScrollController _scrollController = ScrollController();
+
   bool _isLoading = true;
+  bool _isLoadingMore = false;
   double _balance = 0.0;
   String? _errorMessage;
-  List<dynamic> _transactions = [];
+  List<WalletTransaction> _transactions = [];
+  int _currentPage = 1;
+  bool _hasMore = true;
 
   @override
   void initState() {
     super.initState();
     _fetchWalletData();
+    _scrollController.addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController.removeListener(_onScroll);
+    _scrollController.dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (!_hasMore || _isLoadingMore || _isLoading) return;
+    final threshold = _scrollController.position.maxScrollExtent - 200;
+    if (_scrollController.position.pixels >= threshold) {
+      _loadMoreTransactions();
+    }
   }
 
   Future<void> _fetchWalletData() async {
     try {
-      final response = await ApiService().getWallet();
+      final response = await ApiService().getWallet(page: 1, limit: _pageSize);
       if (response.statusCode == 200 && response.data['success'] == true) {
-        final data = response.data['data'];
+        final walletData = WalletData.fromJson(
+          response.data['data'] as Map<String, dynamic>,
+        );
+        log(
+          'Parsed wallet: balance=${walletData.balance}, '
+          'transactions=${walletData.transactions.length}, '
+          'page=${walletData.page}, hasMore=${walletData.hasMore}',
+          name: 'WalletAPI',
+        );
         setState(() {
-          _balance = (data['balance'] as num).toDouble();
-          _transactions = data['transactions']['items'] ?? [];
+          _balance = walletData.balance;
+          _transactions = walletData.transactions;
+          _currentPage = walletData.page;
+          _hasMore = walletData.hasMore;
           _isLoading = false;
         });
       } else {
+        log(
+          'Wallet fetch not applied: statusCode=${response.statusCode}, '
+          'success=${response.data is Map ? response.data['success'] : response.data}',
+          name: 'WalletAPI',
+        );
         setState(() {
           _isLoading = false;
         });
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      log(
+        'Error parsing wallet response: $e',
+        name: 'WalletAPI',
+        error: e,
+        stackTrace: stackTrace,
+      );
       setState(() {
         _isLoading = false;
       });
@@ -53,6 +97,41 @@ class _MyWalletPageState extends State<MyWalletPage> {
         } else {
           _errorMessage = e.toString();
         }
+      }
+    }
+  }
+
+  Future<void> _loadMoreTransactions() async {
+    setState(() {
+      _isLoadingMore = true;
+    });
+    try {
+      final response = await ApiService().getWallet(
+        page: _currentPage + 1,
+        limit: _pageSize,
+      );
+      if (response.statusCode == 200 && response.data['success'] == true) {
+        final walletData = WalletData.fromJson(
+          response.data['data'] as Map<String, dynamic>,
+        );
+        setState(() {
+          _transactions = [..._transactions, ...walletData.transactions];
+          _currentPage = walletData.page;
+          _hasMore = walletData.hasMore;
+        });
+      }
+    } catch (e, stackTrace) {
+      log(
+        'Error loading more transactions: $e',
+        name: 'WalletAPI',
+        error: e,
+        stackTrace: stackTrace,
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoadingMore = false;
+        });
       }
     }
   }
@@ -96,6 +175,7 @@ class _MyWalletPageState extends State<MyWalletPage> {
                       ? _buildShimmerLoading()
                       : SingleChildScrollView(
                           key: const ValueKey('content'),
+                          controller: _scrollController,
                           physics: const AlwaysScrollableScrollPhysics(),
                           child: Padding(
                             padding: const EdgeInsets.all(16.0),
@@ -105,43 +185,27 @@ class _MyWalletPageState extends State<MyWalletPage> {
                               children: [
                                 _buildWalletCard(),
                                 const SizedBox(height: 24),
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      AppLocalizations.of(
-                                        context,
-                                      )!.transaction_history,
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.black,
-                                      ),
-                                    ),
-                                    if (_transactions.length > 10)
-                                      TextButton(
-                                        onPressed: () {
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>
-                                                  TransactionsHistoryPage(
-                                                    transactions: _transactions,
-                                                  ),
-                                            ),
-                                          );
-                                        },
-                                        child: Text(
-                                          AppLocalizations.of(
-                                            context,
-                                          )!.show_more,
-                                        ),
-                                      ),
-                                  ],
+                                Text(
+                                  AppLocalizations.of(
+                                    context,
+                                  )!.transaction_history,
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black,
+                                  ),
                                 ),
                                 const SizedBox(height: 16),
                                 _buildTransactionsList(),
+                                if (_isLoadingMore)
+                                  const Padding(
+                                    padding: EdgeInsets.symmetric(
+                                      vertical: 16,
+                                    ),
+                                    child: Center(
+                                      child: CircularProgressIndicator(),
+                                    ),
+                                  ),
                               ],
                             ),
                           ),
@@ -283,67 +347,104 @@ class _MyWalletPageState extends State<MyWalletPage> {
       );
     }
 
-    final displayTransactions = _transactions.take(10).toList();
+    final isAr = Localizations.localeOf(context).languageCode == 'ar';
 
     return ListView.separated(
       shrinkWrap: true,
       padding: EdgeInsets.all(0),
       physics: const NeverScrollableScrollPhysics(),
-      itemCount: displayTransactions.length,
-      separatorBuilder: (context, index) => const Divider(height: 1),
+      itemCount: _transactions.length,
+      separatorBuilder: (context, index) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
-        final tx = displayTransactions[index];
-        final type = tx['type'] ?? 'UNKNOWN';
-        final isCredit = type == 'CREDIT';
-        final amount = tx['amount']?.toString() ?? '0';
-        final note = tx['note'] ?? 'Transaction';
+        return _buildTransactionCard(_transactions[index], isAr);
+      },
+    );
+  }
 
-        DateTime date;
-        try {
-          date = DateTime.parse(tx['createdAt']);
-        } catch (_) {
-          date = DateTime.now();
-        }
+  Widget _buildTransactionCard(WalletTransaction tx, bool isAr) {
+    final isCredit = tx.isCredit;
+    final amount = tx.amount.toString();
+    final note = tx.localizedNote(isAr);
+    final date = tx.createdAt ?? DateTime.now();
+    final accentColor = isCredit ? Colors.green : Colors.red;
 
-        final formattedDate = DateFormat(
-          'MMM dd, yyyy • hh:mm a',
-        ).format(date.toLocal());
+    final formattedDate = DateFormat(
+      'MMM dd, yyyy • hh:mm a',
+    ).format(date.toLocal());
 
-        return ListTile(
-          contentPadding: const EdgeInsets.symmetric(
-            vertical: 8,
-            horizontal: 4,
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
           ),
-          leading: CircleAvatar(
-            backgroundColor: isCredit
-                ? Colors.green.withValues(alpha: 0.1)
-                : Colors.red.withValues(alpha: 0.1),
+        ],
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 44,
+            height: 44,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: accentColor.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(12),
+            ),
             child: Icon(
               isCredit ? Icons.arrow_downward : Icons.arrow_upward,
-              color: isCredit ? Colors.green : Colors.red,
+              color: accentColor,
+              size: 20,
             ),
           ),
-          title: Text(
-            note,
-            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
-          ),
-          subtitle: Padding(
-            padding: const EdgeInsetsDirectional.only(top: 4),
-            child: Text(
-              formattedDate,
-              style: const TextStyle(color: Colors.grey, fontSize: 12),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  note,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 15,
+                    color: AppColors.buttonBlueDark,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  formattedDate,
+                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                ),
+                if (tx.reference != null && tx.reference!.trim().isNotEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: Text(
+                      tx.reference!,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: Colors.grey[500], fontSize: 12),
+                    ),
+                  ),
+              ],
             ),
           ),
-          trailing: Text(
+          const SizedBox(width: 8),
+          Text(
             "${isCredit ? '+' : '-'}$amount SAR",
             style: TextStyle(
               fontWeight: FontWeight.bold,
-              fontSize: 16,
-              color: isCredit ? Colors.green : Colors.red,
+              fontSize: 15,
+              color: accentColor,
             ),
           ),
-        );
-      },
+        ],
+      ),
     );
   }
 }

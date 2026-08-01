@@ -8,8 +8,6 @@ import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:dio/dio.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:raheeq_main/utils/formatters.dart';
-
 class ImpactPage extends StatefulWidget {
   const ImpactPage({super.key});
 

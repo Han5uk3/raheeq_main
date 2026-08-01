@@ -743,7 +743,7 @@ abstract class AppLocalizations {
   /// No description provided for @support_once_or_make_a_lasting_impact.
   ///
   /// In en, this message translates to:
-  /// **'Support once or make a lasting impact'**
+  /// **'Order once or make a lasting impact'**
   String get support_once_or_make_a_lasting_impact;
 
   /// No description provided for @choose_donation_type.

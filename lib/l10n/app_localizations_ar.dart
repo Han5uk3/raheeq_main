@@ -349,7 +349,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get support_once_or_make_a_lasting_impact =>
-      'ادعم مرة واحدة أو اصنع أثراً مستداماً';
+      'اطلب مرة واحدة أو اصنع أثراً مستداماً';
 
   @override
   String get choose_donation_type => 'اختر وجهة الطلب';
@@ -830,7 +830,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get most_needy_orphanage => 'دار أيتام الأشد حاجة';
 
   @override
-  String get subscription => 'شهري';
+  String get subscription => 'مجدول';
 
   @override
   String get back_to_home => 'العودة للرئيسية';
@@ -933,7 +933,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get select_date => 'اختر التاريخ';
 
   @override
-  String get recurring_donation => 'طلب شهري متكرر';
+  String get recurring_donation => 'طلب مجدول متكرر';
 
   @override
   String get too_many_attempts =>
