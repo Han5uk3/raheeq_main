@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -71,8 +72,14 @@ class _SubscriptionPlansBottomSheetState
         });
       }
     } catch (e) {
+      String errorMessage = 'Failed to load subscription plans';
+      if (e is DioException &&
+          e.response?.data is Map &&
+          e.response?.data['message'] != null) {
+        errorMessage = e.response!.data['message'].toString();
+      }
       setState(() {
-        _error = 'An error occurred while fetching plans: $e';
+        _error = errorMessage;
         _isLoadingPlans = false;
       });
     }

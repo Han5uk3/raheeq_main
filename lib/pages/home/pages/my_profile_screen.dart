@@ -23,7 +23,6 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
   late TextEditingController _emailController;
   late TextEditingController _phoneController;
 
-  String? _selectedGender;
   bool _isLoading = false;
 
   String? _selectedAvatarPath;
@@ -45,7 +44,6 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
           ? '${_currentUser!.countryCode} ${_currentUser!.phoneNumber}'
           : '',
     );
-    _selectedGender = _currentUser?.gender ?? 'MALE';
 
     // Refresh user profile silently on load to match production APIs
     _refreshProfile();
@@ -76,7 +74,6 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
             _phoneController.text = _currentUser != null
                 ? '${_currentUser!.countryCode} ${_currentUser!.phoneNumber}'
                 : '';
-            _selectedGender = _currentUser?.gender ?? 'MALE';
           });
         }
       }
@@ -133,7 +130,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
                         alignment: Alignment.topCenter,
                         children: <Widget>[
                           ...previousChildren,
-                          if (currentChild != null) currentChild,
+                          ?currentChild,
                         ],
                       );
                     },
@@ -430,66 +427,7 @@ class _MyProfileScreenState extends State<MyProfileScreen> {
     );
   }
 
-  Widget _buildGenderDropdown() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          AppLocalizations.of(context)!.gender,
-          style: const TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(15),
-            border: Border.all(color: AppColors.buttonBlueDark),
-          ),
-          child: DropdownButtonHideUnderline(
-            child: DropdownButtonFormField<String>(
-              iconDisabledColor: Colors.white,
-              borderRadius: BorderRadius.circular(15),
-              dropdownColor: Colors.white,
-              onTap: () {
-                FocusManager.instance.primaryFocus?.unfocus();
-              },
-              initialValue: _selectedGender,
-
-              hint: Text(
-                AppLocalizations.of(context)!.select_gender,
-                style: TextStyle(color: Colors.grey[400], fontSize: 13),
-              ),
-              items: ["MALE", "FEMALE", "OTHER"]
-                  .map(
-                    (label) => DropdownMenuItem(
-                      value: label,
-                      child: Text(
-                        label == "MALE"
-                            ? AppLocalizations.of(context)!.male
-                            : label == "FEMALE"
-                            ? AppLocalizations.of(context)!.female
-                            : AppLocalizations.of(context)!.other_gender,
-                        style: const TextStyle(fontSize: 14),
-                      ),
-                    ),
-                  )
-                  .toList(),
-              onChanged: null,
-              decoration: const InputDecoration(border: InputBorder.none),
-              validator: (value) => value == null
-                  ? AppLocalizations.of(context)!.please_select_gender
-                  : null,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
+ 
 
   Widget _buildShimmerLoading() {
     return Shimmer.fromColors(

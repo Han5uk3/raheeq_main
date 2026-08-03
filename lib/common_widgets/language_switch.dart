@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../main.dart';
+import '../storage/app_storage.dart';
 
 class LanguageSwitchButton extends StatelessWidget {
   final bool isFromLogin;
@@ -11,9 +12,9 @@ class LanguageSwitchButton extends StatelessWidget {
     final isArabic = currentLocale.languageCode == 'ar';
     return GestureDetector(
       onTap: () {
-        localeNotifier.value = isArabic
-            ? const Locale('en')
-            : const Locale('ar');
+        final newLocaleCode = isArabic ? 'en' : 'ar';
+        localeNotifier.value = Locale(newLocaleCode);
+        AppStorage.saveLocale(newLocaleCode);
       },
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),

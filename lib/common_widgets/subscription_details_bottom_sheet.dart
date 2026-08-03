@@ -126,9 +126,13 @@ class _SubscriptionDetailsBottomSheetState
       setState(() {
         _isCreatingCheckout = false;
       });
-      if (e is DioException) {
-        _showError("${e.message}");
+      String errorMessage = AppLocalizations.of(context)!.error_occurred_try_again;
+      if (e is DioException &&
+          e.response?.data is Map &&
+          e.response?.data['message'] != null) {
+        errorMessage = e.response!.data['message'].toString();
       }
+      _showError(errorMessage);
     }
   }
 

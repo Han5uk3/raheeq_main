@@ -839,7 +839,10 @@ class _ProfileTabState extends State<ProfileTab> {
                 ),
                 child: Badge(
                   isLabelVisible: badgeCount > 0,
-                  label: Text('$badgeCount'),
+                  label: Text(
+                    '$badgeCount',
+                    style: const TextStyle(color: Colors.white, fontSize: 6),
+                  ),
                   child: Transform.scale(
                     scaleX: isRtl(context) ? -1 : 1,
                     child: Icon(

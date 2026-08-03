@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:raheeq_main/services/snackbar_insets_services.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'dart:async';
-import 'dart:math' as math;
 
 class CustomSnackbar {
   static OverlayEntry? _currentOverlay;

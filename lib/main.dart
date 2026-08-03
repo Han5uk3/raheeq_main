@@ -153,7 +153,7 @@ class MainApp extends StatelessWidget {
                   data: mediaQueryData.copyWith(
                     textScaler: _ArabicTextScaler(
                       mediaQueryData.textScaler,
-                      true,
+                      locale.languageCode == 'ar',
                     ),
                     boldText: true,
                   ),
@@ -217,7 +217,7 @@ class _ArabicTextScaler extends TextScaler {
   @override
   double scale(double fontSize) {
     double scaled = baseScaler.scale(fontSize);
-    return isArabic ? scaled + 1.0 : scaled;
+    return isArabic ? scaled + 2.0 : scaled + 1.0;
   }
 
   @override

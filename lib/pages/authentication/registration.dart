@@ -581,19 +581,9 @@ class _RegistrationState extends State<Registration> {
                                                       AppLocalizations.of(
                                                         context,
                                                       )!.validation_error_check_inputs;
-                                                } else {
-                                                  errorMessage =
-                                                      AppLocalizations.of(
-                                                        context,
-                                                      )!.error_msg(
-                                                        e.toString(),
-                                                      );
                                                 }
                                               } catch (_) {
-                                                errorMessage =
-                                                    AppLocalizations.of(
-                                                      context,
-                                                    )!.error_msg(e.toString());
+                                                // Keep the default registration_failed message.
                                               }
 
                                               CustomSnackbar.show(

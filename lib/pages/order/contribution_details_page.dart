@@ -839,12 +839,18 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
       }
       log('Error processing payment: $e', error: e);
       if (!mounted) return;
+      String? errorMessage;
+      if (e is DioException &&
+          e.response?.data is Map &&
+          e.response?.data['message'] != null) {
+        errorMessage = e.response!.data['message'].toString();
+      }
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (_) => PaymentStatusPage(
             status: PaymentStatus.failed,
-            message: e.toString(),
+            message: errorMessage,
             isAr: isAr,
             onRetry: () => Navigator.pop(context),
           ),
@@ -2383,22 +2389,22 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
         ),
         child: Row(
           children: [
-            ClipRRect(
-              borderRadius: BorderRadiusDirectional.all(Radius.circular(20)),
-              child: Container(
-                // padding: EdgeInsetsDirectional.only(start: 24, end: 12),
-                padding: EdgeInsets.all(0),
-                decoration: BoxDecoration(
-                  color: AppColors.buttonBlueDark,
-                  borderRadius: BorderRadiusDirectional.all(
-                    Radius.circular(20),
+            Padding(
+              padding: const EdgeInsetsDirectional.only(start: 8),
+              child: ClipRRect(
+                borderRadius: BorderRadius.all(Radius.circular(20)),
+                child: Container(
+                  padding: const EdgeInsets.all(0),
+                  margin: const EdgeInsets.all(0),
+                  decoration: BoxDecoration(
+                    color: AppColors.white,
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                ),
-                child: Image.asset(
-                  "assets/others/giftcard.png",
-                  width: 155,
-
-                  fit: BoxFit.contain,
+                  child: Image.asset(
+                    "assets/others/giftcard.jpeg",
+                    width: 165,
+                    fit: BoxFit.contain,
+                  ),
                 ),
               ),
             ),
@@ -2408,6 +2414,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  SizedBox(height: 10),
                   Icon(
                     size: 18,
                     Icons.card_giftcard_outlined,
@@ -2439,10 +2446,11 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                       ),
                     ),
                   ),
+                  SizedBox(height: 10),
                 ],
               ),
             ),
-            SizedBox(width: 24),
+            SizedBox(width: 8),
           ],
         ),
       ),

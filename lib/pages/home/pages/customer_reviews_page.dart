@@ -46,9 +46,7 @@ class _CustomerReviewsPageState extends State<CustomerReviewsPage> {
         setState(() {
           _isLoading = false;
         });
-        String errorMessage =
-            AppLocalizations.of(context)?.error_msg(e.toString()) ??
-            e.toString();
+        String errorMessage = AppLocalizations.of(context)!.error;
         if (e.toString().contains("connection error")) {
           errorMessage = AppLocalizations.of(context)!.internet_error;
         } else if (e is DioException &&

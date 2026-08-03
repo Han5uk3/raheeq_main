@@ -278,11 +278,7 @@ class _OTPState extends State<OTP> with WidgetsBindingObserver {
         } else if (e.response?.data is Map &&
             e.response?.data['message'] != null) {
           errorMessage = e.response!.data['message'];
-        } else {
-          errorMessage = 'API Error: ${e.response?.statusCode}';
         }
-      } else {
-        errorMessage = 'Error: $e';
       }
       CustomSnackbar.show(
         context: context,
@@ -594,7 +590,9 @@ class _OTPState extends State<OTP> with WidgetsBindingObserver {
                                         Navigator.pop(context); // Close loader
                                       }
                                       String errorMessage =
-                                          'Error: ${e.toString()}';
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.failed_to_resend_otp;
                                       if (e is ApiDioException) {
                                         if (e.type ==
                                             DioExceptionType.connectionError) {

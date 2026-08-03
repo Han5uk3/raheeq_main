@@ -15,7 +15,6 @@ import 'package:raheeq_main/pages/order/proof_media_viewer_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:raheeq_main/pages/home/home_screen.dart';
 import 'package:raheeq_main/services/deep_link_service.dart';
 import 'package:video_player/video_player.dart';
@@ -799,6 +798,7 @@ class _OrderCardState extends State<_OrderCard> {
                     AppLocalizations.of(context)!.order_number,
                     style: TextStyle(fontSize: _s(14)),
                   ),
+                  SizedBox(width: 6),
                   Text(
                     '#${widget.order.subOrderNumber}',
                     textDirection: TextDirection.ltr,

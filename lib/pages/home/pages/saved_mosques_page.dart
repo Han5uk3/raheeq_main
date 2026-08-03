@@ -70,8 +70,12 @@ class _SavedMosquesPageState extends State<SavedMosquesPage> {
         _isLoading = false;
         if (e.toString().contains('connection error')) {
           _errorMessage = AppLocalizations.of(context)!.internet_error;
+        } else if (e is DioException &&
+            e.response?.data is Map &&
+            e.response?.data['message'] != null) {
+          _errorMessage = e.response!.data['message'].toString();
         } else {
-          _errorMessage = e.toString();
+          _errorMessage = AppLocalizations.of(context)!.error;
         }
       });
     }

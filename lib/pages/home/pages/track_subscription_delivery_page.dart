@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:raheeq_main/api/apis.dart';
@@ -70,8 +71,16 @@ class _TrackSubscriptionDeliveryPageState
         });
       }
     } catch (e) {
+      String errorMessage = AppLocalizations.of(context)!.error;
+      if (e.toString().contains('connection error')) {
+        errorMessage = AppLocalizations.of(context)!.internet_error;
+      } else if (e is DioException &&
+          e.response?.data is Map &&
+          e.response?.data['message'] != null) {
+        errorMessage = e.response!.data['message'].toString();
+      }
       setState(() {
-        _errorMessage = e.toString();
+        _errorMessage = errorMessage;
         _isLoading = false;
       });
     }

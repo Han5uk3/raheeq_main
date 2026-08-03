@@ -1,5 +1,7 @@
 import 'dart:developer';
 
+import 'package:dio/dio.dart';
+
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:raheeq_main/api/apis.dart';
@@ -94,8 +96,12 @@ class _MyWalletPageState extends State<MyWalletPage> {
       if (mounted) {
         if (e.toString().contains('connection error')) {
           _errorMessage = AppLocalizations.of(context)!.internet_error;
+        } else if (e is DioException &&
+            e.response?.data is Map &&
+            e.response?.data['message'] != null) {
+          _errorMessage = e.response!.data['message'].toString();
         } else {
-          _errorMessage = e.toString();
+          _errorMessage = AppLocalizations.of(context)!.error;
         }
       }
     }

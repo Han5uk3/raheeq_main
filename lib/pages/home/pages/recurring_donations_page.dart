@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:intl/intl.dart' show DateFormat;
 import 'package:raheeq_main/api/apis.dart';
 import 'package:shimmer/shimmer.dart';
@@ -56,12 +57,18 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
         });
       }
     } catch (e) {
+      String errorMessage;
+      if (e.toString().contains('connection error')) {
+        errorMessage = AppLocalizations.of(context)!.internet_error;
+      } else if (e is DioException &&
+          e.response?.data is Map &&
+          e.response?.data['message'] != null) {
+        errorMessage = e.response!.data['message'].toString();
+      } else {
+        errorMessage = AppLocalizations.of(context)!.error;
+      }
       setState(() {
-        if (e.toString().contains('connection error')) {
-          _errorMessage = AppLocalizations.of(context)!.internet_error;
-        } else {
-          _errorMessage = e.toString();
-        }
+        _errorMessage = errorMessage;
         _isLoading = false;
       });
     }

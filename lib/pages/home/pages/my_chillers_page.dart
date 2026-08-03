@@ -1,8 +1,8 @@
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
-import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/models/chiller_model.dart';
 import 'package:raheeq_main/pages/order/choose_water_package_screen.dart';
@@ -59,8 +59,12 @@ class _MyChillersPageState extends State<MyChillersPage> {
       if (!mounted) return;
       if (e.toString().contains('connection error')) {
         _errorMessage = AppLocalizations.of(context)!.internet_error;
+      } else if (e is DioException &&
+          e.response?.data is Map &&
+          e.response?.data['message'] != null) {
+        _errorMessage = e.response!.data['message'].toString();
       } else {
-        _errorMessage = e.toString();
+        _errorMessage = AppLocalizations.of(context)!.error;
       }
       if (mounted) {
         setState(() {

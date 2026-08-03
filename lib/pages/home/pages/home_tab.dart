@@ -581,7 +581,7 @@ class _HomeTabState extends State<HomeTab>
                     Padding(
                       padding: const EdgeInsetsDirectional.fromSTEB(
                         16,
-                        60,
+                        55,
                         16,
                         8,
                       ),
@@ -811,33 +811,18 @@ class _HomeTabState extends State<HomeTab>
                                     .asMap()
                                     .entries
                                     .map((entry) {
-                                      if ((entry.value.description == " " ||
-                                              entry
-                                                  .value
-                                                  .description
-                                                  .isEmpty) &&
-                                          (entry.value.descriptionAr == " " ||
-                                              entry
-                                                  .value
-                                                  .descriptionAr
-                                                  .isEmpty)) {
-                                        return buildCampaignCard(
-                                          context,
-                                          entry.value,
-                                          entry.key,
-                                        );
-                                      } else {
+                                     
                                         return Padding(
                                           padding: const EdgeInsets.only(
                                             top: 16,
                                           ),
-                                          child: buildOldCampaignCard(
+                                        child: buildCampaignCard(
                                             context,
                                             entry.value,
                                             entry.key,
                                           ),
                                         );
-                                      }
+                                      
                                     })
                                     .toList(),
                               ),
@@ -1513,214 +1498,9 @@ class _HomeTabState extends State<HomeTab>
     return result == true;
   }
 
-  Widget buildCampaignCard(BuildContext context, Campaign campaign, int index) {
-    final isAr = Localizations.localeOf(context).languageCode == 'ar';
-    final title = campaign.localizedTitle(isAr);
+  
 
-    final imageUrl = campaign.image;
-
-    return GestureDetector(
-      onTap: () async {
-        if (_selectedItems.isNotEmpty) {
-          final shouldProceed = await _showClearBasketDialog(
-            context,
-            title,
-            isAr,
-          );
-          if (shouldProceed) {
-            setState(() {
-              _selectedItems.clear();
-            });
-            if (context.mounted) {
-              if (NetworkMonitor.instance.status.value ==
-                  NetworkStatus.offline) {
-                CustomSnackbar.show(
-                  context: context,
-                  message: AppLocalizations.of(context)!.internet_error,
-                  isError: true,
-                );
-                return;
-              }
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (_) => CampaignDetailPage(campaign: campaign),
-                ),
-              );
-            }
-          }
-        } else {
-          Navigator.of(context).push(
-            MaterialPageRoute(
-              builder: (_) => CampaignDetailPage(campaign: campaign),
-            ),
-          );
-        }
-      },
-      child: FittedBox(
-        fit: BoxFit.fitWidth,
-        clipBehavior: Clip.none,
-        child: Container(
-          height: 210,
-          width: 420, // Fixed width for design baseline
-          margin: const EdgeInsetsDirectional.only(bottom: 0),
-          child: Stack(
-            clipBehavior: Clip.none,
-            children: [
-              // Dark blue background container — half the total height, aligned to bottom
-              Positioned(
-                left: 0,
-                right: 0,
-                bottom: 0,
-                height: 160,
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [
-                        AppColors.buttonBlueDark,
-                        Color.fromARGB(255, 31, 163, 224),
-                      ],
-                    ),
-                    borderRadius: BorderRadius.circular(20),
-                    image: const DecorationImage(
-                      image: AssetImage("assets/others/Groupbg.png"),
-                      fit: BoxFit.fill,
-                    ),
-                  ),
-                ),
-              ),
-              Positioned(
-                left: 0,
-                top: 40,
-
-                height: 150,
-                child: SizedBox(
-                  height: 160,
-                  width: 160,
-                  child: Image.asset("assets/others/Group.png"),
-                ),
-              ),
-
-              Positioned(
-                right: -50,
-                top: 40,
-                height: 200,
-                width: 200,
-                child: SizedBox(child: Image.asset("assets/others/Group.png")),
-              ),
-              // Content row on top
-              Positioned.fill(
-                child: Row(
-                  children: [
-                    // Left side: Title + Button
-                    Expanded(
-                      flex: 7,
-                      child: Padding(
-                        padding: const EdgeInsetsDirectional.only(
-                          start: 16,
-                          top: 65,
-                          bottom: 16,
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              title,
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                height: 1.2,
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 8,
-                              ),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              child: Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text(
-                                    AppLocalizations.of(context)!.donate_now,
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      fontWeight: FontWeight.w600,
-                                      color: Color(0xFF1A385F),
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Container(
-                                    padding: const EdgeInsets.all(5),
-                                    decoration: const BoxDecoration(
-                                      color: Color(0xFF1A385F),
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Icon(
-                                      forwardArrowIcon(context),
-                                      size: 12,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    SizedBox(width: 16),
-                    // Right side: Image extends full height
-                    Expanded(
-                      flex: 9,
-                      child: Padding(
-                        padding: const EdgeInsetsDirectional.only(
-                          end: 16,
-                          top: 16,
-                          bottom: 16,
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(16),
-                          child: CachedNetworkImage(
-                            imageUrl: imageUrl,
-                            fit: BoxFit.cover,
-                            height: double.infinity,
-                            placeholder: (context, url) => Shimmer.fromColors(
-                              baseColor: Colors.grey[300]!,
-                              highlightColor: Colors.grey[100]!,
-                              child: Container(color: Colors.white),
-                            ),
-                            errorWidget: (context, url, error) => Container(
-                              color: Colors.grey[200],
-                              child: const Center(
-                                child: Icon(
-                                  Icons.error_outline,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget buildOldCampaignCard(
+  Widget buildCampaignCard(
     BuildContext context,
     Campaign campaign,
     int index,

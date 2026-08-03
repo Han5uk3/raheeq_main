@@ -54,11 +54,13 @@ class _ComplaintsPageState extends State<ComplaintsPage> {
           isError: true,
           message: AppLocalizations.of(context)!.internet_error,
         );
-      } else if (e is DioException && e.response != null) {
+      } else if (e is DioException &&
+          e.response?.data is Map &&
+          e.response?.data['message'] != null) {
         CustomSnackbar.show(
           context: context,
           isError: true,
-          message: e.response!.data['message'],
+          message: e.response!.data['message'].toString(),
         );
       } else {
         CustomSnackbar.show(

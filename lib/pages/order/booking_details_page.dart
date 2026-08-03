@@ -1,13 +1,18 @@
+import 'dart:convert';
+import 'dart:developer';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:open_filex/open_filex.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
+import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/models/order_response_model.dart';
 import 'package:raheeq_main/pages/order/proof_media_viewer_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:raheeq_main/services/deep_link_service.dart';
 import 'package:intl/intl.dart' show DateFormat;
@@ -45,7 +50,15 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
     });
 
     try {
+      log(
+        'Fetching order details for orderId: ${widget.orderId}',
+        name: 'BookingDetailsPage',
+      );
       final response = await ApiService().getOrderDetails(widget.orderId);
+      log(
+        'Order details response (${response.statusCode}): ${jsonEncode(response.data)}',
+        name: 'BookingDetailsPage',
+      );
       if (response.statusCode == 200 && response.data['success'] == true) {
         setState(() {
           _order = OrderResponseModel.fromJson(response.data['data']);
@@ -83,10 +96,56 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
         });
       }
     } catch (e) {
+      log('Error fetching order details: $e', name: 'BookingDetailsPage', error: e);
+      String errorMessage = 'Failed to load order details';
+      if (e is DioException &&
+          e.response?.data is Map &&
+          e.response?.data['message'] != null) {
+        errorMessage = e.response!.data['message'].toString();
+      }
       setState(() {
-        _errorMessage = e.toString();
+        _errorMessage = errorMessage;
         _isLoading = false;
       });
+    }
+  }
+
+  Future<void> _openInvoice(String invoiceUrl) async {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: WaterLoadingIndicator(size: 30)),
+    );
+
+    try {
+      // Force a .pdf extension on the local file regardless of the source
+      // URL's shape, so the OS resolves the "open with" intent to a PDF
+      // viewer instead of falling back to a browser.
+      final tempDir = await getTemporaryDirectory();
+      final filePath =
+          '${tempDir.path}/invoice_${DateTime.now().millisecondsSinceEpoch}.pdf';
+
+      await Dio().download(invoiceUrl, filePath);
+
+      if (mounted) Navigator.pop(context); // hide loading
+
+      final result = await OpenFilex.open(filePath);
+
+      if (result.type != ResultType.done && mounted) {
+        CustomSnackbar.show(
+          context: context,
+          message: AppLocalizations.of(context)!.could_not_open_invoice,
+        );
+      }
+    } catch (e) {
+      log('Error opening invoice: $e', name: 'BookingDetailsPage', error: e);
+      if (mounted) {
+        Navigator.pop(context); // hide loading
+        CustomSnackbar.show(
+          context: context,
+          message: AppLocalizations.of(context)!.could_not_open_invoice,
+        );
+      }
     }
   }
 
@@ -273,24 +332,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                             ),
                             padding: const EdgeInsets.symmetric(vertical: 16),
                           ),
-                          onPressed: () async {
-                            final url = Uri.parse(order.invoiceUrl!);
-                            try {
-                              await launchUrl(
-                                url,
-                                mode: LaunchMode.externalApplication,
-                              );
-                            } catch (e) {
-                              if (mounted) {
-                                CustomSnackbar.show(
-                                  context: context,
-                                  message: AppLocalizations.of(
-                                    context,
-                                  )!.could_not_open_invoice,
-                                );
-                              }
-                            }
-                          },
+                          onPressed: () => _openInvoice(order.invoiceUrl!),
                           icon: const Icon(
                             Icons.receipt,
                             color: Colors.white,

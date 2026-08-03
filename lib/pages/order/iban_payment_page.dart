@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:raheeq_main/api/apis.dart';
@@ -108,12 +109,21 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
       setState(() {
         _isSubmitting = false;
       });
+      String? errorMessage;
+      if (e is DioException &&
+          e.response?.data is Map &&
+          e.response?.data['message'] != null) {
+        errorMessage = e.response!.data['message'].toString();
+      } else if (e is Exception) {
+        final msg = e.toString().replaceFirst('Exception: ', '');
+        if (msg.isNotEmpty) errorMessage = msg;
+      }
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (_) => PaymentStatusPage(
             status: PaymentStatus.failed,
-            message: e.toString(),
+            message: errorMessage,
             isAr: widget.isAr,
             onRetry: () => Navigator.pop(context),
           ),
