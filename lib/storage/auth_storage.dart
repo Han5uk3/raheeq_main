@@ -77,6 +77,26 @@ class AuthStorage {
 
   static String? get freshchatToken => _box.get(freshchatTokenKey);
 
+  static const String chatLastOpenedAtKey = "chatLastOpenedAt";
+  static const String chatNeedsWelcomeKey = "chatNeedsWelcome";
+
+  static Future<void> saveChatLastOpenedAt(DateTime time) async {
+    await _box.put(chatLastOpenedAtKey, time.toIso8601String());
+  }
+
+  static DateTime? get chatLastOpenedAt {
+    final raw = _box.get(chatLastOpenedAtKey) as String?;
+    if (raw == null) return null;
+    return DateTime.tryParse(raw);
+  }
+
+  static Future<void> setChatNeedsWelcome(bool value) async {
+    await _box.put(chatNeedsWelcomeKey, value);
+  }
+
+  static bool get chatNeedsWelcome =>
+      _box.get(chatNeedsWelcomeKey, defaultValue: false) as bool;
+
   static User? get user {
     final raw = _box.get(userDataKey);
     if (raw == null) return null;

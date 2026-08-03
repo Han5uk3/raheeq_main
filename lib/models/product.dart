@@ -5,11 +5,14 @@ class Product {
   final String nameAr;
   final String subtitle;
   final String subtitleAr;
+  final String? subtitlePlural;
+  final String? subtitlePluralAr;
   final String? message;
   final String? messageAr;
   final double price;
   final double deliveryFee;
   final String image;
+  final String? bannerImage;
   final bool isHighNeed;
   final List<int> presetQuantities;
   final int minQuantity;
@@ -21,11 +24,14 @@ class Product {
     required this.nameAr,
     required this.subtitle,
     required this.subtitleAr,
+    this.subtitlePlural,
+    this.subtitlePluralAr,
     this.message,
     this.messageAr,
     required this.price,
     this.deliveryFee = 0.0,
     required this.image,
+    this.bannerImage,
     required this.isHighNeed,
     required this.presetQuantities,
     required this.minQuantity,
@@ -40,11 +46,14 @@ class Product {
       nameAr: json['nameAr'] as String? ?? '',
       subtitle: json['subtitle'] as String? ?? '',
       subtitleAr: json['subtitleAr'] as String? ?? '',
+      subtitlePlural: json['subtitlePlural'] as String?,
+      subtitlePluralAr: json['subtitlePluralAr'] as String?,
       message: json['message'] as String?,
       messageAr: json['messageAr'] as String?,
       price: (json['price'] as num?)?.toDouble() ?? 0.0,
       deliveryFee: (json['deliveryFee'] as num?)?.toDouble() ?? 0.0,
       image: json['image'] as String? ?? '',
+      bannerImage: json['bannerImage'] as String?,
       isHighNeed: json['isHighNeed'] == true,
       presetQuantities:
           rawPresets?.map((e) => (e as num).toInt()).toList() ?? [],
@@ -60,11 +69,14 @@ class Product {
       'nameAr': nameAr,
       'subtitle': subtitle,
       'subtitleAr': subtitleAr,
+      'subtitlePlural': subtitlePlural,
+      'subtitlePluralAr': subtitlePluralAr,
       'message': message,
       'messageAr': messageAr,
       'price': price,
       'deliveryFee': deliveryFee,
       'image': image,
+      'bannerImage': bannerImage,
       'isHighNeed': isHighNeed,
       'presetQuantities': presetQuantities,
       'minQuantity': minQuantity,
@@ -76,6 +88,12 @@ class Product {
 
   /// Returns the localised subtitle.
   String localizedSubtitle(bool isAr) => isAr ? subtitleAr : subtitle;
+
+  /// Returns the localised plural subtitle, or null if unset/blank.
+  String? localizedSubtitlePlural(bool isAr) {
+    final value = isAr ? subtitlePluralAr : subtitlePlural;
+    return (value == null || value.isEmpty) ? null : value;
+  }
 
   /// Returns the localised message (may be null).
   String? localizedMessage(bool isAr) => isAr ? messageAr : message;

@@ -19,7 +19,8 @@
   "skip": "SKIP",
   "select_mosques_to_deliver_to":"Select mosques to deliver to",
   "continue_btn": "Continue",
-
+  "iban_accounts": "IBAN Accounts",
+  "select_bank_transfer": "Select a bank for the transfer", 
   "terms_agree_prefix": "By continuing, you agree to our ",
   "terms_conditions": "Terms & Conditions",
   "and": " and ",

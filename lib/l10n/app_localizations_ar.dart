@@ -51,6 +51,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get continue_btn => 'متابعة';
 
   @override
+  String get iban_accounts => 'حسابات IBAN';
+
+  @override
+  String get select_bank_transfer => 'اختر بنكًا للتحويل';
+
+  @override
   String get terms_agree_prefix => 'بالمتابعة، فإنك توافق على ';
 
   @override

@@ -123,8 +123,12 @@ class _ChooseIbanAccountBottomSheetState
 
   @override
   Widget build(BuildContext context) {
-    final title = 'IBAN Accounts'; // You could localize these
-    final subtitle = 'Select a bank for the transfer';
+    final title =
+        AppLocalizations.of(context)?.iban_accounts ??
+        'IBAN Accounts'; // You could localize these
+    final subtitle =
+        AppLocalizations.of(context)?.select_bank_transfer ??
+        'Select a bank for the transfer';
 
     return Container(
       decoration: const BoxDecoration(

@@ -38,6 +38,15 @@ class SmsRetrieverImpl implements SmsRetriever {
     await OtpAutofill.instance.cancel(_generation);
   }
 
+  /// Called on resend so a run of transient failures — e.g. Play Services
+  /// still warming up — doesn't permanently disable autofill for the rest
+  /// of this screen's lifetime. [listenForMultipleSms] is otherwise a
+  /// one-way trip: once it goes false, Pinput's internal retry loop stops
+  /// calling [getSmsCode] and never restarts on its own.
+  void resetFailures() {
+    _consecutiveFailures = 0;
+  }
+
   @override
   Future<String?> getSmsCode() async {
     final startedAt = DateTime.now();
@@ -123,6 +132,21 @@ class _OTPState extends State<OTP> with WidgetsBindingObserver {
   /// autofill normally; this only fills in if nothing is listening on resume.
   Future<void> _rearmAutofill() async {
     final code = await _smsRetriever.rearmIfNeeded();
+    _applyAutofilledCode(code);
+  }
+
+  /// Re-arms after a resend and writes the result straight into the pin
+  /// field. This does not depend on Pinput's own listen loop — that loop
+  /// only runs once per screen and stops for good once the circuit breaker
+  /// trips, so a resend after that point would otherwise never autofill
+  /// again even though a fresh code justifies giving it another chance.
+  Future<void> _autofillAfterResend() async {
+    _smsRetriever.resetFailures();
+    final code = await _smsRetriever.getSmsCode();
+    _applyAutofilledCode(code);
+  }
+
+  void _applyAutofilledCode(String? code) {
     if (!mounted || code == null || code.length != 4) return;
     if (_pinController.text.isEmpty) _pinController.text = code;
   }
@@ -521,8 +545,13 @@ class _OTPState extends State<OTP> with WidgetsBindingObserver {
 
                                       // Arm before requesting, otherwise the
                                       // SMS can arrive before the retriever
-                                      // starts listening and is lost.
-                                      unawaited(OtpAutofill.instance.arm());
+                                      // starts listening and is lost. Also
+                                      // resets the failure circuit-breaker
+                                      // and fills the pin directly, so
+                                      // autofill keeps working on resend
+                                      // even if Pinput's own listen loop
+                                      // already gave up.
+                                      unawaited(_autofillAfterResend());
 
                                       final response = await ApiService()
                                           .requestOtp(

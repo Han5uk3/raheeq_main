@@ -18,6 +18,7 @@ import 'package:raheeq_main/models/subscription_plan.dart';
 import 'package:raheeq_main/services/snackbar_insets_services.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -463,7 +464,20 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
     );
   }
 
+  Widget _buildCampaignBannerPlaceholder() {
+    return Container(
+      color: Colors.grey[300],
+      alignment: Alignment.center,
+      child: FractionallySizedBox(
+        widthFactor: 0.3,
+        child: Image.asset("assets/app_logo/logo.png", fit: BoxFit.contain),
+      ),
+    );
+  }
+
   Widget _buildCampaignBanner(Product? product) {
+    final bannerImage = product?.bannerImage;
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Material(
@@ -473,24 +487,19 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
           aspectRatio: 420 / 235,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(16),
-            child: Image.asset(
-              product?.serialNumber == 3
-                  ? "assets/campaign/meals_banner.jpg"
-                  : product?.serialNumber == 5
-                  ? "assets/campaign/umbrellas_banner.jpg"
-                  : "assets/campaign/cold_water_bottle_banner.jpg",
-              fit: BoxFit.cover,
-              frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-                if (wasSynchronouslyLoaded || frame != null) {
-                  return child;
-                }
-                return Shimmer.fromColors(
-                  baseColor: Colors.grey[300]!,
-                  highlightColor: Colors.grey[100]!,
-                  child: Container(color: Colors.white),
-                );
-              },
-            ),
+            child: (bannerImage != null && bannerImage.isNotEmpty)
+                ? CachedNetworkImage(
+                    imageUrl: bannerImage,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Shimmer.fromColors(
+                      baseColor: Colors.grey[300]!,
+                      highlightColor: Colors.grey[100]!,
+                      child: Container(color: Colors.white),
+                    ),
+                    errorWidget: (context, url, error) =>
+                        _buildCampaignBannerPlaceholder(),
+                  )
+                : _buildCampaignBannerPlaceholder(),
           ),
         ),
       ),
@@ -645,6 +654,10 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
               itemBuilder: (context, index) {
                 final qty = presets[index];
                 final price = qty * product.price;
+                final subtitleLabel = qty > 10
+                    ? (product.localizedSubtitlePlural(isAr) ??
+                          product.localizedSubtitle(isAr))
+                    : product.localizedSubtitle(isAr);
                 return GestureDetector(
                   onTap: () => _selectQuantity(qty),
                   child: Material(
@@ -682,7 +695,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             Text(
-                              "$qty ${isAr ? product.subtitleAr : product.subtitle}",
+                              "$qty $subtitleLabel",
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 10,

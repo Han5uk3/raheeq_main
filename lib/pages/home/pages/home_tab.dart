@@ -1894,7 +1894,7 @@ class _HomeTabState extends State<HomeTab>
                                             alpha: 0.9,
                                           ),
                                           fontWeight: FontWeight.bold,
-                                          fontSize: 11,
+                                          fontSize: 12,
                                         ),
                                       ),
                                     ),
@@ -2284,7 +2284,9 @@ class _HomeTabState extends State<HomeTab>
                   final product = _essentialProducts[index];
                   final name = product.localizedName(isAr);
 
-                  final subtitle = product.localizedSubtitle(isAr);
+                  final subtitle =
+                      product.localizedMessage(isAr) ??
+                      product.localizedSubtitle(isAr);
 
                   final price = product.price;
 

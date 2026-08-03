@@ -56,6 +56,15 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
   bool _isProcessingPayment = false;
   String _selectedPaymentMethod = Platform.isIOS ? 'APPLE_PAY' : 'STC_PAY';
 
+  // Bumped on every _processPayment call. The PayTabs SDK's event stream
+  // subscription is never cancelled between attempts, so a retried payment
+  // leaves the previous attempt's listener alive on the same broadcast
+  // stream. Each `handlePaymentResult` closure captures the token that was
+  // current when it was registered and compares it back against this field,
+  // so a stale listener from an abandoned attempt can recognize itself as
+  // superseded and no-op instead of re-verifying a dead paymentId.
+  int _paymentAttemptToken = 0;
+
   @override
   void initState() {
     super.initState();
@@ -423,6 +432,8 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
       name: 'CheckoutFlow',
     );
 
+    final int attemptToken = ++_paymentAttemptToken;
+
     setState(() {
       _isProcessingPayment = true;
     });
@@ -595,6 +606,18 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
             'Payment Flow: Received PayTabs SDK event -> ${event.toString()}',
             name: 'CheckoutFlow',
           );
+
+          if (!mounted) return;
+          if (attemptToken != _paymentAttemptToken) {
+            log(
+              'Payment Flow: Ignoring stale PayTabs event from a superseded '
+              'attempt (event attempt: $attemptToken, current attempt: '
+              '$_paymentAttemptToken).',
+              name: 'CheckoutFlow',
+            );
+            return;
+          }
+
           if (event["status"] == "success") {
             var transactionDetails = event["data"];
 
@@ -614,6 +637,16 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                 paymentId: paymentId,
                 transactionId: txId,
               );
+
+              if (!mounted) return;
+              if (attemptToken != _paymentAttemptToken) {
+                log(
+                  'Payment Flow: Dropping verifyPayment result for a '
+                  'superseded attempt.',
+                  name: 'CheckoutFlow',
+                );
+                return;
+              }
 
               if (verifyResponse.data['success'] == true) {
                 final paymentData =
@@ -805,6 +838,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
         });
       }
       log('Error processing payment: $e', error: e);
+      if (!mounted) return;
       Navigator.push(
         context,
         MaterialPageRoute(

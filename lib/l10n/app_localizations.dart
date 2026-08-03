@@ -176,6 +176,18 @@ abstract class AppLocalizations {
   /// **'Continue'**
   String get continue_btn;
 
+  /// No description provided for @iban_accounts.
+  ///
+  /// In en, this message translates to:
+  /// **'IBAN Accounts'**
+  String get iban_accounts;
+
+  /// No description provided for @select_bank_transfer.
+  ///
+  /// In en, this message translates to:
+  /// **'Select a bank for the transfer'**
+  String get select_bank_transfer;
+
   /// No description provided for @terms_agree_prefix.
   ///
   /// In en, this message translates to:

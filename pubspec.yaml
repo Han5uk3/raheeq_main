@@ -91,9 +91,7 @@ flutter:
           weight: 700
     # Manrope has no Arabic glyphs, so Arabic needs its own bundled face; left
     # to the OS fallback it had no bold face available and could never bolden.
-    # Noto Sans Arabic rather than Noto Naskh: at the same nominal w700 its bold
-    # renders visibly darker.
-    - family: NotoSansArabicBold
+    - family: NotoNaskhArabicBold
       fonts:
-        - asset: assets/fonts/NotoSansArabic-Bold.ttf
+        - asset: assets/fonts/NotoNaskhArabic-Bold.ttf
           weight: 700

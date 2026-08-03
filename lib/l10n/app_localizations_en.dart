@@ -51,6 +51,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get continue_btn => 'Continue';
 
   @override
+  String get iban_accounts => 'IBAN Accounts';
+
+  @override
+  String get select_bank_transfer => 'Select a bank for the transfer';
+
+  @override
   String get terms_agree_prefix => 'By continuing, you agree to our ';
 
   @override

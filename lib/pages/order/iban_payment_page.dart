@@ -226,13 +226,11 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
                                         '',
                                   ),
                                   const SizedBox(height: 12),
-                                  Expanded(
-                                    child: Text(
-                                      AppLocalizations.of(context)!.iban_note,
-                                      style: const TextStyle(
-                                        color: Colors.grey,
-                                        fontSize: 14,
-                                      ),
+                                  Text(
+                                    AppLocalizations.of(context)!.iban_note,
+                                    style: const TextStyle(
+                                      color: Colors.grey,
+                                      fontSize: 12,
                                     ),
                                   )
                                 ],
@@ -283,11 +281,11 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
                               ),
                             ),
                                 Text(
-                                  '\u202C${AppLocalizations.of(context)!.sar_currency} ${widget.checkoutData.finalTotal.toStringAsFixed(2)}\u202C',
+                                  '\u202C${widget.checkoutData.finalTotal.toStringAsFixed(2)} ${AppLocalizations.of(context)!.sar_currency}\u202C',
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
-                                    color: Colors.red.shade700,
+                                    color: AppColors.buttonBlueDark,
                                   ),
                                 ),
                               ],

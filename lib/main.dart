@@ -36,10 +36,9 @@ final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
 //
 // Manrope carries no Arabic glyphs, so Arabic needs its own bundled face; left
 // to the OS fallback there was no bold face available and Arabic could never
-// bolden. Noto Sans Arabic rather than Noto Naskh because at the same nominal
-// w700 its bold renders visibly darker.
+// bolden.
 const String _latinFontFamily = 'ManropeBold';
-const String _arabicFontFamily = 'NotoSansArabicBold';
+const String _arabicFontFamily = 'NotoNaskhArabicBold';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
@@ -110,6 +109,10 @@ Future<void> _initDependencies() async {
 
     // Initialize Freshchat service listeners
     FreshchatService.init();
+
+    // Register this device's FCM token with Freshchat so it can deliver
+    // push notifications for chat messages.
+    await FreshchatService.registerPushToken();
 
     // Set user info if session exists
     try {

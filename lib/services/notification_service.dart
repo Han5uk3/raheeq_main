@@ -3,6 +3,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:freshchat_sdk/freshchat_sdk.dart' hide Importance, Priority;
 import 'package:raheeq_main/pages/home/home_screen.dart';
 import 'package:raheeq_main/pages/order/booking_details_page.dart';
 import 'package:raheeq_main/storage/auth_storage.dart';
@@ -13,6 +14,14 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // If you're going to use other Firebase services in the background, such as Firestore,
   // make sure you call `initializeApp` before using other Firebase services.
   debugPrint('Handling a background message: ${message.messageId}');
+
+  // Freshchat pushes are data-only (no `notification` block), so they'd
+  // otherwise be silently dropped by this app's own handler. Without this,
+  // Freshchat's SDK only picks new messages up on its own lazy sync when the
+  // conversation screen is next opened, which shows up as a long delay.
+  if (await Freshchat.isFreshchatNotification(message.data)) {
+    Freshchat.handlePushNotification(message.data);
+  }
 }
 
 class NotificationService {
@@ -92,9 +101,18 @@ class NotificationService {
     );
 
     // Listen to foreground messages
-    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) async {
       debugPrint('Got a message whilst in the foreground!');
       debugPrint('Message data: ${message.data}');
+
+      // Freshchat pushes are data-only (no `notification` block), so they'd
+      // otherwise fall through untouched below. Forwarding them lets the SDK
+      // update the open conversation immediately instead of relying on its
+      // own lazy sync, which is what caused the long display delay.
+      if (await Freshchat.isFreshchatNotification(message.data)) {
+        Freshchat.handlePushNotification(message.data);
+        return;
+      }
 
       if (message.notification != null) {
         debugPrint(

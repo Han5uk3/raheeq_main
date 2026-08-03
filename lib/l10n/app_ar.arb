@@ -11,7 +11,8 @@
   "skip": "تخطي",
   "welcome": "أهلاً",
   "continue_btn": "متابعة",
-  
+  "iban_accounts": "حسابات IBAN",
+  "select_bank_transfer": "اختر بنكًا للتحويل",
   "order": "طلب",
   "available_colon": "متاح :",
   "date": "التاريخ",
