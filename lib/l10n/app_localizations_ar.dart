@@ -51,12 +51,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get continue_btn => 'متابعة';
 
   @override
-  String get start_donating => 'ابدأ التبرع';
-
-  @override
-  String get new_to_donate => 'جديد في الطلب؟';
-
-  @override
   String get terms_agree_prefix => 'بالمتابعة، فإنك توافق على ';
 
   @override
@@ -838,6 +832,10 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get general => 'الأكثر حاجة';
+
+  @override
+  String get iban_note =>
+      'فضلا ارفق صورة إيصال التحويل لإتمام مراجعة طلبك واعتماده .';
 
   @override
   String get most_in_need => 'الأشد حاجة';

@@ -1893,7 +1893,8 @@ class _HomeTabState extends State<HomeTab>
                                           color: Colors.white.withValues(
                                             alpha: 0.9,
                                           ),
-                                          fontSize: 10,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 11,
                                         ),
                                       ),
                                     ),

@@ -3,9 +3,13 @@ import 'dart:io';
 
 import 'package:smart_auth/smart_auth.dart';
 
-/// Shared owner of the Android SMS Retriever listener.
+/// Shared owner of the Android SMS User Consent listener.
 ///
-/// The retriever only matches messages that arrive *after* it is started, so it
+/// Unlike the SMS Retriever API, User Consent shows the user a system dialog
+/// with the SMS content and asks them to approve before the code is read, so
+/// no app-signature hash needs to be embedded in the SMS text.
+///
+/// The listener only matches messages that arrive *after* it is started, so it
 /// has to be armed before the OTP is requested, not after the OTP screen opens.
 /// Arming is de-duplicated: a listener that is already waiting is reused, so
 /// re-arming can never drop an SMS that landed in between.
@@ -50,7 +54,7 @@ class OtpAutofill {
   Future<void> _listen(Completer<String?> completer) async {
     String? code;
     try {
-      final res = await SmartAuth.instance.getSmsWithRetrieverApi(
+      final res = await SmartAuth.instance.getSmsWithUserConsentApi(
         matcher: _codeMatcher,
       );
       code = res.hasData ? _toAsciiDigits(res.data?.code) : null;
@@ -94,6 +98,6 @@ class OtpAutofill {
     // receiver is unregistered, so anything awaiting this would hang forever.
     if (!pending.isCompleted) pending.complete(null);
 
-    await SmartAuth.instance.removeSmsRetrieverApiListener();
+    await SmartAuth.instance.removeUserConsentApiListener();
   }
 }

@@ -51,12 +51,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get continue_btn => 'Continue';
 
   @override
-  String get start_donating => 'Start Donating';
-
-  @override
-  String get new_to_donate => 'New to donate?';
-
-  @override
   String get terms_agree_prefix => 'By continuing, you agree to our ';
 
   @override
@@ -455,7 +449,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get giving_opportunities => 'Giving Opportunities';
 
   @override
-  String get donate_now => 'Donate Now';
+  String get donate_now => 'Order Now';
 
   @override
   String get subscribe => 'Subscribe';
@@ -842,6 +836,10 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get general => 'General';
+
+  @override
+  String get iban_note =>
+      'Please attach a copy of the transfer receipt to complete the review and approval of your request.';
 
   @override
   String get most_in_need => 'Most in need';

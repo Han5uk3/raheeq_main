@@ -176,18 +176,6 @@ abstract class AppLocalizations {
   /// **'Continue'**
   String get continue_btn;
 
-  /// No description provided for @start_donating.
-  ///
-  /// In en, this message translates to:
-  /// **'Start Donating'**
-  String get start_donating;
-
-  /// No description provided for @new_to_donate.
-  ///
-  /// In en, this message translates to:
-  /// **'New to donate?'**
-  String get new_to_donate;
-
   /// No description provided for @terms_agree_prefix.
   ///
   /// In en, this message translates to:
@@ -947,7 +935,7 @@ abstract class AppLocalizations {
   /// No description provided for @donate_now.
   ///
   /// In en, this message translates to:
-  /// **'Donate Now'**
+  /// **'Order Now'**
   String get donate_now;
 
   /// No description provided for @subscribe.
@@ -1690,6 +1678,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'General'**
   String get general;
+
+  /// No description provided for @iban_note.
+  ///
+  /// In en, this message translates to:
+  /// **'Please attach a copy of the transfer receipt to complete the review and approval of your request.'**
+  String get iban_note;
 
   /// No description provided for @most_in_need.
   ///

@@ -281,7 +281,11 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
 
     if (_selectedPaymentMethod == 'IBAN') {
       log('Payment Flow: Selected IBAN', name: 'CheckoutFlow');
-      ChooseIbanAccountBottomSheet.showAsBottomSheet(context, isAr: isAr);
+      ChooseIbanAccountBottomSheet.showAsBottomSheet(
+        context,
+        isAr: isAr,
+        checkoutData: _checkoutData,
+      );
     } else {
       log(
         'Payment Flow: Selected $_selectedPaymentMethod',

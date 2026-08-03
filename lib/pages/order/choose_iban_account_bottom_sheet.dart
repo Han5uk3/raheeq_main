@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/api/apis.dart';
+import 'package:raheeq_main/models/checkout.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/pages/order/iban_payment_page.dart';
@@ -8,12 +9,18 @@ import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 
 class ChooseIbanAccountBottomSheet extends StatefulWidget {
   final bool isAr;
+  final Checkout checkoutData;
 
-  const ChooseIbanAccountBottomSheet({super.key, required this.isAr});
+  const ChooseIbanAccountBottomSheet({
+    super.key,
+    required this.isAr,
+    required this.checkoutData,
+  });
 
   static Future<void> showAsBottomSheet(
     BuildContext context, {
     required bool isAr,
+    required Checkout checkoutData,
   }) {
     return showModalBottomSheet(
       context: context,
@@ -25,7 +32,8 @@ class ChooseIbanAccountBottomSheet extends StatefulWidget {
           topRight: Radius.circular(20),
         ),
       ),
-      builder: (context) => ChooseIbanAccountBottomSheet(isAr: isAr),
+      builder: (context) =>
+          ChooseIbanAccountBottomSheet(isAr: isAr, checkoutData: checkoutData),
     );
   }
 
@@ -107,6 +115,7 @@ class _ChooseIbanAccountBottomSheetState
         builder: (_) => IbanPaymentPage(
           isAr: widget.isAr,
           selectedBankAccount: selectedAccount,
+          checkoutData: widget.checkoutData,
         ),
       ),
     );

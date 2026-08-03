@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
+import 'package:raheeq_main/models/checkout.dart';
 import 'package:raheeq_main/pages/order/payment_status_page.dart';
 import 'package:raheeq_main/services/network_monitor.dart';
 import 'package:raheeq_main/utils/colors.dart';
@@ -15,11 +16,12 @@ import 'package:flutter/services.dart';
 class IbanPaymentPage extends StatefulWidget {
   final bool isAr;
   final Map<String, dynamic> selectedBankAccount;
-
+  final Checkout checkoutData;
   const IbanPaymentPage({
     super.key,
     required this.isAr,
     required this.selectedBankAccount,
+    required this.checkoutData,
   });
 
   @override
@@ -223,6 +225,16 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
                                             ?.toString() ??
                                         '',
                                   ),
+                                  const SizedBox(height: 12),
+                                  Expanded(
+                                    child: Text(
+                                      AppLocalizations.of(context)!.iban_note,
+                                      style: const TextStyle(
+                                        color: Colors.grey,
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  )
                                 ],
                               ),
                             ),
@@ -258,7 +270,10 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
                             //   ),
                             // ),
                             // const SizedBox(height: 24),
-                            Text(
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
                               AppLocalizations.of(
                                 context,
                               )!.two_attach_transfer_receipt,
@@ -266,6 +281,16 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                               ),
+                            ),
+                                Text(
+                                  '\u202C${AppLocalizations.of(context)!.sar_currency} ${widget.checkoutData.finalTotal.toStringAsFixed(2)}\u202C',
+                                  style: TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.red.shade700,
+                                  ),
+                                ),
+                              ],
                             ),
                             const SizedBox(height: 16),
                             GestureDetector(
