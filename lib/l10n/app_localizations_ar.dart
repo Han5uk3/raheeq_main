@@ -1582,4 +1582,28 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get product => 'المنتج';
+
+  @override
+  String get filter_orders => 'تصفية الطلبات';
+
+  @override
+  String get order_type => 'نوع الطلب';
+
+  @override
+  String get general_orders => 'طلبات عامة';
+
+  @override
+  String get gift_orders => 'طلبات الهدايا';
+
+  @override
+  String get order_date => 'تاريخ الطلب';
+
+  @override
+  String get select_month => 'اختر الشهر';
+
+  @override
+  String get last_6_months => 'آخر 6 أشهر';
+
+  @override
+  String get this_year => 'هذا العام';
 }

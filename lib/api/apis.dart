@@ -1310,11 +1310,27 @@ class ApiService {
     int page = 1,
     int limit = 20,
     String? tab,
+    String? preset,
+    String? startDate,
+    String? endDate,
+    List<String>? orderType,
   }) async {
     try {
       final queryParams = <String, dynamic>{'page': page, 'limit': limit};
       if (tab != null) {
         queryParams['tab'] = tab;
+      }
+      if (preset != null) {
+        queryParams['preset'] = preset;
+      }
+      if (startDate != null) {
+        queryParams['startDate'] = startDate;
+      }
+      if (endDate != null) {
+        queryParams['endDate'] = endDate;
+      }
+      if (orderType != null && orderType.isNotEmpty) {
+        queryParams['orderType'] = orderType.join(',');
       }
       final response = await _dio.get('/orders', queryParameters: queryParams);
       return response;

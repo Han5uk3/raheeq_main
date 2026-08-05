@@ -575,5 +575,13 @@
     }
   },
   "distanceAway": "{distance} km away from you",
-  "product": "Product"
+  "product": "Product",
+  "filter_orders": "Filter Orders",
+  "order_type": "Order Type",
+  "general_orders": "General Orders",
+  "gift_orders": "Gift Orders",
+  "order_date": "Order Date",
+  "select_month": "Select Month",
+  "last_6_months": "Last 6 Months",
+  "this_year": "This Year"
 }

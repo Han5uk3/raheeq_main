@@ -525,5 +525,13 @@
     }
   },
   "distanceAway": "يبعد عنك {distance} كم",
-  "product": "المنتج"
+  "product": "المنتج",
+  "filter_orders": "تصفية الطلبات",
+  "order_type": "نوع الطلب",
+  "general_orders": "طلبات عامة",
+  "gift_orders": "طلبات الهدايا",
+  "order_date": "تاريخ الطلب",
+  "select_month": "اختر الشهر",
+  "last_6_months": "آخر 6 أشهر",
+  "this_year": "هذا العام"
 }

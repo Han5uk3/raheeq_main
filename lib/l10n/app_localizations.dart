@@ -3130,6 +3130,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Product'**
   String get product;
+
+  /// No description provided for @filter_orders.
+  ///
+  /// In en, this message translates to:
+  /// **'Filter Orders'**
+  String get filter_orders;
+
+  /// No description provided for @order_type.
+  ///
+  /// In en, this message translates to:
+  /// **'Order Type'**
+  String get order_type;
+
+  /// No description provided for @general_orders.
+  ///
+  /// In en, this message translates to:
+  /// **'General Orders'**
+  String get general_orders;
+
+  /// No description provided for @gift_orders.
+  ///
+  /// In en, this message translates to:
+  /// **'Gift Orders'**
+  String get gift_orders;
+
+  /// No description provided for @order_date.
+  ///
+  /// In en, this message translates to:
+  /// **'Order Date'**
+  String get order_date;
+
+  /// No description provided for @select_month.
+  ///
+  /// In en, this message translates to:
+  /// **'Select Month'**
+  String get select_month;
+
+  /// No description provided for @last_6_months.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 6 Months'**
+  String get last_6_months;
+
+  /// No description provided for @this_year.
+  ///
+  /// In en, this message translates to:
+  /// **'This Year'**
+  String get this_year;
 }
 
 class _AppLocalizationsDelegate

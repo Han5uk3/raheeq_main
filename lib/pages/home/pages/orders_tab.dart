@@ -16,6 +16,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:raheeq_main/pages/home/home_screen.dart';
+import 'package:raheeq_main/pages/home/widgets/orders_filter_bottom_sheet.dart';
 import 'package:raheeq_main/services/deep_link_service.dart';
 import 'package:video_player/video_player.dart';
 
@@ -51,6 +52,8 @@ class _OrdersTabState extends State<OrdersTab>
 
   List<int> _currentPages = [1, 1, 1];
   late List<bool> _hasMoreList;
+
+  OrdersFilterSelection _filterSelection = OrdersFilterSelection.empty;
 
   final ScrollController _scrollController = ScrollController();
 
@@ -131,14 +134,34 @@ class _OrdersTabState extends State<OrdersTab>
     });
 
     try {
-      final upcomingFuture = ApiService().getMyOrders(page: 1, tab: 'upcoming');
+      final periodParams = _filterSelection.resolvePeriodParams();
+      final orderTypeParams = _filterSelection.orderTypes.isEmpty
+          ? null
+          : _filterSelection.orderTypes.map((e) => e.apiValue).toList();
+
+      final upcomingFuture = ApiService().getMyOrders(
+        page: 1,
+        tab: 'upcoming',
+        preset: periodParams?.preset,
+        startDate: periodParams?.startDate,
+        endDate: periodParams?.endDate,
+        orderType: orderTypeParams,
+      );
       final outForDeliveryFuture = ApiService().getMyOrders(
         page: 1,
         tab: 'out_for_delivery',
+        preset: periodParams?.preset,
+        startDate: periodParams?.startDate,
+        endDate: periodParams?.endDate,
+        orderType: orderTypeParams,
       );
       final deliveredFuture = ApiService().getMyOrders(
         page: 1,
         tab: 'delivered',
+        preset: periodParams?.preset,
+        startDate: periodParams?.startDate,
+        endDate: periodParams?.endDate,
+        orderType: orderTypeParams,
       );
 
       final responses = await Future.wait([
@@ -214,9 +237,17 @@ class _OrdersTabState extends State<OrdersTab>
 
     try {
       _currentPages[tabIndex]++;
+      final periodParams = _filterSelection.resolvePeriodParams();
+      final orderTypeParams = _filterSelection.orderTypes.isEmpty
+          ? null
+          : _filterSelection.orderTypes.map((e) => e.apiValue).toList();
       final response = await ApiService().getMyOrders(
         page: _currentPages[tabIndex],
         tab: _getTabName(),
+        preset: periodParams?.preset,
+        startDate: periodParams?.startDate,
+        endDate: periodParams?.endDate,
+        orderType: orderTypeParams,
       );
 
       if (_getTabName() == 'upcoming') {
@@ -263,9 +294,64 @@ class _OrdersTabState extends State<OrdersTab>
     }
   }
 
+  Future<void> _openFilterSheet() async {
+    final result = await OrdersFilterBottomSheet.show(
+      context,
+      initialSelection: _filterSelection,
+    );
+    if (result != null && mounted) {
+      setState(() {
+        _filterSelection = result;
+      });
+      _fetchAllOrders();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final tabController = _tabController;
+    final isAr = Localizations.localeOf(context).languageCode == 'ar';
+    return Stack(
+      children: [
+        _buildOrdersScrollView(tabController),
+        Positioned(
+          bottom: 110,
+          right: isAr ? null : 20,
+          left: isAr ? 20 : null,
+          child: FloatingActionButton(
+            heroTag: 'ordersFilterFab',
+            backgroundColor: AppColors.buttonBlueDark,
+            onPressed: _openFilterSheet,
+            child: Stack(
+              clipBehavior: Clip.none,
+              children: [
+                const Icon(Icons.filter_list, color: Colors.white),
+                if (!_filterSelection.isEmpty)
+                  Positioned(
+                    top: -2,
+                    right: -2,
+                    child: Container(
+                      width: 10,
+                      height: 10,
+                      decoration: BoxDecoration(
+                        color: Colors.redAccent,
+                        shape: BoxShape.circle,
+                        border: Border.all(
+                          color: AppColors.buttonBlueDark,
+                          width: 1.5,
+                        ),
+                      ),
+                    ),
+                  ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildOrdersScrollView(TabController tabController) {
     return RefreshIndicator(
       onRefresh: _fetchAllOrders,
       color: AppColors.buttonBlueDark,

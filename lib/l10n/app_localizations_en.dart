@@ -1595,4 +1595,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get product => 'Product';
+
+  @override
+  String get filter_orders => 'Filter Orders';
+
+  @override
+  String get order_type => 'Order Type';
+
+  @override
+  String get general_orders => 'General Orders';
+
+  @override
+  String get gift_orders => 'Gift Orders';
+
+  @override
+  String get order_date => 'Order Date';
+
+  @override
+  String get select_month => 'Select Month';
+
+  @override
+  String get last_6_months => 'Last 6 Months';
+
+  @override
+  String get this_year => 'This Year';
 }
