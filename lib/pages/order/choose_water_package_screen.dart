@@ -403,43 +403,55 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
 
           // Horizontal slot list. The row sizes itself to the tallest card and
           // stretches every other card to match, so no card carries dead space.
-          Scrollbar(
-            controller: _scrollController,
-            interactive: true,
-            thumbVisibility: true,
-            thickness: 4.0,
-            radius: const Radius.circular(4.0),
-            child: Padding(
-              padding: const EdgeInsets.only(
-                bottom: 15.0,
-              ), // Dedicated space for scrollbar, prevents overlap
-              child: SingleChildScrollView(
-                controller: _scrollController,
-                physics: const ClampingScrollPhysics(),
-                scrollDirection: Axis.horizontal,
-                clipBehavior: Clip.none,
-                child: IntrinsicHeight(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: List.generate(slots.length, (index) {
-                      final slot = slots[index];
-                      final isSelected = _isSlotSelected(slot);
+          // Scrollbar (and CupertinoScrollbar on iOS) default their padding
+          // to MediaQuery.paddingOf(context) and subtract it from the
+          // thumb's position — meant for scrollbars that reach a physical
+          // screen edge. This one sits mid-sheet, so on devices with a
+          // bottom safe-area inset (home indicator, gesture nav bar) that
+          // default shifts the thumb up into the card row. Removing the
+          // ambient bottom padding here keeps the thumb inside the gutter
+          // reserved for it on every device.
+          MediaQuery.removePadding(
+            context: context,
+            removeBottom: true,
+            child: Scrollbar(
+              controller: _scrollController,
+              interactive: true,
+              thumbVisibility: true,
+              thickness: 4.0,
+              radius: const Radius.circular(4.0),
+              child: Padding(
+                padding: const EdgeInsets.only(
+                  bottom: 15.0,
+                ), // Dedicated space for scrollbar, prevents overlap
+                child: SingleChildScrollView(
+                  controller: _scrollController,
+                  physics: const ClampingScrollPhysics(),
+                  scrollDirection: Axis.horizontal,
+                  clipBehavior: Clip.none,
+                  child: IntrinsicHeight(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: List.generate(slots.length, (index) {
+                        final slot = slots[index];
+                        final isSelected = _isSlotSelected(slot);
 
-                      return Padding(
-                        padding: EdgeInsetsDirectional.only(
-                          bottom: 16,
-                          start: index == 0 ? 16.0 : 2.0,
-                          end: index == slots.length - 1 ? 16.0 : 2.0,
-                        ),
-                        child: _buildSlotCard(
-                          slot: slot,
-                          isSelected: isSelected,
-                          onTap: () => _toggleSlot(slot),
-                          isAr: isAr,
-                          lines: lines,
-                        ),
-                      );
-                    }),
+                        return Padding(
+                          padding: EdgeInsetsDirectional.only(
+                            bottom: 16,
+                            start: index == 0 ? 16.0 : 2.0,
+                            end: index == slots.length - 1 ? 16.0 : 2.0,
+                          ),
+                          child: _buildSlotCard(
+                            slot: slot,
+                            isSelected: isSelected,
+                            onTap: () => _toggleSlot(slot),
+                            isAr: isAr,
+                            lines: lines,
+                          ),
+                        );
+                      }),
+                    ),
                   ),
                 ),
               ),
