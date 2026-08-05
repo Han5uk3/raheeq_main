@@ -778,9 +778,9 @@ class _LoginState extends State<Login> {
                                               if (response.statusCode == 200 &&
                                                   response.data['success'] ==
                                                       true) {
-                                                final receivedOtp = response
-                                                    .data['data']?['otp']
-                                                    ?.toString();
+                                                // final receivedOtp = response
+                                                //     .data['data']?['otp']
+                                                //     ?.toString();
                                                 await Navigator.push(
                                                   context,
                                                   MaterialPageRoute(
@@ -788,7 +788,7 @@ class _LoginState extends State<Login> {
                                                       phoneNumber: apiPhoneText,
                                                       countryCode:
                                                           '+${_selectedCountry.phoneCode}',
-                                                      receivedOtp: receivedOtp,
+                                                      // receivedOtp: receivedOtp,
                                                     ),
                                                   ),
                                                 );
