@@ -583,5 +583,15 @@
   "order_date": "Order Date",
   "select_month": "Select Month",
   "last_6_months": "Last 6 Months",
-  "this_year": "This Year"
+  "this_year": "This Year",
+  "follow_us": "Follow us",
+  "@share_app_message": {
+    "description": "Message shared by the user when inviting others to install the app",
+    "placeholders": {
+      "link": {
+        "type": "String"
+      }
+    }
+  },
+  "share_app_message": "Rahiq App 💧:- A water delivery service for mosques and orphanages 🚚🕌. The Prophet ﷺ said: \"Whoever guides someone to good will have a reward like the one who did it\" 🌷: Share the app - {link}"
 }

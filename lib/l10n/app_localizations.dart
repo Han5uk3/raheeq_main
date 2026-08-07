@@ -3178,6 +3178,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This Year'**
   String get this_year;
+
+  /// No description provided for @follow_us.
+  ///
+  /// In en, this message translates to:
+  /// **'Follow us'**
+  String get follow_us;
+
+  /// Message shared by the user when inviting others to install the app
+  ///
+  /// In en, this message translates to:
+  /// **'Rahiq App 💧:- A water delivery service for mosques and orphanages 🚚🕌. The Prophet ﷺ said: \"Whoever guides someone to good will have a reward like the one who did it\" 🌷: Share the app - {link}'**
+  String share_app_message(String link);
 }
 
 class _AppLocalizationsDelegate

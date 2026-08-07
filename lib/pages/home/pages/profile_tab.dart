@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/pages/home/home_screen.dart';
@@ -22,6 +23,7 @@ import 'package:raheeq_main/pages/home/pages/customer_reviews_page.dart';
 import 'package:raheeq_main/pages/home/pages/my_chillers_page.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ProfileTab extends StatefulWidget {
@@ -617,9 +619,9 @@ class _ProfileTabState extends State<ProfileTab> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 16),
-                     
-               
+                      const SizedBox(height: 24),
+                      _buildSocialMediaRow(),
+                      const SizedBox(height: 24),
 
                       SizedBox(
                         width: double.infinity,
@@ -707,6 +709,88 @@ class _ProfileTabState extends State<ProfileTab> {
           ),
         ],
       ),
+    );
+  }
+
+  static const String _tiktokUrl = 'https://www.tiktok.com/@rahiq2026?_r=1&_t=ZS-97BIinCJx0X';
+  static const String _instagramUrl = 'https://www.instagram.com/rahiq_app?utm_source=qr';
+  static const String _xUrl = 'https://x.com/rahiq_app?s=11';
+  static const String _shareLink = 'https://suqyarahiq.com';
+
+  Future<void> _openSocialLink(String urlString) async {
+    final url = Uri.parse(urlString);
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    } else if (mounted) {
+      CustomSnackbar.show(
+        context: context,
+        message: "couldnot launch url",
+      );
+    }
+  }
+
+  void _shareApp() {
+    final message = AppLocalizations.of(context)!.share_app_message(
+      _shareLink,
+    );
+    SharePlus.instance.share(ShareParams(text: message));
+  }
+
+  Widget _buildSocialButton({
+    required FaIconData icon,
+    required VoidCallback onTap,
+  }) {
+    return Material(
+      color: AppColors.buttonBlueDark,
+      shape: const CircleBorder(),
+      child: InkWell(
+        onTap: onTap,
+        customBorder: const CircleBorder(),
+        child: Padding(
+          padding: const EdgeInsets.all(14),
+          child: FaIcon(icon, color: Colors.white, size: 20),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSocialMediaRow() {
+    return Column(
+      children: [
+        Text(
+          AppLocalizations.of(context)!.follow_us,
+          style: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: AppColors.black,
+          ),
+        ),
+        const SizedBox(height: 16),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            _buildSocialButton(
+              icon: FontAwesomeIcons.tiktok,
+              onTap: () => _openSocialLink(_tiktokUrl),
+            ),
+            const SizedBox(width: 16),
+            _buildSocialButton(
+              icon: FontAwesomeIcons.instagram,
+              onTap: () => _openSocialLink(_instagramUrl),
+            ),
+            const SizedBox(width: 16),
+            _buildSocialButton(
+              icon: FontAwesomeIcons.xTwitter,
+              onTap: () => _openSocialLink(_xUrl),
+            ),
+            const SizedBox(width: 16),
+            _buildSocialButton(
+              icon: FontAwesomeIcons.shareNodes,
+              onTap: _shareApp,
+            ),
+          ],
+        ),
+      ],
     );
   }
 

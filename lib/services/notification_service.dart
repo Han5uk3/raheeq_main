@@ -2,10 +2,8 @@ import 'dart:convert';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:freshchat_sdk/freshchat_sdk.dart' hide Importance, Priority;
 import 'package:raheeq_main/pages/home/home_screen.dart';
-import 'package:raheeq_main/pages/order/booking_details_page.dart';
 import 'package:raheeq_main/storage/auth_storage.dart';
 import 'package:raheeq_main/pages/home/pages/orders_tab.dart';
 
@@ -46,7 +44,7 @@ class NotificationService {
     NotificationSettings settings = await _firebaseMessaging.requestPermission(
       alert: true,
       announcement: false,
-      badge: true,
+      badge: false,
       carPlay: false,
       criticalAlert: false,
       provisional: false,
@@ -64,7 +62,7 @@ class NotificationService {
     const DarwinInitializationSettings initializationSettingsIOS =
         DarwinInitializationSettings(
           requestAlertPermission: true,
-          requestBadgePermission: true,
+          requestBadgePermission: false,
           requestSoundPermission: true,
         );
 
@@ -85,6 +83,7 @@ class NotificationService {
       'High Importance Notifications', // title
       description: 'This channel is used for important notifications.',
       importance: Importance.max,
+      showBadge: false,
     );
 
     await _localNotificationsPlugin
@@ -96,7 +95,7 @@ class NotificationService {
     // Update foreground notification presentation options for iOS
     await _firebaseMessaging.setForegroundNotificationPresentationOptions(
       alert: true,
-      badge: true,
+      badge: false,
       sound: true,
     );
 
@@ -179,7 +178,7 @@ class NotificationService {
           ),
           iOS: const DarwinNotificationDetails(
             presentAlert: true,
-            presentBadge: true,
+            presentBadge: false,
             presentSound: true,
           ),
         ),
@@ -236,35 +235,8 @@ class NotificationService {
         AuthStorage.navigatorKey.currentState?.popUntil(
           (route) => route.isFirst,
         );
-      } else if (type == 'order_confirmed') {
-        final subOrderId =
-            payloadData?['subOrderId'] ??
-            payloadData?['suborderid'] ??
-            payloadData?['sub_order_id'];
-        final targetOrderId =
-            subOrderId ??
-            payloadData?['orderid'] ??
-            payloadData?['orderId'] ??
-            payloadData?['order_id'];
-
-        if (targetOrderId != null) {
-          // Set Orders tab (index 1) in HomeScreen
-          HomeScreen.switchTabNotifier.value = 1;
-          // Set Completed tab (index 2) inside OrdersTab
-          OrdersTab.switchInnerTabNotifier.value = 2;
-
-          AuthStorage.navigatorKey.currentState?.popUntil(
-            (route) => route.isFirst,
-          );
-
-          AuthStorage.navigatorKey.currentState?.push(
-            MaterialPageRoute(
-              builder: (context) =>
-                  BookingDetailsPage(orderId: targetOrderId.toString()),
-            ),
-          );
-        }
       }
+      // Payment confirmed ('order_confirmed') notifications: no navigation.
     }
 
     if (innerData != null && innerData is Map) {

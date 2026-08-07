@@ -111,7 +111,9 @@ class _SubscriptionDetailsBottomSheetState
       });
 
       if (mounted) {
-        Navigator.pop(context); // Close the bottom sheet
+        // Push on top of this bottom sheet (instead of closing it first) so
+        // that navigating back from the contribution details page returns
+        // here, matching how the one-time flow reveals its last bottom sheet.
         Navigator.of(context).push(
           MaterialPageRoute(
             builder: (_) => ContributionDetailsPage(

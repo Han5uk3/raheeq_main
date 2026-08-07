@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/utils/rtl_helpers.dart';
 
 class DonationTypeBottomSheet extends StatefulWidget {
-  final VoidCallback onOneTimeSelected;
+  final Future<void> Function() onOneTimeSelected;
   final VoidCallback onMonthlySelected;
 
   const DonationTypeBottomSheet({
@@ -21,6 +22,7 @@ class DonationTypeBottomSheet extends StatefulWidget {
 
 class _DonationTypeBottomSheetState extends State<DonationTypeBottomSheet> {
   String _selectedType = "";
+  bool _isProcessingOneTime = false;
 
   Widget _buildDonationOption({
     required bool isAr,
@@ -29,6 +31,7 @@ class _DonationTypeBottomSheetState extends State<DonationTypeBottomSheet> {
     required IconData icon,
     required bool isSelected,
     required VoidCallback onTap,
+    bool isLoading = false,
   }) {
     return GestureDetector(
       onTap: onTap,
@@ -44,33 +47,47 @@ class _DonationTypeBottomSheetState extends State<DonationTypeBottomSheet> {
                   : AppColors.buttonBlueLight,
               borderRadius: BorderRadius.circular(20),
             ),
-            child: Column(
-              children: [
-                Icon(
-                  icon,
-                  color: isSelected ? Colors.white : AppColors.buttonBlueDark,
-                  size: 36,
-                ),
-                const SizedBox(height: 16),
-                Text(
-                  title,
-                  style: TextStyle(
-                    color: isSelected ? Colors.white : AppColors.buttonBlueDark,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
+            child: isLoading
+                ? const SizedBox(
+                    height: 92,
+                    child: Center(
+                      child: WaterLoadingIndicator(
+                        size: 28,
+                        waveColor1: Colors.white,
+                      ),
+                    ),
+                  )
+                : Column(
+                    children: [
+                      Icon(
+                        icon,
+                        color: isSelected
+                            ? Colors.white
+                            : AppColors.buttonBlueDark,
+                        size: 36,
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        title,
+                        style: TextStyle(
+                          color: isSelected
+                              ? Colors.white
+                              : AppColors.buttonBlueDark,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        subtitle,
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: isSelected ? Colors.white : Colors.grey[500],
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  subtitle,
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    color: isSelected ? Colors.white : Colors.grey[500],
-                    fontSize: 13,
-                  ),
-                ),
-              ],
-            ),
           ),
           if (isSelected)
             Positioned(
@@ -113,11 +130,15 @@ class _DonationTypeBottomSheetState extends State<DonationTypeBottomSheet> {
             Row(
               children: [
                 GestureDetector(
-                  onTap: () {
-                    FocusManager.instance.primaryFocus?.unfocus();
-                    SystemChannels.textInput.invokeMethod('TextInput.hide');
-                    Navigator.pop(context);
-                  },
+                  onTap: _isProcessingOneTime
+                      ? null
+                      : () {
+                          FocusManager.instance.primaryFocus?.unfocus();
+                          SystemChannels.textInput.invokeMethod(
+                            'TextInput.hide',
+                          );
+                          Navigator.pop(context);
+                        },
                   child: Container(
                     width: 50,
                     height: 50,
@@ -168,15 +189,33 @@ class _DonationTypeBottomSheetState extends State<DonationTypeBottomSheet> {
                     subtitle: AppLocalizations.of(context)!.single_donation,
                     icon: Icons.calendar_today_outlined,
                     isSelected: _selectedType == 'one_time',
-                    onTap: () {
-                      setState(() {
-                        _selectedType = 'one_time';
-                      });
-                      FocusManager.instance.primaryFocus?.unfocus();
-                      SystemChannels.textInput.invokeMethod('TextInput.hide');
-                      Navigator.pop(context);
-                      widget.onOneTimeSelected();
-                    },
+                    isLoading: _isProcessingOneTime,
+                    onTap: _isProcessingOneTime
+                        ? () {}
+                        : () async {
+                            setState(() {
+                              _selectedType = 'one_time';
+                              _isProcessingOneTime = true;
+                            });
+                            FocusManager.instance.primaryFocus?.unfocus();
+                            SystemChannels.textInput.invokeMethod(
+                              'TextInput.hide',
+                            );
+                            // The sheet is kept open (not popped) while the
+                            // checkout is created, so it stays on the
+                            // navigator stack and reappears if the user
+                            // navigates back from the contribution details
+                            // page, matching the subscription flow.
+                            try {
+                              await widget.onOneTimeSelected();
+                            } finally {
+                              if (mounted) {
+                                setState(() {
+                                  _isProcessingOneTime = false;
+                                });
+                              }
+                            }
+                          },
                   ),
                 ),
                 const SizedBox(width: 16),
@@ -187,15 +226,19 @@ class _DonationTypeBottomSheetState extends State<DonationTypeBottomSheet> {
                     subtitle: AppLocalizations.of(context)!.recurring_donation,
                     icon: Icons.sync,
                     isSelected: _selectedType == 'monthly',
-                    onTap: () {
-                      setState(() {
-                        _selectedType = 'monthly';
-                      });
-                      FocusManager.instance.primaryFocus?.unfocus();
-                      SystemChannels.textInput.invokeMethod('TextInput.hide');
-                      Navigator.pop(context);
-                      widget.onMonthlySelected();
-                    },
+                    onTap: _isProcessingOneTime
+                        ? () {}
+                        : () {
+                            setState(() {
+                              _selectedType = 'monthly';
+                            });
+                            FocusManager.instance.primaryFocus?.unfocus();
+                            SystemChannels.textInput.invokeMethod(
+                              'TextInput.hide',
+                            );
+                            Navigator.pop(context);
+                            widget.onMonthlySelected();
+                          },
                   ),
                 ),
               ],

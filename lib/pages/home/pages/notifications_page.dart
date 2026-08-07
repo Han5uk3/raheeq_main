@@ -10,7 +10,6 @@ import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/models/notification_model.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
-import 'package:raheeq_main/pages/order/booking_details_page.dart';
 import 'package:raheeq_main/pages/home/home_screen.dart';
 
 class NotificationsPage extends StatefulWidget {
@@ -118,26 +117,15 @@ class _NotificationsPageState extends State<NotificationsPage> {
     // Handle navigation based on data payload
     final data = notification.data;
     final type = data['type'];
-    final orderId = data['orderid'] ?? data['orderId'] ?? data['order_id'];
 
     if (type?.toString().toLowerCase() == 'order_confirmed') {
-      final subOrderId =
-          data['subOrderId'] ?? data['suborderid'] ?? data['sub_order_id'];
-      final targetOrderId = subOrderId ?? orderId;
-      if (targetOrderId != null && mounted) {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) =>
-                BookingDetailsPage(orderId: targetOrderId.toString()),
-          ),
-        );
-      }
-    } else {
-      if (mounted) {
-        HomeScreen.switchTabNotifier.value = 1;
-        Navigator.of(context).popUntil((route) => route.isFirst);
-      }
+      // Payment confirmed notification: mark as read only, no navigation.
+      return;
+    }
+
+    if (mounted) {
+      HomeScreen.switchTabNotifier.value = 1;
+      Navigator.of(context).popUntil((route) => route.isFirst);
     }
   }
 

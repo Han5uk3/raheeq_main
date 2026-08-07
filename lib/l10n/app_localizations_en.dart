@@ -1619,4 +1619,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get this_year => 'This Year';
+
+  @override
+  String get follow_us => 'Follow us';
+
+  @override
+  String share_app_message(String link) {
+    return 'Rahiq App 💧:- A water delivery service for mosques and orphanages 🚚🕌. The Prophet ﷺ said: \"Whoever guides someone to good will have a reward like the one who did it\" 🌷: Share the app - $link';
+  }
 }
