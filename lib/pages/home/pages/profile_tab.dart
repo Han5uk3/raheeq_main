@@ -716,7 +716,8 @@ class _ProfileTabState extends State<ProfileTab> {
   static const String _tiktokUrl = 'https://www.tiktok.com/@rahiq2026?_r=1&_t=ZS-97BIinCJx0X';
   static const String _instagramUrl = 'https://www.instagram.com/rahiq_app?utm_source=qr';
   static const String _xUrl = 'https://x.com/rahiq_app?s=11';
-  static const String _shareLink = 'https://suqyarahiq.com';
+  static const String _shareLink =
+      'https://play.google.com/store/apps/details?id=com.rahiq.main';
 
   Future<void> _openSocialLink(String urlString) async {
     final url = Uri.parse(urlString);
