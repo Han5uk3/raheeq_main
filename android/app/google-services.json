@@ -126,6 +126,14 @@
           }
         },
         {
+          "client_id": "579658096080-mmr7oep31rchg5strrt6p75fbd4rbehs.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.rahiq.main",
+            "certificate_hash": "1411dd783b3f35f36deca781f1a78ba83617b210"
+          }
+        },
+        {
           "client_id": "579658096080-qj762lj05jb33btlfl44rpfpq5mea8f3.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
