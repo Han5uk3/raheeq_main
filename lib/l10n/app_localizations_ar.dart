@@ -1496,6 +1496,19 @@ class AppLocalizationsAr extends AppLocalizations {
       'فشل في استرداد رمز Apple Identity';
 
   @override
+  String get failed_to_sign_in_google => 'فشل تسجيل الدخول باستخدام Google';
+
+  @override
+  String get failed_to_sign_in_apple => 'فشل تسجيل الدخول باستخدام Apple';
+
+  @override
+  String get google_sign_in_cancelled =>
+      'تم إلغاء تسجيل الدخول باستخدام Google';
+
+  @override
+  String get apple_sign_in_cancelled => 'تم إلغاء تسجيل الدخول باستخدام Apple';
+
+  @override
   String get failed_to_submit_review => 'فشل في إرسال التقييم';
 
   @override

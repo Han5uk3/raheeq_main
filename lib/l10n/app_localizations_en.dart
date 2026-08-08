@@ -1507,6 +1507,18 @@ class AppLocalizationsEn extends AppLocalizations {
       'Failed to retrieve Apple Identity token';
 
   @override
+  String get failed_to_sign_in_google => 'Failed to sign in with Google';
+
+  @override
+  String get failed_to_sign_in_apple => 'Failed to sign in with Apple';
+
+  @override
+  String get google_sign_in_cancelled => 'Google sign in was cancelled';
+
+  @override
+  String get apple_sign_in_cancelled => 'Apple sign in was cancelled';
+
+  @override
   String get failed_to_submit_review => 'Failed to submit review';
 
   @override

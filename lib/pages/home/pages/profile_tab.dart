@@ -619,8 +619,7 @@ class _ProfileTabState extends State<ProfileTab> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 24),
-                      _buildSocialMediaRow(),
+                    
                       const SizedBox(height: 24),
 
                       SizedBox(
@@ -661,6 +660,8 @@ class _ProfileTabState extends State<ProfileTab> {
                           ),
                         ),
                       ],
+                      const SizedBox(height: 24),
+                      _buildSocialMediaRow(),
                       const SizedBox(height: 120),
                     ],
                   ),
@@ -748,7 +749,7 @@ class _ProfileTabState extends State<ProfileTab> {
         customBorder: const CircleBorder(),
         child: Padding(
           padding: const EdgeInsets.all(14),
-          child: FaIcon(icon, color: Colors.white, size: 20),
+          child: FaIcon(icon, color: Colors.white, size: 16),
         ),
       ),
     );
@@ -757,15 +758,7 @@ class _ProfileTabState extends State<ProfileTab> {
   Widget _buildSocialMediaRow() {
     return Column(
       children: [
-        Text(
-          AppLocalizations.of(context)!.follow_us,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: AppColors.black,
-          ),
-        ),
-        const SizedBox(height: 16),
+     
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [

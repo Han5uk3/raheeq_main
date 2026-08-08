@@ -2969,6 +2969,30 @@ abstract class AppLocalizations {
   /// **'Failed to retrieve Apple Identity token'**
   String get failed_to_retrieve_apple_identity_token;
 
+  /// No description provided for @failed_to_sign_in_google.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to sign in with Google'**
+  String get failed_to_sign_in_google;
+
+  /// No description provided for @failed_to_sign_in_apple.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to sign in with Apple'**
+  String get failed_to_sign_in_apple;
+
+  /// No description provided for @google_sign_in_cancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Google sign in was cancelled'**
+  String get google_sign_in_cancelled;
+
+  /// No description provided for @apple_sign_in_cancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Apple sign in was cancelled'**
+  String get apple_sign_in_cancelled;
+
   /// No description provided for @failed_to_submit_review.
   ///
   /// In en, this message translates to:
