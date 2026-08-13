@@ -751,7 +751,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
           _buildDeliveryProgressCard(order),
           const SizedBox(height: 12),
 
-          // Financials
+          // Payment details
           if (order.financials != null) ...[
             _buildPremiumCard(
               child: Column(
@@ -759,7 +759,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                 children: [
                   const SizedBox(height: 12),
                   _buildSectionHeader(
-                    AppLocalizations.of(context)!.financial_details,
+                    AppLocalizations.of(context)!.payment_details,
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -804,17 +804,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                             ),
                           ],
                         ),
-                        // Text(
-                        //   _formatPaymentMethod(
-                        //     context,
-                        //     order.parentOrder!.paymentMethod,
-                        //   ),
-                        //   style: const TextStyle(
-                        //     fontSize: 14,
-                        //     fontWeight: FontWeight.w500,
-                        //     color: Colors.black,
-                        //   ),
-                        // ),
+                       
                       ],
                     ),
                     const SizedBox(height: 12),
@@ -836,13 +826,31 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                     order.financials!.vatAmount,
                     isAr,
                   ),
+                  // Deductions are shown as negatives so the rows add up to
+                  // the total that was actually charged.
+                  if (order.financials!.discountAmount > 0) ...[
+                    const SizedBox(height: 12),
+                    _buildFinancialRow(
+                      AppLocalizations.of(context)!.discount,
+                      -order.financials!.discountAmount,
+                      isAr,
+                    ),
+                  ],
+                  if (order.financials!.walletAmount > 0) ...[
+                    const SizedBox(height: 12),
+                    _buildFinancialRow(
+                      AppLocalizations.of(context)!.wallet_applied,
+                      -order.financials!.walletAmount,
+                      isAr,
+                    ),
+                  ],
                   const Padding(
                     padding: EdgeInsets.symmetric(vertical: 12.0),
                     child: Divider(color: Color(0xFFEAEFF2), height: 1),
                   ),
                   _buildFinancialRow(
                     AppLocalizations.of(context)!.total_amount,
-                    order.financials!.totalAmount,
+                    (order.financials!.totalAmount),
                     isAr,
                     isTotal: true,
                   ),

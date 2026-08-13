@@ -550,7 +550,9 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
           billingDetails: billingDetails,
           shippingDetails: shippingDetails,
           alternativePaymentMethods: [],
-          linkBillingNameWithCardHolderName: true,
+          // Keep the card holder name field empty instead of prefilling it
+          // with the account holder's name.
+          linkBillingNameWithCardHolderName: false,
           tokeniseType: PaymentSdkTokeniseType.NONE,
         );
 
@@ -616,6 +618,17 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
               name: 'CheckoutFlow',
             );
             return;
+          }
+
+          // The SDK reports the real decline reason (e.g. "Invalid card
+          // number") inside data.paymentResult, even when the bridge itself
+          // returns status "success". Surface it instead of a generic message.
+          final sdkDeclineReason = _extractSdkDeclineReason(event);
+          if (sdkDeclineReason != null) {
+            log(
+              'Payment Flow: PayTabs decline reason -> $sdkDeclineReason',
+              name: 'CheckoutFlow',
+            );
           }
 
           if (event["status"] == "success") {
@@ -687,7 +700,9 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                     MaterialPageRoute(
                       builder: (_) => PaymentStatusPage(
                         status: PaymentStatus.failed,
-                        message: AppLocalizations.of(context)!.payment_failed,
+                        message:
+                            sdkDeclineReason ??
+                            AppLocalizations.of(context)!.payment_failed,
                         isAr: isAr,
                         onRetry: () => Navigator.pop(context),
                       ),
@@ -723,7 +738,8 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                   MaterialPageRoute(
                     builder: (_) => PaymentStatusPage(
                       status: PaymentStatus.failed,
-                      message: verifyResponse.data['message'],
+                      message:
+                          sdkDeclineReason ?? verifyResponse.data['message'],
                       isAr: isAr,
                       onRetry: () => Navigator.pop(context),
                     ),
@@ -764,9 +780,9 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                   MaterialPageRoute(
                     builder: (_) => PaymentStatusPage(
                       status: PaymentStatus.failed,
-                      message: AppLocalizations.of(
-                        context,
-                      )!.error_verifying_payment,
+                      message:
+                          sdkDeclineReason ??
+                          AppLocalizations.of(context)!.error_verifying_payment,
                       isAr: isAr,
                       onRetry: () => Navigator.pop(context),
                     ),
@@ -791,7 +807,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
               MaterialPageRoute(
                 builder: (_) => PaymentStatusPage(
                   status: PaymentStatus.failed,
-                  message: "${event["message"]}",
+                  message: sdkDeclineReason ?? "${event["message"]}",
                   isAr: isAr,
                   onRetry: () => Navigator.pop(context),
                 ),
@@ -857,6 +873,34 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
         ),
       );
     }
+  }
+
+  /// Pulls the human readable decline reason (e.g. "Invalid card number") out
+  /// of a PayTabs SDK event.
+  ///
+  /// The bridge reports `status: success` once the SDK session finishes, so a
+  /// declined card is only visible through `data.paymentResult`. Returns null
+  /// when the transaction actually went through, so callers keep their own
+  /// (localized) message in that case.
+  String? _extractSdkDeclineReason(dynamic event) {
+    final data = event is Map ? event["data"] : null;
+    if (data is! Map) return null;
+
+    final result = data["paymentResult"];
+    final responseStatus = result is Map
+        ? result["responseStatus"]?.toString().toUpperCase()
+        : null;
+    if (data["isSuccess"] == true || responseStatus == 'A') return null;
+
+    final candidates = [
+      result is Map ? result["responseMessage"] : null,
+      data["payResponseReturn"],
+    ];
+    for (final candidate in candidates) {
+      final message = candidate?.toString().trim();
+      if (message != null && message.isNotEmpty) return message;
+    }
+    return null;
   }
 
   Widget _buildSubscriptionDetails(bool isAr) {

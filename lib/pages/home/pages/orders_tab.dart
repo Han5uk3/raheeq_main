@@ -820,8 +820,15 @@ class _OrderCardState extends State<_OrderCard> {
         ? widget.order.locationDetails!['address'].toString()
         : '';
 
+    // totalAmount is what was charged, so wallet credit spent on the order has
+    // to be added back to show what the contribution was actually worth.
+    final double totalCostAmount =
+        widget.order.totalAmount +
+        widget.order.walletAmount -
+        widget.order.discountAmount;
+
     final String totalCost =
-        '\u202A${AppLocalizations.of(context)!.sar_currency} ${Formatters.formatPrice(widget.order.totalAmount)}\u202C';
+        '\u202A${AppLocalizations.of(context)!.sar_currency} ${Formatters.formatPrice(totalCostAmount)}\u202C';
 
     // LayoutBuilder gives us the actual constraints the card is rendered
     // with, which is more reliable than MediaQuery.size for computing the
