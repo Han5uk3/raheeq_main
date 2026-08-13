@@ -38,7 +38,7 @@ class _ProfileTabState extends State<ProfileTab> {
   static int _cachedUnreadCount = 0;
 
   bool _isLoading = false;
-  bool _isSaving = false; // Used for logout loading state
+  bool _isSaving = false; 
   User? _currentUser;
   int _unreadNotificationsCount = 0;
 
@@ -619,8 +619,7 @@ class _ProfileTabState extends State<ProfileTab> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 24),
-                      _buildSocialMediaRow(),
+                    
                       const SizedBox(height: 24),
 
                       SizedBox(
@@ -661,6 +660,16 @@ class _ProfileTabState extends State<ProfileTab> {
                           ),
                         ),
                       ],
+                      const SizedBox(height: 24),
+                      _buildSocialMediaRow(),
+                      const SizedBox(height: 24),
+                      Center(
+                        child: Text(
+                          "${AppLocalizations.of(context)!.version}: 0.1.0",
+                          style: TextStyle(color: Colors.grey, fontSize: 13),
+                        ),
+                      ),
+                
                       const SizedBox(height: 120),
                     ],
                   ),
@@ -755,40 +764,25 @@ class _ProfileTabState extends State<ProfileTab> {
   }
 
   Widget _buildSocialMediaRow() {
-    return Column(
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Text(
-          AppLocalizations.of(context)!.follow_us,
-          style: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.w600,
-            color: AppColors.black,
-          ),
+        _buildSocialButton(
+          icon: FontAwesomeIcons.tiktok,
+          onTap: () => _openSocialLink(_tiktokUrl),
         ),
-        const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _buildSocialButton(
-              icon: FontAwesomeIcons.tiktok,
-              onTap: () => _openSocialLink(_tiktokUrl),
-            ),
-            const SizedBox(width: 16),
-            _buildSocialButton(
-              icon: FontAwesomeIcons.instagram,
-              onTap: () => _openSocialLink(_instagramUrl),
-            ),
-            const SizedBox(width: 16),
-            _buildSocialButton(
-              icon: FontAwesomeIcons.xTwitter,
-              onTap: () => _openSocialLink(_xUrl),
-            ),
-            const SizedBox(width: 16),
-            _buildSocialButton(
-              icon: FontAwesomeIcons.shareNodes,
-              onTap: _shareApp,
-            ),
-          ],
+        const SizedBox(width: 16),
+        _buildSocialButton(
+          icon: FontAwesomeIcons.instagram,
+          onTap: () => _openSocialLink(_instagramUrl),
+        ),
+        const SizedBox(width: 16),
+        _buildSocialButton(
+          icon: FontAwesomeIcons.xTwitter,
+          onTap: () => _openSocialLink(_xUrl),
+        ),
+        const SizedBox(width: 16),
+        _buildSocialButton(icon: FontAwesomeIcons.shareNodes, onTap: _shareApp,
         ),
       ],
     );
