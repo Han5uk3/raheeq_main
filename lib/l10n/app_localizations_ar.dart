@@ -1301,6 +1301,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get financial_details => 'التفاصيل المالية';
 
   @override
+  String get payment_details => 'تفاصيل الدفع';
+
+  @override
   String get amount_value => 'قيمة المنتجات';
 
   @override

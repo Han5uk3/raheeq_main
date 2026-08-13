@@ -2591,6 +2591,12 @@ abstract class AppLocalizations {
   /// **'Financial Details'**
   String get financial_details;
 
+  /// No description provided for @payment_details.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment Details'**
+  String get payment_details;
+
   /// No description provided for @amount_value.
   ///
   /// In en, this message translates to:

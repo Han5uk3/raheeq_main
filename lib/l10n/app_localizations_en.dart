@@ -1310,6 +1310,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get financial_details => 'Financial Details';
 
   @override
+  String get payment_details => 'Payment Details';
+
+  @override
   String get amount_value => 'Amount';
 
   @override

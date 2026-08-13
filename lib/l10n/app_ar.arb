@@ -427,6 +427,7 @@
   "product_details": "تفاصيل المنتج",
   "location_details": "تفاصيل الموقع",
   "financial_details": "التفاصيل المالية",
+  "payment_details": "تفاصيل الدفع",
   "amount_value": "قيمة المنتجات",
   "please_select_bank_account": "الرجاء اختيار حساب بنكي",
   "please_select_designated_bank_account": "يرجى تحديد الحساب البنكي المخصص للتحويل الخاص بك.",

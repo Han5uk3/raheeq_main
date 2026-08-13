@@ -12,6 +12,10 @@ class OrderResponseModel {
   final OrderFinancials? financials;
   final OrderTarget? target;
   final double totalAmount;
+  // The list endpoint returns these at the item root instead of inside
+  // `financials`, so they are mirrored here and read from either place.
+  final double walletAmount;
+  final double discountAmount;
   final Map<String, dynamic>? locationDetails;
   final Map<String, dynamic>? driver;
   final Map<String, dynamic>? deliveryProof;
@@ -37,6 +41,8 @@ class OrderResponseModel {
     this.financials,
     this.target,
     required this.totalAmount,
+    this.walletAmount = 0,
+    this.discountAmount = 0,
     this.locationDetails,
     this.driver,
     this.deliveryProof,
@@ -50,6 +56,10 @@ class OrderResponseModel {
   });
 
   factory OrderResponseModel.fromJson(Map<String, dynamic> json) {
+    final financialsJson = json['financials'] is Map<String, dynamic>
+        ? json['financials'] as Map<String, dynamic>
+        : null;
+
     return OrderResponseModel(
       id: json['id'] ?? '',
       subOrderNumber: json['subOrderNumber'] ?? '',
@@ -83,13 +93,19 @@ class OrderResponseModel {
       product: json['product'] != null
           ? OrderProduct.fromJson(json['product'])
           : null,
-      financials: json['financials'] != null
-          ? OrderFinancials.fromJson(json['financials'])
+      financials: financialsJson != null
+          ? OrderFinancials.fromJson(financialsJson)
           : null,
       target: json['target'] != null
           ? OrderTarget.fromJson(json['target'])
           : null,
       totalAmount: (json['totalAmount'] ?? 0).toDouble(),
+      walletAmount:
+          (json['walletAmount'] ?? financialsJson?['walletAmount'] ?? 0)
+              .toDouble(),
+      discountAmount:
+          (json['discountAmount'] ?? financialsJson?['discountAmount'] ?? 0)
+              .toDouble(),
       locationDetails: json['locationDetails'],
       driver: json['driver'],
       deliveryProof: json['deliveryProof'] ?? json['proofs'],

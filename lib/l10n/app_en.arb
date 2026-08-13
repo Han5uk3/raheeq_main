@@ -470,6 +470,7 @@
   "product_details": "Product Details",
   "location_details": "Location Details",
   "financial_details": "Financial Details",
+  "payment_details": "Payment Details",
   "amount_value": "Amount",
   "please_select_bank_account": "Please select a bank account",
   "please_select_designated_bank_account": "Please select your designated bank account for the transfer.",

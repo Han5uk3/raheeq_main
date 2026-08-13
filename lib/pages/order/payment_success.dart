@@ -196,9 +196,11 @@ class _PaymentSuccessPageState extends State<PaymentSuccessPage>
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Text(
                     description,
-                    textAlign: TextAlign.justify,
+                    textAlign: Directionality.of(context) == TextDirection.rtl
+                        ? TextAlign.justify
+                        : TextAlign.center,
                     style: TextStyle(
-                      fontSize: 15,
+                      fontSize: 14,
                       color: Colors.grey.shade800,
                       fontWeight: FontWeight.bold,
                       height: 1.5,
