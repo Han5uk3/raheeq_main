@@ -43,6 +43,8 @@
 	<true/>
 	<key>NSCameraUsageDescription</key>
 	<string>This app uses your camera to capture photos and videos.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>This app uses your photo library to let you attach and upload photos.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>This app uses your location to display mosques nearest to you.</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>

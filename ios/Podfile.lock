@@ -55,7 +55,7 @@ PODS:
   - flutter_paytabs_bridge (2.7.12):
     - Flutter
     - PayTabsSDK (= 6.6.54)
-  - freshchat_sdk (0.10.32):
+  - freshchat_sdk (0.10.34):
     - Flutter
     - FreshchatSDK (= 6.4.9)
   - FreshchatSDK (6.4.9)
@@ -249,7 +249,7 @@ SPEC CHECKSUMS:
   Flutter: cabc95a1d2626b1b06e7179b784ebcf0c0cde467
   flutter_local_notifications: 643a3eda1ce1c0599413ca31672536d423dee214
   flutter_paytabs_bridge: 193d7ae44a86bf5a9b618fc839433e721e04012d
-  freshchat_sdk: a47fdf37bc02a1d2a38e22dd12559f2d272cefaf
+  freshchat_sdk: 2355f9f3e137827a330ebe52d5eb82b75fffd3e7
   FreshchatSDK: 2e4e8398e2663bc7ab8b9300226cbd00799a678c
   geolocator_apple: ab36aa0e8b7d7a2d7639b3b4e48308394e8cef5e
   Google-Maps-iOS-Utils: 0a484b05ed21d88c9f9ebbacb007956edd508a96
