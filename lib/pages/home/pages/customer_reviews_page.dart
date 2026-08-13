@@ -6,9 +6,9 @@ import 'package:raheeq_main/models/review_model.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:intl/intl.dart' show DateFormat;
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:dio/dio.dart';
+import 'package:raheeq_main/utils/formatters.dart';
 
 class CustomerReviewsPage extends StatefulWidget {
   const CustomerReviewsPage({super.key});
@@ -72,10 +72,7 @@ class _CustomerReviewsPageState extends State<CustomerReviewsPage> {
     final productName = review.product?.localizedName(isAr) ?? '';
     final productImage = review.product?.image;
     final dateStr = review.createdAt != null
-        ? DateFormat(
-            'dd MMM yyyy',
-            isAr ? 'ar' : 'en',
-          ).format(review.createdAt!)
+        ? Formatters.formatDate(context, review.createdAt!)
         : '';
 
     return Card(

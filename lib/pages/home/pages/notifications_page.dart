@@ -1,7 +1,6 @@
 import 'dart:developer';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
-import 'package:intl/intl.dart' show DateFormat;
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +10,7 @@ import 'package:raheeq_main/models/notification_model.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:raheeq_main/pages/home/home_screen.dart';
+import 'package:raheeq_main/utils/formatters.dart';
 
 class NotificationsPage extends StatefulWidget {
   const NotificationsPage({super.key});
@@ -409,8 +409,10 @@ class _NotificationsPageState extends State<NotificationsPage> {
   Widget _buildNotificationItem(NotificationModel notification) {
     final locale = Localizations.localeOf(context).languageCode;
     final isAr = locale == 'ar';
-    final dateFormat = DateFormat('MMM dd, yyyy - hh:mm a', locale);
-    final formattedDate = dateFormat.format(notification.createdAt.toLocal());
+    final formattedDate = Formatters.formatDateTime(
+      context,
+      notification.createdAt,
+    );
 
     return Material(
       color: notification.isRead ? Colors.white : const Color(0xFFF0F8FF),

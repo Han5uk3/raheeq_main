@@ -6,9 +6,9 @@ import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:raheeq_main/models/order_response_model.dart';
-import 'package:intl/intl.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:dio/dio.dart';
+import 'package:raheeq_main/utils/formatters.dart';
 
 class ComplaintsPage extends StatefulWidget {
   const ComplaintsPage({super.key});
@@ -203,7 +203,8 @@ class _ComplaintsPageState extends State<ComplaintsPage> {
                                     : order.target!.labelAr);
                         }
 
-                        final dateFormat = DateFormat('MMM dd, yyyy - hh:mm a');
+                        String dateFormat(DateTime date) =>
+                            Formatters.formatDateTime(context, date);
                         return Card(
                           color: Colors.white,
                           margin: const EdgeInsets.symmetric(
@@ -276,9 +277,7 @@ class _ComplaintsPageState extends State<ComplaintsPage> {
                                       ),
                                       const SizedBox(width: 4),
                                       Text(
-                                        dateFormat.format(
-                                          order.createdAt.toLocal(),
-                                        ),
+                                        dateFormat(order.createdAt),
                                         style: const TextStyle(
                                           color: Colors.grey,
                                           fontSize: 13,

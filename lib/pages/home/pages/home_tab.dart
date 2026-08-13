@@ -2326,7 +2326,7 @@ class _HomeTabState extends State<HomeTab>
                   Center(
                     child: Text(
                       textAlign: TextAlign.center,
-                      "${AppLocalizations.of(context)!.starting_from}  \u202A${AppLocalizations.of(context)!.sar_currency} ${price.toStringAsFixed(0)}\u202C",
+                      "${AppLocalizations.of(context)!.starting_from}  \u202A${AppLocalizations.of(context)!.sar_currency} ${Formatters.formatPrice(price, decimals: 0)}\u202C",
                       style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,

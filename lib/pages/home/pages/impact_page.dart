@@ -8,6 +8,7 @@ import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:dio/dio.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:raheeq_main/utils/formatters.dart';
 class ImpactPage extends StatefulWidget {
   const ImpactPage({super.key});
 
@@ -464,7 +465,7 @@ class _ImpactPageState extends State<ImpactPage> {
                                           value:
                                               "\u202A${AppLocalizations.of(context)!.sar} ${
                                               // Formatters.formatCount(
-                                              (_impactData!.totalAmountPaid).toStringAsFixed(2)
+                                              Formatters.formatPrice(_impactData!.totalAmountPaid, decimals: 2)
                                               // )
                                               }\u202C",
                                           label: AppLocalizations.of(

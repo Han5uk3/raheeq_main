@@ -3,13 +3,13 @@ import 'dart:developer';
 import 'package:dio/dio.dart';
 
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/models/wallet_model.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
+import 'package:raheeq_main/utils/formatters.dart';
 
 class MyWalletPage extends StatefulWidget {
   const MyWalletPage({super.key});
@@ -327,7 +327,7 @@ class _MyWalletPageState extends State<MyWalletPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            '\u202A${AppLocalizations.of(context)!.sar_currency} ${_balance.toStringAsFixed(2)}\u202C',
+            '\u202A${AppLocalizations.of(context)!.sar_currency} ${Formatters.formatPrice(_balance, decimals: 2)}\u202C',
 
             style: const TextStyle(
               color: Colors.white,
@@ -369,14 +369,12 @@ class _MyWalletPageState extends State<MyWalletPage> {
 
   Widget _buildTransactionCard(WalletTransaction tx, bool isAr) {
     final isCredit = tx.isCredit;
-    final amount = tx.amount.toString();
+    final amount = Formatters.formatPrice(tx.amount);
     final note = tx.localizedNote(isAr);
     final date = tx.createdAt ?? DateTime.now();
     final accentColor = isCredit ? Colors.green : Colors.red;
 
-    final formattedDate = DateFormat(
-      'MMM dd, yyyy • hh:mm a',
-    ).format(date.toLocal());
+    final formattedDate = Formatters.formatDateTime(context, date);
 
     return Container(
       padding: const EdgeInsets.all(14),
@@ -414,11 +412,11 @@ class _MyWalletPageState extends State<MyWalletPage> {
               children: [
                 Text(
                   note,
-                  maxLines: 1,
+                  maxLines: 2,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
                     fontWeight: FontWeight.w600,
-                    fontSize: 15,
+                    fontSize: 12,
                     color: AppColors.buttonBlueDark,
                   ),
                 ),
@@ -433,7 +431,7 @@ class _MyWalletPageState extends State<MyWalletPage> {
           ),
           const SizedBox(width: 8),
           Text(
-            '${isCredit ? '+' : '-'}\u202A${AppLocalizations.of(context)!.sar_currency} $amount\u202C',
+            '\u202A${isCredit ? '+' : '-'}${AppLocalizations.of(context)!.sar_currency} $amount\u202C',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 15,

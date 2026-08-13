@@ -2,7 +2,6 @@ import 'dart:convert';
 import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart' show DateFormat;
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
@@ -19,6 +18,7 @@ import 'package:raheeq_main/pages/home/home_screen.dart';
 import 'package:raheeq_main/pages/home/widgets/orders_filter_bottom_sheet.dart';
 import 'package:raheeq_main/services/deep_link_service.dart';
 import 'package:video_player/video_player.dart';
+import 'package:raheeq_main/utils/formatters.dart';
 
 class OrdersTab extends StatefulWidget {
   const OrdersTab({super.key});
@@ -788,11 +788,9 @@ class _OrderCardState extends State<_OrderCard> {
   Widget build(BuildContext context) {
     final locale = Localizations.localeOf(context).languageCode;
     final isAr = locale == 'ar';
-    final dateFormat = DateFormat('MMM dd, yyyy', locale);
-    final timeFormat = DateFormat('hh:mm a', locale);
-    final orderDate = widget.order.createdAt.toLocal();
-    final formattedDate = dateFormat.format(orderDate);
-    final formattedTime = timeFormat.format(orderDate);
+    final orderDate = widget.order.createdAt;
+    final formattedDate = Formatters.formatDate(context, orderDate);
+    final formattedTime = Formatters.formatTime(context, orderDate);
 
     final String imageUrl =
         widget.order.product?.image ?? widget.order.target?.image ?? '';
@@ -823,7 +821,7 @@ class _OrderCardState extends State<_OrderCard> {
         : '';
 
     final String totalCost =
-        '\u202A${AppLocalizations.of(context)!.sar_currency} ${widget.order.totalAmount}\u202C';
+        '\u202A${AppLocalizations.of(context)!.sar_currency} ${Formatters.formatPrice(widget.order.totalAmount)}\u202C';
 
     // LayoutBuilder gives us the actual constraints the card is rendered
     // with, which is more reliable than MediaQuery.size for computing the

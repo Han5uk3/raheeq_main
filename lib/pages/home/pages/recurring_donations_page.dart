@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:intl/intl.dart' show DateFormat;
 import 'package:raheeq_main/api/apis.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -10,6 +9,7 @@ import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/pages/home/home_screen.dart';
 import 'package:raheeq_main/models/subscription_model.dart';
 import 'package:raheeq_main/pages/home/pages/subscription_details_page.dart';
+import 'package:raheeq_main/utils/formatters.dart';
 
 class RecurringDonationsPage extends StatefulWidget {
   const RecurringDonationsPage({super.key});
@@ -318,7 +318,7 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
                       ],
                     ),
                     Text(
-                      "${AppLocalizations.of(context)!.since}${DateFormat.yMMMd(Localizations.localeOf(context).languageCode).format(subscription.startDate)}",
+                      "${AppLocalizations.of(context)!.since}${Formatters.formatDate(context, subscription.startDate)}",
                       style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                     ),
                   ],
