@@ -2,9 +2,11 @@ import 'package:country_picker/country_picker.dart';
 import 'package:freshchat_sdk/freshchat_sdk.dart';
 import 'package:flutter/services.dart';
 import 'dart:io';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:raheeq_main/services/network_monitor.dart';
 
@@ -23,6 +25,12 @@ import 'package:raheeq_main/utils/colors.dart';
 final ValueNotifier<Locale> localeNotifier = ValueNotifier(const Locale('ar'));
 
 final RouteObserver<PageRoute> routeObserver = RouteObserver<PageRoute>();
+
+/// The cold-start profile check kicked off by [_initDependencies], or null if
+/// init hasn't reached it yet. The splash screen awaits this (bounded) before
+/// routing, so a dead session is caught before the user reaches the home
+/// screen rather than after.
+Future<void>? startupSessionCheck;
 
 // The whole app renders at w700. Two things are needed and both are load-
 // bearing:
@@ -62,6 +70,12 @@ Future<void> _initDependencies() async {
   await AuthStorage.init();
   await AppStorage.init();
   localeNotifier.value = Locale(AppStorage.localeCode);
+
+  // Kicked off, not awaited: this makes a network call, and it must not hold
+  // up Firebase / notification setup below. The splash screen awaits the
+  // stored future instead, so the result is still in hand before it routes.
+  startupSessionCheck = _validateStoredSession();
+
   final ValueNotifier<double> snackbarBottomInset = ValueNotifier(0);
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
@@ -123,6 +137,41 @@ Future<void> _initDependencies() async {
     } catch (e) {
       debugPrint("Failed to set Freshchat user: $e");
     }
+  }
+}
+
+/// Verifies the stored session against the server on cold start.
+///
+/// [ApiService.checkSession] — what the splash screen routes on — only reads
+/// the access token's `exp` claim, so a token that was revoked server-side
+/// (account deleted, session invalidated) still looks valid locally and the
+/// app boots straight into the home screen. Hitting the profile endpoint once
+/// at startup is what catches that: a 401 that survives the interceptor's
+/// refresh-and-retry means the session is genuinely dead.
+///
+/// This only wipes storage — it never navigates. While
+/// [AuthStorage.suppressLoginRedirect] is up the splash screen is the one
+/// routing, and it sends the user to login once its own session check comes
+/// back empty.
+Future<void> _validateStoredSession() async {
+  final token = AuthStorage.accessToken;
+  if (token == null || token.isEmpty) {
+    // No session to validate; the splash screen routes to login on its own.
+    return;
+  }
+
+  try {
+    await ApiService().getProfile();
+  } on DioException catch (e) {
+    if (e.response?.statusCode == 401) {
+      debugPrint('Startup profile check returned 401. Clearing session.');
+      // Wipes tokens + userData from Hive and resets Freshchat.
+      await AuthStorage.clear();
+    }
+    // Anything else (offline, timeout, 5xx) is not proof the session is bad,
+    // so leave storage alone rather than logging the user out over a blip.
+  } catch (e) {
+    debugPrint('Startup profile check failed: $e');
   }
 }
 
