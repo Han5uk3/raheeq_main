@@ -12,9 +12,8 @@ import 'package:raheeq_main/storage/auth_storage.dart';
 import '../models/user.dart';
 
 class FreshchatService {
-  /// The support channel every entry point into the chat filters on. The
-  /// unread badge counts this channel alone, so it has to be the same tag the
-  /// user actually lands in.
+  /// The tag the chat screen is opened with, so the user lands in the support
+  /// channel rather than a channel list.
   static const List<String> supportTags = ["chat_with_us"];
 
   /// Unread support messages, for the "Contact us" badge. A notifier rather
@@ -25,26 +24,27 @@ class FreshchatService {
 
   /// Re-reads the unread count from the SDK. Safe to call often; it is a
   /// local lookup, not a network round trip.
+  ///
+  /// Counts every channel rather than filtering on [supportTags]. The tag
+  /// filter matches channels tagged that way *in the Freshchat dashboard*, and
+  /// a tag that matches nothing there counts zero — while `showConversations`
+  /// quietly falls back to showing all channels, so the chat works and only
+  /// the badge stays dark. The app has a single entry into Freshchat, so
+  /// every unread message it can receive is a support message anyway.
   static Future<void> refreshUnreadCount() async {
     try {
-      final result = await Freshchat.getUnreadCountAsyncForTags(supportTags);
+      final result = await Freshchat.getUnreadCountAsync;
+      log("Freshchat unread lookup: $result", name: "FreshchatService");
 
       // Both platforms answer with {status, count}. A failed lookup still
       // carries a count — 0 on iOS — so trusting it would clear a badge that
-      // should have stayed on.
+      // should have stayed on. Android reports STATUS_SUCCESS/STATUS_ERROR.
       final status = result['status']?.toString().toUpperCase() ?? '';
-      if (!status.contains('SUCCESS')) {
-        log(
-          "Skipping Freshchat unread count, status: $status",
-          name: "FreshchatService",
-        );
-        return;
-      }
+      if (!status.contains('SUCCESS')) return;
 
       final raw = result['count'];
       final count = raw is int ? raw : int.tryParse('$raw') ?? 0;
       if (count != unreadCount.value) {
-        log("Freshchat unread count: $count", name: "FreshchatService");
         unreadCount.value = count;
       }
     } catch (e) {

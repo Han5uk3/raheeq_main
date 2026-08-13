@@ -5,13 +5,13 @@ class CustomBottomNavItem {
   final IconData icon;
   final String label;
 
-  /// Draws an unread dot on the icon's top-outer corner.
-  final bool showBadge;
+  /// Unread count drawn on the icon's top-outer corner. Zero draws nothing.
+  final int badgeCount;
 
   CustomBottomNavItem({
     required this.icon,
     required this.label,
-    this.showBadge = false,
+    this.badgeCount = 0,
   });
 }
 
@@ -112,23 +112,44 @@ class CustomBottomNavBar extends StatelessWidget {
                             size: 24,
                           ),
                           // PositionedDirectional resolves `end` against the
-                          // ambient direction, so the dot sits on the icon's
+                          // ambient direction, so the badge sits on the icon's
                           // top-right in English and its top-left in Arabic.
-                          if (item.showBadge)
+                          if (item.badgeCount > 0)
                             PositionedDirectional(
-                              top: -3,
-                              end: -3,
+                              top: -6,
+                              end: -6,
                               child: Container(
-                                width: 11,
-                                height: 11,
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 4,
+                                  vertical: 1,
+                                ),
+                                constraints: const BoxConstraints(
+                                  minWidth: 18,
+                                  minHeight: 18,
+                                ),
+                                alignment: Alignment.center,
                                 decoration: BoxDecoration(
                                   color: Colors.red,
-                                  shape: BoxShape.circle,
-                                  // Keeps the dot legible against both the
+                                  // Rounded rather than a circle so a
+                                  // three-character count widens into a pill
+                                  // instead of squashing into an ellipse.
+                                  borderRadius: BorderRadius.circular(20),
+                                  // Keeps the badge legible against both the
                                   // white bar and the selected tab's gradient.
                                   border: Border.all(
                                     color: Colors.white,
                                     width: 1.5,
+                                  ),
+                                ),
+                                child: Text(
+                                  item.badgeCount > 99
+                                      ? '99+'
+                                      : '${item.badgeCount}',
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 9,
+                                    fontWeight: FontWeight.bold,
                                   ),
                                 ),
                               ),

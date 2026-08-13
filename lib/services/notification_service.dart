@@ -3,6 +3,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freshchat_sdk/freshchat_sdk.dart' hide Importance, Priority;
+import 'package:raheeq_main/services/freshchat_service.dart';
 import 'package:raheeq_main/services/notification_navigation.dart';
 
 @pragma('vm:entry-point')
@@ -108,6 +109,9 @@ class NotificationService {
       // own lazy sync, which is what caused the long display delay.
       if (await Freshchat.isFreshchatNotification(message.data)) {
         Freshchat.handlePushNotification(message.data);
+        // Ties the badge to the event we just saw rather than waiting on the
+        // SDK's own count-changed broadcast to reach us.
+        FreshchatService.refreshUnreadCount();
         return;
       }
 
