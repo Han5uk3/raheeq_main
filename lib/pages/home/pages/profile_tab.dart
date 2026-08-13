@@ -724,8 +724,11 @@ class _ProfileTabState extends State<ProfileTab> {
   static const String _tiktokUrl = 'https://www.tiktok.com/@rahiq2026?_r=1&_t=ZS-97BIinCJx0X';
   static const String _instagramUrl = 'https://www.instagram.com/rahiq_app?utm_source=qr';
   static const String _xUrl = 'https://x.com/rahiq_app?s=11';
-  static const String _shareLink = 'https://suqyarahiq.com';
+  static const String _shareLinkAndroid =
+      'https://play.google.com/store/apps/details?id=com.rahiq.main';
 
+  static const String _shareLinkIOS = 'https://apps.apple.com/app/6775236301';
+  
   Future<void> _openSocialLink(String urlString) async {
     final url = Uri.parse(urlString);
     if (await canLaunchUrl(url)) {
@@ -740,7 +743,7 @@ class _ProfileTabState extends State<ProfileTab> {
 
   void _shareApp() {
     final message = AppLocalizations.of(context)!.share_app_message(
-      _shareLink,
+      Platform.isAndroid ? _shareLinkAndroid : _shareLinkIOS,
     );
     SharePlus.instance.share(ShareParams(text: message));
   }
@@ -757,7 +760,7 @@ class _ProfileTabState extends State<ProfileTab> {
         customBorder: const CircleBorder(),
         child: Padding(
           padding: const EdgeInsets.all(14),
-          child: FaIcon(icon, color: Colors.white, size: 20),
+          child: FaIcon(icon, color: Colors.white, size: 16),
         ),
       ),
     );
