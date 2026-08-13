@@ -1110,6 +1110,7 @@ class _OrderCardState extends State<_OrderCard> {
       mediaItems.add(
         ProofMediaItem(
           title: AppLocalizations.of(context)!.mosque_front,
+          fileLabel: 'mosque_front',
           url: proofs['mosqueFrontImage'],
           isVideo: false,
         ),
@@ -1121,6 +1122,7 @@ class _OrderCardState extends State<_OrderCard> {
       mediaItems.add(
         ProofMediaItem(
           title: AppLocalizations.of(context)!.mosque_inside,
+          fileLabel: 'mosque_inside',
           url: proofs['mosqueInsideImage'],
           isVideo: false,
         ),
@@ -1132,6 +1134,7 @@ class _OrderCardState extends State<_OrderCard> {
       mediaItems.add(
         ProofMediaItem(
           title: AppLocalizations.of(context)!.packages,
+          fileLabel: 'product_image',
           url: proofs['packagesImage'],
           isVideo: false,
         ),
@@ -1143,6 +1146,7 @@ class _OrderCardState extends State<_OrderCard> {
       mediaItems.add(
         ProofMediaItem(
           title: AppLocalizations.of(context)!.delivery_video,
+          fileLabel: 'video',
           url: proofs['deliveryVideo'],
           isVideo: true,
         ),
@@ -1204,8 +1208,11 @@ class _OrderCardState extends State<_OrderCard> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) =>
-                ProofMediaViewerPage(mediaItems: allMedia, initialIndex: index),
+            builder: (context) => ProofMediaViewerPage(
+              mediaItems: allMedia,
+              initialIndex: index,
+              orderNumber: widget.order.subOrderNumber,
+            ),
           ),
         );
       },

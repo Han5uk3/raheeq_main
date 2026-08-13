@@ -1,9 +1,15 @@
+import 'dart:developer';
+import 'dart:io' show File, Platform;
+
 import 'package:dio/dio.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:open_filex/open_filex.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
+import 'package:raheeq_main/l10n/app_localizations.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:video_player/video_player.dart';
 
 class ProofMediaItem {
@@ -11,10 +17,16 @@ class ProofMediaItem {
   final String url;
   final bool isVideo;
 
+  /// Names this piece of proof in a saved file: `<orderNumber>_<fileLabel>`.
+  /// Unlike [title] it stays the same in both app languages, so a download
+  /// made in Arabic is named like one made in English.
+  final String fileLabel;
+
   ProofMediaItem({
     required this.title,
     required this.url,
     required this.isVideo,
+    required this.fileLabel,
   });
 }
 
@@ -22,10 +34,14 @@ class ProofMediaViewerPage extends StatefulWidget {
   final List<ProofMediaItem> mediaItems;
   final int initialIndex;
 
+  /// Prefixes downloaded files so they can be traced back to their order.
+  final String? orderNumber;
+
   const ProofMediaViewerPage({
     super.key,
     required this.mediaItems,
     this.initialIndex = 0,
+    this.orderNumber,
   });
 
   @override
@@ -49,8 +65,62 @@ class _ProofMediaViewerPageState extends State<ProofMediaViewerPage> {
     super.dispose();
   }
 
+  /// Bridges to `MainActivity.saveToDownloads`. Android only; iOS has no
+  /// folder a third party app may write into.
+  static const MethodChannel _downloadsChannel = MethodChannel(
+    'com.rahiq.app/downloads',
+  );
+
+  /// `<orderNumber>_<label>.<ext>`, e.g. `10001268-4_mosque_front.jpg`.
+  ///
+  /// The extension is taken from the URL when it looks like one, since the
+  /// name decides which app opens the file later; the media kind gives a sane
+  /// default when the URL carries no extension (signed URLs often don't).
+  String _fileNameFor(ProofMediaItem item) {
+    final path = Uri.parse(item.url).path;
+    final dot = path.lastIndexOf('.');
+    final urlExtension = dot != -1 ? path.substring(dot + 1).toLowerCase() : '';
+    final extension = RegExp(r'^[a-z0-9]{2,4}$').hasMatch(urlExtension)
+        ? urlExtension
+        : (item.isVideo ? 'mp4' : 'jpg');
+
+    // Order numbers are plain like `10001268-4`, but anything a path or
+    // MediaStore would choke on is stripped rather than trusted.
+    final order = (widget.orderNumber ?? '').replaceAll(
+      RegExp(r'[^A-Za-z0-9_-]'),
+      '',
+    );
+    final prefix = order.isEmpty ? '' : '${order}_';
+
+    return '$prefix${item.fileLabel}.$extension';
+  }
+
+  String _mimeTypeFor(String fileName, bool isVideo) {
+    final extension = fileName.split('.').last.toLowerCase();
+    switch (extension) {
+      case 'jpg':
+      case 'jpeg':
+        return 'image/jpeg';
+      case 'png':
+        return 'image/png';
+      case 'webp':
+        return 'image/webp';
+      case 'heic':
+        return 'image/heic';
+      case 'mp4':
+        return 'video/mp4';
+      case 'mov':
+        return 'video/quicktime';
+      default:
+        return isVideo ? 'video/mp4' : 'image/jpeg';
+    }
+  }
+
   Future<void> _downloadCurrent() async {
-    final url = widget.mediaItems[_currentIndex].url;
+    final item = widget.mediaItems[_currentIndex];
+    final fileName = _fileNameFor(item);
+    var isLoaderShowing = false;
+
     try {
       showDialog(
         context: context,
@@ -59,34 +129,65 @@ class _ProofMediaViewerPageState extends State<ProofMediaViewerPage> {
           child: WaterLoadingIndicator(waveColor1: Colors.white),
         ),
       );
+      isLoaderShowing = true;
 
-      final uri = Uri.parse(url);
-      final filename = uri.pathSegments.isNotEmpty
-          ? uri.pathSegments.last
-          : 'downloaded_file';
-
+      // Downloaded under its final name so that the share sheet fallback
+      // offers the same name the Downloads copy would have had.
       final tempDir = await getTemporaryDirectory();
-      final filePath = '${tempDir.path}/$filename';
+      final tempPath = '${tempDir.path}/$fileName';
+      await Dio().download(item.url, tempPath);
 
-      final dio = Dio();
-      await dio.download(url, filePath);
+      // Where a file can be put varies by platform, so each answers with the
+      // message describing where the user will find it. A null means nothing
+      // was kept and the share sheet has to take over.
+      String? savedMessage;
 
-      if (mounted) Navigator.pop(context); // hide loading
-
-      final result = await OpenFilex.open(filePath);
-
-      if (result.type != ResultType.done && mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Could not open file: ${result.message}')),
+      if (Platform.isAndroid) {
+        final savedAs = await _downloadsChannel.invokeMethod<String>(
+          'saveToDownloads',
+          {
+            'path': tempPath,
+            'fileName': fileName,
+            'mimeType': _mimeTypeFor(fileName, item.isVideo),
+          },
         );
+        if (savedAs != null && mounted) {
+          savedMessage = AppLocalizations.of(context)!.saved_to_downloads;
+        }
+      } else if (Platform.isIOS) {
+        // iOS has no shared Downloads folder a third party app may write into.
+        // The app's own Documents folder is the closest equivalent: Info.plist
+        // publishes it to the Files app, so the file shows up under
+        // On My iPhone > Rahiq keeping the name it was given here.
+        final documents = await getApplicationDocumentsDirectory();
+        await File(tempPath).copy('${documents.path}/$fileName');
+        if (mounted) {
+          savedMessage = AppLocalizations.of(context)!.saved_to_files;
+        }
       }
+
+      if (!mounted) return;
+      Navigator.pop(context); // hide loading
+      isLoaderShowing = false;
+
+      if (savedMessage != null) {
+        CustomSnackbar.show(context: context, message: savedMessage);
+        return;
+      }
+
+      // Android 9 and older, where writing to Downloads needs a storage
+      // permission this app does not ask for: hand the named file to the
+      // system sheet so it can still be kept somewhere.
+      await SharePlus.instance.share(ShareParams(files: [XFile(tempPath)]));
     } catch (e) {
-      if (mounted) {
-        Navigator.pop(context); // hide loading
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Failed to download file')),
-        );
-      }
+      log('Failed to download proof media: $e', name: 'ProofMediaViewer');
+      if (!mounted) return;
+      if (isLoaderShowing) Navigator.pop(context); // hide loading
+      CustomSnackbar.show(
+        context: context,
+        isError: true,
+        message: AppLocalizations.of(context)!.download_failed,
+      );
     }
   }
 
@@ -127,7 +228,7 @@ class _ProofMediaViewerPageState extends State<ProofMediaViewerPage> {
           IconButton(
             icon: const Icon(Icons.download),
             onPressed: _downloadCurrent,
-            tooltip: 'Download',
+            tooltip: AppLocalizations.of(context)!.download,
           ),
         ],
       ),

@@ -57,6 +57,18 @@ class AppLocalizationsAr extends AppLocalizations {
   String get copied_to_clipboard => 'تم النسخ';
 
   @override
+  String get download => 'تنزيل';
+
+  @override
+  String get saved_to_downloads => 'تم الحفظ في مجلد التنزيلات';
+
+  @override
+  String get saved_to_files => 'تم الحفظ في تطبيق الملفات';
+
+  @override
+  String get download_failed => 'فشل التنزيل';
+
+  @override
   String get select_bank_transfer => 'اختر بنكًا للتحويل';
 
   @override

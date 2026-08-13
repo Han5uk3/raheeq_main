@@ -57,6 +57,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get copied_to_clipboard => 'Copied to clipboard';
 
   @override
+  String get download => 'Download';
+
+  @override
+  String get saved_to_downloads => 'Saved to Downloads';
+
+  @override
+  String get saved_to_files => 'Saved to Files';
+
+  @override
+  String get download_failed => 'Download failed';
+
+  @override
   String get select_bank_transfer => 'Select a bank for the transfer';
 
   @override
