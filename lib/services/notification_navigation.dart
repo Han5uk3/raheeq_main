@@ -41,7 +41,7 @@ class NotificationNavigator {
   static const int deliveredOrdersTab = 2;
 
   /// Payload keys the API uses for the order a notification is about.
-  static const List<String> _orderIdKeys = ['subOrderId', 'orderId'];
+  static const List<String> _orderIdKeys = ['subOrderId'];
 
   /// The delivery confirmation — the one notification that opens a page. The
   /// API names it `order_confirmed` ("Delivery Confirmed … you can now view
