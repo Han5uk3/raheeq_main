@@ -188,6 +188,30 @@ abstract class AppLocalizations {
   /// **'IBAN Accounts'**
   String get iban_accounts;
 
+  /// No description provided for @download.
+  ///
+  /// In en, this message translates to:
+  /// **'Download'**
+  String get download;
+
+  /// No description provided for @saved_to_downloads.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved to Downloads'**
+  String get saved_to_downloads;
+
+  /// No description provided for @saved_to_files.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved to Files'**
+  String get saved_to_files;
+
+  /// No description provided for @download_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Download failed'**
+  String get download_failed;
+
   /// No description provided for @select_bank_transfer.
   ///
   /// In en, this message translates to:
