@@ -21,12 +21,12 @@ const double _slotLineHeight = 1.25;
 const int _slotMaxLines = 2;
 
 const double _slotTitleFontSize = 12;
-const double _slotSubtitleFontSize = 10;
+const double _slotSubtitleFontSize = 9;
 const double _slotPriceFontSize = 14;
 
 const double _slotCardWidth = 125;
 const double _slotCardMargin = 4; // Card's own default margin
-const double _slotContentPadding = 12; // horizontal padding inside the card
+const double _slotContentPadding = 8; // horizontal padding inside the card
 
 /// Width the card's text actually gets to lay out in.
 const double _slotTextWidth =
@@ -591,7 +591,7 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
               // Details
               Expanded(
                 child: Padding(
-                  padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+                  padding: const EdgeInsets.fromLTRB(8, 8, 8, 12),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
 

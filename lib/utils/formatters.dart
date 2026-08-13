@@ -33,10 +33,13 @@ class Formatters {
   /// The locale is pinned to en_US so the grouping stays comma based and the
   /// digits stay Western in both languages.
   ///
-  /// [decimals] defaults to 0 for whole amounts and 2 otherwise; pass it
-  /// explicitly when a screen always wants the same number of decimals.
+  /// [decimals] defaults to none for an amount that has no halalas to show —
+  /// whole, or fractional only below what two decimals would render — and 2
+  /// otherwise, so `100` and `100.00` both read as `100` while `100.50` keeps
+  /// its decimals. Pass it explicitly when a screen always wants the same
+  /// number of decimals.
   static String formatPrice(num value, {int? decimals}) {
-    final digits = decimals ?? (value == value.truncateToDouble() ? 0 : 2);
+    final digits = decimals ?? (_hasVisibleFraction(value) ? 2 : 0);
     final format = _priceFormats.putIfAbsent(
       '$digits',
       () => NumberFormat.decimalPatternDigits(
@@ -45,6 +48,14 @@ class Formatters {
       ),
     );
     return format.format(value);
+  }
+
+  /// Whether [value] still has a fractional part once rounded to the two
+  /// decimals a price is rendered with. Amounts like 100.004 round to 100.00,
+  /// which is a whole amount as far as the user can see.
+  static bool _hasVisibleFraction(num value) {
+    final rounded = (value.toDouble() * 100).roundToDouble() / 100;
+    return rounded != rounded.truncateToDouble();
   }
 
   /// `20 June 2026` in English, `20 يونيو 2026` in Arabic.
