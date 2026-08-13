@@ -1,7 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
-import 'package:intl/intl.dart' show DateFormat;
 import 'package:raheeq_main/pages/order/payment_success.dart';
 import 'package:raheeq_main/services/network_monitor.dart';
 import 'package:raheeq_main/services/snackbar_insets_services.dart';
@@ -30,6 +29,7 @@ import 'package:raheeq_main/common_widgets/gift_card_bottom_sheet.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter_paytabs_bridge/BaseBillingShippingInfo.dart';
 import 'package:flutter_paytabs_bridge/PaymentSdkConfigurationDetails.dart';
+import 'package:raheeq_main/utils/formatters.dart';
 
 class ContributionDetailsPage extends StatefulWidget {
   final List<OrderCategoryState> orderStates;
@@ -887,10 +887,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
       type = planFrequency.toString().toUpperCase();
     }
 
-    final dateFormat = DateFormat(
-      'dd MMMM yyyy',
-      Localizations.localeOf(context).languageCode,
-    );
+    String dateFormat(DateTime date) => Formatters.formatDate(context, date);
 
     List<Widget> rows = [];
 
@@ -915,13 +912,13 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
         rows.add(
           _buildSubscriptionRow(
             AppLocalizations.of(context)!.start_date,
-            dateFormat.format(startDate),
+            dateFormat(startDate),
           ),
         );
         rows.add(
           _buildSubscriptionRow(
             AppLocalizations.of(context)!.end_date,
-            dateFormat.format(endDate),
+            dateFormat(endDate),
           ),
         );
       }
@@ -955,7 +952,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
         rows.add(
           _buildSubscriptionRow(
             AppLocalizations.of(context)!.start_date,
-            dateFormat.format(startDate),
+            dateFormat(startDate),
           ),
         );
       }
@@ -963,7 +960,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
         rows.add(
           _buildSubscriptionRow(
             AppLocalizations.of(context)!.end_date,
-            dateFormat.format(endDate),
+            dateFormat(endDate),
           ),
         );
       }
@@ -1017,7 +1014,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
         rows.add(
           _buildSubscriptionRow(
             AppLocalizations.of(context)!.start_date,
-            dateFormat.format(startDate),
+            dateFormat(startDate),
           ),
         );
       }
@@ -1025,7 +1022,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
         rows.add(
           _buildSubscriptionRow(
             AppLocalizations.of(context)!.end_date,
-            dateFormat.format(endDate),
+            dateFormat(endDate),
           ),
         );
       }
@@ -1146,7 +1143,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                   style: const TextStyle(fontSize: 14, color: Colors.white70),
                 ),
                 titleWidget: Text(
-                  "\u202A${AppLocalizations.of(context)!.sar_currency} ${_checkoutData.finalTotal.toStringAsFixed(2)}\u202C",
+                  "\u202A${AppLocalizations.of(context)!.sar_currency} ${Formatters.formatPrice(_checkoutData.finalTotal, decimals: 2)}\u202C",
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -1554,7 +1551,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                                             .start,
                                                     children: [
                                                       Text(
-                                                        "${AppLocalizations.of(context)!.available_colon} \u202A${AppLocalizations.of(context)!.sar_currency} ${_checkoutData.walletBalance.toStringAsFixed(2)}\u202C",
+                                                        "${AppLocalizations.of(context)!.available_colon} \u202A${AppLocalizations.of(context)!.sar_currency} ${Formatters.formatPrice(_checkoutData.walletBalance, decimals: 2)}\u202C",
                                                         style: const TextStyle(
                                                           fontSize: 14,
                                                           color: Colors.black,
@@ -1664,7 +1661,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                               ),
                                             ),
                                             Text(
-                                              "\u202A${AppLocalizations.of(context)!.sar_currency} ${(sp.product.price * sp.quantity).toStringAsFixed(2)}\u202C",
+                                              "\u202A${AppLocalizations.of(context)!.sar_currency} ${Formatters.formatPrice(sp.product.price * sp.quantity, decimals: 2)}\u202C",
                                               style: const TextStyle(
                                                 fontSize: 15,
                                                 fontWeight: FontWeight.w700,
@@ -1742,7 +1739,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                           ),
                                         ),
                                         Text(
-                                          "\u202A${AppLocalizations.of(context)!.sar_currency} ${_checkoutData.finalTotal.toStringAsFixed(2)}\u202C",
+                                          "\u202A${AppLocalizations.of(context)!.sar_currency} ${Formatters.formatPrice(_checkoutData.finalTotal, decimals: 2)}\u202C",
                                           style: const TextStyle(
                                             fontSize: 16,
                                             fontWeight: FontWeight.bold,
@@ -2477,7 +2474,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
           Row(
             children: [
               Text(
-                "\u202A${AppLocalizations.of(context)!.sar_currency} ${value.toStringAsFixed(2)}\u202C",
+                "\u202A${AppLocalizations.of(context)!.sar_currency} ${Formatters.formatPrice(value, decimals: 2)}\u202C",
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: isFree ? FontWeight.normal : FontWeight.w600,

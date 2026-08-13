@@ -21,6 +21,7 @@ import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:raheeq_main/utils/formatters.dart';
 
 class CampaignDetailPage extends StatefulWidget {
   final Campaign campaign;
@@ -707,7 +708,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                               ),
                             ),
                             Text(
-                              "\u202A${AppLocalizations.of(context)!.sar_currency} ${price.toStringAsFixed(price.truncateToDouble() == price ? 0 : 2)}\u202C",
+                              "\u202A${AppLocalizations.of(context)!.sar_currency} ${Formatters.formatPrice(price)}\u202C",
                               style: TextStyle(
                                 fontSize: 12,
                                 color:
@@ -960,7 +961,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
           style: const TextStyle(fontSize: 14, color: Colors.white70),
         ),
         titleWidget: Text(
-          "\u202A${AppLocalizations.of(context)!.sar_currency} ${total.toStringAsFixed(total.truncateToDouble() == total ? 0 : 2)}\u202C",
+          "\u202A${AppLocalizations.of(context)!.sar_currency} ${Formatters.formatPrice(total)}\u202C",
           style: const TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.bold,

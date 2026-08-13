@@ -13,6 +13,7 @@ import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 
 import 'package:flutter/services.dart';
+import 'package:raheeq_main/utils/formatters.dart';
 
 class IbanPaymentPage extends StatefulWidget {
   final bool isAr;
@@ -291,7 +292,7 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
                               ),
                             ),
                                 Text(
-                                  '\u202C${widget.checkoutData.finalTotal.toStringAsFixed(2)} ${AppLocalizations.of(context)!.sar_currency}\u202C',
+                                  '\u202A${Formatters.formatPrice(widget.checkoutData.finalTotal, decimals: 2)} ${AppLocalizations.of(context)!.sar_currency}\u202C',
                                   style: TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,

@@ -19,6 +19,7 @@ import 'package:raheeq_main/common_widgets/subscription_details_bottom_sheet.dar
 import 'package:raheeq_main/models/subscription_plan.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
+import 'package:raheeq_main/utils/formatters.dart';
 
 class ReviewOrderPage extends StatefulWidget {
   final List<OrderCategoryState> orderStates;
@@ -563,7 +564,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage>
               ],
             ),
             titleWidget: Text(
-              "\u202A${AppLocalizations.of(context)!.sar_currency} ${_totalPrice.toStringAsFixed(2)}\u202C",
+              "\u202A${AppLocalizations.of(context)!.sar_currency} ${Formatters.formatPrice(_totalPrice, decimals: 2)}\u202C",
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,

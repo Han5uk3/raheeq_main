@@ -1,3 +1,5 @@
+import 'package:raheeq_main/utils/formatters.dart';
+
 class Product {
   final String id;
   final int serialNumber;
@@ -109,9 +111,7 @@ class Product {
   /// Formats the unit price as a localised string (including delivery fee).
   String formattedPrice(String suffix) {
     final double totalUnitPrice = price + deliveryFee;
-    final formatted = totalUnitPrice.toStringAsFixed(
-      totalUnitPrice.truncateToDouble() == totalUnitPrice ? 0 : 2,
-    );
+    final formatted = Formatters.formatPrice(totalUnitPrice);
     return '\u202A$suffix $formatted\u202C';
   }
 }

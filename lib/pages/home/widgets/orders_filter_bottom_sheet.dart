@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/utils/colors.dart';
+import 'package:raheeq_main/utils/formatters.dart';
 
 /// The four fixed "Order Date" period options offered to the user.
 enum OrderPeriod { thisMonth, lastMonth, last6Months, thisYear }
@@ -72,15 +73,14 @@ class OrdersFilterSelection {
 /// Localized display label for a period option, e.g. "August 2026",
 /// "July 2026", "Last 6 Months" or "This Year (2026)".
 String orderPeriodLabel(BuildContext context, OrderPeriod period) {
-  final locale = Localizations.localeOf(context).languageCode;
   final now = DateTime.now();
 
   switch (period) {
     case OrderPeriod.thisMonth:
-      return DateFormat('MMMM yyyy', locale).format(now);
+      return Formatters.formatMonthYear(context, now);
     case OrderPeriod.lastMonth:
       final lastMonth = DateTime(now.year, now.month - 1, 1);
-      return DateFormat('MMMM yyyy', locale).format(lastMonth);
+      return Formatters.formatMonthYear(context, lastMonth);
     case OrderPeriod.last6Months:
       return AppLocalizations.of(context)!.last_6_months;
     case OrderPeriod.thisYear:

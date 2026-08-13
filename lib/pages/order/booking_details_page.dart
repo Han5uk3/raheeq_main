@@ -15,8 +15,8 @@ import 'package:raheeq_main/pages/order/proof_media_viewer_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:raheeq_main/services/deep_link_service.dart';
-import 'package:intl/intl.dart' show DateFormat;
 import 'package:video_player/video_player.dart';
+import 'package:raheeq_main/utils/formatters.dart';
 
 class BookingDetailsPage extends StatefulWidget {
   final String orderId;
@@ -809,7 +809,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
           ),
         ),
         Text(
-          '\u202A${AppLocalizations.of(context)!.sar_currency} $amount\u202C',
+          '\u202A${AppLocalizations.of(context)!.sar_currency} ${Formatters.formatPrice(amount)}\u202C',
           style: TextStyle(
             fontSize: isTotal ? 16 : 14,
             fontWeight: FontWeight.bold,
@@ -909,11 +909,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
 
     String formattedDate = '';
     if (date != null) {
-      final locale = Localizations.localeOf(context).languageCode;
-      formattedDate = DateFormat(
-        'MMM dd, yyyy - hh:mm a',
-        locale,
-      ).format(date.toLocal());
+      formattedDate = Formatters.formatDateTime(context, date);
     }
 
     return Row(

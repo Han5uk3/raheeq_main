@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart' show DateFormat;
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
@@ -9,6 +8,7 @@ import 'package:raheeq_main/models/order_response_model.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:video_player/video_player.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:raheeq_main/utils/formatters.dart';
 
 class TrackSubscriptionDeliveryPage extends StatefulWidget {
   final String orderId;
@@ -551,11 +551,7 @@ class _TrackSubscriptionDeliveryPageState
 
     String formattedDate = '';
     if (date != null) {
-      final locale = Localizations.localeOf(context).languageCode;
-      formattedDate = DateFormat(
-        'MMM dd, yyyy - hh:mm a',
-        locale,
-      ).format(date.toLocal());
+      formattedDate = Formatters.formatDateTime(context, date);
     }
 
     return Row(

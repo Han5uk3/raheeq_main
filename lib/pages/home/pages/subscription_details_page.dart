@@ -1,6 +1,5 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart' show DateFormat;
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
@@ -10,6 +9,7 @@ import 'package:raheeq_main/models/subscription_details_model.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:raheeq_main/pages/home/pages/track_subscription_delivery_page.dart';
+import 'package:raheeq_main/utils/formatters.dart';
 
 class SubscriptionDetailsPage extends StatefulWidget {
   final String subscriptionId;
@@ -283,8 +283,7 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
   }
 
   Widget _buildInfoCard(bool isAr) {
-    final locale = Localizations.localeOf(context).languageCode;
-    final dateFormat = DateFormat('MMM dd, yyyy', locale);
+    String dateFormat(DateTime date) => Formatters.formatDate(context, date);
     return Card(
       color: Colors.white,
       elevation: 2,
@@ -338,12 +337,12 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
             const SizedBox(height: 8),
             _buildDetailRow(
               AppLocalizations.of(context)!.start_date,
-              dateFormat.format(_details!.startDate.toLocal()),
+              dateFormat(_details!.startDate),
             ),
             const SizedBox(height: 8),
             _buildDetailRow(
               AppLocalizations.of(context)!.end_date,
-              dateFormat.format(_details!.endDate.toLocal()),
+              dateFormat(_details!.endDate),
             ),
             const SizedBox(height: 8),
             _buildDetailRow(
@@ -353,7 +352,7 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
             const SizedBox(height: 8),
             _buildDetailRow(
               AppLocalizations.of(context)!.total_amount,
-              '\u202A${AppLocalizations.of(context)!.sar_currency} ${_details!.totalAmount}\u202C',
+              '\u202A${AppLocalizations.of(context)!.sar_currency} ${Formatters.formatPrice(_details!.totalAmount)}\u202C',
               isBold: true,
             ),
             if (_details!.invoiceUrl != null &&
@@ -442,9 +441,7 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
   }
 
   Widget _buildDeliveryCard(SubscriptionDeliveryModel delivery, bool isAr) {
-    final dateFormat = DateFormat.yMMMd(
-      Localizations.localeOf(context).languageCode,
-    );
+    String dateFormat(DateTime date) => Formatters.formatDate(context, date);
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -499,12 +496,8 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
                             const SizedBox(width: 8),
                             Text(
                               delivery.scheduledDate != null
-                                  ? dateFormat.format(
-                                      delivery.scheduledDate!.toLocal(),
-                                    )
-                                  : dateFormat.format(
-                                      delivery.createdAt.toLocal(),
-                                    ),
+                                  ? dateFormat(delivery.scheduledDate!)
+                                  : dateFormat(delivery.createdAt),
                               style: const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,

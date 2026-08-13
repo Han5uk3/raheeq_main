@@ -7,6 +7,7 @@ import 'package:raheeq_main/models/product.dart';
 import 'package:raheeq_main/models/selected_category_item.dart';
 import 'package:raheeq_main/pages/order/order_details_page.dart';
 import 'package:raheeq_main/utils/colors.dart';
+import 'package:raheeq_main/utils/formatters.dart';
 
 // Every text row in a card reserves the same height across the whole list, so
 // one card whose text wraps cannot shift the rows on the cards beside it — the
@@ -91,7 +92,7 @@ String _slotSubtitleText(_ProductSlot slot, bool isAr) =>
 String _slotPriceText(BuildContext context, _ProductSlot slot) {
   final total = slot.product.price * slot.quantity;
   return '\u202A${AppLocalizations.of(context)!.sar_currency} '
-      '${total.toStringAsFixed(0)}\u202C';
+      '${Formatters.formatPrice(total, decimals: 0)}\u202C';
 }
 
 // A lightweight model to represent one "slot" in the horizontal list

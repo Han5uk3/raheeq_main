@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:intl/intl.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
@@ -12,6 +11,7 @@ import 'package:raheeq_main/pages/order/contribution_details_page.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/utils/rtl_helpers.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
+import 'package:raheeq_main/utils/formatters.dart';
 
 class SubscriptionDetailsBottomSheet extends StatefulWidget {
   final SubscriptionPlan plan;
@@ -218,7 +218,7 @@ class _SubscriptionDetailsBottomSheetState
                 const SizedBox(height: 2),
                 Text(
                   date != null
-                      ? DateFormat('MMM dd, yyyy').format(date)
+                      ? Formatters.formatDate(context, date)
                       : (AppLocalizations.of(context)!.select_date),
                   style: const TextStyle(
                     fontSize: 14,
