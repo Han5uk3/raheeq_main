@@ -412,6 +412,13 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
           ),
           onPressed: () {
             Clipboard.setData(ClipboardData(text: value));
+            Platform.isIOS
+                ? CustomSnackbar.show(
+                    isError: false,
+                    context: context,
+                    message: AppLocalizations.of(context)!.copied_to_clipboard,
+                  )
+                : null;
            
           },
           padding: EdgeInsets.zero,
