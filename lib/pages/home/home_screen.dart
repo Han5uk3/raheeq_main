@@ -173,7 +173,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
             CustomBottomNavItem(
               icon: Icons.support_agent_outlined,
               label: AppLocalizations.of(context)!.contact_us,
-              showBadge: unreadChats > 0,
+              badgeCount: unreadChats,
             ),
             CustomBottomNavItem(
               icon: Icons.person_outline,
