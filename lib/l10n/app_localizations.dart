@@ -182,6 +182,12 @@ abstract class AppLocalizations {
   /// **'IBAN Accounts'**
   String get iban_accounts;
 
+  /// No description provided for @copied_to_clipboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied to clipboard'**
+  String get copied_to_clipboard;
+
   /// No description provided for @select_bank_transfer.
   ///
   /// In en, this message translates to:
@@ -1615,7 +1621,7 @@ abstract class AppLocalizations {
   /// No description provided for @account_number.
   ///
   /// In en, this message translates to:
-  /// **'Account Number:'**
+  /// **'Account No:'**
   String get account_number;
 
   /// No description provided for @no_bank_accounts_available.

@@ -54,6 +54,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get iban_accounts => 'حسابات IBAN';
 
   @override
+  String get copied_to_clipboard => 'تم النسخ';
+
+  @override
   String get select_bank_transfer => 'اختر بنكًا للتحويل';
 
   @override

@@ -12,6 +12,7 @@
   "welcome": "أهلاً",
   "continue_btn": "متابعة",
   "iban_accounts": "حسابات IBAN",
+  "copied_to_clipboard": "تم النسخ",
   "select_bank_transfer": "اختر بنكًا للتحويل",
   "order": "طلب",
   "available_colon": "متاح :",

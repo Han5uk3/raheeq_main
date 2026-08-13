@@ -54,6 +54,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get iban_accounts => 'IBAN Accounts';
 
   @override
+  String get copied_to_clipboard => 'Copied to clipboard';
+
+  @override
   String get select_bank_transfer => 'Select a bank for the transfer';
 
   @override
@@ -800,7 +803,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get one_transaction_number => 'Transaction Number';
 
   @override
-  String get account_number => 'Account Number:';
+  String get account_number => 'Account No:';
 
   @override
   String get no_bank_accounts_available => 'No bank accounts available';
