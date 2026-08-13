@@ -327,7 +327,7 @@ class _MyWalletPageState extends State<MyWalletPage> {
           ),
           const SizedBox(height: 8),
           Text(
-            '\u202A${AppLocalizations.of(context)!.sar_currency} ${Formatters.formatPrice(_balance, decimals: 2)}\u202C',
+            '\u202A${AppLocalizations.of(context)!.sar_currency} ${Formatters.formatPrice(_balance)}\u202C',
 
             style: const TextStyle(
               color: Colors.white,

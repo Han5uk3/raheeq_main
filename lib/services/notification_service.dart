@@ -225,10 +225,7 @@ class NotificationService {
     // a push tap and a tap in the list land on the same page with the same
     // back stack. Order confirmations resolve to null and open nothing.
     final payload = (innerData is Map) ? innerData : data;
-    final destination = NotificationNavigator.destinationFor(
-      payload,
-      fallbackToOrders: false,
-    );
+    final destination = NotificationNavigator.destinationFor(payload);
     if (destination == null) return;
 
     NotificationNavigator.open(destination);

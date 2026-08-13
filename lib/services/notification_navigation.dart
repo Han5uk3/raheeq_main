@@ -37,68 +37,40 @@ class NotificationNavigator {
   static const int homeTabIndex = 0;
   static const int ordersTabIndex = 1;
 
-  /// Tab indices inside [OrdersTab].
-  static const int upcomingOrdersTab = 0;
-  static const int outForDeliveryOrdersTab = 1;
+  /// Tab index of the delivered orders inside [OrdersTab].
   static const int deliveredOrdersTab = 2;
 
   /// Payload keys the API uses for the order a notification is about.
-  static const List<String> _orderIdKeys = [
-    'subOrderId',
-    'suborderid',
-    'orderId',
-    'orderid',
-    'id',
+  static const List<String> _orderIdKeys = ['subOrderId', 'orderId'];
+
+  /// The delivery confirmation — the one notification that opens a page. The
+  /// API names it `order_confirmed` ("Delivery Confirmed … you can now view
+  /// the delivery proof"); the alias is here in case that name is ever
+  /// spelled the way it reads.
+  static const List<String> _deliveryConfirmedTypes = [
+    'order_confirmed',
+    'delivery_confirmed',
   ];
 
   /// Resolves a notification payload to its destination, or null when the
-  /// notification opens nothing (marketing, payment confirmations).
+  /// notification opens nothing.
   ///
-  /// Types are matched loosely because the payload vocabulary is the API's:
-  /// anything about a delivery lands on the delivered orders and anything
-  /// about a delivery in progress lands on out-for-delivery.
-  ///
-  /// [fallbackToOrders] decides what an unrecognised type does. A tap in the
-  /// in-app list should always go somewhere, so it falls back to the orders
-  /// list; a push tap stays put rather than yanking the user out of what they
-  /// were doing for a notification this app does not know how to open.
-  static NotificationDestination? destinationFor(
-    Map<dynamic, dynamic> data, {
-    bool fallbackToOrders = true,
-  }) {
-    if (data['category']?.toString().toUpperCase() == 'MARKETING') return null;
-
+  /// Only a delivery confirmation navigates, and only when it names the order
+  /// it is about. Every other notification — review updates, payment
+  /// approvals, marketing — is read-only: tapping it marks it read and leaves
+  /// the user where they were.
+  static NotificationDestination? destinationFor(Map<dynamic, dynamic> data) {
     final type = data['type']?.toString().toLowerCase() ?? '';
-
-    if (type == 'order_confirmed') return null;
-
-    if (type == 'payment_approved') {
-      return const NotificationDestination(
-        homeTab: ordersTabIndex,
-        ordersInnerTab: upcomingOrdersTab,
-      );
-    }
+    if (!_deliveryConfirmedTypes.contains(type)) return null;
 
     final orderId = _orderIdFrom(data);
+    if (orderId == null) return null;
 
-    if (type.contains('out_for_delivery') || type.contains('on_the_way')) {
-      return NotificationDestination(
-        homeTab: ordersTabIndex,
-        ordersInnerTab: outForDeliveryOrdersTab,
-        page: _orderDetailsPage(orderId),
-      );
-    }
-
-    if (type.contains('deliver')) {
-      return NotificationDestination(
-        homeTab: ordersTabIndex,
-        ordersInnerTab: deliveredOrdersTab,
-        page: _orderDetailsPage(orderId),
-      );
-    }
-
-    if (!fallbackToOrders) return null;
-    return const NotificationDestination(homeTab: ordersTabIndex);
+    return NotificationDestination(
+      homeTab: ordersTabIndex,
+      ordersInnerTab: deliveredOrdersTab,
+      page: (_) => BookingDetailsPage(orderId: orderId),
+    );
   }
 
   /// Opens [destination]. Pass a [context] when one is at hand; otherwise the
@@ -148,11 +120,6 @@ class NotificationNavigator {
       ),
       context: context,
     );
-  }
-
-  static WidgetBuilder? _orderDetailsPage(String? orderId) {
-    if (orderId == null) return null;
-    return (_) => BookingDetailsPage(orderId: orderId);
   }
 
   static String? _orderIdFrom(Map<dynamic, dynamic> data) {

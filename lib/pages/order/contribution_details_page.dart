@@ -1551,7 +1551,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                                             .start,
                                                     children: [
                                                       Text(
-                                                        "${AppLocalizations.of(context)!.available_colon} \u202A${AppLocalizations.of(context)!.sar_currency} ${Formatters.formatPrice(_checkoutData.walletBalance, decimals: 2)}\u202C",
+                                                        "${AppLocalizations.of(context)!.available_colon} \u202A${AppLocalizations.of(context)!.sar_currency} ${Formatters.formatPrice(_checkoutData.walletBalance)}\u202C",
                                                         style: const TextStyle(
                                                           fontSize: 14,
                                                           color: Colors.black,
