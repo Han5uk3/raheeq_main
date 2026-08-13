@@ -662,6 +662,14 @@ class _ProfileTabState extends State<ProfileTab> {
                       ],
                       const SizedBox(height: 24),
                       _buildSocialMediaRow(),
+                      const SizedBox(height: 24),
+                      Center(
+                        child: Text(
+                          "${AppLocalizations.of(context)!.version}: 0.1.0",
+                          style: TextStyle(color: Colors.grey, fontSize: 13),
+                        ),
+                      ),
+                
                       const SizedBox(height: 120),
                     ],
                   ),
@@ -757,8 +765,7 @@ class _ProfileTabState extends State<ProfileTab> {
   }
 
   Widget _buildSocialMediaRow() {
-    return Column(
-      children: [
+    return 
      
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -783,8 +790,7 @@ class _ProfileTabState extends State<ProfileTab> {
               onTap: _shareApp,
             ),
           ],
-        ),
-      ],
+    
     );
   }
 
