@@ -21,6 +21,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get welcome => 'Ahlan';
 
   @override
+  String get copied_to_clipboard => 'Copied to clipboard';
+
+  @override
   String get onboard1_title => 'Give with Purpose';
 
   @override

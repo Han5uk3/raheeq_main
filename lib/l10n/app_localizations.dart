@@ -122,6 +122,12 @@ abstract class AppLocalizations {
   /// **'Ahlan'**
   String get welcome;
 
+  /// No description provided for @copied_to_clipboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied to clipboard'**
+  String get copied_to_clipboard;
+
   /// No description provided for @onboard1_title.
   ///
   /// In en, this message translates to:

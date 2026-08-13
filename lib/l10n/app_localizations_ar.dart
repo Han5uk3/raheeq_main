@@ -21,6 +21,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get welcome => 'أهلاً';
 
   @override
+  String get copied_to_clipboard => 'تم النسخ إلى الحافظة';
+
+  @override
   String get onboard1_title => 'تبرع بهدف';
 
   @override

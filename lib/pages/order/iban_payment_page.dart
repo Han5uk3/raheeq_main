@@ -412,10 +412,13 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
           ),
           onPressed: () {
             Clipboard.setData(ClipboardData(text: value));
-            CustomSnackbar.show(
-              context: context,
-              message: 'Copied to clipboard',
-            );
+            Platform.isIOS
+                ? CustomSnackbar.show(
+                    isError: false,
+                    context: context,
+                    message: AppLocalizations.of(context)!.copied_to_clipboard,
+                  )
+                : null;
           },
           padding: EdgeInsets.zero,
           constraints: const BoxConstraints(),
