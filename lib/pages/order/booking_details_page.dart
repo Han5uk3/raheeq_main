@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:open_filex/open_filex.dart';
@@ -15,6 +16,8 @@ import 'package:raheeq_main/pages/order/proof_media_viewer_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:raheeq_main/services/deep_link_service.dart';
+import 'package:raheeq_main/storage/auth_storage.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 import 'package:raheeq_main/utils/formatters.dart';
 
@@ -118,14 +121,35 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
     );
 
     try {
+      final uri = _resolveInvoiceUri(invoiceUrl);
+
       // Force a .pdf extension on the local file regardless of the source
       // URL's shape, so the OS resolves the "open with" intent to a PDF
       // viewer instead of falling back to a browser.
       final tempDir = await getTemporaryDirectory();
       final filePath =
-          '${tempDir.path}/invoice_${DateTime.now().millisecondsSinceEpoch}.pdf';
+          '${tempDir.path}/invoice_'
+          '${_order?.subOrderNumber ?? DateTime.now().millisecondsSinceEpoch}'
+          '.pdf';
 
-      await Dio().download(invoiceUrl, filePath);
+      final response = await Dio().download(
+        uri.toString(),
+        filePath,
+        options: Options(headers: await _invoiceHeaders(uri)),
+      );
+
+      // Whatever the server sent is now sitting in a file named .pdf, which
+      // every viewer will take at face value. An HTML error page or a JSON
+      // envelope saved under that name is what a reader reports back as "of
+      // invalid format", so check the bytes before handing the file over.
+      final file = File(filePath);
+      final problem = await _pdfProblem(file);
+      if (problem != null) {
+        await _logBadInvoice(uri, response, file, problem);
+        if (mounted) Navigator.pop(context); // hide loading
+        await _openInvoiceInBrowser(uri);
+        return;
+      }
 
       if (mounted) Navigator.pop(context); // hide loading
 
@@ -147,6 +171,106 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
         );
       }
     }
+  }
+
+  /// Last resort when the download did not produce a PDF: hand the URL to the
+  /// browser. What the API returns today is a Daftra portal page rather than a
+  /// file, and a browser can at least render it — with the session cookies and
+  /// the login form the download had no way of carrying.
+  Future<void> _openInvoiceInBrowser(Uri uri) async {
+    var launched = false;
+    try {
+      launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
+    } catch (e) {
+      log(
+        'Could not open the invoice in a browser: $e',
+        name: 'BookingDetailsPage',
+        error: e,
+      );
+    }
+
+    if (!launched && mounted) {
+      CustomSnackbar.show(
+        context: context,
+        isError: true,
+        message: AppLocalizations.of(context)!.could_not_open_invoice,
+      );
+    }
+  }
+
+  /// The invoice URL as the API gave it, resolved against the API host when it
+  /// arrives as a path rather than a full URL.
+  Uri _resolveInvoiceUri(String invoiceUrl) {
+    final uri = Uri.parse(invoiceUrl.trim());
+    if (uri.hasScheme) return uri;
+    return Uri.parse(ApiService.baseUrl).resolve(invoiceUrl.trim());
+  }
+
+  /// Sends the session token only for invoices served by our own API. A
+  /// presigned storage URL carries its own credentials in the query string and
+  /// rejects the request outright if an Authorization header is added on top.
+  Future<Map<String, String>?> _invoiceHeaders(Uri uri) async {
+    if (uri.host != Uri.parse(ApiService.baseUrl).host) return null;
+    final token = AuthStorage.accessToken;
+    if (token == null) return null;
+    return {'Authorization': 'Bearer $token'};
+  }
+
+  /// [count] bytes of [file] starting at [from], or fewer when it is shorter.
+  Future<List<int>> _readBytes(File file, {int from = 0, int count = 1024}) async {
+    if (!await file.exists()) return const [];
+    final handle = await file.open();
+    try {
+      if (from > 0) await handle.setPosition(from);
+      return await handle.read(count);
+    } finally {
+      await handle.close();
+    }
+  }
+
+  /// What is wrong with the downloaded invoice, or null when it is a PDF a
+  /// reader will accept.
+  ///
+  /// Both ends are checked. The header can sit a little way in — some
+  /// generators emit a byte order mark or a stray newline first, which readers
+  /// tolerate — while a missing trailer means the download was cut short, and
+  /// a half-written PDF is reported by readers the same way a non-PDF is.
+  Future<String?> _pdfProblem(File file) async {
+    if (!await file.exists()) return 'no file was written';
+
+    final length = await file.length();
+    if (length == 0) return 'the file is empty';
+
+    final head = String.fromCharCodes(await _readBytes(file, count: 1024));
+    if (!head.contains('%PDF-')) return 'not a PDF';
+
+    final tailStart = length > 1024 ? length - 1024 : 0;
+    final tail = String.fromCharCodes(
+      await _readBytes(file, from: tailStart, count: 1024),
+    );
+    if (!tail.contains('%%EOF')) return 'truncated: no %%EOF trailer';
+
+    return null;
+  }
+
+  Future<void> _logBadInvoice(
+    Uri uri,
+    Response<dynamic> response,
+    File file,
+    String problem,
+  ) async {
+    final length = await file.exists() ? await file.length() : 0;
+    final head = String.fromCharCodes(await _readBytes(file, count: 200));
+    log(
+      'Invoice is not usable — $problem.\n'
+      'url: $uri\n'
+      'status: ${response.statusCode}\n'
+      'content-type: ${response.headers.value('content-type')}\n'
+      'content-length header: ${response.headers.value('content-length')}\n'
+      'bytes written: $length\n'
+      'starts with: $head',
+      name: 'BookingDetailsPage',
+    );
   }
 
   @override
