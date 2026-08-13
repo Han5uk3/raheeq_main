@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io' show Platform;
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -85,10 +86,15 @@ class FreshchatService {
     // Freshchat only ever pushes to whatever token was last handed to it via
     // setPushRegistrationToken, so it has to be re-sent on every refresh, not
     // just once at startup.
-    FirebaseMessaging.instance.onTokenRefresh.listen((token) {
-      Freshchat.setPushRegistrationToken(token);
-      log("Freshchat push registration token refreshed.", name: "FreshchatService");
-    });
+    if (Platform.isAndroid) {
+      FirebaseMessaging.instance.onTokenRefresh.listen((token) {
+        Freshchat.setPushRegistrationToken(token);
+        log(
+          "Freshchat push registration token refreshed.",
+          name: "FreshchatService",
+        );
+      });
+    }
 
     // Listen for the restore ID generation when the user sends their first message
     Freshchat.onRestoreIdGenerated.listen((event) async {
@@ -138,7 +144,14 @@ class FreshchatService {
   /// admin JSON / APNs auth key only let Freshchat's backend send through our
   /// Firebase project — it still needs this per-device token, which only the
   /// app can provide, or it has nothing to push to.
+  ///
+  /// Android only. The plugin's iOS `setPushRegistrationToken` takes the raw
+  /// APNs token as `NSData`, which an FCM token string is not — that side is
+  /// registered from `AppDelegate.didRegisterForRemoteNotifications`, the only
+  /// place the real token exists.
   static Future<void> registerPushToken() async {
+    if (!Platform.isAndroid) return;
+
     try {
       final token = await FirebaseMessaging.instance.getToken();
       if (token != null && token.isNotEmpty) {
