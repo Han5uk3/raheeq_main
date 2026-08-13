@@ -16,6 +16,23 @@ class HomeScreen extends StatefulWidget {
   /// Write a tab index to this notifier to switch the bottom nav tab remotely.
   static final ValueNotifier<int?> switchTabNotifier = ValueNotifier(null);
 
+  /// Name carried by every home screen route, so a notification tap can pop
+  /// back down to the existing home screen — see `NotificationNavigator`.
+  static const String routeName = '/home';
+
+  /// The route for the home screen. Everything that opens it goes through
+  /// here, which is what keeps [routeName] on the route.
+  static Route<void> route() => MaterialPageRoute(
+    settings: const RouteSettings(name: routeName),
+    builder: (_) => const HomeScreen(),
+  );
+
+  static int _liveCount = 0;
+
+  /// Whether a home screen is currently in the tree. When it is false there is
+  /// nothing to pop back to and a fresh home screen has to be built.
+  static bool get isLive => _liveCount > 0;
+
   @override
   State<HomeScreen> createState() => _HomeScreenState();
 }
@@ -40,6 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    HomeScreen._liveCount++;
     HomeScreen.switchTabNotifier.addListener(_onSwitchTab);
     _onSwitchTab(); // Process any pre-set tab value
     DeepLinkService().init();
@@ -49,6 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   void dispose() {
+    HomeScreen._liveCount--;
     HomeScreen.switchTabNotifier.removeListener(_onSwitchTab);
     super.dispose();
   }

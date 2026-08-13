@@ -3,9 +3,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:flutter/foundation.dart';
 import 'package:freshchat_sdk/freshchat_sdk.dart' hide Importance, Priority;
-import 'package:raheeq_main/pages/home/home_screen.dart';
-import 'package:raheeq_main/storage/auth_storage.dart';
-import 'package:raheeq_main/pages/home/pages/orders_tab.dart';
+import 'package:raheeq_main/services/notification_navigation.dart';
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
@@ -223,27 +221,16 @@ class NotificationService {
     // The data payload from RemoteMessage.toMap() is under the 'data' key
     final innerData = data['data'];
 
-    // Helper to handle the actual navigation
-    void handleNavigation(String? type, Map? payloadData) {
-      if (type == 'payment_approved') {
-        // 1 is the index for OrdersTab in HomeScreen
-        HomeScreen.switchTabNotifier.value = 1;
-        // Set New Orders tab (index 0) inside OrdersTab
-        OrdersTab.switchInnerTabNotifier.value = 0;
+    // Routed through the same resolver the in-app notifications list uses, so
+    // a push tap and a tap in the list land on the same page with the same
+    // back stack. Order confirmations resolve to null and open nothing.
+    final payload = (innerData is Map) ? innerData : data;
+    final destination = NotificationNavigator.destinationFor(
+      payload,
+      fallbackToOrders: false,
+    );
+    if (destination == null) return;
 
-        // Pop any opened pages to return to the root HomeScreen
-        AuthStorage.navigatorKey.currentState?.popUntil(
-          (route) => route.isFirst,
-        );
-      }
-      // Payment confirmed ('order_confirmed') notifications: no navigation.
-    }
-
-    if (innerData != null && innerData is Map) {
-      handleNavigation(innerData['type']?.toString(), innerData);
-    } else {
-      // Fallback in case `data` is already the inner payload
-      handleNavigation(data['type']?.toString(), data);
-    }
+    NotificationNavigator.open(destination);
   }
 }

@@ -49,9 +49,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
     switch (status) {
       case SessionStatus.valid:
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
-        );
+        Navigator.of(context).pushReplacement(HomeScreen.route());
         break;
 
       case SessionStatus.invalid:

@@ -5,14 +5,12 @@ import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/services/network_monitor.dart';
 import 'package:raheeq_main/storage/auth_storage.dart';
 import 'package:raheeq_main/storage/app_storage.dart';
-import 'package:raheeq_main/pages/order/booking_details_page.dart';
 import 'package:raheeq_main/pages/order/contribution_details_page.dart';
 import 'package:raheeq_main/models/checkout.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
-import 'package:raheeq_main/pages/home/home_screen.dart';
-import 'package:raheeq_main/pages/home/pages/orders_tab.dart';
+import 'package:raheeq_main/services/notification_navigation.dart';
 
 class DeepLinkService {
   static final DeepLinkService _instance = DeepLinkService._internal();
@@ -93,23 +91,9 @@ class DeepLinkService {
     String subOrderId, {
     bool autoPlayVideo = false,
   }) {
-    final context = AuthStorage.navigatorKey.currentContext;
-    if (context == null) return;
-
-    HomeScreen.switchTabNotifier.value = 1;
-    OrdersTab.switchInnerTabNotifier.value = 2; // Set inner tab to Completed
-    
-    Navigator.of(context).pushAndRemoveUntil(
-      MaterialPageRoute(builder: (_) => const HomeScreen()),
-      (route) => false,
-    );
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (_) => BookingDetailsPage(
-          orderId: subOrderId,
-          autoPlayVideo: autoPlayVideo,
-        ),
-      ),
+    NotificationNavigator.openOrderDetails(
+      subOrderId,
+      autoPlayVideo: autoPlayVideo,
     );
   }
 
@@ -145,15 +129,13 @@ class DeepLinkService {
         final checkoutDataMap = response.data['data'];
         final checkoutData = Checkout.fromJson(checkoutDataMap);
 
-        Navigator.of(context).pushAndRemoveUntil(
-          MaterialPageRoute(builder: (_) => const HomeScreen()),
-          (route) => false,
-        );
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => ContributionDetailsPage(
+        final donationType = AppLocalizations.of(context)!.one_time_donation;
+        NotificationNavigator.open(
+          NotificationDestination(
+            homeTab: NotificationNavigator.homeTabIndex,
+            page: (_) => ContributionDetailsPage(
               orderStates: const [],
-              donationType: AppLocalizations.of(context)!.one_time_donation,
+              donationType: donationType,
               checkoutData: checkoutData,
             ),
           ),
