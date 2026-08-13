@@ -11,10 +11,49 @@ import 'package:raheeq_main/storage/auth_storage.dart';
 import '../models/user.dart';
 
 class FreshchatService {
-  /// The welcome message is the bot flow's own first entry, so re-fires
-  /// count as "fresh" once this much time has passed since the chat screen
-  /// was last opened — matches the product's 20 minute session window.
-  static const _welcomeStaleAfter = Duration(minutes: 20);
+  /// The support channel every entry point into the chat filters on. The
+  /// unread badge counts this channel alone, so it has to be the same tag the
+  /// user actually lands in.
+  static const List<String> supportTags = ["chat_with_us"];
+
+  /// Unread support messages, for the "Contact us" badge. A notifier rather
+  /// than screen state because the count changes from the SDK's own events —
+  /// a push arriving, or the user reading the thread on the native chat
+  /// screen — not from anything the Flutter side does.
+  static final ValueNotifier<int> unreadCount = ValueNotifier<int>(0);
+
+  /// Re-reads the unread count from the SDK. Safe to call often; it is a
+  /// local lookup, not a network round trip.
+  static Future<void> refreshUnreadCount() async {
+    try {
+      final result = await Freshchat.getUnreadCountAsyncForTags(supportTags);
+
+      // Both platforms answer with {status, count}. A failed lookup still
+      // carries a count — 0 on iOS — so trusting it would clear a badge that
+      // should have stayed on.
+      final status = result['status']?.toString().toUpperCase() ?? '';
+      if (!status.contains('SUCCESS')) {
+        log(
+          "Skipping Freshchat unread count, status: $status",
+          name: "FreshchatService",
+        );
+        return;
+      }
+
+      final raw = result['count'];
+      final count = raw is int ? raw : int.tryParse('$raw') ?? 0;
+      if (count != unreadCount.value) {
+        log("Freshchat unread count: $count", name: "FreshchatService");
+        unreadCount.value = count;
+      }
+    } catch (e) {
+      log(
+        "Failed to read Freshchat unread count: $e",
+        name: "FreshchatService",
+        error: e,
+      );
+    }
+  }
 
   static void init() {
     log(
@@ -35,6 +74,12 @@ class FreshchatService {
         AuthStorage.setChatNeedsWelcome(true);
       }
     });
+
+    // Fires whenever the SDK's message count changes — a new message pushed
+    // in, or the user reading the thread on the native chat screen, which is
+    // what clears the badge again.
+    Freshchat.onMessageCountUpdate.listen((_) => refreshUnreadCount());
+    refreshUnreadCount();
 
     // FCM tokens rotate (app reinstall, data clear, backup restore, etc.);
     // Freshchat only ever pushes to whatever token was last handed to it via
@@ -190,29 +235,30 @@ class FreshchatService {
     );
   }
 
-  /// Nudges the bot's welcome flow when the chat screen is opened after a
-  /// conversation was resolved, or after a long enough gap that it should
-  /// feel like a fresh session — without touching the conversation itself,
-  /// since [Freshchat.sendMessage] appends to the existing thread rather
-  /// than resetting it.
+  /// Nudges the bot's welcome flow when the chat screen is opened on a
+  /// conversation Freshchat has told us it resolved.
   ///
-  /// This can only react to entries that go through this method. Returning
-  /// to an already-open native chat screen after briefly backgrounding the
-  /// app isn't observable from here — the chat UI is a native screen, not a
-  /// Flutter route, so there's no app-lifecycle hook for "the user is still
-  /// on it".
+  /// [Freshchat.sendMessage] posts a real message on the user's behalf — the
+  /// SDK has no silent variant. It is taken up by the bot's own flow only
+  /// when it lands on a resolved conversation, because that starts a new one
+  /// for the bot to take over; sent into a conversation that is still open it
+  /// just sits in the thread as a stray "Hello" from the user. So the
+  /// greeting goes out on Freshchat's own resolve event and nothing else — a
+  /// guess at when the conversation *might* have ended server-side is exactly
+  /// what used to leave it visible.
+  ///
+  /// The cost is that a conversation auto-resolved server-side while the app
+  /// was closed goes unnoticed: the user lands back in it with no greeting,
+  /// and whatever they type triggers the bot the same way this would have.
   static Future<void> _maybeTriggerWelcomeBot(String tag) async {
-    final now = DateTime.now();
-    final lastOpened = AuthStorage.chatLastOpenedAt;
-    final isStale =
-        lastOpened == null || now.difference(lastOpened) > _welcomeStaleAfter;
+    if (!AuthStorage.chatNeedsWelcome) return;
 
-    if (AuthStorage.chatNeedsWelcome || isStale) {
-      log("Triggering Freshchat welcome bot for tag '$tag'.", name: "FreshchatService");
-      Freshchat.sendMessage(tag, "Hello");
-      await AuthStorage.setChatNeedsWelcome(false);
-    }
-    await AuthStorage.saveChatLastOpenedAt(now);
+    log(
+      "Triggering Freshchat welcome bot for tag '$tag'.",
+      name: "FreshchatService",
+    );
+    Freshchat.sendMessage(tag, "Hello");
+    await AuthStorage.setChatNeedsWelcome(false);
   }
 
   static Future<void> identifyUser(User user) async {
@@ -242,6 +288,10 @@ class FreshchatService {
       //   "Freshchat user profile details updated successfully.",
       //   name: "FreshchatService",
       // );
+
+      // The count read at startup belonged to whoever the SDK had before this
+      // user was restored, so take it again now that it means something.
+      await refreshUnreadCount();
       log("AccessToken : ${AuthStorage.accessToken}");
     } catch (e) {
       log(

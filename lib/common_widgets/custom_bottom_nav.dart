@@ -5,7 +5,14 @@ class CustomBottomNavItem {
   final IconData icon;
   final String label;
 
-  CustomBottomNavItem({required this.icon, required this.label});
+  /// Draws an unread dot on the icon's top-outer corner.
+  final bool showBadge;
+
+  CustomBottomNavItem({
+    required this.icon,
+    required this.label,
+    this.showBadge = false,
+  });
 }
 
 class CustomBottomNavBar extends StatelessWidget {
@@ -96,10 +103,37 @@ class CustomBottomNavBar extends StatelessWidget {
                               ]
                             : [],
                       ),
-                      child: Icon(
-                        item.icon,
-                        color: isSelected ? Colors.white : Colors.grey[400],
-                        size: 24,
+                      child: Stack(
+                        clipBehavior: Clip.none,
+                        children: [
+                          Icon(
+                            item.icon,
+                            color: isSelected ? Colors.white : Colors.grey[400],
+                            size: 24,
+                          ),
+                          // PositionedDirectional resolves `end` against the
+                          // ambient direction, so the dot sits on the icon's
+                          // top-right in English and its top-left in Arabic.
+                          if (item.showBadge)
+                            PositionedDirectional(
+                              top: -3,
+                              end: -3,
+                              child: Container(
+                                width: 11,
+                                height: 11,
+                                decoration: BoxDecoration(
+                                  color: Colors.red,
+                                  shape: BoxShape.circle,
+                                  // Keeps the dot legible against both the
+                                  // white bar and the selected tab's gradient.
+                                  border: Border.all(
+                                    color: Colors.white,
+                                    width: 1.5,
+                                  ),
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
                     ),
                     const SizedBox(height: 6),

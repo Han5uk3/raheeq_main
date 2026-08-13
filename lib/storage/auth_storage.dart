@@ -77,25 +77,17 @@ class AuthStorage {
 
   static String? get freshchatToken => _box.get(freshchatTokenKey);
 
-  static const String chatLastOpenedAtKey = "chatLastOpenedAt";
   static const String chatNeedsWelcomeKey = "chatNeedsWelcome";
-
-  static Future<void> saveChatLastOpenedAt(DateTime time) async {
-    await _box.put(chatLastOpenedAtKey, time.toIso8601String());
-  }
-
-  static DateTime? get chatLastOpenedAt {
-    final raw = _box.get(chatLastOpenedAtKey) as String?;
-    if (raw == null) return null;
-    return DateTime.tryParse(raw);
-  }
 
   static Future<void> setChatNeedsWelcome(bool value) async {
     await _box.put(chatNeedsWelcomeKey, value);
   }
 
+  /// Defaults to true so a user who has never opened the chat still gets the
+  /// bot's welcome flow on their first visit — there is no conversation yet
+  /// for Freshchat to report as resolved.
   static bool get chatNeedsWelcome =>
-      _box.get(chatNeedsWelcomeKey, defaultValue: false) as bool;
+      _box.get(chatNeedsWelcomeKey, defaultValue: true) as bool;
 
   static User? get user {
     final raw = _box.get(userDataKey);
