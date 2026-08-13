@@ -37,7 +37,7 @@ class HomeScreen extends StatefulWidget {
   State<HomeScreen> createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   int _currentIndex = 0;
 
   List<Widget> _buildPages(BuildContext context) {
@@ -60,6 +60,8 @@ class _HomeScreenState extends State<HomeScreen> {
     HomeScreen._liveCount++;
     HomeScreen.switchTabNotifier.addListener(_onSwitchTab);
     _onSwitchTab(); // Process any pre-set tab value
+    WidgetsBinding.instance.addObserver(this);
+    FreshchatService.refreshUnreadCount();
     DeepLinkService().init();
     DeepLinkService().processPendingDeepLink();
     NotificationService().markHomeScreenReady();
@@ -69,7 +71,18 @@ class _HomeScreenState extends State<HomeScreen> {
   void dispose() {
     HomeScreen._liveCount--;
     HomeScreen.switchTabNotifier.removeListener(_onSwitchTab);
+    WidgetsBinding.instance.removeObserver(this);
     super.dispose();
+  }
+
+  /// The chat is a native screen, so reading it there never rebuilds anything
+  /// on this side. Coming back from it — or from the background after a chat
+  /// push — is the moment to take the count again.
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      FreshchatService.refreshUnreadCount();
+    }
   }
 
   void _onSwitchTab() {
@@ -144,40 +157,43 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
       ),
     
-      bottomNavigationBar: CustomBottomNavBar(
-        currentIndex: _currentIndex,
-        items: [
-          CustomBottomNavItem(
-            icon: Icons.home_outlined,
-            label: AppLocalizations.of(context)!.home,
-          ),
-          CustomBottomNavItem(
-            icon: Icons.shopping_bag_outlined,
-            label: AppLocalizations.of(context)!.orders,
-          ),
-          CustomBottomNavItem(
-            icon: Icons.support_agent_outlined,
-            label: AppLocalizations.of(context)!.contact_us,
-          ),
-          CustomBottomNavItem(
-            icon: Icons.person_outline,
-            label: AppLocalizations.of(context)!.account,
-          ),
-        ],
-        onTap: (index) {
-          if (index == 2) {
-          
-            FreshchatService.showConversations(
-              context,
-              tags: const ["chat_with_us"],
-              filteredViewTitle: "Rahiq Support",
-            );
-          } else {
-            setState(() {
-              _currentIndex = index;
-            });
-          }
-        },
+      bottomNavigationBar: ValueListenableBuilder<int>(
+        valueListenable: FreshchatService.unreadCount,
+        builder: (context, unreadChats, _) => CustomBottomNavBar(
+          currentIndex: _currentIndex,
+          items: [
+            CustomBottomNavItem(
+              icon: Icons.home_outlined,
+              label: AppLocalizations.of(context)!.home,
+            ),
+            CustomBottomNavItem(
+              icon: Icons.shopping_bag_outlined,
+              label: AppLocalizations.of(context)!.orders,
+            ),
+            CustomBottomNavItem(
+              icon: Icons.support_agent_outlined,
+              label: AppLocalizations.of(context)!.contact_us,
+              showBadge: unreadChats > 0,
+            ),
+            CustomBottomNavItem(
+              icon: Icons.person_outline,
+              label: AppLocalizations.of(context)!.account,
+            ),
+          ],
+          onTap: (index) {
+            if (index == 2) {
+              FreshchatService.showConversations(
+                context,
+                tags: FreshchatService.supportTags,
+                filteredViewTitle: "Rahiq Support",
+              );
+            } else {
+              setState(() {
+                _currentIndex = index;
+              });
+            }
+          },
+        ),
       ),
     );
 

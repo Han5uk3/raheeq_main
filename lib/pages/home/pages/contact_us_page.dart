@@ -132,7 +132,7 @@ class _ContactUsPageState extends State<ContactUsPage> {
                           );
                           FreshchatService.showConversations(
                             context,
-                            tags: const ["chat_with_us"],
+                            tags: FreshchatService.supportTags,
                             filteredViewTitle: "Rahiq Support",
                           );
                         }, showLoader: true);
