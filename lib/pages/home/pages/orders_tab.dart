@@ -800,7 +800,7 @@ class _OrderCardState extends State<_OrderCard> {
       locationTitle = isAr
           ? widget.order.target!.labelAr
           : widget.order.target!.label;
-          
+
       if (widget.order.target!.type == 'CAMPAIGN' &&
           widget.order.product != null) {
         final productName = isAr
@@ -822,10 +822,10 @@ class _OrderCardState extends State<_OrderCard> {
 
     // totalAmount is what was charged, so wallet credit spent on the order has
     // to be added back to show what the contribution was actually worth.
-    final double totalCostAmount =
-        widget.order.totalAmount +
-        widget.order.walletAmount -
-        widget.order.discountAmount;
+    final double totalCostAmount = widget.order.totalAmount;
+    //  +
+    // widget.order.walletAmount -
+    // widget.order.discountAmount;
 
     final String totalCost =
         '\u202A${AppLocalizations.of(context)!.sar_currency} ${Formatters.formatPrice(totalCostAmount)}\u202C';
@@ -1090,7 +1090,6 @@ class _OrderCardState extends State<_OrderCard> {
                   ),
                 ],
               ),
-             
             ],
           ),
         ),
@@ -1276,8 +1275,6 @@ class _OrderCardState extends State<_OrderCard> {
       ),
     );
   }
-
-  
 
   void _showRateOrderBottomSheet(BuildContext context, String orderId) {
     int rating = 0;
