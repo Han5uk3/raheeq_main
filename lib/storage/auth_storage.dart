@@ -29,6 +29,17 @@ class AuthStorage {
   static final Completer<void> _readyCompleter = Completer<void>();
   static Future<void> get ready => _readyCompleter.future;
 
+  /// While true, [clear] still wipes storage but does NOT redirect to login.
+  ///
+  /// The splash screen owns routing until its 3.5s animation finishes, so a
+  /// session that turns out to be dead during startup must not yank the user
+  /// off the splash mid-animation. This covers every route into [clear] —
+  /// the cold-start profile check in main.dart and the API client's own
+  /// 401 -> refresh-failed -> logout path alike. The splash lowers this the
+  /// moment it has made its own routing decision, after which session
+  /// failures redirect immediately as before.
+  static bool suppressLoginRedirect = true;
+
   static Future<void> init() async {
     await Hive.initFlutter();
     await Hive.openBox(boxName);
@@ -105,6 +116,11 @@ class AuthStorage {
     } catch (e) {
       debugPrint("Failed to reset Freshchat user: $e");
     }
+
+    // Still on the splash screen: storage is wiped, but the splash finishes
+    // its animation and routes to Login itself once the local session check
+    // comes back empty. Redirecting here would cut the animation short.
+    if (suppressLoginRedirect) return;
 
     // Programmatically push to Login on session failure
     navigatorKey.currentState?.pushAndRemoveUntil(

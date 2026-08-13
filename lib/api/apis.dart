@@ -659,7 +659,15 @@ class ApiService {
       if (etag != null && etag.isNotEmpty) {
         options.headers = {'If-None-Match': etag};
       }
+      log(
+        'API REQUEST: GET /me${etag != null && etag.isNotEmpty ? ' (If-None-Match: $etag)' : ''}',
+        name: 'AccountAPI',
+      );
       final response = await _dio.get('/me', options: options);
+      log(
+        'API RESPONSE [${response.statusCode}]: ${response.data}',
+        name: 'AccountAPI',
+      );
 
       if (response.statusCode == 200 && response.data['success'] == true) {
         final resData = response.data['data'];
@@ -668,6 +676,7 @@ class ApiService {
 
       return response;
     } catch (e) {
+      log('Error fetching profile: $e', name: 'AccountAPI', error: e);
       rethrow;
     }
   }
@@ -744,9 +753,15 @@ class ApiService {
 
   Future<Response> getHome() async {
     try {
+      log('API REQUEST: GET /home', name: 'HomeAPI');
       final response = await _dio.get('/home');
+      log(
+        'API RESPONSE [${response.statusCode}]: ${response.data}',
+        name: 'HomeAPI',
+      );
       return response;
     } catch (e) {
+      log('Error fetching home: $e', name: 'HomeAPI', error: e);
       rethrow;
     }
   }
