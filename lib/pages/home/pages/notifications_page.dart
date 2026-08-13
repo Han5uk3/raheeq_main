@@ -9,7 +9,7 @@ import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/models/notification_model.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
-import 'package:raheeq_main/pages/home/home_screen.dart';
+import 'package:raheeq_main/services/notification_navigation.dart';
 import 'package:raheeq_main/utils/formatters.dart';
 
 class NotificationsPage extends StatefulWidget {
@@ -114,19 +114,12 @@ class _NotificationsPageState extends State<NotificationsPage> {
       return;
     }
 
-    // Handle navigation based on data payload
-    final data = notification.data;
-    final type = data['type'];
+    // Handle navigation based on data payload. Order confirmations resolve to
+    // null: they are marked as read and open nothing.
+    final destination = NotificationNavigator.destinationFor(notification.data);
+    if (destination == null || !mounted) return;
 
-    if (type?.toString().toLowerCase() == 'order_confirmed') {
-      // Payment confirmed notification: mark as read only, no navigation.
-      return;
-    }
-
-    if (mounted) {
-      HomeScreen.switchTabNotifier.value = 1;
-      Navigator.of(context).popUntil((route) => route.isFirst);
-    }
+    NotificationNavigator.open(destination, context: context);
   }
 
   Future<void> _clearAllNotifications() async {
