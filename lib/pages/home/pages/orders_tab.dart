@@ -789,7 +789,7 @@ class _OrderCardState extends State<_OrderCard> {
     final locale = Localizations.localeOf(context).languageCode;
     final isAr = locale == 'ar';
     final orderDate = widget.order.createdAt;
-    final formattedDate = Formatters.formatDate(context, orderDate);
+    final formattedDate = Formatters.formatDateWithWeekday(context, orderDate);
     final formattedTime = Formatters.formatTime(context, orderDate);
 
     final String imageUrl =
@@ -1070,9 +1070,14 @@ class _OrderCardState extends State<_OrderCard> {
                     AppLocalizations.of(context)!.date,
                     style: TextStyle(color: Colors.grey, fontSize: _s(14)),
                   ),
-                  Text(
-                    formattedDate,
-                    style: TextStyle(color: Colors.black, fontSize: _s(14)),
+                  // The weekday makes this line long enough to crowd the label
+                  // on narrow cards, so let it shrink instead of overflowing.
+                  Flexible(
+                    child: Text(
+                      formattedDate,
+                      textAlign: TextAlign.end,
+                      style: TextStyle(color: Colors.black, fontSize: _s(14)),
+                    ),
                   ),
                 ],
               ),
