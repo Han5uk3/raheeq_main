@@ -4,6 +4,7 @@ import 'dart:io' show Platform;
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:freshchat_sdk/freshchat_sdk.dart';
 import 'package:freshchat_sdk/freshchat_user.dart';
 import 'package:raheeq_main/api/apis.dart';
@@ -12,6 +13,14 @@ import 'package:raheeq_main/storage/auth_storage.dart';
 import '../models/user.dart';
 
 class FreshchatService {
+  /// Talks to the app delegate, which owns the raw APNs token. Nothing on the
+  /// Dart side can reach it: the plugin's iOS `setPushRegistrationToken`
+  /// expects `NSData`, so the Flutter method takes a token string it cannot
+  /// use here. iOS only.
+  static const MethodChannel _pushChannel = MethodChannel(
+    'com.rahiq.app/freshchat_push',
+  );
+
   /// The tag the chat screen is opened with, so the user lands in the support
   /// channel rather than a channel list.
   static const List<String> supportTags = ["chat_with_us"];
@@ -150,6 +159,28 @@ class FreshchatService {
   /// registered from `AppDelegate.didRegisterForRemoteNotifications`, the only
   /// place the real token exists.
   static Future<void> registerPushToken() async {
+    if (Platform.isIOS) {
+      // APNs answers within a moment of launch, so the app delegate has
+      // usually already handed Freshchat a token by the time `Freshchat.init`
+      // runs — and a token given to an SDK that isn't up yet goes nowhere.
+      // Callers reach here after init, so this is the point where re-sending
+      // the cached token sticks.
+      try {
+        final applied = await _pushChannel.invokeMethod<bool>('syncPushToken');
+        log(
+          "Freshchat APNs token re-sent to SDK: $applied",
+          name: "FreshchatService",
+        );
+      } catch (e) {
+        log(
+          "Failed to re-send APNs token to Freshchat: $e",
+          name: "FreshchatService",
+          error: e,
+        );
+      }
+      return;
+    }
+
     if (!Platform.isAndroid) return;
 
     try {

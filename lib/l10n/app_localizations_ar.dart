@@ -84,7 +84,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get privacy_policy => 'سياسة الخصوصية';
 
   @override
-  String get login_terms_prefix => 'بتسجيلك في انت توافق على ';
+  String get login_terms_prefix => 'بتسجيلك فأنت توافق على ';
 
   @override
   String get login_terms_suffix => ' لتطبيق رحيق.';

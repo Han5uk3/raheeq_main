@@ -4,7 +4,8 @@ import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/services/network_monitor.dart';
 import 'package:raheeq_main/services/snackbar_insets_services.dart';
-import 'dart:developer';
+// Re-enable together with the commented-out log() calls below.
+// import 'dart:developer';
 import 'package:raheeq_main/utils/formatters.dart';
 
 import 'dart:convert';
@@ -120,7 +121,7 @@ class _HomeTabState extends State<HomeTab>
         }
       }
     } catch (e) {
-      log('Error refreshing unread notifications count: $e', name: 'HomeTab');
+      // log('Error refreshing unread notifications count: $e', name: 'HomeTab');
     }
   }
 
@@ -269,10 +270,10 @@ class _HomeTabState extends State<HomeTab>
             etag: _cachedProfileETag,
           );
           if (profileResponse.statusCode == 304) {
-            log(
-              'Profile data unchanged (304). Using cached ETag.',
-              name: 'HomeTab',
-            );
+            // log(
+            //   'Profile data unchanged (304). Using cached ETag.',
+            //   name: 'HomeTab',
+            // );
           } else if (profileResponse.statusCode == 200) {
             final newEtag = profileResponse.headers.value('etag');
             if (newEtag != null) _cachedProfileETag = newEtag;
@@ -287,10 +288,10 @@ class _HomeTabState extends State<HomeTab>
             etag: _cachedCitiesETag,
           );
           if (citiesResponse.statusCode == 304) {
-            log(
-              'Cities data unchanged (304). Using cached ETag.',
-              name: 'HomeTab',
-            );
+            // log(
+            //   'Cities data unchanged (304). Using cached ETag.',
+            //   name: 'HomeTab',
+            // );
             return;
           }
           if (citiesResponse.statusCode == 200 &&
@@ -304,7 +305,7 @@ class _HomeTabState extends State<HomeTab>
                 .toList();
           }
         } catch (e) {
-          log('Error fetching cities: $e', name: 'HomeTab');
+          // log('Error fetching cities: $e', name: 'HomeTab');
         }
       }();
 
@@ -315,10 +316,10 @@ class _HomeTabState extends State<HomeTab>
             etag: _cachedImpactETag,
           );
           if (impactRes.statusCode == 304) {
-            log(
-              'Impact data unchanged (304). Using cached ETag.',
-              name: 'HomeTab',
-            );
+            // log(
+            //   'Impact data unchanged (304). Using cached ETag.',
+            //   name: 'HomeTab',
+            // );
             return;
           }
           if (impactRes.statusCode == 200 &&
@@ -329,7 +330,7 @@ class _HomeTabState extends State<HomeTab>
             _cachedImpactData = ImpactModel.fromJson(impactRes.data['data']);
           }
         } catch (e) {
-          log('Error fetching impact: $e', name: 'HomeTab');
+          // log('Error fetching impact: $e', name: 'HomeTab');
         }
       }();
 
@@ -340,7 +341,7 @@ class _HomeTabState extends State<HomeTab>
             etag: _cachedNotificationsETag,
           );
           if (unreadRes.statusCode == 304) {
-            log('Unread notifications unchanged (304).', name: 'HomeTab');
+            // log('Unread notifications unchanged (304).', name: 'HomeTab');
             if (mounted && myGeneration == _fetchGeneration) {
               setState(() {
                 _unreadNotificationsCount = _cachedUnreadCount;
@@ -363,7 +364,7 @@ class _HomeTabState extends State<HomeTab>
             }
           }
         } catch (e) {
-          log('Error fetching unread notifications count: $e', name: 'HomeTab');
+          // log('Error fetching unread notifications count: $e', name: 'HomeTab');
         }
       }();
 
@@ -384,10 +385,10 @@ class _HomeTabState extends State<HomeTab>
       // request) should win. Applying this response now would risk
       // overwriting fresher data with stale data. Discard silently.
       if (myGeneration != _fetchGeneration) {
-        log(
-          'Discarding stale home fetch (gen $myGeneration, latest $_fetchGeneration)',
-          name: 'HomeTab',
-        );
+        // log(
+        //   'Discarding stale home fetch (gen $myGeneration, latest $_fetchGeneration)',
+        //   name: 'HomeTab',
+        // );
         return;
       }
 
@@ -488,10 +489,10 @@ class _HomeTabState extends State<HomeTab>
         // the line that was letting a slow, stale request corrupt shared
         // state that every future HomeTab instance reads from.
         if (myGeneration != _fetchGeneration) {
-          log(
-            'Discarding stale home fetch after precache (gen $myGeneration, latest $_fetchGeneration)',
-            name: 'HomeTab',
-          );
+          // log(
+          //   'Discarding stale home fetch after precache (gen $myGeneration, latest $_fetchGeneration)',
+          //   name: 'HomeTab',
+          // );
           return;
         }
 
@@ -811,18 +812,14 @@ class _HomeTabState extends State<HomeTab>
                                     .asMap()
                                     .entries
                                     .map((entry) {
-                                     
-                                        return Padding(
-                                          padding: const EdgeInsets.only(
-                                            top: 16,
-                                          ),
+                                      return Padding(
+                                        padding: const EdgeInsets.only(top: 16),
                                         child: buildCampaignCard(
-                                            context,
-                                            entry.value,
-                                            entry.key,
-                                          ),
-                                        );
-                                      
+                                          context,
+                                          entry.value,
+                                          entry.key,
+                                        ),
+                                      );
                                     })
                                     .toList(),
                               ),
@@ -1267,6 +1264,8 @@ class _HomeTabState extends State<HomeTab>
     final carouselPageItemWidth = screenWidth * 0.9;
     final carouselBannerWidth = carouselPageItemWidth - 16;
     final bannerHeight = carouselBannerWidth * (418 / 790);
+    // Same scale factor as the real card, so the placeholder tracks it.
+    final scale = (bannerHeight / 177.0).clamp(0.75, 1.3);
 
     return Container(
       width: double.infinity,
@@ -1281,12 +1280,7 @@ class _HomeTabState extends State<HomeTab>
           Expanded(
             flex: 7,
             child: Padding(
-              padding: const EdgeInsetsDirectional.only(
-                start: 16,
-                top: 16,
-                bottom: 16,
-                end: 16,
-              ),
+              padding: EdgeInsetsDirectional.all(16 * scale),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -1295,17 +1289,17 @@ class _HomeTabState extends State<HomeTab>
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Container(
-                        height: 26,
+                        height: 26 * scale,
                         width: double.infinity,
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.3),
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
-                      const SizedBox(height: 8),
+                      SizedBox(height: 8 * scale),
                       Container(
-                        height: 12,
-                        width: 150,
+                        height: 12 * scale,
+                        width: 150 * scale,
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.3),
                           borderRadius: BorderRadius.circular(4),
@@ -1314,8 +1308,8 @@ class _HomeTabState extends State<HomeTab>
                     ],
                   ),
                   Container(
-                    height: 32,
-                    width: 100,
+                    height: 32 * scale,
+                    width: 100 * scale,
                     decoration: BoxDecoration(
                       color: Colors.white.withValues(alpha: 0.3),
                       borderRadius: BorderRadius.circular(30),
@@ -1498,13 +1492,7 @@ class _HomeTabState extends State<HomeTab>
     return result == true;
   }
 
-  
-
-  Widget buildCampaignCard(
-    BuildContext context,
-    Campaign campaign,
-    int index,
-  ) {
+  Widget buildCampaignCard(BuildContext context, Campaign campaign, int index) {
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
     final title = campaign.localizedTitle(isAr);
     final description = campaign.localizedDescription(isAr);
@@ -1513,19 +1501,29 @@ class _HomeTabState extends State<HomeTab>
 
     final screenWidth = MediaQuery.of(context).size.width;
 
-    // This card keeps its own (full) width...
-    final bannerWidth = screenWidth - 32;
-
-    // ...but its height is matched to the home carousel's banner height,
-    // per the client's request. The carousel derives its width from a
-    // PageView with viewportFraction 0.9 plus 8px horizontal padding
-    // (16 total), then applies the base 790x418 ratio. We replicate that
-    // same derivation here -- using screenWidth as a stand-in for the
-    // carousel's LayoutBuilder constraints.maxWidth -- so both banner
+    // This card keeps its own (full) width, but its height is matched to the
+    // home carousel's banner height, per the client's request. The carousel
+    // derives its width from a PageView with viewportFraction 0.9 plus 8px
+    // horizontal padding (16 total), then applies the base 790x418 ratio. We
+    // replicate that same derivation here -- using screenWidth as a stand-in
+    // for the carousel's LayoutBuilder constraints.maxWidth -- so both banner
     // types render at an identical height even though this card is wider.
     final carouselPageItemWidth = screenWidth * 0.9;
     final carouselBannerWidth = carouselPageItemWidth - 16;
     final bannerHeight = carouselBannerWidth * (418 / 790);
+
+    // The card box is a fixed ratio, so its contents have to follow the
+    // display size instead of being pinned to one set of numbers. Every
+    // metric below was designed against a ~390pt-wide phone and is scaled
+    // from the real card height, so the card stays proportional on a small
+    // phone and on a tablet rather than overflowing or looking sparse.
+    const designHeight = 177.0;
+    final scale = (bannerHeight / designHeight).clamp(0.75, 1.3);
+    final contentPadding = 16 * scale;
+    final contentGap = 8 * scale;
+    final titleFontSize = 18 * scale;
+    final descriptionFontSize = 12 * scale;
+    final ctaFontSize = 12 * scale;
 
     return GestureDetector(
       onTap: () async {
@@ -1568,7 +1566,7 @@ class _HomeTabState extends State<HomeTab>
         borderRadius: BorderRadius.circular(20),
         color: Colors.white,
         child: SizedBox(
-          width: bannerWidth,
+          width: double.infinity,
           height: bannerHeight,
           child: Stack(
             clipBehavior: Clip.none,
@@ -1618,117 +1616,136 @@ class _HomeTabState extends State<HomeTab>
                 ),
               ),
 
-              // Content -- also fills the box so it scales with the banner
+              // Content -- also fills the box so it scales with the banner.
+              // The card height is locked to the carousel ratio, so the text
+              // scaler is clamped here: an oversized system font (on top of
+              // the app-wide Arabic bump) would otherwise push the title,
+              // description and CTA past the bottom edge.
               Positioned.fill(
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Expanded(
-                      flex: 7,
-                      child: Padding(
-                        padding: const EdgeInsetsDirectional.only(
-                          start: 16,
-                          top: 16,
-                          bottom: 16,
-                          end: 16,
-                        ),
-                        child: Column(
-                          spacing: 8,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Column(
-                              spacing: 8,
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      flex: 8,
-                                      child: Text(
-                                        title,
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: const TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 22,
-                                          fontWeight: FontWeight.bold,
-                                          height: 1,
-                                        ),
-                                      ),
-                                    ),
-                                    const Expanded(flex: 8, child: SizedBox()),
-                                  ],
-                                ),
-                                Row(
-                                  children: [
-                                    Expanded(
-                                      flex: 7,
-                                      child: Text(
-                                        description,
-                                        maxLines: 2,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                          color: Colors.white.withValues(
-                                            alpha: 0.9,
-                                          ),
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 12,
-                                        ),
-                                      ),
-                                    ),
-                                    const Expanded(flex: 2, child: SizedBox()),
-                                  ],
-                                ),
-                              ],
-                            ),
-                            Material(
-                              elevation: 2,
-                              borderRadius: BorderRadius.circular(30),
-                              color: Colors.white,
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                  vertical: 8,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(30),
-                                ),
-                                child: Row(
+                child: MediaQuery.withClampedTextScaling(
+                  maxScaleFactor: 1.1,
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(
+                        flex: 7,
+                        child: Padding(
+                          padding: EdgeInsetsDirectional.all(contentPadding),
+                          child: Column(
+                            spacing: contentGap,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              // Flexible so the text block yields to the CTA
+                              // and clips instead of overflowing when a long
+                              // title meets a short card.
+                              Flexible(
+                                child: Column(
+                                  spacing: contentGap,
                                   mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    Text(
-                                      AppLocalizations.of(context)!.donate_now,
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        fontWeight: FontWeight.w600,
-                                        color: AppColors.buttonBlueDark,
+                                    Flexible(
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            flex: 8,
+                                            child: Text(
+                                              title,
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                color: Colors.white,
+                                                fontSize: titleFontSize,
+                                                fontWeight: FontWeight.bold,
+                                                height: 1,
+                                              ),
+                                            ),
+                                          ),
+                                          const Expanded(
+                                            flex: 8,
+                                            child: SizedBox(),
+                                          ),
+                                        ],
                                       ),
                                     ),
-                                    const SizedBox(width: 8),
-                                    Container(
-                                      padding: const EdgeInsets.all(5),
-                                      decoration: BoxDecoration(
-                                        color: AppColors.buttonBlueDark,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Icon(
-                                        forwardArrowIcon(context),
-                                        size: 12,
-                                        color: Colors.white,
+                                    Flexible(
+                                      child: Row(
+                                        children: [
+                                          Expanded(
+                                            flex: 7,
+                                            child: Text(
+                                              description,
+                                              maxLines: 2,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: TextStyle(
+                                                color: Colors.white.withValues(
+                                                  alpha: 0.9,
+                                                ),
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: descriptionFontSize,
+                                              ),
+                                            ),
+                                          ),
+                                          const Expanded(
+                                            flex: 2,
+                                            child: SizedBox(),
+                                          ),
+                                        ],
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
-                            ),
-                          ],
+                              Material(
+                                elevation: 2,
+                                borderRadius: BorderRadius.circular(30),
+                                color: Colors.white,
+                                child: Container(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 16 * scale,
+                                    vertical: 8 * scale,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(30),
+                                  ),
+                                  child: Row(
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
+                                      Text(
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.donate_now,
+                                        style: TextStyle(
+                                          fontSize: ctaFontSize,
+                                          fontWeight: FontWeight.w600,
+                                          color: AppColors.buttonBlueDark,
+                                        ),
+                                      ),
+                                      SizedBox(width: 8 * scale),
+                                      Container(
+                                        padding: EdgeInsets.all(5 * scale),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.buttonBlueDark,
+                                          shape: BoxShape.circle,
+                                        ),
+                                        child: Icon(
+                                          forwardArrowIcon(context),
+                                          size: 12 * scale,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ],
