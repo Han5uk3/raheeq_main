@@ -1696,12 +1696,51 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                               MainAxisAlignment.spaceBetween,
                                           children: [
                                             Expanded(
-                                              child: Text(
-                                                "${sp.quantity} ${sp.product.localizedName(isAr)}",
-                                                style: TextStyle(
-                                                  fontSize: 15,
-                                                  color: Colors.grey.shade600,
-                                                ),
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  if (true
+                                                  // (_checkoutData.campaign !=
+                                                  //       null &&
+                                                  //   _checkoutData
+                                                  //       .campaign!
+                                                  //       .isNotEmpty)
+                                                  ) ...{
+                                                    Text(
+                                                      "${sp.quantity > 10 ? sp.product.localizedSubtitlePlural(isAr) : sp.product.localizedSubtitle(isAr)}",
+                                                      style: const TextStyle(
+                                                        fontSize: 17,
+                                                        fontWeight:
+                                                            FontWeight.w500,
+                                                        color: AppColors
+                                                            .buttonBlueDark,
+                                                      ),
+                                                    ),
+                                                  },
+
+                                                  //  else ...{
+                                                  //   Text(
+                                                  //     sp.product.localizedSubtitleplural(
+                                                  //       isAr,
+                                                  //     ),
+                                                  //     style: const TextStyle(
+                                                  //       fontSize: 17,
+                                                  //       fontWeight:
+                                                  //           FontWeight.w700,
+                                                  //     ),
+                                                  //   ),
+                                                  // },
+                                                  Text(
+                                                    "${AppLocalizations.of(context)!.quantity} : ${sp.quantity}",
+                                                    style: TextStyle(
+                                                      fontSize: 15,
+                                                      color:
+                                                          Colors.grey.shade600,
+                                                    ),
+                                                  ),
+                                                ],
                                               ),
                                             ),
                                             Text(
