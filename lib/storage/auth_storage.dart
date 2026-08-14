@@ -67,13 +67,14 @@ class AuthStorage {
   static Future<void> saveUserData(Map<String, dynamic> userData) async {
     await _box.put(userDataKey, userData);
 
-    try {
-      final currentUser = user;
-      if (currentUser != null) {
-        await FreshchatService.identifyUser(currentUser);
-      }
-    } catch (e) {
-      debugPrint("Failed to set Freshchat user: $e");
+    // Kicked off, not awaited. This runs on the OTP path, and Freshchat sign-in
+    // is several platform-channel round trips into an SDK we do not control —
+    // one of them hanging would leave the user watching a spinner on a login
+    // that has already succeeded. Nothing here needs the result, and the
+    // service logs its own failures.
+    final currentUser = user;
+    if (currentUser != null) {
+      unawaited(FreshchatService.authenticateUser(currentUser));
     }
   }
 
@@ -87,18 +88,6 @@ class AuthStorage {
   }
 
   static String? get freshchatToken => _box.get(freshchatTokenKey);
-
-  static const String chatNeedsWelcomeKey = "chatNeedsWelcome";
-
-  static Future<void> setChatNeedsWelcome(bool value) async {
-    await _box.put(chatNeedsWelcomeKey, value);
-  }
-
-  /// Defaults to true so a user who has never opened the chat still gets the
-  /// bot's welcome flow on their first visit — there is no conversation yet
-  /// for Freshchat to report as resolved.
-  static bool get chatNeedsWelcome =>
-      _box.get(chatNeedsWelcomeKey, defaultValue: true) as bool;
 
   static User? get user {
     final raw = _box.get(userDataKey);

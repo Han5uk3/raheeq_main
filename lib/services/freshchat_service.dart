@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:io' show Platform;
@@ -6,7 +7,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:freshchat_sdk/freshchat_sdk.dart';
-import 'package:freshchat_sdk/freshchat_user.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/storage/auth_storage.dart';
 
@@ -25,6 +25,20 @@ class FreshchatService {
   /// channel rather than a channel list.
   static const List<String> supportTags = ["chat_with_us"];
 
+  /// In-flight [ensureAuthenticated] call, so the several things that can ask
+  /// for authentication at once — startup, opening the chat, the SDK's own
+  /// token-status event — share one attempt instead of racing to mint
+  /// competing tokens.
+  static Future<void>? _authInFlight;
+
+  /// Tokens the SDK has rejected in a row. A token signed with the wrong key is
+  /// rejected every time, and the SDK reports each rejection as an event that
+  /// asks us to authenticate again — so without a stop the app would mint and
+  /// re-mint against the backend for as long as it stayed open. Reset the
+  /// moment one is accepted.
+  static int _rejectedTokens = 0;
+  static const int _maxRejectedTokens = 3;
+
   /// Unread support messages, for the "Contact us" badge. A notifier rather
   /// than screen state because the count changes from the SDK's own events —
   /// a push arriving, or the user reading the thread on the native chat
@@ -40,9 +54,38 @@ class FreshchatService {
   /// quietly falls back to showing all channels, so the chat works and only
   /// the badge stays dark. The app has a single entry into Freshchat, so
   /// every unread message it can receive is a support message anyway.
-  static Future<void> refreshUnreadCount() async {
+  /// A read already running. The SDK answers `getUnreadCountAsync` through a
+  /// callback it does not always fire, and count-changed events arrive in
+  /// bursts, so without this a burst stacks several unanswered calls on top of
+  /// one that is already stuck.
+  static Future<void>? _unreadReadInFlight;
+
+  /// Set when a refresh is asked for while one is running, so the change that
+  /// prompted it is picked up afterwards rather than dropped.
+  static bool _unreadReadQueued = false;
+
+  static Future<void> refreshUnreadCount() {
+    if (_unreadReadInFlight != null) {
+      _unreadReadQueued = true;
+      return _unreadReadInFlight!;
+    }
+    return _unreadReadInFlight = _readUnreadCount().whenComplete(() {
+      _unreadReadInFlight = null;
+      if (_unreadReadQueued) {
+        _unreadReadQueued = false;
+        refreshUnreadCount();
+      }
+    });
+  }
+
+  static Future<void> _readUnreadCount() async {
     try {
-      final result = await Freshchat.getUnreadCountAsync;
+      // Bounded because callers await it on paths that matter — the login flow
+      // among them — and this is only a badge. If the SDK's channel is wedged,
+      // a stale count is the right failure; a login that never finishes is not.
+      final result = await Freshchat.getUnreadCountAsync.timeout(
+        const Duration(seconds: 5),
+      );
       log("Freshchat unread lookup: $result", name: "FreshchatService");
 
       // Both platforms answer with {status, count}. A failed lookup still
@@ -70,18 +113,41 @@ class FreshchatService {
       "Initializing Freshchat Service listeners...",
       name: "FreshchatService",
     );
-    // A conversation being resolved ("End conversation" -> thank-you dialog)
-    // means the *next* time the user opens the chat, it should look like a
-    // fresh session again, regardless of how soon that happens. Freshchat's
-    // event names aren't part of the plugin's public API, so this matches on
-    // "resolv" rather than an exact constant — log the raw event below to
-    // confirm/adjust the match if the underlying SDK naming differs.
+    // Nothing here restarts the bot any more. That is the bot's own job now,
+    // via the "start new conversation" action at the end of its flow — the app
+    // has no silent way to do it, since `Freshchat.sendMessage` is the plugin's
+    // only send and it posts as the customer, leaving a visible "Hello" in the
+    // thread.
+    //
+    // Worth knowing before reaching for an app-side trigger again: the SDK
+    // reports no resolution event at all. `Event$EventName` in
+    // freshchat-android 6.5.10 has 41 constants and none names a conversation
+    // being resolved, and `FCPropertyResolutionStatus` rides only on
+    // `FCEventCsatSubmit` — so reading it means showing the customer a CSAT
+    // survey.
     Freshchat.onFreshchatEvents.listen((event) {
-      final eventName = (event is Map ? event['event_name'] : null)
-          ?.toString();
-      log("Freshchat event: $eventName", name: "FreshchatService");
-      if (eventName != null && eventName.toLowerCase().contains('resolv')) {
-        AuthStorage.setChatNeedsWelcome(true);
+      final map = event is Map ? event : const {};
+      final eventName = map['event_name']?.toString();
+      final properties = map['properties'];
+
+      // Properties are logged in full because anything built on these events
+      // depends on exact strings the SDK never documents; the resolution
+      // matcher that sat here for months, matching a name no event has, is
+      // what guessing at them costs.
+      log(
+        "Freshchat event: $eventName ${properties ?? ''}",
+        name: "FreshchatService",
+      );
+      if (eventName == null) return;
+
+      final name = eventName.toLowerCase();
+
+      // `FCEventIdTokenStatusChange` — the documented signal that the SDK's
+      // view of our JWT moved, which includes it lapsing mid-session. Left
+      // unanswered the SDK drops to unauthenticated and stops syncing, and the
+      // conversation goes still until something else forces a refresh.
+      if (name.contains('token')) {
+        ensureAuthenticated();
       }
     });
 
@@ -105,47 +171,20 @@ class FreshchatService {
       });
     }
 
-    // Listen for the restore ID generation when the user sends their first message
-    Freshchat.onRestoreIdGenerated.listen((event) async {
-      log(
-        "Freshchat onRestoreIdGenerated event fired. Data: $event",
-        name: "FreshchatService",
-      );
-      if (event == true) {
-        FreshchatUser freshchatUser = await Freshchat.getUser;
-        final restoreId = freshchatUser.getRestoreId();
-
-        if (restoreId != null && restoreId.isNotEmpty) {
-          log(
-            "Attempting to save freshchat restore ID ($restoreId) to backend...",
-            name: "FreshchatService",
-          );
-          try {
-            await ApiService().saveFreshchatRestoreId(restoreId);
-            log(
-              "Freshchat restore ID saved successfully to backend.",
-              name: "FreshchatService",
-            );
-          } catch (e) {
-            log(
-              "Failed to save Freshchat restore ID to backend: $e",
-              name: "FreshchatService",
-              error: e,
-            );
-          }
-        } else {
-          log(
-            "Restore ID from FreshchatUser is null or empty. Skipping backend update.",
-            name: "FreshchatService",
-          );
-        }
-      } else {
-        log(
-          "Restore ID generated event is false. Skipping backend update.",
-          name: "FreshchatService",
-        );
-      }
+    // The plugin's own hook for "the SDK wants a fresh token". It overlaps
+    // with the token event above rather than replacing it — either may fire
+    // first depending on platform, and [ensureAuthenticated] is idempotent, so
+    // listening to both costs a status read and closes the gap if one is
+    // silent.
+    Freshchat.onJwtRefresh.listen((_) {
+      log("Freshchat asked for a fresh JWT.", name: "FreshchatService");
+      ensureAuthenticated();
     });
+
+    // `onRestoreIdGenerated` is deliberately not listened to. The restore id
+    // belongs to the external-id scheme that JWT replaces, and Freshchat does
+    // not mint one for a JWT user — the listener only ever logged that it had
+    // nothing to save.
   }
 
   /// Hands the current FCM token to Freshchat so it knows where to deliver
@@ -200,6 +239,205 @@ class FreshchatService {
     }
   }
 
+  /// Reads the token status straight from the SDK.
+  ///
+  /// The copy in storage cannot answer this. It says nothing about whether the
+  /// SDK ever received a token — after a cold start it holds none, however
+  /// fresh ours is — and nothing about whether Freshchat accepted it, since a
+  /// token can sit well inside its `exp` and still be rejected for being
+  /// signed with the wrong key. Both leave the SDK unauthenticated, which is
+  /// the state that stops conversations syncing.
+  static Future<JwtTokenStatus> _idTokenStatus() async {
+    try {
+      return await Freshchat.getUserIdTokenStatus;
+    } catch (e) {
+      log(
+        "Failed to read Freshchat JWT status: $e",
+        name: "FreshchatService",
+        error: e,
+      );
+      // Treat an unreadable status as "no token": re-sending one the SDK
+      // already has is harmless, skipping one it needs is not.
+      return JwtTokenStatus.TOKEN_NOT_SET;
+    }
+  }
+
+  /// Brings the SDK to an authenticated state, doing the least work that gets
+  /// it there.
+  ///
+  /// With user authentication enforced, Freshchat gates the SDK on this: a user
+  /// whose token is missing or still processing waits about thirty seconds on
+  /// the chat screen and is then dropped out of it, and one whose token was
+  /// rejected cannot open it at all. Short of either extreme an unauthenticated
+  /// SDK simply does not sync, which is what left replies sitting on the server
+  /// until something forced a reload.
+  ///
+  /// Safe to call from anywhere, as often as you like — concurrent callers
+  /// share the one attempt, and a healthy token costs a single status read.
+  static Future<void> ensureAuthenticated() {
+    return _authInFlight ??= _authenticate().whenComplete(() {
+      _authInFlight = null;
+    });
+  }
+
+  static Future<void> _authenticate() async {
+    try {
+      if (AuthStorage.user == null) return;
+
+      final status = await _idTokenStatus();
+      log("Freshchat JWT status: $status", name: "FreshchatService");
+
+      // Already good, or a token is mid-handshake and a second one would only
+      // restart it.
+      if (status == JwtTokenStatus.TOKEN_VALID) {
+        _rejectedTokens = 0;
+        return;
+      }
+      if (status == JwtTokenStatus.TOKEN_NOT_PROCESSED) return;
+
+      if (status == JwtTokenStatus.TOKEN_INVALID &&
+          ++_rejectedTokens > _maxRejectedTokens) {
+        log(
+          "Freshchat rejected $_rejectedTokens tokens; giving up for this "
+          "session. Check that the backend signs with the account's current "
+          "encrypted key and that the payload carries freshchat_uuid and "
+          "reference_id.",
+          name: "FreshchatService",
+        );
+        return;
+      }
+
+      // Cold start: the SDK holds nothing, but the token saved last session is
+      // still good and still names the same `freshchat_uuid`, so restoring with
+      // it costs a method call rather than a round trip.
+      final stored = AuthStorage.freshchatToken;
+      if (status == JwtTokenStatus.TOKEN_NOT_SET && !_isTokenExpired(stored)) {
+        log(
+          "Restoring Freshchat user with the stored token.",
+          name: "FreshchatService",
+        );
+        Freshchat.restoreUserWithIdToken(stored!);
+        await _awaitTokenSettled();
+        return;
+      }
+
+      final token = await _mintIdToken();
+      if (token == null) return;
+
+      // [Freshchat.restoreUserWithIdToken] is the call for a signed-in user: it
+      // creates the user the token's `reference_id` names, or picks up the
+      // existing one — and their conversation history — on a reinstall or a
+      // second device. [Freshchat.setUserWithIdToken] is the other half of the
+      // pair and only updates a user already restored, so authenticating with
+      // it (as this did) left the SDK holding a token for a user it never
+      // restored.
+      Freshchat.restoreUserWithIdToken(token);
+      log(
+        "Freshchat user restored with a fresh token.",
+        name: "FreshchatService",
+      );
+      await _awaitTokenSettled();
+    } catch (e) {
+      // Most callers here are fire-and-forget event listeners, so an escaping
+      // error would surface as an unhandled async error rather than anything
+      // useful.
+      log(
+        "Freshchat authentication failed: $e",
+        name: "FreshchatService",
+        error: e,
+      );
+    }
+  }
+
+  /// Waits for the SDK to finish processing a token it was just handed.
+  ///
+  /// `restoreUserWithIdToken` returns the moment the token is handed over — the
+  /// SDK validates it against the server afterwards and sits at
+  /// `TOKEN_NOT_PROCESSED` until that lands. Treating hand-over as done meant
+  /// [showConversations] opened the chat on an SDK that was still
+  /// unauthenticated, so the first visit went on settling the session rather
+  /// than syncing, and a bot flow waiting on a conversation resolved
+  /// server-side needed one extra open before it restarted.
+  ///
+  /// Only reached on the cold-start and expiry paths; a token already valid
+  /// returns from [_authenticate] before this, so the chat screen normally
+  /// opens with no wait at all.
+  static Future<void> _awaitTokenSettled() async {
+    const step = Duration(milliseconds: 150);
+    const limit = Duration(seconds: 5);
+    final deadline = DateTime.now().add(limit);
+
+    while (DateTime.now().isBefore(deadline)) {
+      await Future.delayed(step);
+      final status = await _idTokenStatus();
+      if (status == JwtTokenStatus.TOKEN_NOT_PROCESSED ||
+          status == JwtTokenStatus.TOKEN_NOT_SET) {
+        continue;
+      }
+      log("Freshchat token settled as $status.", name: "FreshchatService");
+      if (status == JwtTokenStatus.TOKEN_VALID) _rejectedTokens = 0;
+      return;
+    }
+
+    log(
+      "Freshchat token still unsettled after ${limit.inSeconds}s; opening "
+      "the chat anyway.",
+      name: "FreshchatService",
+    );
+  }
+
+  /// Asks the backend for a JWT naming this device's Freshchat user and stores
+  /// it, or returns null if it could not be obtained.
+  ///
+  /// The token's `freshchat_uuid` claim has to match the uuid the SDK is
+  /// currently using, which is why that goes up with the request; the backend
+  /// pairs it with the caller's own `reference_id` and signs with the account's
+  /// encrypted key.
+  static Future<String?> _mintIdToken() async {
+    try {
+      final freshchatUuid = await Freshchat.getFreshchatUserId;
+      if (freshchatUuid.isEmpty) {
+        log(
+          "No Freshchat uuid yet; skipping token generation.",
+          name: "FreshchatService",
+        );
+        return null;
+      }
+
+      log(
+        "Generating Freshchat token from backend...",
+        name: "FreshchatService",
+      );
+      final response = await ApiService().generateFreshchatToken(freshchatUuid);
+      if (response.statusCode != 200 || response.data['success'] != true) {
+        log(
+          "Backend declined to mint a Freshchat token: ${response.statusCode}",
+          name: "FreshchatService",
+        );
+        return null;
+      }
+
+      final token = response.data['data']?['token'] as String?;
+      if (token == null || token.isEmpty) {
+        log("Backend returned no Freshchat token.", name: "FreshchatService");
+        return null;
+      }
+
+      await AuthStorage.saveFreshchatToken(token);
+      return token;
+    } catch (e) {
+      log(
+        "Failed to generate Freshchat token: $e",
+        name: "FreshchatService",
+        error: e,
+      );
+      return null;
+    }
+  }
+
+  /// Cheap local pre-check, used only to decide whether the stored token is
+  /// worth re-sending before spending a round trip on a new one. Anything it
+  /// cannot parse counts as expired, so the fallback is always the safe one.
   static bool _isTokenExpired(String? token) {
     if (token == null || token.isEmpty) return true;
     try {
@@ -222,124 +460,73 @@ class FreshchatService {
     return true;
   }
 
-  static Future<void> refreshTokenIfNeeded() async {
-    final user = AuthStorage.user;
-    if (user == null) return;
-
-    final currentToken = AuthStorage.freshchatToken;
-    if (!_isTokenExpired(currentToken)) {
-      log(
-        "Freshchat token is still valid. Skipping refresh.",
-        name: "FreshchatService",
-      );
-      return;
-    }
-
-    try {
-      final freshchatUuid = await Freshchat.getFreshchatUserId;
-      if (freshchatUuid.isNotEmpty) {
-        log(
-          "Generating Freshchat Token from backend...",
-          name: "FreshchatService",
-        );
-        final response = await ApiService().generateFreshchatToken(
-          freshchatUuid,
-        );
-        if (response.statusCode == 200 && response.data['success'] == true) {
-          final token = response.data['data']['token'];
-          if (token != null) {
-            await AuthStorage.saveFreshchatToken(token);
-            Freshchat.setUserWithIdToken(token);
-            log(
-              "User ID token refreshed successfully.",
-              name: "FreshchatService",
-            );
-          }
-        }
-      }
-    } catch (e) {
-      log(
-        "Failed to refresh Freshchat token: $e",
-        name: "FreshchatService",
-        error: e,
-      );
-    }
-  }
-
+  /// Opens the chat, filtered to [tags] so the customer lands in the support
+  /// channel rather than a channel list.
+  ///
+  /// The tag filter was tested as a suspect for the SDK reopening a *resolved*
+  /// conversation (`1141219366823673`) while the backend routes the bot's
+  /// replies into a newly created one, and cleared: dropping it puts the
+  /// customer on `ChannelListActivity` instead, and entering the channel from
+  /// there still takes two visits before the bot's opening message appears. The
+  /// entry path makes no difference, so the filter stays and the defect is
+  /// Freshworks' — see docs/freshchat-support-ticket.md.
   static Future<void> showConversations(
     BuildContext context, {
     List<String> tags = const [],
     String? filteredViewTitle,
   }) async {
-    await refreshTokenIfNeeded();
-    if (tags.isNotEmpty) await _maybeTriggerWelcomeBot(tags.first);
+    await ensureAuthenticated();
     Freshchat.showConversations(
       tags: tags,
       filteredViewTitle: filteredViewTitle,
     );
   }
 
-  /// Nudges the bot's welcome flow when the chat screen is opened on a
-  /// conversation Freshchat has told us it resolved.
+  /// Signs [user] in to Freshchat.
   ///
-  /// [Freshchat.sendMessage] posts a real message on the user's behalf — the
-  /// SDK has no silent variant. It is taken up by the bot's own flow only
-  /// when it lands on a resolved conversation, because that starts a new one
-  /// for the bot to take over; sent into a conversation that is still open it
-  /// just sits in the thread as a stray "Hello" from the user. So the
-  /// greeting goes out on Freshchat's own resolve event and nothing else — a
-  /// guess at when the conversation *might* have ended server-side is exactly
-  /// what used to leave it visible.
+  /// Identity comes from the JWT the backend signs, not from `identifyUser`'s
+  /// external-id/restore-id pair. Those are the two alternative restore schemes
+  /// and Freshchat is explicit that they should not be mixed — running both had
+  /// the SDK restoring one user off a restore id while the token authorised
+  /// another. With user authentication enforced on the account, JWT is the one
+  /// that counts.
   ///
-  /// The cost is that a conversation auto-resolved server-side while the app
-  /// was closed goes unnoticed: the user lands back in it with no greeting,
-  /// and whatever they type triggers the bot the same way this would have.
-  static Future<void> _maybeTriggerWelcomeBot(String tag) async {
-    if (!AuthStorage.chatNeedsWelcome) return;
-
-    log(
-      "Triggering Freshchat welcome bot for tag '$tag'.",
-      name: "FreshchatService",
-    );
-    Freshchat.sendMessage(tag, "Hello");
-    await AuthStorage.setChatNeedsWelcome(false);
-  }
-
-  static Future<void> identifyUser(User user) async {
-    // log(
-    //   "Starting identifyUser flow for user: ${user.id}, existing restoreId: ${user.freshchatRestoreId}",
-    //   name: "FreshchatService",
-    // );
+  /// Called at startup and again on every profile save, so it has to stay cheap
+  /// when there is nothing to do; [ensureAuthenticated] settles that from the
+  /// SDK's own token status without a round trip in the common case.
+  static Future<void> authenticateUser(User user) async {
     try {
-      final restoreId = user.freshchatRestoreId ?? "";
-      // log(
-      //   "Identifying user in SDK with externalId: ${user.id} and restoreId: $restoreId",
-      //   name: "FreshchatService",
-      // );
-      Freshchat.identifyUser(externalId: user.id, restoreId: restoreId);
+      // Authenticate here rather than leaving it to the first
+      // `showConversations`. An unauthenticated SDK does not sync, so deferring
+      // it meant nothing Freshchat pushed could land until the user had opened
+      // the chat at least once that session — and the badge that is supposed to
+      // draw them there stayed at whatever it was when the app started.
+      await ensureAuthenticated();
 
-      // log(
-      //   "Updating Freshchat user profile details for user: ${user.email}...",
-      //   name: "FreshchatService",
-      // );
-      FreshchatUser freshchatUser = await Freshchat.getUser;
-      freshchatUser.setFirstName(user.firstName);
-      freshchatUser.setLastName(user.lastName);
-      freshchatUser.setEmail(user.email);
-      freshchatUser.setPhone(user.countryCode, user.phoneNumber);
-      Freshchat.setUser(freshchatUser);
-      // log(
-      //   "Freshchat user profile details updated successfully.",
-      //   name: "FreshchatService",
-      // );
+      // Re-bind the push token to the user the restore just settled on. It was
+      // handed over at startup, while the SDK was still on the anonymous user
+      // it boots with, and Freshchat delivers to whichever user a token is
+      // registered against — so left alone it kept pointing at the user this
+      // call replaced, and nothing it sent reached the device.
+      await registerPushToken();
+
+      // No `Freshchat.setUser` here. The account runs strict JWT identification,
+      // which rejects it outright —
+      //
+      //   MethodNotAllowedException: setUser() is not allowed because strict
+      //   mode of identifying users with JWT is enabled for this account
+      //
+      // — and the profile it used to push is already in the token the backend
+      // signs (`first_name`, `last_name`, `phone_number` alongside
+      // `reference_id` and `freshchat_uuid`), so it was redundant as well as
+      // rejected. Anything else an agent should see goes in those claims.
 
       // The count read at startup belonged to whoever the SDK had before this
       // user was restored, so take it again now that it means something.
       await refreshUnreadCount();
-      log("AccessToken : ${AuthStorage.accessToken}");
     } catch (e) {
       log(
-        "Failed to identify Freshchat user: $e",
+        "Failed to authenticate Freshchat user: $e",
         name: "FreshchatService",
         error: e,
       );
