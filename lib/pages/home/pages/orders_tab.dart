@@ -789,7 +789,7 @@ class _OrderCardState extends State<_OrderCard> {
     final locale = Localizations.localeOf(context).languageCode;
     final isAr = locale == 'ar';
     final orderDate = widget.order.createdAt;
-    final formattedDate = Formatters.formatDate(context, orderDate);
+    final formattedDate = Formatters.formatDateWithWeekday(context, orderDate);
     final formattedTime = Formatters.formatTime(context, orderDate);
 
     final String imageUrl =
