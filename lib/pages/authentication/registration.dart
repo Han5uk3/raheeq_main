@@ -68,9 +68,11 @@ class _RegistrationState extends State<Registration> {
     }
   }
 
-  /// True when the social provider supplied the email, so the field is shown
-  /// pre-filled and read-only. False when it did not, so the user can enter it.
-  bool _lockEmailField = false;
+  /// True when the social provider supplied the email, so the field is hidden
+  /// altogether — the address is already known and still goes to the API from
+  /// [_emailController]. False when the provider gave us nothing, so the field
+  /// is shown for the user to fill in.
+  bool _hasProviderEmail = false;
 
   bool _isRegistering = false;
   Country _selectedCountry = Country(
@@ -99,16 +101,17 @@ class _RegistrationState extends State<Registration> {
       final email = widget.email?.trim() ?? '';
       _emailController.text = email;
       // The email belongs to the Google/Apple identity this account is being
-      // created against, so it is shown read-only rather than left open to
-      // edit. Login resolves it from the identity token when the provider
-      // stops returning it on the credential -- the delete-then-sign-up-again
-      // case -- so it is always populated by the time we get here.
+      // created against, so there is nothing for the user to decide and the
+      // field is left out of the form entirely. Login resolves it from the
+      // identity token when the provider stops returning it on the credential
+      // -- the delete-then-sign-up-again case -- so it is always populated by
+      // the time we get here.
       //
-      // The lone exception is an email we could not resolve at all: locking a
+      // The lone exception is an email we could not resolve at all: hiding a
       // field that is empty AND required leaves the user unable to submit and
-      // unable to type. That state should now be unreachable; this only makes
-      // it degrade into an editable field instead of a dead end.
-      _lockEmailField = email.isNotEmpty;
+      // with nowhere to type. That state should now be unreachable; this only
+      // makes it degrade into a visible, editable field instead of a dead end.
+      _hasProviderEmail = email.isNotEmpty;
     } else {
       _phoneController.text = '${widget.countryCode}${widget.phoneNumber}';
     }
@@ -311,24 +314,26 @@ class _RegistrationState extends State<Registration> {
                                 )!.enter_last_name,
                               ),
                               const SizedBox(height: 12),
-                              if(widget.isSocialLogin)...{
-                                  _buildTextField(
-                                controller: _emailController,
-                                label: widget.isSocialLogin
-                                    ? AppLocalizations.of(
-                                        context,
-                                      )!.email_address
-                                    : "${AppLocalizations.of(context)!.email_address} (${AppLocalizations.of(context)!.optional})",
-                                hint: AppLocalizations.of(
-                                  context,
-                                )!.enter_email_optional_hint,
-
-                                keyboardType: TextInputType.emailAddress,
-                                isEmail: true,
-                                isOptional: !widget.isSocialLogin,
-                                enabled: !_lockEmailField,
-                              ),
-                              const SizedBox(height: 12),},
+                              // Google and Apple hand us the email with the
+                              // identity, so the field is hidden and the value
+                              // travels straight to the API. It only appears
+                              // when the provider gave us nothing and the user
+                              // has to supply one.
+                              if (widget.isSocialLogin &&
+                                  !_hasProviderEmail) ...{
+                                _buildTextField(
+                                  controller: _emailController,
+                                  label: AppLocalizations.of(
+                                    context,
+                                  )!.email_address,
+                                  hint: AppLocalizations.of(
+                                    context,
+                                  )!.enter_email_optional_hint,
+                                  keyboardType: TextInputType.emailAddress,
+                                  isEmail: true,
+                                ),
+                                const SizedBox(height: 12),
+                              },
                               widget.isSocialLogin
                                   ? Directionality(
                                       textDirection: TextDirection.ltr,
