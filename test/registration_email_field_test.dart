@@ -81,15 +81,19 @@ Widget _host(Widget child) => MaterialApp(
   home: child,
 );
 
-/// The email field is the only one built with `isEmail: true`.
-TextFormField _emailField(WidgetTester tester) {
+/// `_buildTextField` renders each field's label as a [Text] above it, so the
+/// label is what tells us whether the email field is on screen at all.
+final _emailLabel = find.text('Email Address');
+
+/// The email input, identified by the hint only it carries. Throws when the
+/// field is not rendered, so only call it after asserting [_emailLabel].
+/// `TextFormField` builds a `TextField`, which is where the decoration lives.
+TextField _emailField(WidgetTester tester) {
   return tester
-      .widgetList<TextFormField>(find.byType(TextFormField))
+      .widgetList<TextField>(find.byType(TextField))
       .firstWhere(
-        (f) => f.controller?.text.contains('@') ?? false,
-        orElse: () => tester
-            .widgetList<TextFormField>(find.byType(TextFormField))
-            .elementAt(2),
+        (f) =>
+            (f.decoration?.hintText ?? '').toLowerCase().contains('your email'),
       );
 }
 
@@ -98,9 +102,7 @@ void main() {
   // request) when it initialises, so a one-shot assignment here gets clobbered.
   setUp(() => HttpOverrides.global = _OfflineImages());
 
-  testWidgets('social login pre-fills the email and locks the field', (
-    tester,
-  ) async {
+  testWidgets('social login hides the email field entirely', (tester) async {
     await tester.pumpWidget(
       _host(
         const Registration(
@@ -116,24 +118,22 @@ void main() {
     );
     await tester.pump();
 
-    // Autofilled...
-    expect(find.text('someone@example.com'), findsOneWidget);
-
-    // ...and not interactable.
-    final email = _emailField(tester);
-    expect(email.controller!.text, 'someone@example.com');
-    expect(email.enabled, isFalse);
-
-    // Typing into it must not change the value.
-    await tester.enterText(
-      find.byWidget(email),
-      'attacker@evil.com',
+    // Google supplied the address, so there is nothing to show or decide.
+    expect(_emailLabel, findsNothing);
+    expect(find.text('someone@example.com'), findsNothing);
+    expect(
+      tester
+          .widgetList<TextField>(find.byType(TextField))
+          .where((f) => (f.controller?.text ?? '').contains('@')),
+      isEmpty,
     );
-    await tester.pump();
-    expect(email.controller!.text, 'someone@example.com');
+
+    // The rest of the form is still there.
+    expect(find.text('Sam'), findsOneWidget);
+    expect(find.text('Rae'), findsOneWidget);
   });
 
-  testWidgets('a relay address from Hide My Email is locked the same way', (
+  testWidgets('a relay address from Hide My Email is hidden the same way', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -149,12 +149,11 @@ void main() {
     );
     await tester.pump();
 
-    final email = _emailField(tester);
-    expect(email.controller!.text, 'xyz123@privaterelay.appleid.com');
-    expect(email.enabled, isFalse);
+    expect(_emailLabel, findsNothing);
+    expect(find.text('xyz123@privaterelay.appleid.com'), findsNothing);
   });
 
-  testWidgets('an unresolvable email stays editable rather than dead-ending', (
+  testWidgets('an unresolvable email still shows an editable field', (
     tester,
   ) async {
     await tester.pumpWidget(
@@ -170,8 +169,34 @@ void main() {
     );
     await tester.pump();
 
+    // Hiding an empty, required field would leave the user with nowhere to
+    // type and no way to submit, so this case keeps the field.
+    expect(_emailLabel, findsOneWidget);
     final email = _emailField(tester);
     expect(email.controller!.text, isEmpty);
-    expect(email.enabled, isTrue);
+    expect(email.enabled, isNot(false));
+
+    await tester.enterText(find.byWidget(email), 'typed@example.com');
+    await tester.pump();
+    expect(email.controller!.text, 'typed@example.com');
+  });
+
+  testWidgets('an empty-string email is treated as unresolvable', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      _host(
+        const Registration(
+          phoneNumber: '',
+          countryCode: '',
+          registrationToken: 'tok',
+          isSocialLogin: true,
+          email: '   ',
+        ),
+      ),
+    );
+    await tester.pump();
+
+    expect(_emailLabel, findsOneWidget);
   });
 }
