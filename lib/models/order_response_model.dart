@@ -94,7 +94,18 @@ class OrderResponseModel {
           ? OrderProduct.fromJson(json['product'])
           : null,
       financials: financialsJson != null
-          ? OrderFinancials.fromJson(financialsJson)
+          ? OrderFinancials.fromJson({
+              // Like `walletAmount` below, the free-delivery fields turn up at
+              // the item root on some endpoints, so fall back to them.
+              for (final key in const [
+                'isFreeDelivery',
+                'freeDelivery',
+                'originalDeliveryFee',
+              ])
+                if (financialsJson[key] == null && json[key] != null)
+                  key: json[key],
+              ...financialsJson,
+            })
           : null,
       target: json['target'] != null
           ? OrderTarget.fromJson(json['target'])
@@ -209,7 +220,16 @@ class OrderProduct {
 class OrderFinancials {
   final double unitPrice;
   final double amount;
+
+  /// What delivery actually cost the customer — 0 on a free delivery.
   final double deliveryFee;
+
+  /// What delivery would have cost, when the backend sends it separately.
+  /// Null when the backend only reports one delivery figure.
+  final double? originalDeliveryFee;
+
+  /// The backend's explicit free-delivery flag, when it sends one.
+  final bool isFreeDelivery;
   final double vatAmount;
   final double walletAmount;
   final double discountAmount;
@@ -219,17 +239,38 @@ class OrderFinancials {
     required this.unitPrice,
     required this.amount,
     required this.deliveryFee,
+    this.originalDeliveryFee,
+    this.isFreeDelivery = false,
     required this.vatAmount,
     required this.walletAmount,
     required this.discountAmount,
     required this.totalAmount,
   });
 
+  /// Whether delivery ended up free. Either the backend says so outright, or
+  /// it charged nothing while still reporting a non-zero original fee.
+  bool get hasFreeDelivery =>
+      isFreeDelivery || ((originalDeliveryFee ?? 0) > 0 && deliveryFee <= 0);
+
+  /// The fee to strike through on a free delivery — the original where the
+  /// backend sends one, otherwise the single figure it reported. Null when
+  /// there is no fee worth striking through, so the UI shows only "Free".
+  double? get strikethroughDeliveryFee {
+    final original = originalDeliveryFee ?? deliveryFee;
+    return original > 0 ? original : null;
+  }
+
   factory OrderFinancials.fromJson(Map<String, dynamic> json) {
     return OrderFinancials(
       unitPrice: (json['unitPrice'] ?? 0).toDouble(),
       amount: (json['amount'] ?? 0).toDouble(),
       deliveryFee: (json['deliveryFee'] ?? 0).toDouble(),
+      originalDeliveryFee: (json['originalDeliveryFee'] ??
+              json['deliveryFeeBeforeDiscount'] ??
+              json['baseDeliveryFee'])
+          ?.toDouble(),
+      isFreeDelivery:
+          json['isFreeDelivery'] ?? json['freeDelivery'] ?? false,
       vatAmount: (json['vatAmount'] ?? 0).toDouble(),
       walletAmount: (json['walletAmount'] ?? 0).toDouble(),
       discountAmount: (json['discountAmount'] ?? 0).toDouble(),
