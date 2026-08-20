@@ -16,7 +16,13 @@ class Checkout {
   final bool isFreeDelivery;
   final List<CheckoutItem> items;
   final double subTotal;
+
+  /// What delivery actually costs — 0 once a free-delivery rule applies.
   final double totalDeliveryFee;
+
+  /// What delivery would have cost, when the backend sends it separately.
+  /// Null when the backend only reports one delivery figure.
+  final double? originalDeliveryFee;
   final double totalGiftCardFee;
   final double discountAmount;
   final double vatAmount;
@@ -42,6 +48,7 @@ class Checkout {
     required this.items,
     required this.subTotal,
     required this.totalDeliveryFee,
+    this.originalDeliveryFee,
     required this.totalGiftCardFee,
     required this.discountAmount,
     required this.vatAmount,
@@ -51,6 +58,20 @@ class Checkout {
     this.createdAt,
     this.updatedAt,
   });
+
+  /// Whether delivery ends up free. Either the backend says so outright, or it
+  /// charges nothing while still reporting a non-zero original fee.
+  bool get hasFreeDelivery =>
+      isFreeDelivery ||
+      ((originalDeliveryFee ?? 0) > 0 && totalDeliveryFee <= 0);
+
+  /// The fee to strike through on a free delivery — the original where the
+  /// backend sends one, otherwise the single figure it reported. Null when
+  /// there is no fee worth striking through, so the UI shows only "Free".
+  double? get strikethroughDeliveryFee {
+    final original = originalDeliveryFee ?? totalDeliveryFee;
+    return original > 0 ? original : null;
+  }
 
   factory Checkout.fromJson(Map<String, dynamic> json) {
     return Checkout(
@@ -85,6 +106,10 @@ class Checkout {
           (json['pricing']?['deliveryFee'] as num?)?.toDouble() ??
           (json['totalDeliveryFee'] as num?)?.toDouble() ??
           0.0,
+      originalDeliveryFee:
+          (json['pricing']?['originalDeliveryFee'] as num?)?.toDouble() ??
+          (json['pricing']?['deliveryFeeBeforeDiscount'] as num?)?.toDouble() ??
+          (json['originalDeliveryFee'] as num?)?.toDouble(),
       totalGiftCardFee:
           (json['pricing']?['giftCardFee'] as num?)?.toDouble() ??
           (json['totalGiftCardFee'] as num?)?.toDouble() ??

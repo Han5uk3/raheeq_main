@@ -8,6 +8,7 @@ import 'package:path_provider/path_provider.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
+import 'package:raheeq_main/common_widgets/delivery_fee_value.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
@@ -816,11 +817,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                     isAr,
                   ),
                   const SizedBox(height: 12),
-                  _buildFinancialRow(
-                    AppLocalizations.of(context)!.delivery_fee,
-                    order.financials!.deliveryFee,
-                    isAr,
-                  ),
+                  _buildDeliveryFeeRow(order.financials!, isAr),
                   const SizedBox(height: 12),
                   _buildFinancialRow(
                     AppLocalizations.of(context)!.vat,
@@ -922,6 +919,32 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
       default:
         return 'assets/payment_method_icons/mada.png';
     }
+  }
+
+  /// The delivery fee row, which reads "SAR 25.00  Free" — original struck
+  /// through — instead of a bare "SAR 0" when the delivery was free.
+  Widget _buildDeliveryFeeRow(OrderFinancials financials, bool isAr) {
+    final isFree = financials.hasFreeDelivery;
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          AppLocalizations.of(context)!.delivery_fee,
+          style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+        ),
+        DeliveryFeeValue(
+          isFree: isFree,
+          amount: isFree
+              ? financials.strikethroughDeliveryFee
+              : financials.deliveryFee,
+          baseStyle: const TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+      ],
+    );
   }
 
   Widget _buildFinancialRow(

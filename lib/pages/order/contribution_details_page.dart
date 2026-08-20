@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
+import 'package:raheeq_main/common_widgets/delivery_fee_value.dart';
 import 'package:raheeq_main/pages/order/payment_success.dart';
 import 'package:raheeq_main/services/network_monitor.dart';
 import 'package:raheeq_main/services/snackbar_insets_services.dart';
@@ -64,6 +65,20 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
   // so a stale listener from an abandoned attempt can recognize itself as
   // superseded and no-op instead of re-verifying a dead paymentId.
   int _paymentAttemptToken = 0;
+
+  /// What delivery costs on the current checkout, falling back to the figure
+  /// the page opened with — a re-fetched checkout occasionally comes back with
+  /// the fee zeroed out.
+  double get _deliveryFee => _checkoutData.totalDeliveryFee > 0
+      ? _checkoutData.totalDeliveryFee
+      : widget.checkoutData.totalDeliveryFee;
+
+  /// The fee to strike through once delivery is free: whichever original the
+  /// backend still reports, else the fee the page opened with. Null when no
+  /// fee is known, leaving the row to show only "Free".
+  double? get _originalDeliveryFee =>
+      _checkoutData.strikethroughDeliveryFee ??
+      widget.checkoutData.strikethroughDeliveryFee;
 
   @override
   void initState() {
@@ -1769,24 +1784,12 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                         _checkoutData.totalGiftCardFee,
                                         isAr,
                                       ),
-                                    if ((_checkoutData.totalDeliveryFee >= 0
-                                            ? _checkoutData.totalDeliveryFee
-                                            : widget
-                                                  .checkoutData
-                                                  .totalDeliveryFee) >
-                                        0)
-                                      _buildPriceRow(
-                                        AppLocalizations.of(
-                                          context,
-                                        )!.delivery_fee,
-                                        _checkoutData.totalDeliveryFee > 0
-                                            ? _checkoutData.totalDeliveryFee
-                                            : widget
-                                                  .checkoutData
-                                                  .totalDeliveryFee,
-                                        isAr,
-                                        isFree: _checkoutData.isFreeDelivery,
-                                      ),
+                                    // A free delivery still shows the row, so
+                                    // the struck-through fee and "Free" are
+                                    // visible rather than nothing at all.
+                                    if (_checkoutData.hasFreeDelivery ||
+                                        _deliveryFee > 0)
+                                      _buildDeliveryFeeRow(),
                                     if (_checkoutData.vatAmount > 0)
                                       _buildPriceRow(
                                         AppLocalizations.of(context)!.vat,
@@ -2537,12 +2540,33 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
     );
   }
 
-  Widget _buildPriceRow(
-    String title,
-    dynamic amount,
-    bool isAr, {
-    bool isFree = false,
-  }) {
+  /// The delivery fee row, which reads "SAR 25.00  Free" \u2014 original struck
+  /// through \u2014 instead of a bare "SAR 0" when the delivery is free.
+  Widget _buildDeliveryFeeRow() {
+    final isFree = _checkoutData.hasFreeDelivery;
+    return Padding(
+      padding: const EdgeInsetsDirectional.only(bottom: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(
+            AppLocalizations.of(context)!.delivery_fee,
+            style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
+          ),
+          DeliveryFeeValue(
+            isFree: isFree,
+            amount: isFree ? _originalDeliveryFee : _deliveryFee,
+            baseStyle: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPriceRow(String title, dynamic amount, bool isAr) {
     if (amount == null) return const SizedBox.shrink();
     final double value = (amount is int) ? amount.toDouble() : amount;
     return Padding(
@@ -2554,29 +2578,9 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
             title,
             style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
           ),
-          Row(
-            children: [
-              Text(
-                "\u202A${AppLocalizations.of(context)!.sar_currency} ${Formatters.formatPrice(value, decimals: 2)}\u202C",
-                style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: isFree ? FontWeight.normal : FontWeight.w600,
-                  decoration: isFree ? TextDecoration.lineThrough : null,
-                  color: isFree ? Colors.grey : null,
-                ),
-              ),
-              if (isFree) ...[
-                const SizedBox(width: 8),
-                Text(
-                  AppLocalizations.of(context)!.free,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.green,
-                  ),
-                ),
-              ],
-            ],
+          Text(
+            "\u202A${AppLocalizations.of(context)!.sar_currency} ${Formatters.formatPrice(value, decimals: 2)}\u202C",
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
           ),
         ],
       ),
