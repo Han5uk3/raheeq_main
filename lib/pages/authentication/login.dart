@@ -20,6 +20,8 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:raheeq_main/pages/authentication/otp.dart';
 import 'package:raheeq_main/pages/authentication/registration.dart';
 import 'package:raheeq_main/pages/home/home_screen.dart';
+import 'package:raheeq_main/storage/app_storage.dart';
+import 'package:raheeq_main/utils/apple_id_token.dart';
 import 'package:raheeq_main/storage/auth_storage.dart';
 import 'package:dio/dio.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
@@ -163,20 +165,8 @@ class _LoginState extends State<Login> {
           AppleIDAuthorizationScopes.fullName,
         ],
       );
-      log(
-        'Apple Sign-In Credential retrieved for user: ${credential.email ?? "Unknown Email"}',
-      );
 
-      if (credential.identityToken != null) {
-        log('Apple Sign-In Identity Token retrieved successfully');
-        await _authenticateSocial(
-          'Apple',
-          credential.identityToken!,
-          email: credential.email,
-          firstName: credential.givenName,
-          lastName: credential.familyName,
-        );
-      } else {
+      if (credential.identityToken == null) {
         log('Apple Sign-In failed: identityToken is null');
         if (mounted) {
           CustomSnackbar.show(
@@ -187,10 +177,64 @@ class _LoginState extends State<Login> {
             isError: true,
           );
         }
+        return;
       }
+
+      // Apple decides "first authorization" per Apple ID + app, not per account
+      // in our backend. A customer who registered with Apple, deleted their
+      // account, and now signs up again is a new registration to us but a
+      // repeat authorization to Apple: the credential comes back with email and
+      // name null, and Apple shows no sheet offering to re-share them. Same for
+      // anyone who simply abandoned registration the first time round.
+      //
+      // Registration shows the email read-only, so an unresolved email there is
+      // a dead end. AppleProfile falls back to the identity token, which does
+      // carry the address on every sign-in, then to what we cached earlier.
+      final profile = AppleProfile.resolve(
+        credentialEmail: credential.email,
+        credentialGivenName: credential.givenName,
+        credentialFamilyName: credential.familyName,
+        identityToken: credential.identityToken,
+        cached: AppStorage.appleProfile(credential.userIdentifier ?? ""),
+      );
+      final email = profile.email;
+      final firstName = profile.firstName;
+      final lastName = profile.lastName;
+
+      // Persist whatever this sign-in taught us, so the next one can fall back
+      // to it. Guarded on userIdentifier: without a key there is nothing safe
+      // to file the details under.
+      if (credential.userIdentifier != null) {
+        await AppStorage.saveAppleProfile(
+          userIdentifier: credential.userIdentifier!,
+          email: email,
+          firstName: firstName,
+          lastName: lastName,
+        );
+      }
+
+      log(
+        'Apple Sign-In credential retrieved '
+        '(email: ${email ?? "none"}, name: ${firstName ?? "none"} '
+        '${lastName ?? ""}, emailFromCredential: ${credential.email != null})',
+      );
+
+      await _authenticateSocial(
+        'Apple',
+        credential.identityToken!,
+        email: email,
+        firstName: firstName,
+        lastName: lastName,
+      );
     } catch (error) {
       log('Apple Sign-In Error: $error');
       if (mounted) {
+        // Cancelling is a deliberate user action, not a failure worth an error
+        // toast. SignInWithApple surfaces it as a canceled authorization code.
+        if (error is SignInWithAppleAuthorizationException &&
+            error.code == AuthorizationErrorCode.canceled) {
+          return;
+        }
         String errorMessage = 'Failed to sign in with Apple: $error';
         if (error.toString().toLowerCase().contains('cancel')) {
           errorMessage = 'Apple sign in was cancelled';

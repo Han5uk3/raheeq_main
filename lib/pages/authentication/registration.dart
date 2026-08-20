@@ -68,6 +68,10 @@ class _RegistrationState extends State<Registration> {
     }
   }
 
+  /// True when the social provider supplied the email, so the field is shown
+  /// pre-filled and read-only. False when it did not, so the user can enter it.
+  bool _lockEmailField = false;
+
   bool _isRegistering = false;
   Country _selectedCountry = Country(
     phoneCode: '966',
@@ -92,7 +96,19 @@ class _RegistrationState extends State<Registration> {
         }
       }
       if (widget.lastName != null) _lastNameController.text = widget.lastName!;
-      if (widget.email != null) _emailController.text = widget.email!;
+      final email = widget.email?.trim() ?? '';
+      _emailController.text = email;
+      // The email belongs to the Google/Apple identity this account is being
+      // created against, so it is shown read-only rather than left open to
+      // edit. Login resolves it from the identity token when the provider
+      // stops returning it on the credential -- the delete-then-sign-up-again
+      // case -- so it is always populated by the time we get here.
+      //
+      // The lone exception is an email we could not resolve at all: locking a
+      // field that is empty AND required leaves the user unable to submit and
+      // unable to type. That state should now be unreachable; this only makes
+      // it degrade into an editable field instead of a dead end.
+      _lockEmailField = email.isNotEmpty;
     } else {
       _phoneController.text = '${widget.countryCode}${widget.phoneNumber}';
     }
@@ -310,7 +326,7 @@ class _RegistrationState extends State<Registration> {
                                 keyboardType: TextInputType.emailAddress,
                                 isEmail: true,
                                 isOptional: !widget.isSocialLogin,
-                                enabled: !widget.isSocialLogin,
+                                enabled: !_lockEmailField,
                               ),
                               const SizedBox(height: 12),},
                               widget.isSocialLogin
