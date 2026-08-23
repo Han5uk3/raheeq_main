@@ -3226,6 +3226,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Rahiq App 💧:- A water delivery service for mosques and orphanages 🚚🕌. The Prophet ﷺ said: \"Whoever guides someone to good will have a reward like the one who did it\" 🌷: Share the app - {link}'**
   String share_app_message(String link);
+
+  /// No description provided for @sign_in_required.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in required'**
+  String get sign_in_required;
+
+  /// No description provided for @sign_in.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in'**
+  String get sign_in;
+
+  /// No description provided for @not_now.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get not_now;
+
+  /// No description provided for @continue_as_guest.
+  ///
+  /// In en, this message translates to:
+  /// **'Continue as a guest'**
+  String get continue_as_guest;
+
+  /// No description provided for @browsing_as_guest.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re browsing as a guest'**
+  String get browsing_as_guest;
+
+  /// No description provided for @guest_profile_subtitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to manage your account, orders and donations'**
+  String get guest_profile_subtitle;
+
+  /// No description provided for @sign_in_required_donate.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to your Rahiq account to choose where your donation goes and place your order.'**
+  String get sign_in_required_donate;
+
+  /// No description provided for @sign_in_required_campaign.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to your Rahiq account to donate to this campaign.'**
+  String get sign_in_required_campaign;
+
+  /// No description provided for @sign_in_required_checkout.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to your Rahiq account to complete this order.'**
+  String get sign_in_required_checkout;
+
+  /// No description provided for @sign_in_required_notifications.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to your Rahiq account to see your notifications.'**
+  String get sign_in_required_notifications;
+
+  /// No description provided for @sign_in_required_orders.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to your Rahiq account to view and track your orders.'**
+  String get sign_in_required_orders;
+
+  /// No description provided for @sign_in_required_profile.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to your Rahiq account to view and edit your personal information.'**
+  String get sign_in_required_profile;
+
+  /// No description provided for @sign_in_required_saved_mosques.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to your Rahiq account to save mosques and open your saved list.'**
+  String get sign_in_required_saved_mosques;
+
+  /// No description provided for @sign_in_required_recurring_donations.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to your Rahiq account to set up and manage recurring donations.'**
+  String get sign_in_required_recurring_donations;
+
+  /// No description provided for @sign_in_required_wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to your Rahiq account to view your wallet balance and transactions.'**
+  String get sign_in_required_wallet;
+
+  /// No description provided for @sign_in_required_chillers.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to your Rahiq account to see the chillers you have sponsored.'**
+  String get sign_in_required_chillers;
+
+  /// No description provided for @sign_in_required_impact.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to your Rahiq account to follow the impact of your donations.'**
+  String get sign_in_required_impact;
+
+  /// No description provided for @sign_in_required_support.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to your Rahiq account so our support team can help you with your orders.'**
+  String get sign_in_required_support;
+
+  /// No description provided for @sign_in_required_reviews.
+  ///
+  /// In en, this message translates to:
+  /// **'Sign in to your Rahiq account to read customer reviews and share your own.'**
+  String get sign_in_required_reviews;
 }
 
 class _AppLocalizationsDelegate

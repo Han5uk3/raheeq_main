@@ -48,6 +48,15 @@ class _SplashScreenState extends State<SplashScreen> {
     // no guarantee it finishes before this 3500 ms timer fires.
     await AuthStorage.ready;
 
+    // A guest has no session to check and no profile call in flight — the
+    // stored flag is the whole decision, so route straight to Home on it.
+    if (AuthStorage.isGuest) {
+      AuthStorage.suppressLoginRedirect = false;
+      if (!mounted) return;
+      Navigator.of(context).pushReplacement(HomeScreen.route());
+      return;
+    }
+
     // The cold-start profile check runs in parallel with the 3500 ms timer
     // above and has usually landed by now. Await it so a revoked session is
     // known before we route — otherwise we'd send the user to Home and the

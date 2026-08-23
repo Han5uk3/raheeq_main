@@ -64,6 +64,15 @@ class ApiService {
     '/auth/logout',
   ];
 
+  /// Endpoints the backend serves without a customer token. These are the
+  /// only calls guest mode is allowed to make; everything else is behind a
+  /// sign-in prompt in the UI (see `SignInRequiredDialog`).
+  static const List<String> publicPaths = ['/home'];
+
+  static bool isPublicPath(String path) {
+    return publicPaths.any((public) => path.contains(public));
+  }
+
   /// Called when a request fails because the device has no internet
   /// connection or the server is unreachable (DNS failure, timeout, etc).
   /// Wire this in main.dart to show a snackbar via CustomSnackbar +
@@ -125,6 +134,9 @@ class ApiService {
 
   Future<void> _logout() async {
     if (_loggingOut) return;
+    // Nothing to log out of, and clearing storage here would silently drop the
+    // guest out of the app.
+    if (AuthStorage.isGuest) return;
 
     _loggingOut = true;
 
@@ -240,6 +252,19 @@ class ApiService {
             return handler.next(options);
           }
 
+          // Guest mode: there is no session to attach or refresh. Sending the
+          // request bare is right for the public endpoints, and the UI keeps
+          // guests away from the rest.
+          if (AuthStorage.isGuest) {
+            if (!isPublicPath(options.path)) {
+              _log(
+                "Guest mode: ${options.path} needs a customer token and will "
+                "be rejected. This call should have been gated in the UI.",
+              );
+            }
+            return handler.next(options);
+          }
+
           // Proactively refresh BEFORE the request goes out if the token
           // is missing/expiring. Concurrent requests all funnel through
           // the same _ensureRefreshed() future, so N simultaneous calls
@@ -271,6 +296,13 @@ class ApiService {
 
           final isUnauthorized = error.response?.statusCode == 401;
           if (!isUnauthorized || _isAuthExempt(requestOptions.path)) {
+            return handler.next(error);
+          }
+
+          // A guest has no session to refresh and none to be logged out of, so
+          // a 401 is just an error for the caller to handle — never a reason to
+          // wipe storage and bounce them off the app they are browsing.
+          if (AuthStorage.isGuest) {
             return handler.next(error);
           }
 
@@ -329,6 +361,8 @@ class ApiService {
   ///   [SessionStatus.networkError] WITHOUT clearing storage, so the user
   ///   can retry once they have a connection instead of being logged out.
   Future<SessionStatus> checkSession() async {
+    // Guests deliberately have no tokens; the splash routes them to Home on
+    // the flag alone and never reaches this.
     final accessToken = AuthStorage.accessToken;
     final refreshToken = AuthStorage.refreshToken;
 
@@ -751,6 +785,8 @@ class ApiService {
     }
   }
 
+  /// Public endpoint — served without a customer token, which is what lets
+  /// guest mode render the home screen. See [publicPaths].
   Future<Response> getHome() async {
     try {
       log('API REQUEST: GET /home', name: 'HomeAPI');

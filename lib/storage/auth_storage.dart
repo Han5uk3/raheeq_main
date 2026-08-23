@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -13,6 +14,7 @@ class AuthStorage {
   static const String refreshTokenKey = 'refreshToken';
   static const String registrationTokenKey = 'registrationToken';
   static const String userDataKey = 'userData';
+  static const String guestModeKey = 'guestMode';
 
   // Global key for programmatic routing (e.g. token invalidation redirection)
   static final GlobalKey<NavigatorState> navigatorKey =
@@ -44,10 +46,59 @@ class AuthStorage {
     await Hive.initFlutter();
     await Hive.openBox(boxName);
     isLoggedInNotifier.value = accessToken != null;
+    isGuestNotifier.value = isGuest;
     if (!_readyCompleter.isCompleted) _readyCompleter.complete();
   }
 
   static Box get _box => Hive.box(boxName);
+
+  // -------------------------------------------------------------------
+  // Guest mode (iOS only)
+  // -------------------------------------------------------------------
+
+  /// Notifies listeners when the app enters or leaves guest mode, so anything
+  /// built while browsing as a guest can rebuild the moment a session exists.
+  static final ValueNotifier<bool> isGuestNotifier = ValueNotifier<bool>(false);
+
+  /// DEBUG SWITCH — set back to `false` before shipping.
+  ///
+  /// Guest mode is an iOS-only feature. This opens it on Android too so the
+  /// flow can be exercised on an Android device. Everything that gates on the
+  /// platform reads [guestModeSupported], so flipping this one constant back
+  /// restores the iOS-only behaviour everywhere: the login button, [isGuest]
+  /// and [enterGuestMode] alike.
+  static const bool allowGuestModeOnAndroid = true;
+
+  /// Whether this platform may enter guest mode at all.
+  static bool get guestModeSupported =>
+      Platform.isIOS || allowGuestModeOnAndroid;
+
+  /// True while the user is browsing the app without a customer session.
+  ///
+  /// The platform gate is repeated here rather than left to the callers: a
+  /// flag carried over by a restored backup then still can't put an
+  /// unsupported platform into guest mode.
+  static bool get isGuest {
+    if (!guestModeSupported) return false;
+    if (!Hive.isBoxOpen(boxName)) return false;
+    return _box.get(guestModeKey) == true;
+  }
+
+  /// Starts browsing without signing in. No-op where guest mode is not
+  /// supported — see [guestModeSupported].
+  static Future<void> enterGuestMode() async {
+    if (!guestModeSupported) return;
+    await _box.put(guestModeKey, true);
+    isGuestNotifier.value = true;
+  }
+
+  /// Leaves guest mode. Callers sending the user to the login screen call this
+  /// first, so nothing left on screen still reads as a guest.
+  static Future<void> exitGuestMode() async {
+    if (!Hive.isBoxOpen(boxName)) return;
+    await _box.delete(guestModeKey);
+    isGuestNotifier.value = false;
+  }
 
   static Future<void> saveTokens({
     required String accessToken,
@@ -55,6 +106,10 @@ class AuthStorage {
   }) async {
     await _box.put(accessTokenKey, accessToken);
     await _box.put(refreshTokenKey, refreshToken);
+    // Every login path funnels through here, so this is the single place that
+    // has to retire guest mode: a real session always supersedes it.
+    await _box.delete(guestModeKey);
+    isGuestNotifier.value = false;
     isLoggedInNotifier.value = true;
   }
 
@@ -99,6 +154,7 @@ class AuthStorage {
   static Future<void> clear() async {
     await _box.clear();
     isLoggedInNotifier.value = false;
+    isGuestNotifier.value = false;
 
     try {
       Freshchat.resetUser();

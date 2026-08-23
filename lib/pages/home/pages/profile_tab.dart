@@ -23,11 +23,17 @@ import 'package:raheeq_main/pages/home/pages/customer_reviews_page.dart';
 import 'package:raheeq_main/pages/home/pages/my_chillers_page.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
+import 'package:raheeq_main/common_widgets/sign_in_required_dialog.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ProfileTab extends StatefulWidget {
   const ProfileTab({super.key});
+
+  /// Drops the cached notification count. Called when the session changes
+  /// hands — signing out and straight back in as a guest, say — so the badge
+  /// never carries over from the previous user.
+  static void resetCache() => _ProfileTabState._resetCache();
 
   @override
   State<ProfileTab> createState() => _ProfileTabState();
@@ -36,6 +42,11 @@ class ProfileTab extends StatefulWidget {
 class _ProfileTabState extends State<ProfileTab> {
   static String? _cachedNotificationsETag;
   static int _cachedUnreadCount = 0;
+
+  static void _resetCache() {
+    _cachedNotificationsETag = null;
+    _cachedUnreadCount = 0;
+  }
 
   bool _isLoading = false;
   bool _isSaving = false; 
@@ -49,8 +60,20 @@ class _ProfileTabState extends State<ProfileTab> {
     _currentUser = AuthStorage.user;
     _unreadNotificationsCount = _cachedUnreadCount;
 
-    // Refresh user profile silently on load to match production APIs
-    _refreshProfile();
+    // A guest has no profile to refresh and no token for the call.
+    if (!AuthStorage.isGuest) {
+      // Refresh user profile silently on load to match production APIs
+      _refreshProfile();
+    }
+  }
+
+  /// Wraps a menu tile's tap so a guest gets the prompt for [action] instead of
+  /// a screen that would have nothing to load.
+  VoidCallback _gated(GuestAction action, VoidCallback onTap) {
+    return () async {
+      if (!await SignInRequired.guard(context, action)) return;
+      onTap();
+    };
   }
 
   Future<void> _refreshProfile() async {
@@ -373,7 +396,8 @@ class _ProfileTabState extends State<ProfileTab> {
 
   @override
   Widget build(BuildContext context) {
-    if (_currentUser == null) {
+    final isGuest = AuthStorage.isGuest;
+    if (_currentUser == null && !isGuest) {
       return Scaffold(
         body: Center(child: Text(AppLocalizations.of(context)!.no_session)),
       );
@@ -411,7 +435,7 @@ class _ProfileTabState extends State<ProfileTab> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       const SizedBox(height: 16),
-                      _buildInfoCard(),
+                      isGuest ? _buildGuestCard() : _buildInfoCard(),
                       const SizedBox(height: 16),
                       _buildSection(
                         AppLocalizations.of(context)!.account_section,
@@ -421,7 +445,7 @@ class _ProfileTabState extends State<ProfileTab> {
                             title: AppLocalizations.of(
                               context,
                             )!.personal_information,
-                            onTap: () {
+                            onTap: _gated(GuestAction.profile, () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -435,12 +459,12 @@ class _ProfileTabState extends State<ProfileTab> {
                                   });
                                 }
                               });
-                            },
+                            }),
                           ),
                           _buildMenuTile(
                             icon: Icons.favorite_border_rounded,
                             title: AppLocalizations.of(context)!.saved_mosques,
-                            onTap: () {
+                            onTap: _gated(GuestAction.savedMosques, () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -448,14 +472,14 @@ class _ProfileTabState extends State<ProfileTab> {
                                       const SavedMosquesPage(),
                                 ),
                               );
-                            },
+                            }),
                           ),
                           _buildMenuTile(
                             icon: Icons.cached_rounded,
                             title: AppLocalizations.of(
                               context,
                             )!.recurring_donations,
-                            onTap: () {
+                            onTap: _gated(GuestAction.recurringDonations, () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -463,7 +487,7 @@ class _ProfileTabState extends State<ProfileTab> {
                                       const RecurringDonationsPage(),
                                 ),
                               );
-                            },
+                            }),
                           ),
                         ],
                       ),
@@ -475,34 +499,34 @@ class _ProfileTabState extends State<ProfileTab> {
                           _buildMenuTile(
                             icon: Icons.account_balance_wallet_outlined,
                             title: AppLocalizations.of(context)!.my_wallet,
-                            onTap: () {
+                            onTap: _gated(GuestAction.wallet, () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => const MyWalletPage(),
                                 ),
                               );
-                            },
+                            }),
                           ),
 
                           _buildMenuTile(
                             icon: Icons.kitchen_outlined,
                             title: AppLocalizations.of(context)!.my_chillers,
-                            onTap: () {
+                            onTap: _gated(GuestAction.chillers, () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => const MyChillersPage(),
                                 ),
                               );
-                            },
+                            }),
                           ),
                           _buildMenuTile(
                             icon: Symbols.package_2,
                             title: AppLocalizations.of(context)!.order_history,
-                            onTap: () {
+                            onTap: _gated(GuestAction.orders, () {
                               HomeScreen.switchTabNotifier.value = 1;
-                            },
+                            }),
                           ),
                         ],
                       ),
@@ -515,7 +539,7 @@ class _ProfileTabState extends State<ProfileTab> {
                             icon: Icons.notifications_outlined,
                             title: AppLocalizations.of(context)!.notifications,
                             badgeCount: _unreadNotificationsCount,
-                            onTap: () {
+                            onTap: _gated(GuestAction.notifications, () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -525,7 +549,7 @@ class _ProfileTabState extends State<ProfileTab> {
                               ).then((_) {
                                 _refreshProfile();
                               });
-                            },
+                            }),
                           ),
                           _buildMenuTile(
                             icon: Icons.file_copy_outlined,
@@ -593,21 +617,21 @@ class _ProfileTabState extends State<ProfileTab> {
                           _buildMenuTile(
                             icon: Icons.phone_outlined,
                             title: AppLocalizations.of(context)!.contact_us,
-                            onTap: () {
+                            onTap: _gated(GuestAction.support, () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) => const ContactUsPage(),
                                 ),
                               );
-                            },
+                            }),
                           ),
                           _buildMenuTile(
                             icon: Icons.star_outline_rounded,
                             title: AppLocalizations.of(
                               context,
                             )!.customer_reviews,
-                            onTap: () {
+                            onTap: _gated(GuestAction.reviews, () {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -615,7 +639,7 @@ class _ProfileTabState extends State<ProfileTab> {
                                       const CustomerReviewsPage(),
                                 ),
                               );
-                            },
+                            }),
                           ),
                         ],
                       ),
@@ -625,7 +649,9 @@ class _ProfileTabState extends State<ProfileTab> {
                       SizedBox(
                         width: double.infinity,
                         child: ElevatedButton(
-                          onPressed: _logout,
+                          onPressed: isGuest
+                              ? () => SignInRequired.goToLogin(context)
+                              : _logout,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.buttonBlueDark,
                             foregroundColor: Colors.white,
@@ -635,10 +661,15 @@ class _ProfileTabState extends State<ProfileTab> {
                             fixedSize: Size(double.infinity, 50),
                           ),
 
-                          child: Text(AppLocalizations.of(context)!.logout),
+                          child: Text(
+                            isGuest
+                                ? AppLocalizations.of(context)!.sign_in
+                                : AppLocalizations.of(context)!.logout,
+                          ),
                         ),
                       ),
-                      if (Platform.isIOS) ...[
+                      // No account to delete while browsing as a guest.
+                      if (Platform.isIOS && !isGuest) ...[
                         const SizedBox(height: 16),
 
                       SizedBox(
@@ -788,6 +819,73 @@ class _ProfileTabState extends State<ProfileTab> {
         _buildSocialButton(icon: FontAwesomeIcons.shareNodes, onTap: _shareApp,
         ),
       ],
+    );
+  }
+
+  /// Stands in for [_buildInfoCard] in guest mode, where there is no name,
+  /// phone number or email to show.
+  Widget _buildGuestCard() {
+    return Card(
+      color: Colors.white,
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Row(
+          children: [
+            Container(
+              width: 84,
+              height: 84,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: const LinearGradient(
+                  begin: AlignmentDirectional.bottomEnd,
+                  end: AlignmentDirectional.topStart,
+                  colors: [
+                    Color(0xFFBCECF5),
+                    AppColors.headerlightblue,
+                    AppColors.buttonBlueDark,
+                  ],
+                  stops: [0.0, 0.05, 1.0],
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.headerlightblue.withValues(alpha: 0.35),
+                    blurRadius: 16,
+                    offset: const Offset(-4, 6),
+                  ),
+                ],
+              ),
+              child: const Center(
+                child: Icon(
+                  Icons.person_outline_rounded,
+                  color: Colors.white,
+                  size: 34,
+                ),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    AppLocalizations.of(context)!.guest_user,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    AppLocalizations.of(context)!.guest_profile_subtitle,
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

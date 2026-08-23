@@ -9,6 +9,7 @@ import 'package:raheeq_main/pages/order/contribution_details_page.dart';
 import 'package:raheeq_main/models/checkout.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
+import 'package:raheeq_main/common_widgets/sign_in_required_dialog.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/services/notification_navigation.dart';
 
@@ -100,6 +101,11 @@ class DeepLinkService {
   Future<void> handleReorder(String subOrderId) async {
     final context = AuthStorage.navigatorKey.currentContext;
     if (context == null) return;
+
+    // Reordering is tied to the customer's own order history, so a guest who
+    // follows a reorder link is asked to sign in rather than shown a failure.
+    if (!await SignInRequired.guard(context, GuestAction.orders)) return;
+    if (!context.mounted) return;
 
     showDialog(
       context: context,

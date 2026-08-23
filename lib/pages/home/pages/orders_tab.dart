@@ -4,7 +4,9 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
+import 'package:raheeq_main/common_widgets/sign_in_required_dialog.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
+import 'package:raheeq_main/storage/auth_storage.dart';
 import 'package:raheeq_main/services/snackbar_insets_services.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
@@ -25,6 +27,11 @@ class OrdersTab extends StatefulWidget {
 
   /// Write a tab index to this notifier to switch the inner tab remotely.
   static final ValueNotifier<int?> switchInnerTabNotifier = ValueNotifier(null);
+
+  /// Drops every cached order list. Called when the session changes hands —
+  /// signing out and straight back in as a guest, say — so the next reader
+  /// never sees the previous user's orders.
+  static void resetCache() => _OrdersTabState._resetCache();
 
   @override
   State<OrdersTab> createState() => _OrdersTabState();
@@ -57,6 +64,14 @@ class _OrdersTabState extends State<OrdersTab>
 
   final ScrollController _scrollController = ScrollController();
 
+  static void _resetCache() {
+    _hasLoadedOnce = false;
+    _cachedUpcomingOrders = [];
+    _cachedOutForDeliveryOrders = [];
+    _cachedDeliveredOrders = [];
+    _cachedHasMore = [true, true, true];
+  }
+
   @override
   void initState() {
     super.initState();
@@ -77,8 +92,14 @@ class _OrdersTabState extends State<OrdersTab>
 
     _scrollController.addListener(_scrollListener);
 
-    // Always update them when page is opened
-    _fetchAllOrders();
+    if (AuthStorage.isGuest) {
+      // Orders belong to a customer account; the tab shows a sign-in panel
+      // rather than firing a request that has no token to carry.
+      _isLoading = false;
+    } else {
+      // Always update them when page is opened
+      _fetchAllOrders();
+    }
   }
 
   void _handleTabSelection() {
@@ -309,6 +330,10 @@ class _OrdersTabState extends State<OrdersTab>
 
   @override
   Widget build(BuildContext context) {
+    if (AuthStorage.isGuest) {
+      return _buildGuestState(context);
+    }
+
     final tabController = _tabController;
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
     return Stack(
@@ -348,6 +373,41 @@ class _OrdersTabState extends State<OrdersTab>
           ),
         ),
       ],
+    );
+  }
+
+  /// The whole tab for a guest: the usual header, with the sign-in ask where
+  /// the tabs and order list would be if there were anything to fill them.
+  Widget _buildGuestState(BuildContext context) {
+    return Container(
+      color: AppColors.buttonBlueDark,
+      child: Column(
+        children: [
+          CustomAppBar(
+            hasBackgroundColor: true,
+            title: AppLocalizations.of(context)!.my_orders,
+            subtitle: AppLocalizations.of(context)!.track_your_donations,
+            centerTitle: true,
+          ),
+          Expanded(
+            child: Container(
+              width: double.infinity,
+              decoration: const BoxDecoration(
+                color: Color(0xFFF8FAFB),
+                borderRadius: BorderRadius.only(
+                  topLeft: Radius.circular(30),
+                  topRight: Radius.circular(30),
+                ),
+              ),
+              padding: const EdgeInsets.only(bottom: 90),
+              child: const GuestSignInPanel(
+                action: GuestAction.orders,
+                icon: Icons.shopping_bag_outlined,
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/common_widgets/custom_bottom_nav.dart';
+import 'package:raheeq_main/common_widgets/sign_in_required_dialog.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/services/freshchat_service.dart';
 import 'package:raheeq_main/utils/colors.dart';
@@ -180,8 +181,14 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
               label: AppLocalizations.of(context)!.account,
             ),
           ],
-          onTap: (index) {
+          onTap: (index) async {
             if (index == 2) {
+              // Freshchat is keyed to the customer account, so support chat is
+              // one of the things a guest has to sign in for.
+              if (!await SignInRequired.guard(context, GuestAction.support)) {
+                return;
+              }
+              if (!context.mounted) return;
               FreshchatService.showConversations(
                 context,
                 tags: FreshchatService.supportTags,

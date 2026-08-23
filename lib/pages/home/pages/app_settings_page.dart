@@ -2,6 +2,7 @@ import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/storage/app_storage.dart';
+import 'package:raheeq_main/storage/auth_storage.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:raheeq_main/main.dart';
@@ -262,9 +263,13 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
       onTap: () async {
         localeNotifier.value = Locale(localeCode);
         await AppStorage.saveLocale(localeCode);
-        try {
-          await ApiService().updateLocale(locale: localeCode);
-        } catch (_) {}
+        // The app language is stored locally either way; only the sync back to
+        // the customer's profile needs a session.
+        if (!AuthStorage.isGuest) {
+          try {
+            await ApiService().updateLocale(locale: localeCode);
+          } catch (_) {}
+        }
         if (context.mounted) Navigator.pop(context);
       },
       child: Container(

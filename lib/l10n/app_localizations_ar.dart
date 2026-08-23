@@ -1632,4 +1632,75 @@ class AppLocalizationsAr extends AppLocalizations {
   String share_app_message(String link) {
     return 'تطبيق رحيق 💧 :- خدمة توصيل الماء للمساجد ودور الأيتام 🚚🕌. يقول النبي ﷺ من دلَّ على خيرٍ، فله مثل أجر فاعله 🌷 : انشر التطبيق - $link';
   }
+
+  @override
+  String get sign_in_required => 'تسجيل الدخول مطلوب';
+
+  @override
+  String get sign_in => 'تسجيل الدخول';
+
+  @override
+  String get not_now => 'ليس الآن';
+
+  @override
+  String get continue_as_guest => 'المتابعة كزائر';
+
+  @override
+  String get browsing_as_guest => 'أنت تتصفح كزائر';
+
+  @override
+  String get guest_profile_subtitle =>
+      'سجّل الدخول لإدارة حسابك وطلباتك وتبرعاتك';
+
+  @override
+  String get sign_in_required_donate =>
+      'سجّل الدخول إلى حسابك في رحيق لاختيار وجهة تبرعك وإتمام طلبك.';
+
+  @override
+  String get sign_in_required_campaign =>
+      'سجّل الدخول إلى حسابك في رحيق للتبرع لهذه الحملة.';
+
+  @override
+  String get sign_in_required_checkout =>
+      'سجّل الدخول إلى حسابك في رحيق لإتمام هذا الطلب.';
+
+  @override
+  String get sign_in_required_notifications =>
+      'سجّل الدخول إلى حسابك في رحيق لعرض إشعاراتك.';
+
+  @override
+  String get sign_in_required_orders =>
+      'سجّل الدخول إلى حسابك في رحيق لعرض طلباتك وتتبعها.';
+
+  @override
+  String get sign_in_required_profile =>
+      'سجّل الدخول إلى حسابك في رحيق لعرض معلوماتك الشخصية وتعديلها.';
+
+  @override
+  String get sign_in_required_saved_mosques =>
+      'سجّل الدخول إلى حسابك في رحيق لحفظ المساجد وفتح قائمتك المحفوظة.';
+
+  @override
+  String get sign_in_required_recurring_donations =>
+      'سجّل الدخول إلى حسابك في رحيق لإعداد التبرعات المتكررة وإدارتها.';
+
+  @override
+  String get sign_in_required_wallet =>
+      'سجّل الدخول إلى حسابك في رحيق لعرض رصيد محفظتك وعملياتها.';
+
+  @override
+  String get sign_in_required_chillers =>
+      'سجّل الدخول إلى حسابك في رحيق لعرض البرادات التي تبرعت بها.';
+
+  @override
+  String get sign_in_required_impact =>
+      'سجّل الدخول إلى حسابك في رحيق لمتابعة أثر تبرعاتك.';
+
+  @override
+  String get sign_in_required_support =>
+      'سجّل الدخول إلى حسابك في رحيق ليتمكن فريق الدعم من مساعدتك في طلباتك.';
+
+  @override
+  String get sign_in_required_reviews =>
+      'سجّل الدخول إلى حسابك في رحيق لقراءة آراء العملاء ومشاركة رأيك.';
 }
