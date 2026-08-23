@@ -3263,12 +3263,6 @@ abstract class AppLocalizations {
   /// **'Sign in to manage your account, orders and donations'**
   String get guest_profile_subtitle;
 
-  /// No description provided for @sign_in_required_donate.
-  ///
-  /// In en, this message translates to:
-  /// **'Sign in to your Rahiq account to choose where your donation goes and place your order.'**
-  String get sign_in_required_donate;
-
   /// No description provided for @sign_in_required_campaign.
   ///
   /// In en, this message translates to:
@@ -3293,36 +3287,6 @@ abstract class AppLocalizations {
   /// **'Sign in to your Rahiq account to view and track your orders.'**
   String get sign_in_required_orders;
 
-  /// No description provided for @sign_in_required_profile.
-  ///
-  /// In en, this message translates to:
-  /// **'Sign in to your Rahiq account to view and edit your personal information.'**
-  String get sign_in_required_profile;
-
-  /// No description provided for @sign_in_required_saved_mosques.
-  ///
-  /// In en, this message translates to:
-  /// **'Sign in to your Rahiq account to save mosques and open your saved list.'**
-  String get sign_in_required_saved_mosques;
-
-  /// No description provided for @sign_in_required_recurring_donations.
-  ///
-  /// In en, this message translates to:
-  /// **'Sign in to your Rahiq account to set up and manage recurring donations.'**
-  String get sign_in_required_recurring_donations;
-
-  /// No description provided for @sign_in_required_wallet.
-  ///
-  /// In en, this message translates to:
-  /// **'Sign in to your Rahiq account to view your wallet balance and transactions.'**
-  String get sign_in_required_wallet;
-
-  /// No description provided for @sign_in_required_chillers.
-  ///
-  /// In en, this message translates to:
-  /// **'Sign in to your Rahiq account to see the chillers you have sponsored.'**
-  String get sign_in_required_chillers;
-
   /// No description provided for @sign_in_required_impact.
   ///
   /// In en, this message translates to:
@@ -3334,12 +3298,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Sign in to your Rahiq account so our support team can help you with your orders.'**
   String get sign_in_required_support;
-
-  /// No description provided for @sign_in_required_reviews.
-  ///
-  /// In en, this message translates to:
-  /// **'Sign in to your Rahiq account to read customer reviews and share your own.'**
-  String get sign_in_required_reviews;
 }
 
 class _AppLocalizationsDelegate

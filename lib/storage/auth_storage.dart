@@ -62,14 +62,17 @@ class AuthStorage {
 
   /// DEBUG SWITCH — set back to `false` before shipping.
   ///
-  /// Guest mode is an iOS-only feature. This opens it on Android too so the
-  /// flow can be exercised on an Android device. Everything that gates on the
-  /// platform reads [guestModeSupported], so flipping this one constant back
-  /// restores the iOS-only behaviour everywhere: the login button, [isGuest]
-  /// and [enterGuestMode] alike.
-  static const bool allowGuestModeOnAndroid = true;
+  /// Guest mode is an iOS-only feature. This opens it on Android as well so
+  /// the flow can be exercised on an Android device.
+  static const bool allowGuestModeOnAndroid = false;
 
-  /// Whether this platform may enter guest mode at all.
+  /// Whether this platform may enter guest mode at all. iOS only, unless
+  /// [allowGuestModeOnAndroid] is up.
+  ///
+  /// The single gate everything platform-dependent reads — the login button,
+  /// [isGuest] and [enterGuestMode] alike — so opening guest mode up to
+  /// another platform, or closing it again, is a one-line change here rather
+  /// than a hunt through the call sites.
   static bool get guestModeSupported =>
       Platform.isIOS || allowGuestModeOnAndroid;
 

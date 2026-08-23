@@ -1,6 +1,7 @@
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/common_widgets/bottom_action_pill.dart';
+import 'package:raheeq_main/common_widgets/sign_in_required_dialog.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'dart:developer';
 
@@ -969,8 +970,14 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
           ),
         ),
         buttonText: AppLocalizations.of(context)!.confirm_pay,
-        onButtonTap: () {
+        onButtonTap: () async {
           FocusManager.instance.primaryFocus?.unfocus();
+          // Guests can read the campaign and price up a donation; confirming
+          // it is what needs a customer session.
+          if (!await SignInRequired.guard(context, GuestAction.campaign)) {
+            return;
+          }
+          if (!context.mounted) return;
           final belowMinimumProducts = _getBelowMinimumProducts();
           if (belowMinimumProducts.isNotEmpty) {
             final message = belowMinimumProducts

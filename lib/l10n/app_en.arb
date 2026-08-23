@@ -607,17 +607,10 @@
   "continue_as_guest": "Continue as a guest",
   "browsing_as_guest": "You're browsing as a guest",
   "guest_profile_subtitle": "Sign in to manage your account, orders and donations",
-  "sign_in_required_donate": "Sign in to your Rahiq account to choose where your donation goes and place your order.",
   "sign_in_required_campaign": "Sign in to your Rahiq account to donate to this campaign.",
   "sign_in_required_checkout": "Sign in to your Rahiq account to complete this order.",
   "sign_in_required_notifications": "Sign in to your Rahiq account to see your notifications.",
   "sign_in_required_orders": "Sign in to your Rahiq account to view and track your orders.",
-  "sign_in_required_profile": "Sign in to your Rahiq account to view and edit your personal information.",
-  "sign_in_required_saved_mosques": "Sign in to your Rahiq account to save mosques and open your saved list.",
-  "sign_in_required_recurring_donations": "Sign in to your Rahiq account to set up and manage recurring donations.",
-  "sign_in_required_wallet": "Sign in to your Rahiq account to view your wallet balance and transactions.",
-  "sign_in_required_chillers": "Sign in to your Rahiq account to see the chillers you have sponsored.",
   "sign_in_required_impact": "Sign in to your Rahiq account to follow the impact of your donations.",
-  "sign_in_required_support": "Sign in to your Rahiq account so our support team can help you with your orders.",
-  "sign_in_required_reviews": "Sign in to your Rahiq account to read customer reviews and share your own."
+  "sign_in_required_support": "Sign in to your Rahiq account so our support team can help you with your orders."
 }

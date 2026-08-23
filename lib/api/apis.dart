@@ -67,7 +67,18 @@ class ApiService {
   /// Endpoints the backend serves without a customer token. These are the
   /// only calls guest mode is allowed to make; everything else is behind a
   /// sign-in prompt in the UI (see `SignInRequiredDialog`).
-  static const List<String> publicPaths = ['/home'];
+  ///
+  /// Beyond the home screen itself, a guest walks the selection flow as far as
+  /// the order review page, so the catalogue of places to give to has to load
+  /// for them as well. Nothing here is specific to a customer — `/me/...` and
+  /// the order endpoints stay behind the sign-in prompt.
+  static const List<String> publicPaths = [
+    '/home',
+    '/geography/cities',
+    '/mosques',
+    '/mosques/miqat',
+    '/orphanages',
+  ];
 
   static bool isPublicPath(String path) {
     return publicPaths.any((public) => path.contains(public));

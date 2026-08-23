@@ -7,28 +7,12 @@ import 'package:raheeq_main/utils/colors.dart';
 /// What a guest just tried to do. Each value picks the sentence the prompt
 /// leads with, so the ask reads as being about that action rather than as a
 /// generic wall.
-enum GuestAction {
-  donate,
-  campaign,
-  checkout,
-  notifications,
-  orders,
-  profile,
-  savedMosques,
-  recurringDonations,
-  wallet,
-  chillers,
-  impact,
-  support,
-  reviews,
-}
+enum GuestAction { campaign, checkout, notifications, orders, impact, support }
 
 extension GuestActionMessage on GuestAction {
   String message(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     switch (this) {
-      case GuestAction.donate:
-        return l10n.sign_in_required_donate;
       case GuestAction.campaign:
         return l10n.sign_in_required_campaign;
       case GuestAction.checkout:
@@ -37,39 +21,28 @@ extension GuestActionMessage on GuestAction {
         return l10n.sign_in_required_notifications;
       case GuestAction.orders:
         return l10n.sign_in_required_orders;
-      case GuestAction.profile:
-        return l10n.sign_in_required_profile;
-      case GuestAction.savedMosques:
-        return l10n.sign_in_required_saved_mosques;
-      case GuestAction.recurringDonations:
-        return l10n.sign_in_required_recurring_donations;
-      case GuestAction.wallet:
-        return l10n.sign_in_required_wallet;
-      case GuestAction.chillers:
-        return l10n.sign_in_required_chillers;
       case GuestAction.impact:
         return l10n.sign_in_required_impact;
       case GuestAction.support:
         return l10n.sign_in_required_support;
-      case GuestAction.reviews:
-        return l10n.sign_in_required_reviews;
     }
   }
 }
 
 /// The gate in front of everything guest mode cannot reach.
 ///
-/// Guest mode only ever gets the public home endpoint, so every action that
-/// needs a customer token routes through [guard] first: signed-in users pass
-/// straight through, and guests get the prompt for that specific action
-/// instead of an API call that would come back 401.
+/// A guest browses on the public endpoints (see `ApiService.publicPaths`) and
+/// can walk the donation flow as far as picking a package. Every step past
+/// that needs a customer token, so it routes through [guard] first: signed-in
+/// users pass straight through, and guests get the prompt for that specific
+/// action instead of a request that would come back 401.
 class SignInRequired {
   const SignInRequired._();
 
   /// Whether the caller may go ahead. Returns true immediately for a signed-in
   /// user; for a guest it shows the prompt for [action] and returns false.
   ///
-  ///     if (!await SignInRequired.guard(context, GuestAction.wallet)) return;
+  ///     if (!await SignInRequired.guard(context, GuestAction.checkout)) return;
   static Future<bool> guard(BuildContext context, GuestAction action) async {
     if (!AuthStorage.isGuest) return true;
     await show(context, action);
@@ -174,9 +147,7 @@ class _SignInRequiredDialog extends StatelessWidget {
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
-                        side: const BorderSide(
-                          color: AppColors.buttonBlueDark,
-                        ),
+                        side: const BorderSide(color: AppColors.buttonBlueDark),
                       ),
                     ),
                     child: Text(

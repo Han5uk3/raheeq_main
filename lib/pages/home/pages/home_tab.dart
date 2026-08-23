@@ -291,9 +291,9 @@ class _HomeTabState extends State<HomeTab>
         _errorMessage = null;
       });
 
-      // /home is the only endpoint served without a customer token, so in
-      // guest mode it is the only one of these that runs. The rest would come
-      // back 401 and have nothing to show anyway.
+      // The rest of these are per-customer endpoints, so in guest mode they
+      // are skipped rather than left to come back 401 with nothing to show.
+      // /home and the cities list below are public and run either way.
       final isGuest = AuthStorage.isGuest;
 
       // Run independent API calls concurrently to reduce load time
@@ -315,8 +315,9 @@ class _HomeTabState extends State<HomeTab>
         } catch (_) {}
       }();
 
+      // Cities are needed by the selection flow, which guests can walk
+      // through, so this one runs for them too — see ApiService.publicPaths.
       final citiesFuture = () async {
-        if (isGuest) return;
         try {
           final citiesResponse = await ApiService().getCities(
             showSnackbar: true,
@@ -939,17 +940,22 @@ class _HomeTabState extends State<HomeTab>
                       return;
                     }
                   : () async {
-                      if (!await SignInRequired.guard(
-                        context,
-                        GuestAction.checkout,
-                      )) {
-                        return;
-                      }
-                      if (!context.mounted) return;
                       final isEssential = _selectedItems.any(
                         (i) => i.category.slug == 'essential_supplies',
                       );
                       if (isEssential) {
+                        // Essential supplies skip the package sheet and go
+                        // straight to the order review page, so this button is
+                        // where a guest is asked to sign in. The water package
+                        // path below stays open — its own Continue button is
+                        // the gate there.
+                        if (!await SignInRequired.guard(
+                          context,
+                          GuestAction.checkout,
+                        )) {
+                          return;
+                        }
+                        if (!context.mounted) return;
                         final orderStates = <OrderCategoryState>[];
                         for (final item in _selectedItems) {
                           if (item.specificData is EssentialSelection) {
@@ -1578,8 +1584,6 @@ class _HomeTabState extends State<HomeTab>
 
     return GestureDetector(
       onTap: () async {
-        if (!await SignInRequired.guard(context, GuestAction.campaign)) return;
-        if (!context.mounted) return;
         if (NetworkMonitor.instance.status.value == NetworkStatus.offline) {
           CustomSnackbar.show(
             context: context,
@@ -1863,13 +1867,6 @@ class _HomeTabState extends State<HomeTab>
 
             return GestureDetector(
               onTap: () async {
-                if (!await SignInRequired.guard(
-                  context,
-                  GuestAction.donate,
-                )) {
-                  return;
-                }
-                if (!context.mounted) return;
                 if (_selectedItems.isNotEmpty &&
                     _selectedItems.any(
                       (item) => item.category.slug == 'essential_supplies',
@@ -2158,13 +2155,6 @@ class _HomeTabState extends State<HomeTab>
 
                   return GestureDetector(
                     onTap: () async {
-                      if (!await SignInRequired.guard(
-                        context,
-                        GuestAction.donate,
-                      )) {
-                        return;
-                      }
-                      if (!context.mounted) return;
                       if (isSelected) {
                         setState(() {
                           _selectedItems.removeWhere(

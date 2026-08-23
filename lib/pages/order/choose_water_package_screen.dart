@@ -1,6 +1,7 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:raheeq_main/common_widgets/sign_in_required_dialog.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/models/order_item.dart';
 import 'package:raheeq_main/models/product.dart';
@@ -249,8 +250,13 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
 
   // ── Navigation ───────────────────────────────────────────────────────────────
 
-  void _navigateToReview() {
+  Future<void> _navigateToReview() async {
     if (!_isContinueEnabled) return;
+
+    // Guests are free to browse the packages; leaving this sheet for the order
+    // review page is where the customer session becomes necessary.
+    if (!await SignInRequired.guard(context, GuestAction.checkout)) return;
+    if (!mounted) return;
 
     final allSlots = _slots;
     final List<SelectedProduct> selectedProducts = [];

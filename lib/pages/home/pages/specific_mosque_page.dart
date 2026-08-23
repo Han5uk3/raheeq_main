@@ -7,6 +7,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
+import 'package:raheeq_main/storage/auth_storage.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:raheeq_main/storage/app_storage.dart';
@@ -280,6 +281,9 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
   }
 
   Future<void> _fetchFavorites() async {
+    // Favourites belong to a customer account. A guest can pick places from
+    // this screen, but has no saved list to mark them against.
+    if (AuthStorage.isGuest) return;
     try {
       final response = await _apiService.getFavoriteMosques();
       if (response.statusCode == 200 && response.data['success'] == true) {
@@ -809,7 +813,10 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
           },
           isAr: isAr,
           isHighNeed: isHighNeed,
-          toggleFavorite: () => _toggleFavorite(item.id),
+          // Favouriting needs a customer account, so a guest gets no heart.
+          toggleFavorite: AuthStorage.isGuest
+              ? null
+              : () => _toggleFavorite(item.id),
           favoriteMosqueIds: _favoriteMosqueIds,
           currentLat: _currentUserPosition?.latitude ?? AppStorage.userLatitude,
           currentLong:
@@ -979,7 +986,8 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
                             ),
                           ),
                         ),
-                        if (widget.slug != 'orphanages')
+                        if (widget.slug != 'orphanages' &&
+                            !AuthStorage.isGuest)
                           IconButton(
                             visualDensity: VisualDensity.compact,
                             onPressed: () => _toggleFavorite(item.id),

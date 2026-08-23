@@ -1653,10 +1653,6 @@ class AppLocalizationsAr extends AppLocalizations {
       'سجّل الدخول لإدارة حسابك وطلباتك وتبرعاتك';
 
   @override
-  String get sign_in_required_donate =>
-      'سجّل الدخول إلى حسابك في رحيق لاختيار وجهة تبرعك وإتمام طلبك.';
-
-  @override
   String get sign_in_required_campaign =>
       'سجّل الدخول إلى حسابك في رحيق للتبرع لهذه الحملة.';
 
@@ -1673,34 +1669,10 @@ class AppLocalizationsAr extends AppLocalizations {
       'سجّل الدخول إلى حسابك في رحيق لعرض طلباتك وتتبعها.';
 
   @override
-  String get sign_in_required_profile =>
-      'سجّل الدخول إلى حسابك في رحيق لعرض معلوماتك الشخصية وتعديلها.';
-
-  @override
-  String get sign_in_required_saved_mosques =>
-      'سجّل الدخول إلى حسابك في رحيق لحفظ المساجد وفتح قائمتك المحفوظة.';
-
-  @override
-  String get sign_in_required_recurring_donations =>
-      'سجّل الدخول إلى حسابك في رحيق لإعداد التبرعات المتكررة وإدارتها.';
-
-  @override
-  String get sign_in_required_wallet =>
-      'سجّل الدخول إلى حسابك في رحيق لعرض رصيد محفظتك وعملياتها.';
-
-  @override
-  String get sign_in_required_chillers =>
-      'سجّل الدخول إلى حسابك في رحيق لعرض البرادات التي تبرعت بها.';
-
-  @override
   String get sign_in_required_impact =>
       'سجّل الدخول إلى حسابك في رحيق لمتابعة أثر تبرعاتك.';
 
   @override
   String get sign_in_required_support =>
       'سجّل الدخول إلى حسابك في رحيق ليتمكن فريق الدعم من مساعدتك في طلباتك.';
-
-  @override
-  String get sign_in_required_reviews =>
-      'سجّل الدخول إلى حسابك في رحيق لقراءة آراء العملاء ومشاركة رأيك.';
 }

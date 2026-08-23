@@ -1023,9 +1023,8 @@ class _LoginState extends State<Login> {
                                         _socialLoadingProvider == 'Apple',
                                   ),
                                 },
-                                // Browsing without signing in is iOS-only,
-                                // save for the Android debug switch on
-                                // AuthStorage. A list spread, not the set
+                                // Browsing without signing in is an iOS-only
+                                // entry point. A list spread, not the set
                                 // spread above: two identical const spacers in
                                 // one set collapse into a single element.
                                 if (AuthStorage.guestModeSupported) ...[
