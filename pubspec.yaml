@@ -1,7 +1,7 @@
 name: raheeq_main
 description: "A new Flutter project."
 publish_to: 'none'
-version: 1.0.1+26
+version: 1.0.1+30
 
 environment:
   sdk: ^3.11.0
