@@ -298,7 +298,7 @@
   "resend_code_in": "Resend code in ",
   "resend": "Resend",
   "one_transaction_number": "Transaction Number",
-  "account_number": "Account No:",
+  "account_number": "Account Number:",
   "no_bank_accounts_available": "No bank accounts available",
   "our_bank_accounts": "Our Bank Accounts",
   "iban_bank_transfer": "IBAN Bank Transfer",

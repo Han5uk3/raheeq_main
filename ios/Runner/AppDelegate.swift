@@ -38,6 +38,22 @@ private func freshchatLog(_ message: String) {
     // to, so Messaging#onMessage and the local-notification path are unchanged.
     UNUserNotificationCenter.current().delegate = self
 
+    // Ask APNs for a device token here rather than leaving it to
+    // `FirebaseMessaging.requestPermission` on the Dart side, for two reasons.
+    //
+    // Timing: the Dart call sits behind dotenv, Hive, `Firebase.initializeApp`
+    // and a permission_handler prompt, so the token arrived seconds into the
+    // session -- sometimes after `Freshchat.init`, sometimes long before it.
+    //
+    // Coverage: `requestPermission` only registers when the user *grants*
+    // alerts. Registration is independent of that authorisation -- a device
+    // that has refused banners still gets a token and still receives the
+    // silent `content-available` pushes Freshchat syncs conversations with. A
+    // user who declined notifications was previously left with no token at
+    // all, so Freshchat had nowhere to push for the whole install and the chat
+    // fell back on the SDK's own slow sync permanently.
+    application.registerForRemoteNotifications()
+
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 
@@ -82,10 +98,17 @@ private func freshchatLog(_ message: String) {
   //
   // The Dart side registers the FCM token with Freshchat, which is the Android
   // path — the plugin's iOS `setPushRegistrationToken` wants the raw APNs
-  // token, and only the app delegate ever sees that. Without these three
-  // hooks Freshchat has nowhere to push to and no way to hear about a message
-  // that did arrive, so an open conversation only picked new messages up on
-  // the SDK's own sync when the screen was reopened.
+  // token, and only the app delegate ever sees that. Without these hooks
+  // Freshchat has nowhere to push to and no way to hear about a message that
+  // did arrive, so an open conversation only picked new messages up on the
+  // SDK's own sync when the screen was reopened.
+  //
+  // Nothing on the Dart side can stand in for them. `NotificationService`
+  // forwards Freshchat payloads out of `FirebaseMessaging.onMessage` and the
+  // background handler, but firebase_messaging only raises those for payloads
+  // carrying `gcm.message_id`, and Freshchat's iOS pushes are sent straight to
+  // APNs with the p8 key rather than through FCM — so on iOS that forwarding
+  // never runs and these hooks are the only route into the SDK.
   //
   // Every branch either forwards to Freshchat or falls through to `super`, so
   // the app's own notifications keep reaching firebase_messaging and
@@ -101,6 +124,57 @@ private func freshchatLog(_ message: String) {
     super.application(
       application,
       didRegisterForRemoteNotificationsWithDeviceToken: deviceToken
+    )
+  }
+
+  override func application(
+    _ application: UIApplication,
+    didFailToRegisterForRemoteNotificationsWithError error: Error
+  ) {
+    // Without a token Freshchat can only fall back on its own sync, which is
+    // the slow path this whole section exists to avoid — so a failure here is
+    // the first thing to look for, not something to swallow silently. Usual
+    // causes: running on the simulator, a provisioning profile without the
+    // push entitlement, or no network at launch.
+    freshchatLog("APNs registration FAILED: \(error.localizedDescription)")
+    super.application(application, didFailToRegisterForRemoteNotificationsWithError: error)
+  }
+
+  /// The hook Freshchat's own docs name for handling a push in the active or
+  /// background state, and the only one a silent push can reach.
+  ///
+  /// `willPresent` below fires only for a notification iOS is about to *show*,
+  /// and only while the app is frontmost; `didReceive` fires only if the user
+  /// taps the banner. A `content-available` push — which is what Freshchat
+  /// sends to nudge the SDK into syncing a conversation the user is already
+  /// looking at — is never displayed and never tapped, so it bypasses
+  /// `UNUserNotificationCenter` entirely and arrives here or nowhere. With
+  /// this method absent those syncs were dropped, and the chat screen sat on
+  /// the SDK's fallback polling instead: the ~10s lag on a bot reply, and an
+  /// agent's message that showed up only after leaving and reopening the
+  /// screen.
+  override func application(
+    _ application: UIApplication,
+    didReceiveRemoteNotification userInfo: [AnyHashable: Any],
+    fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
+  ) {
+    let plugin = FreshchatSdkPlugin()
+    let isFreshchat = plugin.isFreshchatNotification(userInfo)
+    freshchatLog(
+      "remote notification received (appState=\(application.applicationState.rawValue)), "
+        + "isFreshchat=\(isFreshchat)"
+    )
+
+    if isFreshchat {
+      plugin.handlePushNotification(userInfo)
+      completionHandler(.newData)
+      return
+    }
+
+    super.application(
+      application,
+      didReceiveRemoteNotification: userInfo,
+      fetchCompletionHandler: completionHandler
     )
   }
 

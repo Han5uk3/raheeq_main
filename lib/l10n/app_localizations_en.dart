@@ -815,7 +815,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get one_transaction_number => 'Transaction Number';
 
   @override
-  String get account_number => 'Account No:';
+  String get account_number => 'Account Number:';
 
   @override
   String get no_bank_accounts_available => 'No bank accounts available';

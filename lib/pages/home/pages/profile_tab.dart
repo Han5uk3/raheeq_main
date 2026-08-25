@@ -767,32 +767,27 @@ class _ProfileTabState extends State<ProfileTab> {
   }
 
   Widget _buildSocialMediaRow() {
-    return 
-     
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            _buildSocialButton(
-              icon: FontAwesomeIcons.tiktok,
-              onTap: () => _openSocialLink(_tiktokUrl),
-            ),
-            const SizedBox(width: 16),
-            _buildSocialButton(
-              icon: FontAwesomeIcons.instagram,
-              onTap: () => _openSocialLink(_instagramUrl),
-            ),
-            const SizedBox(width: 16),
-            _buildSocialButton(
-              icon: FontAwesomeIcons.xTwitter,
-              onTap: () => _openSocialLink(_xUrl),
-            ),
-            const SizedBox(width: 16),
-            _buildSocialButton(
-              icon: FontAwesomeIcons.shareNodes,
-              onTap: _shareApp,
-            ),
-          ],
-    
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        _buildSocialButton(
+          icon: FontAwesomeIcons.tiktok,
+          onTap: () => _openSocialLink(_tiktokUrl),
+        ),
+        const SizedBox(width: 16),
+        _buildSocialButton(
+          icon: FontAwesomeIcons.instagram,
+          onTap: () => _openSocialLink(_instagramUrl),
+        ),
+        const SizedBox(width: 16),
+        _buildSocialButton(
+          icon: FontAwesomeIcons.xTwitter,
+          onTap: () => _openSocialLink(_xUrl),
+        ),
+        const SizedBox(width: 16),
+        _buildSocialButton(icon: FontAwesomeIcons.shareNodes, onTap: _shareApp,
+        ),
+      ],
     );
   }
 

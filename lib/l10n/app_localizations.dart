@@ -1645,7 +1645,7 @@ abstract class AppLocalizations {
   /// No description provided for @account_number.
   ///
   /// In en, this message translates to:
-  /// **'Account No:'**
+  /// **'Account Number:'**
   String get account_number;
 
   /// No description provided for @no_bank_accounts_available.

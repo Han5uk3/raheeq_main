@@ -13,7 +13,7 @@ class Formatters {
   /// The full date, e.g. `20 June 2026` / `20 يونيو 2026`.
   static const String _datePattern = 'd MMMM yyyy';
 
-  /// The weekday name on its own, e.g. `Saturday` / `السبت`.
+  /// The weekday name on its own, e.g. `Friday` / `الجمعة`.
   static const String _weekdayPattern = 'EEEE';
 
   /// The clock time, e.g. `12:30 PM` / `12:30 م`.
@@ -65,19 +65,14 @@ class Formatters {
   static String formatDate(BuildContext context, DateTime date) =>
       DateFormat(_datePattern, localeOf(context)).format(date.toLocal());
 
-  /// `Saturday, 20 June 2026` in English, `السبت، 20 يونيو 2026` in Arabic
+  /// `Friday, 14 August 2026` in English, `الجمعة، 14 أغسطس 2026` in Arabic
   /// (the comma is the Arabic one, U+060C).
-  ///
-  /// The weekday is formatted separately rather than folded into
-  /// [_datePattern] because a comma inside the pattern would stay Latin in
-  /// Arabic.
   static String formatDateWithWeekday(BuildContext context, DateTime date) {
+    final local = date.toLocal();
+    final locale = localeOf(context);
     final separator = isArabic(context) ? '، ' : ', ';
-    final weekday = DateFormat(
-      _weekdayPattern,
-      localeOf(context),
-    ).format(date.toLocal());
-    return '$weekday$separator${formatDate(context, date)}';
+    final weekday = DateFormat(_weekdayPattern, locale).format(local);
+    return '$weekday$separator${DateFormat(_datePattern, locale).format(local)}';
   }
 
   /// `12:30 PM` in English, `12:30 م` in Arabic.

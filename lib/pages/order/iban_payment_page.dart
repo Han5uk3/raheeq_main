@@ -419,7 +419,6 @@ class _IbanPaymentPageState extends State<IbanPaymentPage> {
                     message: AppLocalizations.of(context)!.copied_to_clipboard,
                   )
                 : null;
-           
           },
           padding: EdgeInsets.zero,
           constraints: const BoxConstraints(),

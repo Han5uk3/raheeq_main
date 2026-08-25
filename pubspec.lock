@@ -441,10 +441,10 @@ packages:
     dependency: "direct main"
     description:
       name: freshchat_sdk
-      sha256: "68a5f57ec99e2d65ec30d26a3f57d7b2f1a7f79d859a27771dbc727e63cdaa21"
+      sha256: f14b21bf87aac39cb1fe53dd8a8c5a4768c231f5716c34ae3dc02fdaa727730e
       url: "https://pub.dev"
     source: hosted
-    version: "0.10.32"
+    version: "0.10.34"
   geoclue:
     dependency: transitive
     description:

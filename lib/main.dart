@@ -132,7 +132,7 @@ Future<void> _initDependencies() async {
     try {
       final user = AuthStorage.user;
       if (user != null) {
-        await FreshchatService.identifyUser(user);
+        await FreshchatService.authenticateUser(user);
       }
     } catch (e) {
       debugPrint("Failed to set Freshchat user: $e");
