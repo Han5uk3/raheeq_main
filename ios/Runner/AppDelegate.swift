@@ -60,6 +60,7 @@ private func freshchatLog(_ message: String) {
   /// The raw APNs token, kept because it almost always arrives before the SDK
   /// that needs it. See `syncPushToken` below.
   private var apnsDeviceToken: Data?
+  private var pushChannel: FlutterMethodChannel?
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
@@ -78,6 +79,8 @@ private func freshchatLog(_ message: String) {
       name: "com.rahiq.app/freshchat_push",
       binaryMessenger: engineBridge.applicationRegistrar.messenger()
     )
+    self.pushChannel = channel
+
     channel.setMethodCallHandler { [weak self] call, result in
       guard call.method == "syncPushToken" else {
         result(FlutterMethodNotImplemented)
@@ -89,7 +92,7 @@ private func freshchatLog(_ message: String) {
         return
       }
       FreshchatSdkPlugin().setPushRegistrationToken(token)
-      freshchatLog("syncPushToken: re-sent cached APNs token to SDK")
+      freshchatLog("syncPushToken: re-sent cached APNs token (\(token.count) bytes) to SDK")
       result(true)
     }
   }
@@ -121,6 +124,7 @@ private func freshchatLog(_ message: String) {
     apnsDeviceToken = deviceToken
     freshchatLog("APNs token received (\(deviceToken.count) bytes), handing to SDK")
     FreshchatSdkPlugin().setPushRegistrationToken(deviceToken)
+    pushChannel?.invokeMethod("onApnsTokenReceived", nil)
     super.application(
       application,
       didRegisterForRemoteNotificationsWithDeviceToken: deviceToken

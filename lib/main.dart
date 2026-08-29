@@ -124,7 +124,10 @@ Future<void> _initDependencies() async {
     // Initialize Freshchat service listeners
     FreshchatService.init();
 
-    // Register this device's FCM token with Freshchat so it can deliver
+    // Allow a brief moment for the native SDK init to settle
+    await Future.delayed(const Duration(milliseconds: 150));
+
+    // Register this device's push token with Freshchat so it can deliver
     // push notifications for chat messages.
     await FreshchatService.registerPushToken();
 
