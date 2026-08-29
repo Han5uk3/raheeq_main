@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:freshchat_sdk/freshchat_sdk.dart';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -235,6 +237,9 @@ class _ProfileTabState extends State<ProfileTab> {
       if (mounted) {
         Navigator.of(context).pop(); // dismiss the loading dialog
       }
+
+      // Reset Freshchat user so a new login starts with a clean conversation.
+      Freshchat.resetUser();
 
       // Clear storage (this will automatically pop routes and redirect to Login via navigatorKey)
       await AuthStorage.clear();

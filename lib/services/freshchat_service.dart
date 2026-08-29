@@ -147,7 +147,7 @@ class FreshchatService {
       // unanswered the SDK drops to unauthenticated and stops syncing, and the
       // conversation goes still until something else forces a refresh.
       if (name.contains('token')) {
-        ensureAuthenticated();
+        ensureAuthenticated().then((_) => registerPushToken());
       }
     });
 
@@ -171,14 +171,28 @@ class FreshchatService {
       });
     }
 
+    // On iOS, listen for callbacks from AppDelegate when APNs token arrives
+    if (Platform.isIOS) {
+      _pushChannel.setMethodCallHandler((call) async {
+        if (call.method == 'onApnsTokenReceived') {
+          log(
+            "APNs token received by AppDelegate; syncing with Freshchat...",
+            name: "FreshchatService",
+          );
+          await registerPushToken(maxRetries: 3);
+        }
+      });
+    }
+
     // The plugin's own hook for "the SDK wants a fresh token". It overlaps
     // with the token event above rather than replacing it — either may fire
     // first depending on platform, and [ensureAuthenticated] is idempotent, so
     // listening to both costs a status read and closes the gap if one is
     // silent.
-    Freshchat.onJwtRefresh.listen((_) {
+    Freshchat.onJwtRefresh.listen((_) async {
       log("Freshchat asked for a fresh JWT.", name: "FreshchatService");
-      ensureAuthenticated();
+      await ensureAuthenticated();
+      await registerPushToken();
     });
 
     // `onRestoreIdGenerated` is deliberately not listened to. The restore id
@@ -187,48 +201,70 @@ class FreshchatService {
     // nothing to save.
   }
 
-  /// Hands the current FCM token to Freshchat so it knows where to deliver
-  /// push notifications for this device. The Freshchat dashboard's Firebase
-  /// admin JSON / APNs auth key only let Freshchat's backend send through our
-  /// Firebase project — it still needs this per-device token, which only the
-  /// app can provide, or it has nothing to push to.
-  ///
-  /// Android only. The plugin's iOS `setPushRegistrationToken` takes the raw
-  /// APNs token as `NSData`, which an FCM token string is not — that side is
-  /// registered from `AppDelegate.didRegisterForRemoteNotifications`, the only
-  /// place the real token exists.
-  static Future<void> registerPushToken() async {
+  /// Hands the current push token (APNs on iOS, FCM on Android) to Freshchat
+  /// with automatic retries so that early startup or network delays do not
+  /// drop the token.
+  static Future<bool> registerPushToken({
+    int maxRetries = 5,
+    Duration delay = const Duration(milliseconds: 600),
+  }) async {
+    for (int attempt = 1; attempt <= maxRetries; attempt++) {
+      final success = await _executeTokenRegistration();
+      if (success) {
+        log(
+          "Freshchat push token registered successfully (attempt $attempt/$maxRetries).",
+          name: "FreshchatService",
+        );
+        return true;
+      }
+      if (attempt < maxRetries) {
+        log(
+          "Freshchat push token not ready on attempt $attempt/$maxRetries; retrying in ${delay.inMilliseconds}ms...",
+          name: "FreshchatService",
+        );
+        await Future.delayed(delay);
+      }
+    }
+    log(
+      "Freshchat push token registration unconfirmed after $maxRetries attempts.",
+      name: "FreshchatService",
+    );
+    return false;
+  }
+
+  static Future<bool> _executeTokenRegistration() async {
     if (Platform.isIOS) {
-      // APNs answers within a moment of launch, so the app delegate has
-      // usually already handed Freshchat a token by the time `Freshchat.init`
-      // runs — and a token given to an SDK that isn't up yet goes nowhere.
-      // Callers reach here after init, so this is the point where re-sending
-      // the cached token sticks.
       try {
         final applied = await _pushChannel.invokeMethod<bool>('syncPushToken');
         log(
-          "Freshchat APNs token re-sent to SDK: $applied",
+          "Freshchat APNs token sync response: $applied",
           name: "FreshchatService",
         );
+        return applied == true;
       } catch (e) {
         log(
           "Failed to re-send APNs token to Freshchat: $e",
           name: "FreshchatService",
           error: e,
         );
+        return false;
       }
-      return;
     }
 
-    if (!Platform.isAndroid) return;
+    if (!Platform.isAndroid) return false;
 
     try {
       final token = await FirebaseMessaging.instance.getToken();
       if (token != null && token.isNotEmpty) {
         Freshchat.setPushRegistrationToken(token);
-        log("Freshchat push registration token set.", name: "FreshchatService");
+        log(
+          "Freshchat FCM push registration token set (${token.length > 10 ? token.substring(0, 10) : token}...).",
+          name: "FreshchatService",
+        );
+        return true;
       } else {
-        log("No FCM token available to register with Freshchat.", name: "FreshchatService");
+        log("No FCM token available yet.", name: "FreshchatService");
+        return false;
       }
     } catch (e) {
       log(
@@ -236,6 +272,7 @@ class FreshchatService {
         name: "FreshchatService",
         error: e,
       );
+      return false;
     }
   }
 
@@ -472,13 +509,16 @@ class FreshchatService {
   /// Freshworks' — see docs/freshchat-support-ticket.md.
   static Future<void> showConversations(
     BuildContext context, {
-    List<String> tags = const [],
-    String? filteredViewTitle,
+    List<String> tags = supportTags,
+    String? filteredViewTitle = "Rahiq Support",
   }) async {
     await ensureAuthenticated();
+    // Guarantee push token is registered for this user before entering the chat
+    await registerPushToken(maxRetries: 3);
+    final effectiveTags = tags.isEmpty ? supportTags : tags;
     Freshchat.showConversations(
-      tags: tags,
-      filteredViewTitle: filteredViewTitle,
+      tags: effectiveTags,
+      filteredViewTitle: filteredViewTitle ?? "Rahiq Support",
     );
   }
 
