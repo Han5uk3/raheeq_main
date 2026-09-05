@@ -61,6 +61,11 @@ class Formatters {
     return rounded != rounded.truncateToDouble();
   }
 
+  /// A rate as it reads next to a label, with no trailing zeros: 15.00 reads
+  /// as `15` and 15.50 as `15.5`, so a whole percentage never renders as
+  /// `15.00%`.
+  static String formatPercentage(num value) => _formatDouble(value.toDouble());
+
   /// `20 June 2026` in English, `20 يونيو 2026` in Arabic.
   static String formatDate(BuildContext context, DateTime date) =>
       DateFormat(_datePattern, localeOf(context)).format(date.toLocal());

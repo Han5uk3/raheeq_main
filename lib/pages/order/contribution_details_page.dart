@@ -1790,9 +1790,18 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                     if (_checkoutData.hasFreeDelivery ||
                                         _deliveryFee > 0)
                                       _buildDeliveryFeeRow(),
+                                    // The rate rides in the label so the
+                                    // customer can see which VAT the amount
+                                    // was worked out at.
                                     if (_checkoutData.vatAmount > 0)
                                       _buildPriceRow(
-                                        AppLocalizations.of(context)!.vat,
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.vat_with_percentage(
+                                          Formatters.formatPercentage(
+                                            _checkoutData.vatRate,
+                                          ),
+                                        ),
                                         _checkoutData.vatAmount,
                                         isAr,
                                       ),

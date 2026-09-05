@@ -819,8 +819,12 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                   const SizedBox(height: 12),
                   _buildDeliveryFeeRow(order.financials!, isAr),
                   const SizedBox(height: 12),
+                  // The rate rides in the label so the customer can see which
+                  // VAT the amount was worked out at.
                   _buildFinancialRow(
-                    AppLocalizations.of(context)!.vat,
+                    AppLocalizations.of(context)!.vat_with_percentage(
+                      Formatters.formatPercentage(order.financials!.vatRate),
+                    ),
                     order.financials!.vatAmount,
                     isAr,
                   ),

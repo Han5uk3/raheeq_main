@@ -1371,6 +1371,12 @@ abstract class AppLocalizations {
   /// **'VAT'**
   String get vat;
 
+  /// No description provided for @vat_with_percentage.
+  ///
+  /// In en, this message translates to:
+  /// **'VAT ({percentage}%)'**
+  String vat_with_percentage(String percentage);
+
   /// No description provided for @delivery_fee.
   ///
   /// In en, this message translates to:

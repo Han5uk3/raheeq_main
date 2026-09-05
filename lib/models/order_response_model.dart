@@ -1,3 +1,5 @@
+import 'package:raheeq_main/models/vat_rate.dart';
+
 class OrderResponseModel {
   final String id;
   final String subOrderNumber;
@@ -98,9 +100,11 @@ class OrderResponseModel {
               // Like `walletAmount` below, the free-delivery fields turn up at
               // the item root on some endpoints, so fall back to them.
               for (final key in const [
+                'isDeliveryFree',
                 'isFreeDelivery',
                 'freeDelivery',
                 'originalDeliveryFee',
+                'vatPercentage',
               ])
                 if (financialsJson[key] == null && json[key] != null)
                   key: json[key],
@@ -231,6 +235,10 @@ class OrderFinancials {
   /// The backend's explicit free-delivery flag, when it sends one.
   final bool isFreeDelivery;
   final double vatAmount;
+
+  /// The VAT rate the backend applied to this order, as a percentage. Null on
+  /// orders placed before the snapshot existed, which [vatRate] falls back for.
+  final double? vatPercentage;
   final double walletAmount;
   final double discountAmount;
   final double totalAmount;
@@ -242,10 +250,17 @@ class OrderFinancials {
     this.originalDeliveryFee,
     this.isFreeDelivery = false,
     required this.vatAmount,
+    this.vatPercentage,
     required this.walletAmount,
     required this.discountAmount,
     required this.totalAmount,
   });
+
+  /// The rate to label the VAT row with. Orders placed before the backend
+  /// started snapshotting the rate carry none, so they fall back to the
+  /// standard Saudi 15%.
+  double get vatRate =>
+      (vatPercentage ?? 0) > 0 ? vatPercentage! : defaultVatPercentage;
 
   /// Whether delivery ended up free. Either the backend says so outright, or
   /// it charged nothing while still reporting a non-zero original fee.
@@ -269,9 +284,15 @@ class OrderFinancials {
               json['deliveryFeeBeforeDiscount'] ??
               json['baseDeliveryFee'])
           ?.toDouble(),
+      // The orders API names the flag `isDeliveryFree`; checkout and the older
+      // order payloads name it the other way round.
       isFreeDelivery:
-          json['isFreeDelivery'] ?? json['freeDelivery'] ?? false,
+          json['isDeliveryFree'] ??
+          json['isFreeDelivery'] ??
+          json['freeDelivery'] ??
+          false,
       vatAmount: (json['vatAmount'] ?? 0).toDouble(),
+      vatPercentage: (json['vatPercentage'])?.toDouble(),
       walletAmount: (json['walletAmount'] ?? 0).toDouble(),
       discountAmount: (json['discountAmount'] ?? 0).toDouble(),
       totalAmount: (json['totalAmount'] ?? 0).toDouble(),

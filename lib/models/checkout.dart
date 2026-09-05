@@ -1,5 +1,6 @@
 import 'package:raheeq_main/models/product.dart';
 import 'package:raheeq_main/models/category.dart';
+import 'package:raheeq_main/models/vat_rate.dart';
 
 class Checkout {
   final String id;
@@ -26,6 +27,10 @@ class Checkout {
   final double totalGiftCardFee;
   final double discountAmount;
   final double vatAmount;
+
+  /// The VAT rate the backend applied, as a percentage. Null when it does not
+  /// report one, which is what [vatRate] falls back for.
+  final double? vatPercentage;
   final double totalBeforeWallet;
   final double walletAmountUsed;
   final double finalTotal;
@@ -52,12 +57,19 @@ class Checkout {
     required this.totalGiftCardFee,
     required this.discountAmount,
     required this.vatAmount,
+    this.vatPercentage,
     required this.totalBeforeWallet,
     required this.walletAmountUsed,
     required this.finalTotal,
     this.createdAt,
     this.updatedAt,
   });
+
+  /// The rate to label the VAT row with. Checkouts created before the backend
+  /// started snapshotting the rate carry none, so they fall back to the
+  /// standard Saudi 15%.
+  double get vatRate =>
+      (vatPercentage ?? 0) > 0 ? vatPercentage! : defaultVatPercentage;
 
   /// Whether delivery ends up free. Either the backend says so outright, or it
   /// charges nothing while still reporting a non-zero original fee.
@@ -122,6 +134,9 @@ class Checkout {
           (json['pricing']?['vatAmount'] as num?)?.toDouble() ??
           (json['vatAmount'] as num?)?.toDouble() ??
           0.0,
+      vatPercentage:
+          (json['pricing']?['vatPercentage'] as num?)?.toDouble() ??
+          (json['vatPercentage'] as num?)?.toDouble(),
       totalBeforeWallet:
           (json['pricing']?['totalBeforeWallet'] as num?)?.toDouble() ??
           (json['totalBeforeWallet'] as num?)?.toDouble() ??
