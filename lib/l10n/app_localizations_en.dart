@@ -676,6 +676,11 @@ class AppLocalizationsEn extends AppLocalizations {
   String get vat => 'VAT';
 
   @override
+  String vat_with_percentage(String percentage) {
+    return 'VAT ($percentage%)';
+  }
+
+  @override
   String get delivery_fee => 'Delivery Fee';
 
   @override

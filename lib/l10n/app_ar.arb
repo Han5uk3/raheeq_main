@@ -215,6 +215,15 @@
   "wallet_applied": "رصيد المحفظة المستخدم",
   "discount": "الخصم",
   "vat": "ضريبة القيمة المضافة",
+  "vat_with_percentage": "ضريبة القيمة المضافة ({percentage}%)",
+  "@vat_with_percentage": {
+    "placeholders": {
+      "percentage": {
+        "type": "String",
+        "example": "15"
+      }
+    }
+  },
   "delivery_fee": "رسوم التوصيل",
   "subtotal": "المجموع الفرعي",
   "contribution_details": "تفاصيل الطلب",

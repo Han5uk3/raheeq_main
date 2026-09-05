@@ -253,6 +253,15 @@
   "wallet_applied": "Wallet Applied",
   "discount": "Discount",
   "vat": "VAT",
+  "vat_with_percentage": "VAT ({percentage}%)",
+  "@vat_with_percentage": {
+    "placeholders": {
+      "percentage": {
+        "type": "String",
+        "example": "15"
+      }
+    }
+  },
   "delivery_fee": "Delivery Fee",
   "subtotal": "Subtotal",
   "contribution_details": "Order Details",

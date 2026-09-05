@@ -675,6 +675,11 @@ class AppLocalizationsAr extends AppLocalizations {
   String get vat => 'ضريبة القيمة المضافة';
 
   @override
+  String vat_with_percentage(String percentage) {
+    return 'ضريبة القيمة المضافة ($percentage%)';
+  }
+
+  @override
   String get delivery_fee => 'رسوم التوصيل';
 
   @override
