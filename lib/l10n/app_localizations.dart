@@ -2633,6 +2633,102 @@ abstract class AppLocalizations {
   /// **'Payment Details'**
   String get payment_details;
 
+  /// No description provided for @payment_status.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment Status'**
+  String get payment_status;
+
+  /// No description provided for @payment_status_paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get payment_status_paid;
+
+  /// No description provided for @payment_status_pending.
+  ///
+  /// In en, this message translates to:
+  /// **'Pending'**
+  String get payment_status_pending;
+
+  /// No description provided for @payment_status_awaiting_verification.
+  ///
+  /// In en, this message translates to:
+  /// **'Awaiting Verification'**
+  String get payment_status_awaiting_verification;
+
+  /// No description provided for @payment_status_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get payment_status_failed;
+
+  /// No description provided for @payment_status_cancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancelled'**
+  String get payment_status_cancelled;
+
+  /// No description provided for @payment_status_refunded.
+  ///
+  /// In en, this message translates to:
+  /// **'Refunded'**
+  String get payment_status_refunded;
+
+  /// No description provided for @payment_method_wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet Balance'**
+  String get payment_method_wallet;
+
+  /// No description provided for @payment_method_free.
+  ///
+  /// In en, this message translates to:
+  /// **'Free Order'**
+  String get payment_method_free;
+
+  /// No description provided for @payment_method_manual.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash / Offline'**
+  String get payment_method_manual;
+
+  /// No description provided for @payment_method_apple_pay.
+  ///
+  /// In en, this message translates to:
+  /// **'Apple Pay'**
+  String get payment_method_apple_pay;
+
+  /// No description provided for @payment_method_stc_pay.
+  ///
+  /// In en, this message translates to:
+  /// **'STC Pay'**
+  String get payment_method_stc_pay;
+
+  /// No description provided for @payment_method_credit_card.
+  ///
+  /// In en, this message translates to:
+  /// **'Credit Card'**
+  String get payment_method_credit_card;
+
+  /// No description provided for @payment_method_iban.
+  ///
+  /// In en, this message translates to:
+  /// **'Bank Transfer'**
+  String get payment_method_iban;
+
+  /// No description provided for @manual_payment_note.
+  ///
+  /// In en, this message translates to:
+  /// **'Payment collected offline or handled by customer support.'**
+  String get manual_payment_note;
+
+  /// No description provided for @total_paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Total Paid'**
+  String get total_paid;
+
   /// No description provided for @amount_value.
   ///
   /// In en, this message translates to:
