@@ -387,8 +387,8 @@ class _TrackSubscriptionDeliveryPageState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    "Delivering to",
+                  Text(
+                    AppLocalizations.of(context)!.delivering_to,
                     style: TextStyle(color: Colors.grey, fontSize: 12),
                   ),
                   const SizedBox(height: 4),
@@ -468,7 +468,7 @@ class _TrackSubscriptionDeliveryPageState
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  'x${order.product!.quantity}',
+                  '${AppLocalizations.of(context)!.quantity}: ${order.product!.quantity}',
                   style: const TextStyle(
                     color: AppColors.buttonBlueDark,
                     fontWeight: FontWeight.bold,
