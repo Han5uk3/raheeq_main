@@ -1210,6 +1210,7 @@ class _OrderCardState extends State<_OrderCard> {
         proofs['deliveryVideo'].toString().isNotEmpty) {
       mediaItems.add(
         ProofMediaItem(
+          thumbnail: proofs['deliveryVideoThumbnail'],
           title: AppLocalizations.of(context)!.delivery_video,
           fileLabel: 'video',
           url: proofs['deliveryVideo'],
@@ -1223,13 +1224,7 @@ class _OrderCardState extends State<_OrderCard> {
     List<Widget> proofItems = [];
     for (int i = 0; i < mediaItems.length; i++) {
       proofItems.add(
-        _buildSmallProofCard(
-          mediaItems[i].title,
-          mediaItems[i].url,
-          mediaItems[i].isVideo,
-          i,
-          mediaItems,
-        ),
+        _buildSmallProofCard(mediaItems[i], i, mediaItems),
       );
     }
 
@@ -1262,12 +1257,21 @@ class _OrderCardState extends State<_OrderCard> {
   }
 
   Widget _buildSmallProofCard(
-    String title,
-    String url,
-    bool isVideo,
+    ProofMediaItem item,
     int index,
     List<ProofMediaItem> allMedia,
   ) {
+    final isVideo = item.isVideo;
+    final thumbnail = item.thumbnail;
+    final hasThumbnail = isVideo && thumbnail != null && thumbnail.isNotEmpty;
+
+    // Stands in for the video when the backend sent no thumbnail, or when the
+    // one it sent fails to load.
+    Widget videoPlaceholder() => Container(
+      color: Colors.black12,
+      child: Icon(Icons.videocam, size: _s(24), color: Colors.grey),
+    );
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -1292,9 +1296,11 @@ class _OrderCardState extends State<_OrderCard> {
               child: Stack(
                 fit: StackFit.expand,
                 children: [
+                  // The backing layer. It is first in the stack so the play
+                  // button below always paints on top of it.
                   if (!isVideo)
                     CachedNetworkImage(
-                      imageUrl: url,
+                      imageUrl: item.url,
                       fit: BoxFit.contain,
                       placeholder: (context, url) => Shimmer.fromColors(
                         baseColor: Colors.grey[300]!,
@@ -1310,15 +1316,22 @@ class _OrderCardState extends State<_OrderCard> {
                         ),
                       ),
                     )
-                  else
-                    Container(
-                      color: Colors.black12,
-                      child: Icon(
-                        Icons.videocam,
-                        size: _s(24),
-                        color: Colors.grey,
+                  else if (hasThumbnail)
+                    // Filled rather than fitted: the thumbnail is backing for
+                    // the play button, so it should cover the tile instead of
+                    // sitting in letterbox bars.
+                    CachedNetworkImage(
+                      imageUrl: thumbnail,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => Shimmer.fromColors(
+                        baseColor: Colors.grey[300]!,
+                        highlightColor: Colors.grey[100]!,
+                        child: Container(color: Colors.white),
                       ),
-                    ),
+                      errorWidget: (context, url, error) => videoPlaceholder(),
+                    )
+                  else
+                    videoPlaceholder(),
                   if (isVideo)
                     Center(
                       child: CircleAvatar(
@@ -1337,7 +1350,7 @@ class _OrderCardState extends State<_OrderCard> {
           ),
           SizedBox(height: _s(4)),
           Text(
-            title,
+            item.title,
             style: TextStyle(fontSize: _s(10), fontWeight: FontWeight.w600),
             textAlign: TextAlign.center,
             maxLines: 2,

@@ -16,6 +16,7 @@ class ProofMediaItem {
   final String title;
   final String url;
   final bool isVideo;
+  String? thumbnail;
 
   /// Names this piece of proof in a saved file: `<orderNumber>_<fileLabel>`.
   /// Unlike [title] it stays the same in both app languages, so a download
@@ -27,6 +28,7 @@ class ProofMediaItem {
     required this.url,
     required this.isVideo,
     required this.fileLabel,
+    this.thumbnail,
   });
 }
 
