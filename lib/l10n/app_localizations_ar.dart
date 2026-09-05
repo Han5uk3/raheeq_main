@@ -150,7 +150,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get saved_mosques => 'المساجد المحفوظة';
 
   @override
-  String get recurring_donations => 'الطلبات المتكررة';
+  String get recurring_donations => 'طلبات الاشتراكات';
 
   @override
   String get tax_receipts => 'الإيصالات الضريبية';
