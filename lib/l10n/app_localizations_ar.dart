@@ -1324,6 +1324,55 @@ class AppLocalizationsAr extends AppLocalizations {
   String get payment_details => 'تفاصيل الدفع';
 
   @override
+  String get payment_status => 'حالة الدفع';
+
+  @override
+  String get payment_status_paid => 'مدفوع';
+
+  @override
+  String get payment_status_pending => 'قيد الانتظار';
+
+  @override
+  String get payment_status_awaiting_verification => 'بانتظار التحقق';
+
+  @override
+  String get payment_status_failed => 'فشل الدفع';
+
+  @override
+  String get payment_status_cancelled => 'ملغى';
+
+  @override
+  String get payment_status_refunded => 'مسترجع';
+
+  @override
+  String get payment_method_wallet => 'رصيد المحفظة';
+
+  @override
+  String get payment_method_free => 'طلب مجاني';
+
+  @override
+  String get payment_method_manual => 'نقدي / يدوي';
+
+  @override
+  String get payment_method_apple_pay => 'أبل باي';
+
+  @override
+  String get payment_method_stc_pay => 'إس تي سي باي';
+
+  @override
+  String get payment_method_credit_card => 'بطاقة ائتمانية';
+
+  @override
+  String get payment_method_iban => 'تحويل بنكي';
+
+  @override
+  String get manual_payment_note =>
+      'تم تحصيل المبلغ خارج التطبيق أو عبر خدمة العملاء.';
+
+  @override
+  String get total_paid => 'إجمالي المدفوع';
+
+  @override
   String get amount_value => 'قيمة المنتجات';
 
   @override

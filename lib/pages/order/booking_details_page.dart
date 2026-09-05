@@ -9,6 +9,7 @@ import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:raheeq_main/common_widgets/delivery_fee_value.dart';
+import 'package:raheeq_main/common_widgets/payment_method_badge.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
@@ -780,33 +781,41 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                             color: Colors.grey[700],
                           ),
                         ),
-                        Row(
-                          children: [
-                            if (order.parentOrder!.paymentMethod ==
-                                "CREDIT_CARD") ...{
-                              SizedBox(
-                                height: 30,
-                                width: 30,
-                                child: Image.asset(
-                                  'assets/payment_method_icons/visa.png',
-                                  fit: BoxFit.contain,
-                                ),
-                              ),
-                              const SizedBox(width: 6),
-                            },
-                            SizedBox(
-                              height: 30,
-                              width: 30,
-                              child: Image.asset(
-                                _getPaymentMethodImage(
-                                  order.parentOrder!.paymentMethod,
-                                ),
-                                fit: BoxFit.contain,
-                              ),
+                        // The badge carries the method's own name and colour,
+                        // so WALLET, FREE and MANUAL — which have no logo —
+                        // still read as something rather than a blank space.
+                        Flexible(
+                          child: Align(
+                            alignment: AlignmentDirectional.centerEnd,
+                            child: PaymentMethodBadge(
+                              method: order.parentOrder!.paymentMethod,
                             ),
-                          ],
+                          ),
                         ),
-                       
+                      ],
+                    ),
+                    const SizedBox(height: 12),
+                  ],
+                  if (order.parentOrder?.paymentStatus != null &&
+                      order.parentOrder!.paymentStatus.isNotEmpty) ...[
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          AppLocalizations.of(context)!.payment_status,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[700],
+                          ),
+                        ),
+                        Flexible(
+                          child: Align(
+                            alignment: AlignmentDirectional.centerEnd,
+                            child: PaymentStatusBadge(
+                              status: order.parentOrder!.paymentStatus,
+                            ),
+                          ),
+                        ),
                       ],
                     ),
                     const SizedBox(height: 12),
@@ -818,16 +827,20 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                   ),
                   const SizedBox(height: 12),
                   _buildDeliveryFeeRow(order.financials!, isAr),
-                  const SizedBox(height: 12),
+               
                   // The rate rides in the label so the customer can see which
                   // VAT the amount was worked out at.
-                  _buildFinancialRow(
+                  if (order.financials!.vatAmount > 0) ...[
+                    const SizedBox(height: 12),
+                    _buildFinancialRow(
                     AppLocalizations.of(context)!.vat_with_percentage(
                       Formatters.formatPercentage(order.financials!.vatRate),
                     ),
                     order.financials!.vatAmount,
                     isAr,
                   ),
+                  ],
+                
                   // Deductions are shown as negatives so the rows add up to
                   // the total that was actually charged.
                   if (order.financials!.discountAmount > 0) ...[
@@ -850,12 +863,29 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                     padding: EdgeInsets.symmetric(vertical: 12.0),
                     child: Divider(color: Color(0xFFEAEFF2), height: 1),
                   ),
+                  // "Total Paid" rather than "Total Amount": on a wallet or
+                  // free order the deduction rows above bring this to 0, and
+                  // the label has to say that nothing was charged.
                   _buildFinancialRow(
-                    AppLocalizations.of(context)!.total_amount,
+                    AppLocalizations.of(context)!.total_paid,
                     (order.financials!.totalAmount),
                     isAr,
                     isTotal: true,
                   ),
+                  // An admin created this order offline, so the customer never
+                  // saw a payment screen — say where the money came from.
+                  if (order.parentOrder?.paymentMethod.toUpperCase() ==
+                      'MANUAL') ...[
+                    const SizedBox(height: 12),
+                    Text(
+                      AppLocalizations.of(context)!.manual_payment_note,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontStyle: FontStyle.italic,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),
@@ -905,24 +935,6 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
         ],
       ),
     );
-  }
-
-  String _getPaymentMethodImage(String method) {
-    if (method.isEmpty) return '';
-    switch (method.toUpperCase()) {
-      case 'CREDIT_CARD':
-      case 'MADA':
-        return 'assets/payment_method_icons/mada.png';
-      case 'STC_PAY':
-        return 'assets/payment_method_icons/stc_pay.png';
-      case 'APPLE_PAY':
-        return 'assets/payment_method_icons/apple_pay.png';
-      case 'BANK_TRANSFER':
-      case 'IBAN':
-        return 'assets/payment_method_icons/iban.png';
-      default:
-        return 'assets/payment_method_icons/mada.png';
-    }
   }
 
   /// The delivery fee row, which reads "SAR 25.00  Free" — original struck

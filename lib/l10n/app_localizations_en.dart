@@ -1333,6 +1333,55 @@ class AppLocalizationsEn extends AppLocalizations {
   String get payment_details => 'Payment Details';
 
   @override
+  String get payment_status => 'Payment Status';
+
+  @override
+  String get payment_status_paid => 'Paid';
+
+  @override
+  String get payment_status_pending => 'Pending';
+
+  @override
+  String get payment_status_awaiting_verification => 'Awaiting Verification';
+
+  @override
+  String get payment_status_failed => 'Failed';
+
+  @override
+  String get payment_status_cancelled => 'Cancelled';
+
+  @override
+  String get payment_status_refunded => 'Refunded';
+
+  @override
+  String get payment_method_wallet => 'Wallet Balance';
+
+  @override
+  String get payment_method_free => 'Free Order';
+
+  @override
+  String get payment_method_manual => 'Cash / Offline';
+
+  @override
+  String get payment_method_apple_pay => 'Apple Pay';
+
+  @override
+  String get payment_method_stc_pay => 'STC Pay';
+
+  @override
+  String get payment_method_credit_card => 'Credit Card';
+
+  @override
+  String get payment_method_iban => 'Bank Transfer';
+
+  @override
+  String get manual_payment_note =>
+      'Payment collected offline or handled by customer support.';
+
+  @override
+  String get total_paid => 'Total Paid';
+
+  @override
   String get amount_value => 'Amount';
 
   @override
