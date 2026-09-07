@@ -119,11 +119,16 @@ class ChooseWaterPackageScreen extends StatefulWidget {
   /// [ReviewOrderPage.chillerRefillSubOrderId].
   final String? chillerRefillSubOrderId;
 
+  /// The chiller's destination fields, passed straight through to the review
+  /// page — see [ReviewOrderPage.chillerRefillDestination].
+  final Map<String, dynamic>? chillerRefillDestination;
+
   const ChooseWaterPackageScreen({
     super.key,
     required this.selectedCategories,
     required this.availableProducts,
     this.chillerRefillSubOrderId,
+    this.chillerRefillDestination,
   });
 
   @override
@@ -135,6 +140,7 @@ class ChooseWaterPackageScreen extends StatefulWidget {
     required List<SelectedCategoryItem> selectedCategories,
     required List<Product> availableProducts,
     String? chillerRefillSubOrderId,
+    Map<String, dynamic>? chillerRefillDestination,
   }) {
     return showModalBottomSheet(
       context: context,
@@ -150,6 +156,7 @@ class ChooseWaterPackageScreen extends StatefulWidget {
         selectedCategories: selectedCategories,
         availableProducts: availableProducts,
         chillerRefillSubOrderId: chillerRefillSubOrderId,
+        chillerRefillDestination: chillerRefillDestination,
       ),
     );
   }
@@ -315,6 +322,7 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
         builder: (_) => ReviewOrderPage(
           orderStates: orderStates,
           chillerRefillSubOrderId: widget.chillerRefillSubOrderId,
+          chillerRefillDestination: widget.chillerRefillDestination,
         ),
       ),
     );

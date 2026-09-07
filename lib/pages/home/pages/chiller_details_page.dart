@@ -3,11 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/models/chiller_model.dart';
-import 'package:raheeq_main/models/mosque.dart';
-import 'package:raheeq_main/models/selected_category_item.dart';
 import 'package:raheeq_main/pages/home/pages/home_tab.dart';
 import 'package:raheeq_main/pages/home/widgets/order_chiller_sheet.dart';
 import 'package:raheeq_main/pages/order/choose_water_package_screen.dart';
+import 'package:raheeq_main/utils/chiller_refill_target.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:shimmer/shimmer.dart';
 
@@ -26,7 +25,7 @@ class ChillerDetailsPage extends StatelessWidget {
         : (chiller.product?.name.isNotEmpty == true
               ? chiller.product!.name
               : chiller.product?.nameAr ?? '');
-            
+
     final locationName = isArabic
         ? (chiller.deliveredLocation?.nameAr.isNotEmpty == true
               ? chiller.deliveredLocation!.nameAr
@@ -195,7 +194,6 @@ class ChillerDetailsPage extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
-                              
                                 children: [
                                   Expanded(
                                     child: _buildInfoRow(
@@ -207,9 +205,6 @@ class ChillerDetailsPage extends StatelessWidget {
                                             )!.unknown_location,
                                     ),
                                   ),
-                              
-                             
-                                
                                 ],
                               ),
                               const Divider(height: 24),
@@ -219,7 +214,6 @@ class ChillerDetailsPage extends StatelessWidget {
                                       .deliveredLocation!
                                       .address
                                       .isNotEmpty) ...[
-                        
                                 _buildInfoRow(
                                   '${AppLocalizations.of(context)!.address}:',
                                   chiller.deliveredLocation!.address,
@@ -227,7 +221,6 @@ class ChillerDetailsPage extends StatelessWidget {
                               ],
                             ],
                           ),
-                          
                         ),
                         const SizedBox(height: 32),
 
@@ -246,45 +239,9 @@ class ChillerDetailsPage extends StatelessWidget {
                                 ),
                               ),
                               onPressed: () {
-                                final category = HomeTab.cachedCategories
-                                    .firstWhere(
-                                      (c) =>
-                                          c.slug ==
-                                          chiller.deliveredLocation?.type,
-                                      orElse: () =>
-                                          HomeTab.cachedCategories.firstWhere(
-                                            (c) =>
-                                                c.slug == 'mosques', // fallback
-                                            orElse: () =>
-                                                HomeTab.cachedCategories.first,
-                                          ),
-                                    );
-
-                                final specificPlace = Mosque(
-                                  id: chiller.deliveredLocation?.id ?? '',
-                                  name: chiller.deliveredLocation?.name ?? '',
-                                  nameAr:
-                                      chiller.deliveredLocation?.nameAr ?? '',
-                                  beneficiaryCount: 0,
-                                  latitude:
-                                      chiller.deliveredLocation?.latitude ??
-                                      0.0,
-                                  longitude:
-                                      chiller.deliveredLocation?.longitude ??
-                                      0.0,
-                                  address:
-                                      chiller.deliveredLocation?.address ?? '',
-                                  image: '',
-                                  zone: null,
-                                  isActive: true,
+                                final selectedCategoryItem = refillCategoryItem(
+                                  chiller.deliveredLocation,
                                 );
-
-                                final selectedCategoryItem =
-                                    SelectedCategoryItem(
-                                      category: category,
-                                      optionType: 'specific',
-                                      specificData: specificPlace,
-                                    );
 
                                 final waterCartons = HomeTab.cachedProducts
                                     .where(
@@ -303,6 +260,8 @@ class ChillerDetailsPage extends StatelessWidget {
                                   selectedCategories: [selectedCategoryItem],
                                   availableProducts: waterCartons,
                                   chillerRefillSubOrderId: chiller.id,
+                                  chillerRefillDestination:
+                                      chiller.checkoutDestination,
                                 );
                               },
                               child: Text(

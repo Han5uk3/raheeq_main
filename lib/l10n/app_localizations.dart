@@ -3365,6 +3365,12 @@ abstract class AppLocalizations {
   /// **'Chiller has no assigned location.'**
   String get chiller_has_no_assigned_location;
 
+  /// No description provided for @chiller_refill.
+  ///
+  /// In en, this message translates to:
+  /// **'Refill'**
+  String get chiller_refill;
+
   /// Message shared by the user when inviting others to install the app
   ///
   /// In en, this message translates to:

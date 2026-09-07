@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:open_filex/open_filex.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:raheeq_main/api/apis.dart';
+import 'package:raheeq_main/common_widgets/chiller_refill_badge.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:raheeq_main/common_widgets/delivery_fee_value.dart';
@@ -436,6 +437,13 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Sits above everything else so a refill is identified before the
+          // reader works through the product and location cards.
+          if (order.isChillerRefill)
+            const Padding(
+              padding: EdgeInsets.only(bottom: 16),
+              child: ChillerRefillBadge(),
+            ),
           Builder(
             builder: (context) {
               final bool showInvoice =

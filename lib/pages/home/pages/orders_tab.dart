@@ -14,6 +14,7 @@ import 'package:raheeq_main/models/order_response_model.dart';
 import 'package:raheeq_main/pages/order/booking_details_page.dart';
 import 'package:raheeq_main/pages/order/proof_media_viewer_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:raheeq_main/common_widgets/chiller_refill_badge.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:raheeq_main/pages/home/home_screen.dart';
@@ -202,6 +203,14 @@ class _OrdersTabState extends State<OrdersTab>
         });
       }
     } catch (e) {
+      // Future.wait drops all three tabs when any one of them fails, so the
+      // error body is the only clue about which request went wrong.
+      log(
+        'GET /orders failed: $e'
+        '${e is DioException ? ' body: ${jsonEncode(e.response?.data)}' : ''}',
+        name: 'orders',
+        error: e,
+      );
       if (mounted) {
         setState(() {
           if (e.toString().contains('connection error')) {
@@ -220,12 +229,7 @@ class _OrdersTabState extends State<OrdersTab>
   }
 
   void _processInitialResponse(int tabIndex, dynamic response, String tabName) {
-    if (tabName == 'delivered') {
-      log('Completed orders full response: ${jsonEncode(response.data)}');
-    }
-    if (tabName == 'upcoming') {
-      log('New orders full response: ${jsonEncode(response.data)}');
-    }
+    _logOrdersResponse(tabName, 1, response);
     if (response.statusCode == 200 && response.data['success'] == true) {
       final data = response.data['data']['items'] as List;
       final orders = data
@@ -250,6 +254,20 @@ class _OrdersTabState extends State<OrdersTab>
     }
   }
 
+  /// Logs a `GET /orders` response for one tab, so every tab's payload is
+  /// visible while debugging rather than just the two that were spot-checked.
+  ///
+  /// The body is encoded rather than interpolated: `log` truncates a long line,
+  /// and `toString()` on the decoded map drops the quoting that makes the
+  /// output re-readable as JSON.
+  void _logOrdersResponse(String tabName, int page, dynamic response) {
+    log(
+      'GET /orders [$tabName] page $page '
+      '(status ${response.statusCode}): ${jsonEncode(response.data)}',
+      name: 'orders',
+    );
+  }
+
   Future<void> _loadMoreOrders() async {
     final tabIndex = _tabController.index;
     setState(() {
@@ -271,11 +289,7 @@ class _OrdersTabState extends State<OrdersTab>
         orderType: orderTypeParams,
       );
 
-      if (_getTabName() == 'upcoming') {
-        log(
-          'New orders full response (page ${_currentPages[tabIndex]}): ${jsonEncode(response.data)}',
-        );
-      }
+      _logOrdersResponse(_getTabName(), _currentPages[tabIndex], response);
 
       if (response.statusCode == 200 && response.data['success'] == true) {
         final data = response.data['data']['items'] as List;
@@ -950,11 +964,20 @@ class _OrderCardState extends State<_OrderCard> {
                     style: TextStyle(fontSize: _s(14)),
                   ),
                   SizedBox(width: 6),
-                  Text(
-                    '#${widget.order.subOrderNumber}',
-                    textDirection: TextDirection.ltr,
-                    style: TextStyle(color: Colors.grey, fontSize: _s(14)),
+                  // The number can run long, so it yields to the badge rather
+                  // than pushing it off the card.
+                  Flexible(
+                    child: Text(
+                      '#${widget.order.subOrderNumber}',
+                      textDirection: TextDirection.ltr,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(color: Colors.grey, fontSize: _s(14)),
+                    ),
                   ),
+                  if (widget.order.isChillerRefill) ...[
+                    SizedBox(width: _s(8)),
+                    const ChillerRefillBadge(compact: true),
+                  ],
                 ],
               ),
               const Divider(),

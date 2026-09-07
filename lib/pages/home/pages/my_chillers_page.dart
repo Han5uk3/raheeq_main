@@ -6,14 +6,13 @@ import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/models/chiller_model.dart';
 import 'package:raheeq_main/pages/order/choose_water_package_screen.dart';
+import 'package:raheeq_main/utils/chiller_refill_target.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'dart:developer';
 import 'package:shimmer/shimmer.dart';
 import 'package:raheeq_main/pages/home/pages/home_tab.dart';
 import 'package:raheeq_main/pages/home/widgets/order_chiller_sheet.dart';
 import 'package:raheeq_main/pages/home/pages/chiller_details_page.dart';
-import 'package:raheeq_main/models/selected_category_item.dart';
-import 'package:raheeq_main/models/mosque.dart';
 
 class MyChillersPage extends StatefulWidget {
   const MyChillersPage({super.key});
@@ -142,6 +141,10 @@ class _MyChillersPageState extends State<MyChillersPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Only live chillers are listed. Whether each one can also be refilled is a
+    // separate question the card answers for itself.
+    final visibleChillers = _chillers.where((c) => c.isActive).toList();
+
     return Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: Padding(
@@ -208,7 +211,7 @@ class _MyChillersPageState extends State<MyChillersPage> {
                           },
                           child: _isLoading
                               ? _buildShimmerLoading()
-                              : _chillers.isEmpty
+                              : visibleChillers.isEmpty
                               ? Center(
                                   key: const ValueKey('empty'),
                                   child: Column(
@@ -230,18 +233,16 @@ class _MyChillersPageState extends State<MyChillersPage> {
                                   key: const ValueKey('content'),
                                   physics: const ClampingScrollPhysics(),
                                   padding: const EdgeInsets.all(16),
-                                  itemCount: _chillers.length,
+                                  itemCount: visibleChillers.length,
                                   itemBuilder: (context, index) {
-                                    final chiller = _chillers[index];
-                                    if (chiller.canRefill) {
-                                      return Padding(
-                                        padding: const EdgeInsets.only(
-                                          bottom: 16,
-                                        ),
-                                        child: _buildChillerItem(chiller),
-                                      );
-                                    }
-                                    return const SizedBox.shrink();
+                                    return Padding(
+                                      padding: const EdgeInsets.only(
+                                        bottom: 16,
+                                      ),
+                                      child: _buildChillerItem(
+                                        visibleChillers[index],
+                                      ),
+                                    );
                                   },
                                 ),
                         ),
@@ -348,7 +349,7 @@ class _MyChillersPageState extends State<MyChillersPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-Row(
+                      Row(
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: [
                           Text(
@@ -362,7 +363,6 @@ Row(
                         ],
                       ),
 
-                    
                       const SizedBox(height: 4),
                       Text(
                         productName.isNotEmpty
@@ -452,67 +452,50 @@ Row(
                 ),
               ],
             ),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.buttonBlueDark,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                onPressed: () {
-                  final category = HomeTab.cachedCategories.firstWhere(
-                    (c) => c.slug == chiller.deliveredLocation?.type,
-                    orElse: () => HomeTab.cachedCategories.firstWhere(
-                      (c) => c.slug == 'mosques', // fallback
-                      orElse: () => HomeTab.cachedCategories.first,
+            // A chiller with no assigned venue is still listed, but there is
+            // nowhere to send a refill, so it is not offered one.
+            if (chiller.canRefill)
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: AppColors.buttonBlueDark,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                  );
+                  ),
+                  onPressed: () {
+                    final selectedCategoryItem = refillCategoryItem(
+                      chiller.deliveredLocation,
+                    );
 
-                  final specificPlace = Mosque(
-                    id: chiller.deliveredLocation?.id ?? '',
-                    name: chiller.deliveredLocation?.name ?? '',
-                    nameAr: chiller.deliveredLocation?.nameAr ?? '',
-                    beneficiaryCount: 0,
-                    latitude: chiller.deliveredLocation?.latitude ?? 0.0,
-                    longitude: chiller.deliveredLocation?.longitude ?? 0.0,
-                    address: chiller.deliveredLocation?.address ?? '',
-                    image: '',
-                    zone: null,
-                    isActive: true,
-                  );
+                    final waterCartons = HomeTab.cachedProducts
+                        .where(
+                          (p) => p.serialNumber == 1 || p.serialNumber == 4,
+                        )
+                        .toList();
 
-                  final selectedCategoryItem = SelectedCategoryItem(
-                    category: category,
-                    optionType: 'specific',
-                    specificData: specificPlace,
-                  );
+                    // The chiller's own sub-order id: it makes this a refill,
+                    // so the backend links the order to this chiller and locks
+                    // delivery to its location.
+                    ChooseWaterPackageScreen.showAsBottomSheet(
+                      context,
+                      selectedCategories: [selectedCategoryItem],
+                      availableProducts: waterCartons,
+                      chillerRefillSubOrderId: chiller.id,
+                      chillerRefillDestination: chiller.checkoutDestination,
+                    );
+                  },
 
-                  final waterCartons = HomeTab.cachedProducts
-                      .where((p) => p.serialNumber == 1 || p.serialNumber == 4)
-                      .toList();
-
-                  // The chiller's own sub-order id: it makes this a refill,
-                  // so the backend links the order to this chiller and locks
-                  // delivery to its location.
-                  ChooseWaterPackageScreen.showAsBottomSheet(
-                    context,
-                    selectedCategories: [selectedCategoryItem],
-                    availableProducts: waterCartons,
-                    chillerRefillSubOrderId: chiller.id,
-                  );
-                },
-
-                child: Text(
-                  AppLocalizations.of(context)!.order_water_to_this_chiller,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
+                  child: Text(
+                    AppLocalizations.of(context)!.order_water_to_this_chiller,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ),
-            ),
           ],
         ),
       ),

@@ -1720,6 +1720,9 @@ class AppLocalizationsEn extends AppLocalizations {
       'Chiller has no assigned location.';
 
   @override
+  String get chiller_refill => 'Refill';
+
+  @override
   String share_app_message(String link) {
     return 'Rahiq App 💧:- A water delivery service for mosques and orphanages 🚚🕌. The Prophet ﷺ said: \"Whoever guides someone to good will have a reward like the one who did it\" 🌷: Share the app - $link';
   }
