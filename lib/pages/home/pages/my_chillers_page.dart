@@ -367,7 +367,7 @@ class _MyChillersPageState extends State<MyChillersPage> {
                       Text(
                         productName.isNotEmpty
                             ? productName
-                            : 'Unknown Product',
+                            : AppLocalizations.of(context)!.unknown_product,
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -386,7 +386,9 @@ class _MyChillersPageState extends State<MyChillersPage> {
                             child: Text(
                               locationName.isNotEmpty
                                   ? locationName
-                                  : 'Unknown Location',
+                                  : AppLocalizations.of(
+                                      context,
+                                    )!.location_not_selected,
                               style: const TextStyle(
                                 fontSize: 12,
                                 color: Colors.blue,
