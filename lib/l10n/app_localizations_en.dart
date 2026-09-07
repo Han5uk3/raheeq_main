@@ -1696,6 +1696,30 @@ class AppLocalizationsEn extends AppLocalizations {
   String get follow_us => 'Follow us';
 
   @override
+  String get refills => 'Refills';
+
+  @override
+  String get last_refilled => 'Last refilled';
+
+  @override
+  String get chiller_not_found => 'Chiller not found.';
+
+  @override
+  String get invalid_chiller_product => 'Invalid chiller product.';
+
+  @override
+  String get chiller_must_be_delivered_before_refilling =>
+      'Chiller must be delivered before refilling.';
+
+  @override
+  String get chiller_currently_unavailable_for_refills =>
+      'Chiller is currently unavailable for refills.';
+
+  @override
+  String get chiller_has_no_assigned_location =>
+      'Chiller has no assigned location.';
+
+  @override
   String share_app_message(String link) {
     return 'Rahiq App 💧:- A water delivery service for mosques and orphanages 🚚🕌. The Prophet ﷺ said: \"Whoever guides someone to good will have a reward like the one who did it\" 🌷: Share the app - $link';
   }

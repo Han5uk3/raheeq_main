@@ -616,6 +616,13 @@
   "last_6_months": "Last 6 Months",
   "this_year": "This Year",
   "follow_us": "Follow us",
+  "refills": "Refills",
+  "last_refilled": "Last refilled",
+  "chiller_not_found": "Chiller not found.",
+  "invalid_chiller_product": "Invalid chiller product.",
+  "chiller_must_be_delivered_before_refilling": "Chiller must be delivered before refilling.",
+  "chiller_currently_unavailable_for_refills": "Chiller is currently unavailable for refills.",
+  "chiller_has_no_assigned_location": "Chiller has no assigned location.",
   "@share_app_message": {
     "description": "Message shared by the user when inviting others to install the app",
     "placeholders": {

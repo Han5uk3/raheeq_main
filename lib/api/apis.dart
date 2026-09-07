@@ -1012,14 +1012,22 @@ class ApiService {
   }
 
   /// Create Checkout - Quick
+  ///
+  /// [chillerRefillSubOrderId] turns the checkout into a refill for an existing
+  /// chiller: pass the chiller's sub-order id and the backend locks delivery to
+  /// that chiller's location and links the order to it.
   Future<Response> createCheckoutQuick({
     required List<Map<String, dynamic>> items,
     Map<String, dynamic>? subscription,
+    String? chillerRefillSubOrderId,
   }) async {
     try {
       final data = <String, dynamic>{'items': items};
       if (subscription != null) {
         data['subscription'] = subscription;
+      }
+      if (chillerRefillSubOrderId != null) {
+        data['chillerRefillSubOrderId'] = chillerRefillSubOrderId;
       }
       final response = await _dio.post('/checkout', data: data);
       return response;

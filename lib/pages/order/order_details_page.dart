@@ -10,6 +10,7 @@ import 'package:raheeq_main/pages/order/contribution_details_page.dart';
 import 'package:raheeq_main/common_widgets/bottom_action_pill.dart';
 import 'package:raheeq_main/services/network_monitor.dart';
 import 'package:raheeq_main/services/snackbar_insets_services.dart';
+import 'package:raheeq_main/utils/chiller_refill_errors.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/models/checkout.dart';
 import 'dart:developer';
@@ -24,7 +25,16 @@ import 'package:raheeq_main/utils/formatters.dart';
 class ReviewOrderPage extends StatefulWidget {
   final List<OrderCategoryState> orderStates;
 
-  const ReviewOrderPage({super.key, required this.orderStates});
+  /// Set when this order is a refill for a chiller the user already owns: the
+  /// chiller's sub-order id, which the checkout carries so the backend links
+  /// the refill to that chiller and delivers to its location.
+  final String? chillerRefillSubOrderId;
+
+  const ReviewOrderPage({
+    super.key,
+    required this.orderStates,
+    this.chillerRefillSubOrderId,
+  });
 
   @override
   State<ReviewOrderPage> createState() => _ReviewOrderPageState();
@@ -116,6 +126,7 @@ class _ReviewOrderPageState extends State<ReviewOrderPage>
         plan: plan,
         checkoutItems: items,
         orderStates: widget.orderStates,
+        chillerRefillSubOrderId: widget.chillerRefillSubOrderId,
         onBack: () {
           _showSubscriptionPlansBottomSheet(context, isAr);
         },
@@ -134,6 +145,13 @@ class _ReviewOrderPageState extends State<ReviewOrderPage>
         };
         if (sp.notes != null && sp.notes!.trim().isNotEmpty) {
           item['note'] = sp.notes!.trim();
+        }
+        // A refill carries no destination of its own: the backend locks
+        // delivery to the chiller's own location, so sending one here would
+        // only contradict it.
+        if (widget.chillerRefillSubOrderId != null) {
+          items.add(item);
+          continue;
         }
         final optionType = state.categoryItem.optionType;
         final slug = category.slug;
@@ -175,7 +193,10 @@ class _ReviewOrderPageState extends State<ReviewOrderPage>
       );
       final response = isEssential
           ? await apiService.createCheckoutEssential(items: items)
-          : await apiService.createCheckoutQuick(items: items);
+          : await apiService.createCheckoutQuick(
+              items: items,
+              chillerRefillSubOrderId: widget.chillerRefillSubOrderId,
+            );
       log('createCheckout response: ${response.data}');
 
       final checkoutDataMap = response.data['data'];
@@ -200,7 +221,10 @@ class _ReviewOrderPageState extends State<ReviewOrderPage>
         String errorMessage = AppLocalizations.of(
           context,
         )!.error_occurred_try_again;
-        if (e is DioException &&
+        final refillError = chillerRefillErrorMessage(context, e);
+        if (refillError != null) {
+          errorMessage = refillError;
+        } else if (e is DioException &&
             e.response?.data is Map &&
             e.response?.data['message'] != null) {
           errorMessage = e.response!.data['message'];

@@ -28,6 +28,7 @@ import 'campaign_detail_page.dart';
 import '../widgets/city_selector_dialog.dart';
 import 'specific_mosque_page.dart';
 import '../widgets/option_selector_dialog.dart';
+import '../widgets/quick_service_grid_card.dart';
 import 'package:raheeq_main/models/selected_category_item.dart';
 import 'package:raheeq_main/pages/order/choose_water_package_screen.dart';
 import 'package:raheeq_main/common_widgets/bottom_action_pill.dart';
@@ -48,6 +49,7 @@ class HomeTab extends StatefulWidget {
   /// Exposes the cached categories list to external pages.
   static List<Category> get cachedCategories => _HomeTabState._cachedCategories;
   static List<Product> get cachedProducts => _HomeTabState._cachedProducts;
+  static List<City> get cachedCities => _HomeTabState._cachedCities;
 
   /// Clears the basket. Called after a successful payment.
   static void clearBasket() => _HomeTabState._clearBasket();
@@ -2530,110 +2532,13 @@ class _HomeTabState extends State<HomeTab>
     bool requiresChoosing = false,
     VoidCallback? onClear,
   }) {
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        Material(
-          color: Colors.white,
-          elevation: isSelected ? 3 : 1,
-          borderRadius: BorderRadius.circular(10),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(10),
-              border: isSelected
-                  ? Border.all(color: AppColors.buttonBlueDark, width: 1.5)
-                  : null,
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.all(6.0),
-                  child: AspectRatio(
-                    aspectRatio: 1.1,
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(10),
-                      child: Container(
-                        width: double.infinity,
-                        color: const Color(0xFFDDEEF7),
-                        child: imgPath.isEmpty
-                            ? const Center(
-                                child: Icon(
-                                  Icons.water_drop_outlined,
-                                  color: AppColors.buttonBlueDark,
-                                  size: 32,
-                                ),
-                              )
-                            : imgPath.startsWith('assets/')
-                            ? Image.asset(imgPath, fit: BoxFit.contain)
-                            : CachedNetworkImage(
-                                imageUrl: imgPath,
-                                fit: BoxFit.contain,
-                                placeholder: (context, url) =>
-                                    Shimmer.fromColors(
-                                      baseColor: Colors.grey[300]!,
-                                      highlightColor: Colors.grey[100]!,
-                                      child: Container(color: Colors.white),
-                                    ),
-                                errorWidget: (context, url, error) =>
-                                    const Center(
-                                      child: Icon(
-                                        Icons.water_drop_outlined,
-                                        color: AppColors.buttonBlueDark,
-                                        size: 32,
-                                      ),
-                                    ),
-                              ),
-                      ),
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 10,
-                      vertical: 4,
-                    ),
-                    alignment: Alignment.center,
-                    child: Text(
-                      title,
-                      textAlign: TextAlign.center,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black87,
-                        height: 1.2,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 4),
-              ],
-            ),
-          ),
-        ),
-        if (onClear != null)
-          PositionedDirectional(
-            top: -8,
-            end: -8,
-            child: GestureDetector(
-              onTap: onClear,
-              child: Container(
-                padding: const EdgeInsets.all(2),
-                decoration: BoxDecoration(
-                  color: Colors.redAccent,
-                  shape: BoxShape.circle,
-                  border: Border.all(color: Colors.white, width: 1.5),
-                ),
-                child: const Icon(Icons.close, color: Colors.white, size: 14),
-              ),
-            ),
-          ),
-      ],
+    return buildQuickServiceGridCard(
+      context,
+      title,
+      imgPath,
+      isSelected: isSelected,
+      requiresChoosing: requiresChoosing,
+      onClear: onClear,
     );
   }
 

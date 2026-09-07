@@ -1375,13 +1375,14 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                                   ),
                                                   elevation: 0,
                                                 ),
-                                                child: _isApplyingCoupon
-                                                    ? const WaterLoadingIndicator(
-                                                        size: 16,
-                                                        waveColor1:
-                                                            Colors.white,
-                                                      )
-                                                    : Text(
+                                                child: Stack(
+                                                  alignment: Alignment.center,
+                                                  children: [
+                                                    Opacity(
+                                                      opacity: _isApplyingCoupon
+                                                          ? 0
+                                                          : 1,
+                                                      child: Text(
                                                         AppLocalizations.of(
                                                           context,
                                                         )!.remove,
@@ -1390,6 +1391,21 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                                               FontWeight.bold,
                                                         ),
                                                       ),
+                                                    ),
+                                                    if (_isApplyingCoupon)
+                                                      const Positioned.fill(
+                                                        child: Center(
+                                                          child:
+                                                              WaterLoadingIndicator(
+                                                                size: 18,
+                                                                waveColor1:
+                                                                    Colors
+                                                                        .white,
+                                                              ),
+                                                        ),
+                                                      ),
+                                                  ],
+                                                ),
                                               ),
                                             ],
                                           ),
@@ -1534,13 +1550,15 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                                     ),
                                                     elevation: 0,
                                                   ),
-                                                  child: _isApplyingCoupon
-                                                      ? const WaterLoadingIndicator(
-                                                          size: 16,
-                                                          waveColor1:
-                                                              Colors.white,
-                                                        )
-                                                      : Text(
+                                                  child: Stack(
+                                                    alignment: Alignment.center,
+                                                    children: [
+                                                      Opacity(
+                                                        opacity:
+                                                            _isApplyingCoupon
+                                                            ? 0
+                                                            : 1,
+                                                        child: Text(
                                                           AppLocalizations.of(
                                                             context,
                                                           )!.apply,
@@ -1552,6 +1570,21 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                                                         .bold,
                                                               ),
                                                         ),
+                                                      ),
+                                                      if (_isApplyingCoupon)
+                                                        const Positioned.fill(
+                                                          child: Center(
+                                                            child:
+                                                                WaterLoadingIndicator(
+                                                                  size: 16,
+                                                                  waveColor1:
+                                                                      Colors
+                                                                          .white,
+                                                                ),
+                                                          ),
+                                                        ),
+                                                    ],
+                                                  ),
                                                 );
                                               },
                                             ),
@@ -1650,12 +1683,14 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                               ),
                                               elevation: 0,
                                             ),
-                                            child: _isTogglingWallet
-                                                ? const WaterLoadingIndicator(
-                                                    size: 16,
-                                                    waveColor1: Colors.white,
-                                                  )
-                                                : Text(
+                                            child: Stack(
+                                              alignment: Alignment.center,
+                                              children: [
+                                                Opacity(
+                                                  opacity: _isTogglingWallet
+                                                      ? 0
+                                                      : 1,
+                                                  child: Text(
                                                     _checkoutData.useWallet
                                                         ? (AppLocalizations.of(
                                                             context,
@@ -1668,6 +1703,20 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                                           FontWeight.bold,
                                                     ),
                                                   ),
+                                                ),
+                                                if (_isTogglingWallet)
+                                                  const Positioned.fill(
+                                                    child: Center(
+                                                      child:
+                                                          WaterLoadingIndicator(
+                                                            size: 16,
+                                                            waveColor1:
+                                                                Colors.white,
+                                                          ),
+                                                    ),
+                                                  ),
+                                              ],
+                                            ),
                                           ),
                                         ],
                                       ),

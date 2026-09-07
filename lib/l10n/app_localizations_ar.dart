@@ -1423,7 +1423,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get my_chillers => 'ثلاجاتي';
 
   @override
-  String get my_chillers_subtitle => 'عرض حالة الثلاجات المتبرع بها';
+  String get my_chillers_subtitle => 'عرض حالة الثلاجات الخاصة بك';
 
   @override
   String get rate_order => 'تقييم الطلب';
@@ -1681,6 +1681,30 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get follow_us => 'تابعنا';
+
+  @override
+  String get refills => 'مرات إعادة التعبئة';
+
+  @override
+  String get last_refilled => 'آخر إعادة تعبئة';
+
+  @override
+  String get chiller_not_found => 'لم يتم العثور على البرادة.';
+
+  @override
+  String get invalid_chiller_product => 'المنتج المحدد ليس برادة صالحة.';
+
+  @override
+  String get chiller_must_be_delivered_before_refilling =>
+      'يجب توصيل البرادة أولاً قبل إعادة التعبئة.';
+
+  @override
+  String get chiller_currently_unavailable_for_refills =>
+      'البرادة غير متاحة حالياً لإعادة التعبئة.';
+
+  @override
+  String get chiller_has_no_assigned_location =>
+      'لا يوجد موقع مخصص لهذه البرادة.';
 
   @override
   String share_app_message(String link) {

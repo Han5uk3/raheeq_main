@@ -1128,7 +1128,7 @@ class _OrderCardState extends State<_OrderCard> {
                 children: [
                   Text(
                     AppLocalizations.of(context)!.date,
-                    style: TextStyle(color: Colors.grey, fontSize: _s(14)),
+                    style: TextStyle(color: Colors.black, fontSize: _s(14)),
                   ),
                   // The weekday makes this line long enough to crowd the label
                   // on narrow cards, so let it shrink instead of overflowing.
@@ -1136,7 +1136,7 @@ class _OrderCardState extends State<_OrderCard> {
                     child: Text(
                       formattedDate,
                       textAlign: TextAlign.end,
-                      style: TextStyle(color: Colors.black, fontSize: _s(14)),
+                      style: TextStyle(color: Colors.grey, fontSize: _s(14)),
                     ),
                   ),
                 ],
@@ -1147,11 +1147,11 @@ class _OrderCardState extends State<_OrderCard> {
                 children: [
                   Text(
                     AppLocalizations.of(context)!.time,
-                    style: TextStyle(color: Colors.grey, fontSize: _s(14)),
+                    style: TextStyle(color: Colors.black, fontSize: _s(14)),
                   ),
                   Text(
                     formattedTime,
-                    style: TextStyle(color: Colors.black, fontSize: _s(14)),
+                    style: TextStyle(color: Colors.grey, fontSize: _s(14)),
                   ),
                 ],
               ),

@@ -9,8 +9,8 @@ import 'package:raheeq_main/pages/order/choose_water_package_screen.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'dart:developer';
 import 'package:shimmer/shimmer.dart';
-import 'package:raheeq_main/pages/home/home_screen.dart';
 import 'package:raheeq_main/pages/home/pages/home_tab.dart';
+import 'package:raheeq_main/pages/home/widgets/order_chiller_sheet.dart';
 import 'package:raheeq_main/pages/home/pages/chiller_details_page.dart';
 import 'package:raheeq_main/models/selected_category_item.dart';
 import 'package:raheeq_main/models/mosque.dart';
@@ -145,7 +145,7 @@ class _MyChillersPageState extends State<MyChillersPage> {
     return Scaffold(
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       floatingActionButton: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16),
+        padding: EdgeInsetsDirectional.only(start: 16, end: 16, bottom: 16),
         child: SizedBox(
           width: double.infinity,
           child: ElevatedButton(
@@ -156,10 +156,7 @@ class _MyChillersPageState extends State<MyChillersPage> {
                 borderRadius: BorderRadius.circular(30),
               ),
             ),
-            onPressed: () {
-              Navigator.of(context).popUntil((route) => route.isFirst);
-              HomeScreen.switchTabNotifier.value = 0;
-            },
+            onPressed: () => OrderChillerSheet.start(context),
             child: Text(
               AppLocalizations.of(context)!.order_new_chiller,
               style: const TextStyle(
@@ -236,7 +233,7 @@ class _MyChillersPageState extends State<MyChillersPage> {
                                   itemCount: _chillers.length,
                                   itemBuilder: (context, index) {
                                     final chiller = _chillers[index];
-                                    if (chiller.isChillerAvailable) {
+                                    if (chiller.canRefill) {
                                       return Padding(
                                         padding: const EdgeInsets.only(
                                           bottom: 16,
@@ -351,10 +348,21 @@ class _MyChillersPageState extends State<MyChillersPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        '${AppLocalizations.of(context)!.order_number}: ${chiller.subOrderNumber}',
-                        style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${AppLocalizations.of(context)!.order_number}:',
+                            style: TextStyle(fontSize: 12, color: Colors.black),
+                          ),
+                          Text(
+                            ' ${chiller.subOrderNumber}',
+                            style: TextStyle(fontSize: 12, color: Colors.grey),
+                          ),
+                        ],
                       ),
+
+                    
                       const SizedBox(height: 4),
                       Text(
                         productName.isNotEmpty
@@ -389,6 +397,55 @@ class _MyChillersPageState extends State<MyChillersPage> {
                           ),
                         ],
                       ),
+                      if (chiller.refillCount > 0) ...[
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.water_drop_outlined,
+                              size: 14,
+                              color: Colors.grey[600],
+                            ),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                '${AppLocalizations.of(context)!.refills}: ${chiller.refillCount}',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey[600],
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                      if (chiller.lastRefilledDate != null) ...[
+                        const SizedBox(height: 6),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.history,
+                              size: 14,
+                              color: Colors.grey[600],
+                            ),
+                            const SizedBox(width: 4),
+                            Expanded(
+                              child: Text(
+                                '${AppLocalizations.of(context)!.last_refilled}: '
+                                '${chiller.lastRefilledDate!.toString().substring(0, 10)}',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.grey[600],
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
                       const SizedBox(height: 8),
                     ],
                   ),
@@ -436,10 +493,14 @@ class _MyChillersPageState extends State<MyChillersPage> {
                       .where((p) => p.serialNumber == 1 || p.serialNumber == 4)
                       .toList();
 
+                  // The chiller's own sub-order id: it makes this a refill,
+                  // so the backend links the order to this chiller and locks
+                  // delivery to its location.
                   ChooseWaterPackageScreen.showAsBottomSheet(
                     context,
                     selectedCategories: [selectedCategoryItem],
                     availableProducts: waterCartons,
+                    chillerRefillSubOrderId: chiller.id,
                   );
                 },
 
