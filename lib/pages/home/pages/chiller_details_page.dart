@@ -202,7 +202,7 @@ class ChillerDetailsPage extends StatelessWidget {
                                           ? locationName
                                           : AppLocalizations.of(
                                               context,
-                                            )!.unknown_location,
+                                            )!.location_not_selected,
                                     ),
                                   ),
                                 ],

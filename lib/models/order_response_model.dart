@@ -6,6 +6,12 @@ class OrderResponseModel {
   final String status;
   final DateTime createdAt;
   final DateTime? assignedAt;
+
+  /// When the order was accepted for delivery, and when it was handed over.
+  /// Both are only sent by the orders-list endpoint, so they are null on the
+  /// details payload and on orders that predate the fields.
+  final DateTime? acceptedAt;
+  final DateTime? deliveredAt;
   final DateTime? completedAt;
   final DateTime? confirmedAt;
   final DateTime? cancelledAt;
@@ -40,6 +46,8 @@ class OrderResponseModel {
     required this.status,
     required this.createdAt,
     this.assignedAt,
+    this.acceptedAt,
+    this.deliveredAt,
     this.completedAt,
     this.confirmedAt,
     this.cancelledAt,
@@ -80,6 +88,12 @@ class OrderResponseModel {
           : (json['dispatchedAt'] != null
                 ? DateTime.tryParse(json['dispatchedAt'])
                 : null),
+      acceptedAt: json['acceptedAt'] != null
+          ? DateTime.tryParse(json['acceptedAt'])
+          : null,
+      deliveredAt: json['deliveredAt'] != null
+          ? DateTime.tryParse(json['deliveredAt'])
+          : null,
       completedAt: json['completedAt'] != null
           ? DateTime.tryParse(json['completedAt'])
           : ((json['deliveryProof'] ?? json['proofs']) != null &&

@@ -23,6 +23,10 @@ import 'package:raheeq_main/services/deep_link_service.dart';
 import 'package:video_player/video_player.dart';
 import 'package:raheeq_main/utils/formatters.dart';
 
+/// Which point in an order's life each tab of the orders list is about, and
+/// therefore which timestamp its cards are dated with.
+enum OrdersTabStage { placed, accepted, delivered }
+
 class OrdersTab extends StatefulWidget {
   const OrdersTab({super.key});
 
@@ -527,7 +531,7 @@ class _OrdersTabState extends State<OrdersTab>
                           return _buildOrdersList(
                             _newOrders,
                             AppLocalizations.of(context)!.no_new_orders,
-                            false,
+                            OrdersTabStage.placed,
                           );
                         } else if (tabController.index == 1) {
                           return _buildOrdersList(
@@ -535,13 +539,13 @@ class _OrdersTabState extends State<OrdersTab>
                             AppLocalizations.of(
                               context,
                             )!.no_orders_out_for_delivery,
-                            false,
+                            OrdersTabStage.accepted,
                           );
                         } else {
                           return _buildOrdersList(
                             _delivered,
                             AppLocalizations.of(context)!.no_delivered_orders,
-                            true,
+                            OrdersTabStage.delivered,
                           );
                         }
                       },
@@ -630,7 +634,7 @@ class _OrdersTabState extends State<OrdersTab>
   Widget _buildOrdersList(
     List<OrderResponseModel> orders,
     String emptyMessage,
-    bool isDelivered,
+    OrdersTabStage stage,
   ) {
     return AnimatedSwitcher(
       duration: const Duration(milliseconds: 500),
@@ -640,14 +644,14 @@ class _OrdersTabState extends State<OrdersTab>
           children: <Widget>[...previousChildren, ?currentChild],
         );
       },
-      child: _buildOrdersListInternal(orders, emptyMessage, isDelivered),
+      child: _buildOrdersListInternal(orders, emptyMessage, stage),
     );
   }
 
   Widget _buildOrdersListInternal(
     List<OrderResponseModel> orders,
     String emptyMessage,
-    bool isDelivered,
+    OrdersTabStage stage,
   ) {
     if (_isLoading) {
       return ListView.separated(
@@ -811,15 +815,15 @@ class _OrdersTabState extends State<OrdersTab>
       separatorBuilder: (context, index) => const SizedBox(height: 12),
       itemBuilder: (context, index) {
         final order = orders[index];
-        return _buildOrderCard(order, isDelivered);
+        return _buildOrderCard(order, stage);
       },
     );
   }
 
-  Widget _buildOrderCard(OrderResponseModel order, bool isDelivered) {
+  Widget _buildOrderCard(OrderResponseModel order, OrdersTabStage stage) {
     return _OrderCard(
       order: order,
-      isDelivered: isDelivered,
+      stage: stage,
       onRefresh: _fetchAllOrders,
     );
   }
@@ -827,12 +831,12 @@ class _OrdersTabState extends State<OrdersTab>
 
 class _OrderCard extends StatefulWidget {
   final OrderResponseModel order;
-  final bool isDelivered;
+  final OrdersTabStage stage;
   final VoidCallback onRefresh;
 
   const _OrderCard({
     required this.order,
-    required this.isDelivered,
+    required this.stage,
     required this.onRefresh,
   });
 
@@ -858,11 +862,25 @@ class _OrderCardState extends State<_OrderCard> {
   /// size...) by the current responsive [_scale] for this card instance.
   double _s(double value) => value * _scale;
 
+  /// The moment this card is labelled with: when the order reached the stage
+  /// its tab represents. `acceptedAt`/`deliveredAt` are recent additions to
+  /// the list payload, so an order missing one falls back to when it was
+  /// placed rather than showing no date at all.
+  DateTime get _stageDate {
+    final order = widget.order;
+    return switch (widget.stage) {
+          OrdersTabStage.placed => order.createdAt,
+          OrdersTabStage.accepted => order.acceptedAt,
+          OrdersTabStage.delivered => order.deliveredAt,
+        } ??
+        order.createdAt;
+  }
+
   @override
   Widget build(BuildContext context) {
     final locale = Localizations.localeOf(context).languageCode;
     final isAr = locale == 'ar';
-    final orderDate = widget.order.createdAt;
+    final orderDate = _stageDate;
     final formattedDate = Formatters.formatDateWithWeekday(context, orderDate);
     final formattedTime = Formatters.formatTime(context, orderDate);
 
@@ -1067,7 +1085,7 @@ class _OrderCardState extends State<_OrderCard> {
                               spacing: _s(6),
                               mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                if (widget.isDelivered &&
+                                if (widget.stage == OrdersTabStage.delivered &&
                                     widget.order.review == null)
                                   SizedBox(
                                     child: ElevatedButton(
@@ -1221,7 +1239,7 @@ class _OrderCardState extends State<_OrderCard> {
         proofs['packagesImage'].toString().isNotEmpty) {
       mediaItems.add(
         ProofMediaItem(
-          title: AppLocalizations.of(context)!.packages,
+          title: AppLocalizations.of(context)!.proof_product,
           fileLabel: 'product_image',
           url: proofs['packagesImage'],
           isVideo: false,

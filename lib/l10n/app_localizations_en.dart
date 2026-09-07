@@ -523,6 +523,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get unknown_location => 'Unknown Location';
 
   @override
+  String get location_not_selected => 'Location not selected';
+
+  @override
   String get order_water_to_this_chiller => 'Order water to this chiller';
 
   @override
@@ -1544,6 +1547,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get packages => 'Packages';
+
+  @override
+  String get proof_product => 'Product';
 
   @override
   String get delivery_video => 'Delivery Video';

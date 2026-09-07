@@ -1077,6 +1077,12 @@ abstract class AppLocalizations {
   /// **'Unknown Location'**
   String get unknown_location;
 
+  /// No description provided for @location_not_selected.
+  ///
+  /// In en, this message translates to:
+  /// **'Location not selected'**
+  String get location_not_selected;
+
   /// No description provided for @order_water_to_this_chiller.
   ///
   /// In en, this message translates to:
@@ -3046,6 +3052,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Packages'**
   String get packages;
+
+  /// No description provided for @proof_product.
+  ///
+  /// In en, this message translates to:
+  /// **'Product'**
+  String get proof_product;
 
   /// No description provided for @delivery_video.
   ///

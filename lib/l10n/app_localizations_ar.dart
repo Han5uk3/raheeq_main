@@ -522,6 +522,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get unknown_location => 'موقع غير معروف';
 
   @override
+  String get location_not_selected => 'لم يتم تحديد الموقع';
+
+  @override
   String get order_water_to_this_chiller => 'اطلب ماء لهذه الثلاجة';
 
   @override
@@ -1533,6 +1536,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get packages => 'الطرود';
+
+  @override
+  String get proof_product => 'المنتج';
 
   @override
   String get delivery_video => 'فيديو التوصيل';

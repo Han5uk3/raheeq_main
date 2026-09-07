@@ -1181,7 +1181,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
         proofs['packagesImage'].toString().isNotEmpty) {
       mediaItems.add(
         ProofMediaItem(
-          title: AppLocalizations.of(context)!.packages,
+          title: AppLocalizations.of(context)!.proof_product,
           fileLabel: 'product_image',
           url: proofs['packagesImage'],
           isVideo: false,
