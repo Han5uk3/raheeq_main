@@ -21,9 +21,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get welcome => 'Ahlan';
 
   @override
-  String get copied_to_clipboard => 'Copied to clipboard';
-
-  @override
   String get onboard1_title => 'Give with Purpose';
 
   @override
@@ -55,6 +52,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get iban_accounts => 'IBAN Accounts';
+
+  @override
+  String get copied_to_clipboard => 'Copied to clipboard';
 
   @override
   String get download => 'Download';
@@ -1583,6 +1583,18 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get failed_to_retrieve_apple_identity_token =>
       'Failed to retrieve Apple Identity token';
+
+  @override
+  String get failed_to_sign_in_google => 'Failed to sign in with Google';
+
+  @override
+  String get failed_to_sign_in_apple => 'Failed to sign in with Apple';
+
+  @override
+  String get google_sign_in_cancelled => 'Google sign in was cancelled';
+
+  @override
+  String get apple_sign_in_cancelled => 'Apple sign in was cancelled';
 
   @override
   String get failed_to_submit_review => 'Failed to submit review';

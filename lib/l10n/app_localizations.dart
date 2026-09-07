@@ -122,12 +122,6 @@ abstract class AppLocalizations {
   /// **'Ahlan'**
   String get welcome;
 
-  /// No description provided for @copied_to_clipboard.
-  ///
-  /// In en, this message translates to:
-  /// **'Copied to clipboard'**
-  String get copied_to_clipboard;
-
   /// No description provided for @onboard1_title.
   ///
   /// In en, this message translates to:
@@ -187,6 +181,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'IBAN Accounts'**
   String get iban_accounts;
+
+  /// No description provided for @copied_to_clipboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied to clipboard'**
+  String get copied_to_clipboard;
 
   /// No description provided for @download.
   ///
@@ -3118,6 +3118,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Failed to retrieve Apple Identity token'**
   String get failed_to_retrieve_apple_identity_token;
+
+  /// No description provided for @failed_to_sign_in_google.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to sign in with Google'**
+  String get failed_to_sign_in_google;
+
+  /// No description provided for @failed_to_sign_in_apple.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed to sign in with Apple'**
+  String get failed_to_sign_in_apple;
+
+  /// No description provided for @google_sign_in_cancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Google sign in was cancelled'**
+  String get google_sign_in_cancelled;
+
+  /// No description provided for @apple_sign_in_cancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Apple sign in was cancelled'**
+  String get apple_sign_in_cancelled;
 
   /// No description provided for @failed_to_submit_review.
   ///

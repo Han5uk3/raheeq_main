@@ -21,9 +21,6 @@ class AppLocalizationsAr extends AppLocalizations {
   String get welcome => 'أهلاً';
 
   @override
-  String get copied_to_clipboard => 'تم النسخ إلى الحافظة';
-
-  @override
   String get onboard1_title => 'تبرع بهدف';
 
   @override
@@ -55,6 +52,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get iban_accounts => 'حسابات IBAN';
+
+  @override
+  String get copied_to_clipboard => 'تم النسخ إلى الحافظة';
 
   @override
   String get download => 'تنزيل';
@@ -1572,6 +1572,19 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get failed_to_retrieve_apple_identity_token =>
       'فشل في استرداد رمز Apple Identity';
+
+  @override
+  String get failed_to_sign_in_google => 'فشل تسجيل الدخول باستخدام Google';
+
+  @override
+  String get failed_to_sign_in_apple => 'فشل تسجيل الدخول باستخدام Apple';
+
+  @override
+  String get google_sign_in_cancelled =>
+      'تم إلغاء تسجيل الدخول باستخدام Google';
+
+  @override
+  String get apple_sign_in_cancelled => 'تم إلغاء تسجيل الدخول باستخدام Apple';
 
   @override
   String get failed_to_submit_review => 'فشل في إرسال التقييم';

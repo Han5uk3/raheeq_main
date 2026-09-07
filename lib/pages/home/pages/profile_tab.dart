@@ -51,7 +51,7 @@ class _ProfileTabState extends State<ProfileTab> {
   }
 
   bool _isLoading = false;
-  bool _isSaving = false; 
+  bool _isSaving = false; // Used for logout loading state
   User? _currentUser;
   int _unreadNotificationsCount = 0;
 

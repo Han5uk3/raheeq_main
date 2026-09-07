@@ -94,7 +94,7 @@ class _LoginState extends State<Login> {
   Widget _buildTermsNotice(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       child: RichText(
         textAlign: TextAlign.center,
         text: TextSpan(
@@ -162,13 +162,15 @@ class _LoginState extends State<Login> {
     } catch (error) {
       log('Google Sign-In Error: $error');
       if (mounted) {
-        String errorMessage = 'Failed to sign in with Google: $error';
-        if (error.toString().toLowerCase().contains('cancel')) {
-          errorMessage = 'Google sign in was cancelled';
-        }
+        final l10n = AppLocalizations.of(context)!;
+        final isCancelled =
+            error is google_sign_in.GoogleSignInException &&
+            error.code == google_sign_in.GoogleSignInExceptionCode.canceled;
         CustomSnackbar.show(
           context: context,
-          message: errorMessage,
+          message: isCancelled
+              ? l10n.google_sign_in_cancelled
+              : l10n.failed_to_sign_in_google,
           isError: true,
         );
       }
@@ -249,19 +251,18 @@ class _LoginState extends State<Login> {
     } catch (error) {
       log('Apple Sign-In Error: $error');
       if (mounted) {
-        // Cancelling is a deliberate user action, not a failure worth an error
-        // toast. SignInWithApple surfaces it as a canceled authorization code.
-        if (error is SignInWithAppleAuthorizationException &&
-            error.code == AuthorizationErrorCode.canceled) {
-          return;
-        }
-        String errorMessage = 'Failed to sign in with Apple: $error';
-        if (error.toString().toLowerCase().contains('cancel')) {
-          errorMessage = 'Apple sign in was cancelled';
-        }
+        // Cancelling is a deliberate user action rather than a failure, so it
+        // gets its own message. SignInWithApple surfaces it as a canceled
+        // authorization code.
+        final l10n = AppLocalizations.of(context)!;
+        final isCancelled =
+            error is SignInWithAppleAuthorizationException &&
+            error.code == AuthorizationErrorCode.canceled;
         CustomSnackbar.show(
           context: context,
-          message: errorMessage,
+          message: isCancelled
+              ? l10n.apple_sign_in_cancelled
+              : l10n.failed_to_sign_in_apple,
           isError: true,
         );
       }
@@ -409,12 +410,14 @@ class _LoginState extends State<Login> {
         ],
       ),
       body: SafeArea(
-        child: Column(
-          children: [
-            Expanded(
-              child: SingleChildScrollView(
-                physics: const ClampingScrollPhysics(),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            return SingleChildScrollView(
+              physics: const ClampingScrollPhysics(),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(minHeight: constraints.maxHeight),
                 child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Stack(
                       children: [
@@ -727,7 +730,7 @@ class _LoginState extends State<Login> {
                                               );
                                               return;
                                             }
-              
+
                                             if (!RegExp(
                                               r'^\d+$',
                                             ).hasMatch(phoneText)) {
@@ -740,7 +743,7 @@ class _LoginState extends State<Login> {
                                               );
                                               return;
                                             }
-              
+
                                             if (_selectedCountry.phoneCode ==
                                                 '966') {
                                               if (phoneText.startsWith('0') &&
@@ -808,7 +811,7 @@ class _LoginState extends State<Login> {
                                                 return;
                                               }
                                             }
-              
+
                                             String apiPhoneText = phoneText;
                                             if (_selectedCountry.phoneCode ==
                                                     '966' &&
@@ -829,7 +832,7 @@ class _LoginState extends State<Login> {
                                               unawaited(
                                                 OtpAutofill.instance.arm(),
                                               );
-              
+
                                               final response =
                                                   await ApiService().requestOtp(
                                                     phoneNumber: apiPhoneText,
@@ -1066,12 +1069,13 @@ class _LoginState extends State<Login> {
                         ),
                       ],
                     ),
+
+                    _buildTermsNotice(context),
                   ],
                 ),
               ),
-            ),
-            _buildTermsNotice(context),
-          ],
+            );
+          },
         ),
       ),
     );
