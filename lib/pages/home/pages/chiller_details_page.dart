@@ -6,10 +6,10 @@ import 'package:raheeq_main/models/chiller_model.dart';
 import 'package:raheeq_main/models/mosque.dart';
 import 'package:raheeq_main/models/selected_category_item.dart';
 import 'package:raheeq_main/pages/home/pages/home_tab.dart';
+import 'package:raheeq_main/pages/home/widgets/order_chiller_sheet.dart';
 import 'package:raheeq_main/pages/order/choose_water_package_screen.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:shimmer/shimmer.dart';
-import 'package:raheeq_main/pages/home/home_screen.dart';
 
 class ChillerDetailsPage extends StatelessWidget {
   final ChillerModel chiller;
@@ -26,6 +26,7 @@ class ChillerDetailsPage extends StatelessWidget {
         : (chiller.product?.name.isNotEmpty == true
               ? chiller.product!.name
               : chiller.product?.nameAr ?? '');
+            
     final locationName = isArabic
         ? (chiller.deliveredLocation?.nameAr.isNotEmpty == true
               ? chiller.deliveredLocation!.nameAr
@@ -164,6 +165,24 @@ class ChillerDetailsPage extends StatelessWidget {
                                         context,
                                       )!.not_available,
                               ),
+                              // Refill history only appears once there is one
+                              // — an empty count says nothing worth a row.
+                              if (chiller.refillCount > 0) ...[
+                                const Divider(height: 24),
+                                _buildInfoRow(
+                                  '${AppLocalizations.of(context)!.refills}:',
+                                  '${chiller.refillCount}',
+                                ),
+                              ],
+                              if (chiller.lastRefilledDate != null) ...[
+                                const Divider(height: 24),
+                                _buildInfoRow(
+                                  '${AppLocalizations.of(context)!.last_refilled}:',
+                                  chiller.lastRefilledDate!
+                                      .toString()
+                                      .substring(0, 10),
+                                ),
+                              ],
                             ],
                           ),
                         ),
@@ -176,34 +195,31 @@ class ChillerDetailsPage extends StatelessWidget {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Row(
+                              
                                 children: [
-                                  const Icon(
-                                    Icons.location_on,
-                                    color: Colors.blue,
-                                  ),
-                                  const SizedBox(width: 8),
                                   Expanded(
-                                    child: Text(
+                                    child: _buildInfoRow(
+                                      '${AppLocalizations.of(context)!.location}:',
                                       locationName.isNotEmpty
                                           ? locationName
                                           : AppLocalizations.of(
                                               context,
                                             )!.unknown_location,
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.blue,
-                                      ),
                                     ),
                                   ),
+                              
+                             
+                                
                                 ],
                               ),
+                              const Divider(height: 24),
+
                               if (chiller.deliveredLocation?.address != null &&
                                   chiller
                                       .deliveredLocation!
                                       .address
                                       .isNotEmpty) ...[
-                                const SizedBox(height: 12),
+                        
                                 _buildInfoRow(
                                   '${AppLocalizations.of(context)!.address}:',
                                   chiller.deliveredLocation!.address,
@@ -211,11 +227,14 @@ class ChillerDetailsPage extends StatelessWidget {
                               ],
                             ],
                           ),
+                          
                         ),
                         const SizedBox(height: 32),
 
-                        // Action Button
-                        if (chiller.isChillerAvailable) ...[
+                        // Refills only go to a chiller that has actually been
+                        // delivered and is still accepting them; the checkout
+                        // rejects anything else.
+                        if (chiller.canRefill) ...[
                           SizedBox(
                             width: double.infinity,
                             height: 56,
@@ -275,10 +294,15 @@ class ChillerDetailsPage extends StatelessWidget {
                                     )
                                     .toList();
 
+                                // The chiller's own sub-order id: it makes this
+                                // a refill, so the backend links the order to
+                                // this chiller and locks delivery to its
+                                // location.
                                 ChooseWaterPackageScreen.showAsBottomSheet(
                                   context,
                                   selectedCategories: [selectedCategoryItem],
                                   availableProducts: waterCartons,
+                                  chillerRefillSubOrderId: chiller.id,
                                 );
                               },
                               child: Text(
@@ -307,12 +331,7 @@ class ChillerDetailsPage extends StatelessWidget {
                                 borderRadius: BorderRadius.circular(30),
                               ),
                             ),
-                            onPressed: () {
-                              Navigator.of(
-                                context,
-                              ).popUntil((route) => route.isFirst);
-                              HomeScreen.switchTabNotifier.value = 0;
-                            },
+                            onPressed: () => OrderChillerSheet.start(context),
                             child: Text(
                               AppLocalizations.of(context)!.order_new_chiller,
                               style: const TextStyle(
@@ -388,6 +407,7 @@ class ChillerDetailsPage extends StatelessWidget {
   Widget _buildInfoRow(String label, String value) {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.start,
       children: [
         Text(
           label,

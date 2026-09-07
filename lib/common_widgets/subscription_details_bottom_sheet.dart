@@ -8,6 +8,7 @@ import 'package:raheeq_main/models/checkout.dart';
 import 'package:raheeq_main/models/order_item.dart';
 import 'package:raheeq_main/models/subscription_plan.dart';
 import 'package:raheeq_main/pages/order/contribution_details_page.dart';
+import 'package:raheeq_main/utils/chiller_refill_errors.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/utils/rtl_helpers.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
@@ -18,6 +19,10 @@ class SubscriptionDetailsBottomSheet extends StatefulWidget {
   final List<Map<String, dynamic>> checkoutItems;
   final List<OrderCategoryState> orderStates;
   final String? campaignId;
+
+  /// Set when the recurring order is a refill for a chiller the user already
+  /// owns — see [ReviewOrderPage.chillerRefillSubOrderId].
+  final String? chillerRefillSubOrderId;
   final VoidCallback? onBack;
 
   const SubscriptionDetailsBottomSheet({
@@ -26,6 +31,7 @@ class SubscriptionDetailsBottomSheet extends StatefulWidget {
     required this.checkoutItems,
     required this.orderStates,
     this.campaignId,
+    this.chillerRefillSubOrderId,
     this.onBack,
   });
 
@@ -100,6 +106,7 @@ class _SubscriptionDetailsBottomSheetState
         response = await apiService.createCheckoutQuick(
           items: widget.checkoutItems,
           subscription: subscriptionPayload,
+          chillerRefillSubOrderId: widget.chillerRefillSubOrderId,
         );
       }
 
@@ -129,7 +136,10 @@ class _SubscriptionDetailsBottomSheetState
         _isCreatingCheckout = false;
       });
       String errorMessage = AppLocalizations.of(context)!.error_occurred_try_again;
-      if (e is DioException &&
+      final refillError = chillerRefillErrorMessage(context, e);
+      if (refillError != null) {
+        errorMessage = refillError;
+      } else if (e is DioException &&
           e.response?.data is Map &&
           e.response?.data['message'] != null) {
         errorMessage = e.response!.data['message'].toString();

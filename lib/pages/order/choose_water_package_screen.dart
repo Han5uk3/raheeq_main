@@ -114,10 +114,15 @@ class ChooseWaterPackageScreen extends StatefulWidget {
   final List<SelectedCategoryItem> selectedCategories;
   final List<Product> availableProducts;
 
+  /// Set when the water is a refill for a chiller the user already owns — see
+  /// [ReviewOrderPage.chillerRefillSubOrderId].
+  final String? chillerRefillSubOrderId;
+
   const ChooseWaterPackageScreen({
     super.key,
     required this.selectedCategories,
     required this.availableProducts,
+    this.chillerRefillSubOrderId,
   });
 
   @override
@@ -128,6 +133,7 @@ class ChooseWaterPackageScreen extends StatefulWidget {
     BuildContext context, {
     required List<SelectedCategoryItem> selectedCategories,
     required List<Product> availableProducts,
+    String? chillerRefillSubOrderId,
   }) {
     return showModalBottomSheet(
       context: context,
@@ -142,6 +148,7 @@ class ChooseWaterPackageScreen extends StatefulWidget {
       builder: (context) => ChooseWaterPackageScreen(
         selectedCategories: selectedCategories,
         availableProducts: availableProducts,
+        chillerRefillSubOrderId: chillerRefillSubOrderId,
       ),
     );
   }
@@ -299,7 +306,10 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
     Navigator.of(context).pop();
     Navigator.of(context).push(
       MaterialPageRoute(
-        builder: (_) => ReviewOrderPage(orderStates: orderStates),
+        builder: (_) => ReviewOrderPage(
+          orderStates: orderStates,
+          chillerRefillSubOrderId: widget.chillerRefillSubOrderId,
+        ),
       ),
     );
   }

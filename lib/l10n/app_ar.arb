@@ -474,7 +474,7 @@
   "choose_water_package_desc": "اختر باقة المياه التي تناسبك",
   "sar_per_unit": "⃁ / وحدة",
   "my_chillers": "ثلاجاتي",
-  "my_chillers_subtitle": "عرض حالة الثلاجات المتبرع بها",
+  "my_chillers_subtitle": "عرض حالة الثلاجات الخاصة بك",
   "everyday": "كل يوم",
   "once_a_week": "مرة في الأسبوع",
   "once_a_month": "مرة في الشهر",
@@ -570,5 +570,12 @@
   "last_6_months": "آخر 6 أشهر",
   "this_year": "هذا العام",
   "follow_us": "تابعنا",
+  "refills": "مرات إعادة التعبئة",
+  "last_refilled": "آخر إعادة تعبئة",
+  "chiller_not_found": "لم يتم العثور على البرادة.",
+  "invalid_chiller_product": "المنتج المحدد ليس برادة صالحة.",
+  "chiller_must_be_delivered_before_refilling": "يجب توصيل البرادة أولاً قبل إعادة التعبئة.",
+  "chiller_currently_unavailable_for_refills": "البرادة غير متاحة حالياً لإعادة التعبئة.",
+  "chiller_has_no_assigned_location": "لا يوجد موقع مخصص لهذه البرادة.",
   "share_app_message": "تطبيق رحيق 💧 :- خدمة توصيل الماء للمساجد ودور الأيتام 🚚🕌. يقول النبي ﷺ من دلَّ على خيرٍ، فله مثل أجر فاعله 🌷 : انشر التطبيق - {link}"
 }

@@ -3347,6 +3347,48 @@ abstract class AppLocalizations {
   /// **'Follow us'**
   String get follow_us;
 
+  /// No description provided for @refills.
+  ///
+  /// In en, this message translates to:
+  /// **'Refills'**
+  String get refills;
+
+  /// No description provided for @last_refilled.
+  ///
+  /// In en, this message translates to:
+  /// **'Last refilled'**
+  String get last_refilled;
+
+  /// No description provided for @chiller_not_found.
+  ///
+  /// In en, this message translates to:
+  /// **'Chiller not found.'**
+  String get chiller_not_found;
+
+  /// No description provided for @invalid_chiller_product.
+  ///
+  /// In en, this message translates to:
+  /// **'Invalid chiller product.'**
+  String get invalid_chiller_product;
+
+  /// No description provided for @chiller_must_be_delivered_before_refilling.
+  ///
+  /// In en, this message translates to:
+  /// **'Chiller must be delivered before refilling.'**
+  String get chiller_must_be_delivered_before_refilling;
+
+  /// No description provided for @chiller_currently_unavailable_for_refills.
+  ///
+  /// In en, this message translates to:
+  /// **'Chiller is currently unavailable for refills.'**
+  String get chiller_currently_unavailable_for_refills;
+
+  /// No description provided for @chiller_has_no_assigned_location.
+  ///
+  /// In en, this message translates to:
+  /// **'Chiller has no assigned location.'**
+  String get chiller_has_no_assigned_location;
+
   /// Message shared by the user when inviting others to install the app
   ///
   /// In en, this message translates to:
