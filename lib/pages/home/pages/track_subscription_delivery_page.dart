@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
+import 'package:raheeq_main/common_widgets/chiller_refill_badge.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/models/order_response_model.dart';
@@ -454,6 +455,12 @@ class _TrackSubscriptionDeliveryPageState
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+                  // A recurring refill delivers the same cartons as a plain
+                  // water subscription, so the badge is what tells them apart.
+                  if (order.isChillerRefill) ...[
+                    const SizedBox(height: 6),
+                    const ChillerRefillBadge(compact: true),
+                  ],
                 ],
               ),
             ),

@@ -1720,6 +1720,9 @@ class AppLocalizationsAr extends AppLocalizations {
       'لا يوجد موقع مخصص لهذه البرادة.';
 
   @override
+  String get chiller_refill => 'إعادة تعبئة';
+
+  @override
   String share_app_message(String link) {
     return 'تطبيق رحيق 💧 :- خدمة توصيل الماء للمساجد ودور الأيتام 🚚🕌. يقول النبي ﷺ من دلَّ على خيرٍ، فله مثل أجر فاعله 🌷 : انشر التطبيق - $link';
   }

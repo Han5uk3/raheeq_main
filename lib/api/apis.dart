@@ -965,22 +965,55 @@ class ApiService {
   }
 
   /// Create Checkout - Quick
-  ///
-  /// [chillerRefillSubOrderId] turns the checkout into a refill for an existing
-  /// chiller: pass the chiller's sub-order id and the backend locks delivery to
-  /// that chiller's location and links the order to it.
   Future<Response> createCheckoutQuick({
     required List<Map<String, dynamic>> items,
     Map<String, dynamic>? subscription,
-    String? chillerRefillSubOrderId,
   }) async {
     try {
       final data = <String, dynamic>{'items': items};
       if (subscription != null) {
         data['subscription'] = subscription;
       }
-      if (chillerRefillSubOrderId != null) {
-        data['chillerRefillSubOrderId'] = chillerRefillSubOrderId;
+      final response = await _dio.post('/checkout', data: data);
+      return response;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  /// Create Checkout - Chiller Refill
+  ///
+  /// Orders water cartons as a refill for a chiller the user already owns.
+  /// [chillerRefillSubOrderId] is the parent chiller's sub-order id: it links
+  /// the order to that chiller — so delivering it bumps the chiller's
+  /// `refillCount` and `lastRefilledDate` — and ties delivery to the chiller's
+  /// own location.
+  ///
+  /// The backend validates the chiller before pricing the checkout and answers
+  /// a chiller it will not refill with one of the keys
+  /// `chillerRefillErrorMessage` translates, so callers should run failures
+  /// through it before falling back to a generic error.
+  ///
+  /// Each entry in [items] also carries the chiller's own destination — its
+  /// delivered location as `locationId` — so a refill is addressed like any
+  /// other checkout item. The refill guide's example omits that, but the API
+  /// rejects an item with no destination.
+  Future<Response> createRefillCheckout({
+    required String chillerRefillSubOrderId,
+    required List<Map<String, dynamic>> items,
+    Map<String, dynamic>? subscription,
+    String? campaignId,
+  }) async {
+    try {
+      final data = <String, dynamic>{
+        'items': items,
+        'chillerRefillSubOrderId': chillerRefillSubOrderId,
+      };
+      if (subscription != null) {
+        data['subscription'] = subscription;
+      }
+      if (campaignId != null) {
+        data['campaignId'] = campaignId;
       }
       final response = await _dio.post('/checkout', data: data);
       return response;

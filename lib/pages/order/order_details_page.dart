@@ -30,10 +30,18 @@ class ReviewOrderPage extends StatefulWidget {
   /// the refill to that chiller and delivers to its location.
   final String? chillerRefillSubOrderId;
 
+  /// The chiller's own destination fields — normally `{'locationId': <the
+  /// chiller's delivered location id>}` — copied onto every refill item, so a
+  /// refill is addressed to the venue the chiller actually sits at.
+  ///
+  /// See `ChillerModel.checkoutDestination`, which builds it.
+  final Map<String, dynamic>? chillerRefillDestination;
+
   const ReviewOrderPage({
     super.key,
     required this.orderStates,
     this.chillerRefillSubOrderId,
+    this.chillerRefillDestination,
   });
 
   @override
@@ -146,10 +154,10 @@ class _ReviewOrderPageState extends State<ReviewOrderPage>
         if (sp.notes != null && sp.notes!.trim().isNotEmpty) {
           item['note'] = sp.notes!.trim();
         }
-        // A refill carries no destination of its own: the backend locks
-        // delivery to the chiller's own location, so sending one here would
-        // only contradict it.
+        // A refill is addressed to its chiller, not to anything picked on the
+        // way here: it carries the chiller's own location id and nothing else.
         if (widget.chillerRefillSubOrderId != null) {
+          item.addAll(widget.chillerRefillDestination ?? const {});
           items.add(item);
           continue;
         }
@@ -157,9 +165,9 @@ class _ReviewOrderPageState extends State<ReviewOrderPage>
         final slug = category.slug;
         if (optionType == 'specific') {
           final specificData = state.categoryItem.specificData;
-          if (specificData is Place) {
+          if (specificData is Place && specificData.id.isNotEmpty) {
             item['locationId'] = specificData.id;
-          } else if (specificData is City) {
+          } else if (specificData is City && specificData.id.isNotEmpty) {
             item['cityId'] = specificData.id;
           }
         } else {
@@ -191,12 +199,18 @@ class _ReviewOrderPageState extends State<ReviewOrderPage>
       final isEssential = widget.orderStates.any(
         (state) => state.categoryItem.category.slug == 'essential_supplies',
       );
-      final response = isEssential
-          ? await apiService.createCheckoutEssential(items: items)
-          : await apiService.createCheckoutQuick(
-              items: items,
-              chillerRefillSubOrderId: widget.chillerRefillSubOrderId,
-            );
+      final refillSubOrderId = widget.chillerRefillSubOrderId;
+      final Response response;
+      if (refillSubOrderId != null) {
+        response = await apiService.createRefillCheckout(
+          chillerRefillSubOrderId: refillSubOrderId,
+          items: items,
+        );
+      } else if (isEssential) {
+        response = await apiService.createCheckoutEssential(items: items);
+      } else {
+        response = await apiService.createCheckoutQuick(items: items);
+      }
       log('createCheckout response: ${response.data}');
 
       final checkoutDataMap = response.data['data'];
@@ -728,4 +742,3 @@ class _ReviewOrderPageState extends State<ReviewOrderPage>
     );
   }
 }
-

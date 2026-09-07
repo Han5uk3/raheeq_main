@@ -96,7 +96,17 @@ class _SubscriptionDetailsBottomSheetState
     try {
       final apiService = ApiService();
       Response response;
-      if (widget.campaignId != null) {
+      final refillSubOrderId = widget.chillerRefillSubOrderId;
+      if (refillSubOrderId != null) {
+        // A recurring refill is still a refill: it carries the chiller's
+        // sub-order id so every delivery is credited to that chiller.
+        response = await apiService.createRefillCheckout(
+          chillerRefillSubOrderId: refillSubOrderId,
+          items: widget.checkoutItems,
+          subscription: subscriptionPayload,
+          campaignId: widget.campaignId,
+        );
+      } else if (widget.campaignId != null) {
         response = await apiService.createCheckoutCampaign(
           campaignId: widget.campaignId!,
           items: widget.checkoutItems,
@@ -106,7 +116,6 @@ class _SubscriptionDetailsBottomSheetState
         response = await apiService.createCheckoutQuick(
           items: widget.checkoutItems,
           subscription: subscriptionPayload,
-          chillerRefillSubOrderId: widget.chillerRefillSubOrderId,
         );
       }
 

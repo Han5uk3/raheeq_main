@@ -627,6 +627,7 @@
   "chiller_must_be_delivered_before_refilling": "Chiller must be delivered before refilling.",
   "chiller_currently_unavailable_for_refills": "Chiller is currently unavailable for refills.",
   "chiller_has_no_assigned_location": "Chiller has no assigned location.",
+  "chiller_refill": "Refill",
   "@share_app_message": {
     "description": "Message shared by the user when inviting others to install the app",
     "placeholders": {

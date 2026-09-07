@@ -25,6 +25,11 @@ class OrderResponseModel {
   final String? invoiceUrl;
   final Map<String, dynamic>? deliveredLocationDetails;
   final bool? isChillerAvailable;
+
+  /// Whether this order is a refill delivered to a chiller the customer
+  /// already owns, rather than a standalone water order. Absent on older
+  /// payloads, which is read as "not a refill".
+  final bool isChillerRefill;
   OrderReviewModel? review;
   final bool? deliveredToDifferentMosque;
   final String? differentMosqueReason;
@@ -52,6 +57,7 @@ class OrderResponseModel {
     this.invoiceUrl,
     this.deliveredLocationDetails,
     this.isChillerAvailable,
+    this.isChillerRefill = false,
     this.review,
     this.deliveredToDifferentMosque,
     this.differentMosqueReason,
@@ -143,6 +149,9 @@ class OrderResponseModel {
               : null),
       deliveredLocationDetails: json['deliveredLocationDetails'],
       isChillerAvailable: json['isChillerAvailable'],
+      // Compared rather than cast: the field is missing on orders placed
+      // before refills existed, and null there means false, not an error.
+      isChillerRefill: json['isChillerRefill'] == true,
       review: json['review'] != null
           ? OrderReviewModel.fromJson(json['review'])
           : null,
@@ -216,7 +225,6 @@ class OrderProduct {
       subtitleAr: json['subtitleAr'] ?? '',
       message: json['message'] ?? '',
       messageAr: json['messageAr'] ?? '',
-
     );
   }
 }
@@ -280,10 +288,11 @@ class OrderFinancials {
       unitPrice: (json['unitPrice'] ?? 0).toDouble(),
       amount: (json['amount'] ?? 0).toDouble(),
       deliveryFee: (json['deliveryFee'] ?? 0).toDouble(),
-      originalDeliveryFee: (json['originalDeliveryFee'] ??
-              json['deliveryFeeBeforeDiscount'] ??
-              json['baseDeliveryFee'])
-          ?.toDouble(),
+      originalDeliveryFee:
+          (json['originalDeliveryFee'] ??
+                  json['deliveryFeeBeforeDiscount'] ??
+                  json['baseDeliveryFee'])
+              ?.toDouble(),
       // The orders API names the flag `isDeliveryFree`; checkout and the older
       // order payloads name it the other way round.
       isFreeDelivery:

@@ -577,5 +577,6 @@
   "chiller_must_be_delivered_before_refilling": "يجب توصيل البرادة أولاً قبل إعادة التعبئة.",
   "chiller_currently_unavailable_for_refills": "البرادة غير متاحة حالياً لإعادة التعبئة.",
   "chiller_has_no_assigned_location": "لا يوجد موقع مخصص لهذه البرادة.",
+  "chiller_refill": "إعادة تعبئة",
   "share_app_message": "تطبيق رحيق 💧 :- خدمة توصيل الماء للمساجد ودور الأيتام 🚚🕌. يقول النبي ﷺ من دلَّ على خيرٍ، فله مثل أجر فاعله 🌷 : انشر التطبيق - {link}"
 }
