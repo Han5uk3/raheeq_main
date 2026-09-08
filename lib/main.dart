@@ -192,7 +192,7 @@ class MainApp extends StatelessWidget {
         final bool isThickNavBar = bottomPadding >= 24.0;
 
         return SafeArea(
-          bottom: Platform.isAndroid ? isThickNavBar : false,
+          bottom: Platform.isAndroid ? true : false,
           top: false,
           child: MaterialApp(
             navigatorKey: AuthStorage.navigatorKey,
