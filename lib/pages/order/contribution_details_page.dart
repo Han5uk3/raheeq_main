@@ -1765,15 +1765,21 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.start,
                                                 children: [
-                                                  if (true
-                                                  // (_checkoutData.campaign !=
-                                                  //       null &&
-                                                  //   _checkoutData
-                                                  //       .campaign!
-                                                  //       .isNotEmpty)
-                                                  ) ...{
+                                               
                                                     Text(
-                                                      "${sp.quantity > 10 ? sp.product.localizedSubtitlePlural(isAr) : sp.product.localizedSubtitle(isAr)}",
+                                                    sp.quantity > 10
+                                                        ? (sp.product
+                                                                  .localizedSubtitlePlural(
+                                                                    isAr,
+                                                                  ) ??
+                                                              sp.product
+                                                                  .localizedName(
+                                                                    isAr,
+                                                                  ))
+                                                        : sp.product
+                                                              .localizedSubtitle(
+                                                                isAr,
+                                                              ),
                                                       style: const TextStyle(
                                                         fontSize: 17,
                                                         fontWeight:
@@ -1781,21 +1787,8 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                                         color: AppColors
                                                             .buttonBlueDark,
                                                       ),
-                                                    ),
-                                                  },
-
-                                                  //  else ...{
-                                                  //   Text(
-                                                  //     sp.product.localizedSubtitleplural(
-                                                  //       isAr,
-                                                  //     ),
-                                                  //     style: const TextStyle(
-                                                  //       fontSize: 17,
-                                                  //       fontWeight:
-                                                  //           FontWeight.w700,
-                                                  //     ),
-                                                  //   ),
-                                                  // },
+                                                  ),
+                                                
                                                   Text(
                                                     "${AppLocalizations.of(context)!.quantity} : ${sp.quantity}",
                                                     style: TextStyle(
