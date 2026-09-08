@@ -191,68 +191,71 @@ class MainApp extends StatelessWidget {
         ).padding.bottom;
         final bool isThickNavBar = bottomPadding >= 24.0;
 
-        return SafeArea(
-          bottom: Platform.isAndroid ? true : false,
-          top: false,
-          child: MaterialApp(
-            navigatorKey: AuthStorage.navigatorKey,
-            navigatorObservers: [routeObserver],
-            builder: (context, child) {
-              final mediaQueryData = MediaQuery.of(context);
-              return GestureDetector(
-                onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
-                child: MediaQuery(
-                  data: mediaQueryData.copyWith(
-                    textScaler: _ArabicTextScaler(
-                      mediaQueryData.textScaler,
-                      locale.languageCode == 'ar',
+        return ColoredBox(
+          color: Colors.white,
+          child: SafeArea(
+            bottom: Platform.isAndroid ? true : false,
+            top: false,
+            child: MaterialApp(
+              navigatorKey: AuthStorage.navigatorKey,
+              navigatorObservers: [routeObserver],
+              builder: (context, child) {
+                final mediaQueryData = MediaQuery.of(context);
+                return GestureDetector(
+                  onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+                  child: MediaQuery(
+                    data: mediaQueryData.copyWith(
+                      textScaler: _ArabicTextScaler(
+                        mediaQueryData.textScaler,
+                        locale.languageCode == 'ar',
+                      ),
+                      boldText: true,
                     ),
-                    boldText: true,
+                    child: child!,
                   ),
-                  child: child!,
-                ),
-              );
-            },
-            locale: locale,
-            localizationsDelegates: const [
-              CountryLocalizations.delegate,
-              AppLocalizations.delegate,
-              GlobalMaterialLocalizations.delegate,
-              GlobalWidgetsLocalizations.delegate,
-              GlobalCupertinoLocalizations.delegate,
-            ],
-            supportedLocales: const [
-              Locale('en'), // English
-              Locale('ar'), // Arabic
-            ],
-            theme: () {
-              var theme = ThemeData(
-                fontFamily: _latinFontFamily,
-                // Arabic goes last so the riyal glyph and the existing Latin
-                // fallback keep resolving exactly as they did before; Arabic
-                // letters appear in none of those, so they fall through.
-                fontFamilyFallback: const [
-                  'SaudiRiyal',
-                  'SF Pro',
-                  _arabicFontFamily,
-                ],
-                appBarTheme: AppBarTheme(
-                  backgroundColor: AppColors.buttonBlueDark,
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                ),
-                textSelectionTheme: TextSelectionThemeData(
-                  cursorColor: AppColors.buttonBlueDark,
-                  selectionHandleColor: AppColors.buttonBlueDark,
-                  selectionColor: AppColors.buttonBlueDark.withOpacity(0.3),
-                ),
-                useMaterial3: true,
-              );
-              return theme;
-            }(),
-            debugShowCheckedModeBanner: false,
-            initialRoute: '/',
-            routes: {'/': (_) => const SplashScreen()},
+                );
+              },
+              locale: locale,
+              localizationsDelegates: const [
+                CountryLocalizations.delegate,
+                AppLocalizations.delegate,
+                GlobalMaterialLocalizations.delegate,
+                GlobalWidgetsLocalizations.delegate,
+                GlobalCupertinoLocalizations.delegate,
+              ],
+              supportedLocales: const [
+                Locale('en'), // English
+                Locale('ar'), // Arabic
+              ],
+              theme: () {
+                var theme = ThemeData(
+                  fontFamily: _latinFontFamily,
+                  // Arabic goes last so the riyal glyph and the existing Latin
+                  // fallback keep resolving exactly as they did before; Arabic
+                  // letters appear in none of those, so they fall through.
+                  fontFamilyFallback: const [
+                    'SaudiRiyal',
+                    'SF Pro',
+                    _arabicFontFamily,
+                  ],
+                  appBarTheme: AppBarTheme(
+                    backgroundColor: AppColors.buttonBlueDark,
+                    foregroundColor: Colors.white,
+                    elevation: 0,
+                  ),
+                  textSelectionTheme: TextSelectionThemeData(
+                    cursorColor: AppColors.buttonBlueDark,
+                    selectionHandleColor: AppColors.buttonBlueDark,
+                    selectionColor: AppColors.buttonBlueDark.withOpacity(0.3),
+                  ),
+                  useMaterial3: true,
+                );
+                return theme;
+              }(),
+              debugShowCheckedModeBanner: false,
+              initialRoute: '/',
+              routes: {'/': (_) => const SplashScreen()},
+            ),
           ),
         );
       },
