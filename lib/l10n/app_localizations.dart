@@ -1510,6 +1510,12 @@ abstract class AppLocalizations {
   /// **'Total Days'**
   String get total_days;
 
+  /// No description provided for @no_of_orders.
+  ///
+  /// In en, this message translates to:
+  /// **'No. of Orders'**
+  String get no_of_orders;
+
   /// No description provided for @payment_was_cancelled.
   ///
   /// In en, this message translates to:
