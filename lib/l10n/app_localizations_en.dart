@@ -750,6 +750,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get total_days => 'Total Days';
 
   @override
+  String get no_of_orders => 'No. of Orders';
+
+  @override
   String get payment_was_cancelled => 'Payment was cancelled';
 
   @override

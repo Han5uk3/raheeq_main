@@ -748,6 +748,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get total_days => 'عدد الأيام';
 
   @override
+  String get no_of_orders => 'عدد التوصيلات';
+
+  @override
   String get payment_was_cancelled => 'تم إلغاء عملية الدفع';
 
   @override

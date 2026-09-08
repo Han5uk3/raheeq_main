@@ -964,7 +964,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
 
         rows.add(
           _buildSubscriptionRow(
-            AppLocalizations.of(context)!.total_days,
+            AppLocalizations.of(context)!.no_of_orders,
             '$occurrences',
           ),
         );
@@ -1002,7 +1002,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
       if (occurrences != 0) {
         rows.add(
           _buildSubscriptionRow(
-            AppLocalizations.of(context)!.total_days,
+            AppLocalizations.of(context)!.no_of_orders,
             '$occurrences',
           ),
         );
@@ -1064,7 +1064,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
       if (occurrences != 0) {
         rows.add(
           _buildSubscriptionRow(
-            AppLocalizations.of(context)!.total_days,
+            AppLocalizations.of(context)!.no_of_orders,
             '$occurrences',
           ),
         );

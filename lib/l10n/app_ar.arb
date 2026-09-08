@@ -246,6 +246,7 @@
   "payment_was_cancelled": "تم إلغاء عملية الدفع",
   "error_verifying_payment": "حدث خطأ أثناء التحقق من الدفع",
   "pay_with_card": "الدفع",
+  "no_of_orders": "عدد التوصيلات",
   "payment_method": "طريقة الدفع",
   "stc_pay": "STC Pay",
   "apple_pay": "أبل باي",

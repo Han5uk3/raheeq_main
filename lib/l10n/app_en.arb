@@ -284,6 +284,7 @@
   "start_date": "Start Date",
   "end_date": "End Date",
   "total_days": "Total Days",
+  "no_of_orders": "No. of Orders",
   "payment_was_cancelled": "Payment was cancelled",
   "error_verifying_payment": "Error verifying payment",
   "pay_with_card": "Pay with Card",
