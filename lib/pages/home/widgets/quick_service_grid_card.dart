@@ -88,15 +88,15 @@ Widget buildQuickServiceGridCard(
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: const TextStyle(
-                      fontSize: 12,
+                      fontSize: 11,
                       fontWeight: FontWeight.w600,
                       color: Colors.black87,
-                      height: 1.2,
+                      height: 1.0,
                     ),
                   ),
                 ),
               ),
-              const SizedBox(height: 4),
+              
             ],
           ),
         ),
