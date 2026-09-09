@@ -118,10 +118,12 @@ class _GiftCardPageState extends State<GiftCardPage> {
 
     setState(() => _isApplying = true);
 
-    String apiPhoneText = _phoneController.text.trim();
-    if (_selectedCountry.phoneCode == '966' && apiPhoneText.startsWith('0')) {
-      apiPhoneText = apiPhoneText.substring(1);
-    }
+    // The field keeps the trunk `0` the user typed; the API wants the
+    // number without it.
+    final apiPhoneText = GlobalPhoneFormatter.toNationalNumber(
+      _phoneController.text.trim(),
+      _selectedCountry,
+    );
 
     final payload = {
       "templateId": _selectedTemplate!.id,
@@ -547,7 +549,6 @@ class _GiftCardPageState extends State<GiftCardPage> {
                       _selectedCountry = country;
                       final formatted = GlobalPhoneFormatter.formatText(
                         _phoneController.text,
-                        country,
                       );
                       if (_phoneController.text != formatted) {
                         _phoneController.value = TextEditingValue(
@@ -644,7 +645,6 @@ class _GiftCardPageState extends State<GiftCardPage> {
             inputFormatters: [
               const LatinDigitsInputFormatter(),
               GlobalPhoneFormatter(
-                getCurrentCountry: () => _selectedCountry,
                 onCountryDetected: (country) {
                   if (mounted) setState(() => _selectedCountry = country);
                 },
@@ -658,6 +658,14 @@ class _GiftCardPageState extends State<GiftCardPage> {
               if (!RegExp(r'^\d+$').hasMatch(value.trim())) {
                 return AppLocalizations.of(context)!.invalid_phone_number;
               }
+
+              // The field keeps the trunk `0` the user typed;
+              // `PhoneNumber.parse` wants the number without it.
+              final nationalNumber = GlobalPhoneFormatter.toNationalNumber(
+                value.trim(),
+                _selectedCountry,
+              );
+
               if (_selectedCountry.phoneCode == '966') {
                 if (value.startsWith('0') && value.length != 10) {
                   return AppLocalizations.of(context)!.enter_valid_number_gc;
@@ -669,7 +677,7 @@ class _GiftCardPageState extends State<GiftCardPage> {
               } else {
                 try {
                   final phone = PhoneNumber.parse(
-                    '+${_selectedCountry.phoneCode}${value.trim()}',
+                    '+${_selectedCountry.phoneCode}$nationalNumber',
                   );
                   if (!phone.isValid(type: PhoneNumberType.mobile) &&
                       !phone.isValid()) {

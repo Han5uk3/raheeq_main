@@ -513,7 +513,6 @@ class _LoginState extends State<Login> {
                                                           GlobalPhoneFormatter.formatText(
                                                             _phoneController
                                                                 .text,
-                                                            country,
                                                           );
                                                       if (_phoneController
                                                               .text !=
@@ -674,8 +673,6 @@ class _LoginState extends State<Login> {
                                             inputFormatters: [
                                               const LatinDigitsInputFormatter(),
                                               GlobalPhoneFormatter(
-                                                getCurrentCountry: () =>
-                                                    _selectedCountry,
                                                 onCountryDetected: (country) {
                                                   if (mounted) {
                                                     setState(
@@ -756,6 +753,16 @@ class _LoginState extends State<Login> {
                                               return;
                                             }
 
+                                            // The field keeps the trunk `0` the
+                                            // user typed; the API and
+                                            // `PhoneNumber.parse` both want the
+                                            // number without it.
+                                            final apiPhoneText =
+                                                GlobalPhoneFormatter.toNationalNumber(
+                                                  phoneText,
+                                                  _selectedCountry,
+                                                );
+
                                             if (_selectedCountry.phoneCode ==
                                                 '966') {
                                               if (phoneText.startsWith('0') &&
@@ -796,7 +803,7 @@ class _LoginState extends State<Login> {
                                             } else {
                                               try {
                                                 final phone = PhoneNumber.parse(
-                                                  '+${_selectedCountry.phoneCode}$phoneText',
+                                                  '+${_selectedCountry.phoneCode}$apiPhoneText',
                                                 );
                                                 if (!phone.isValid(
                                                       type: PhoneNumberType
@@ -824,13 +831,6 @@ class _LoginState extends State<Login> {
                                               }
                                             }
 
-                                            String apiPhoneText = phoneText;
-                                            if (_selectedCountry.phoneCode ==
-                                                    '966' &&
-                                                apiPhoneText.startsWith('0')) {
-                                              apiPhoneText = apiPhoneText
-                                                  .substring(1);
-                                            }
                                             log("apiservice called");
                                             setState(() => _isLoading = true);
                                             try {

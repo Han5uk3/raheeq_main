@@ -396,6 +396,15 @@ class _RegistrationState extends State<Registration> {
                                                 return;
                                               }
 
+                                              // The field keeps the trunk `0` the
+                                              // user typed; `PhoneNumber.parse`
+                                              // wants the number without it.
+                                              final nationalNumber =
+                                                  GlobalPhoneFormatter.toNationalNumber(
+                                                    phoneText,
+                                                    _selectedCountry,
+                                                  );
+
                                               if (_selectedCountry.phoneCode ==
                                                   '966') {
                                                 if (phoneText.startsWith('0') &&
@@ -437,7 +446,7 @@ class _RegistrationState extends State<Registration> {
                                               } else {
                                                 try {
                                                   final phone = PhoneNumber.parse(
-                                                    '+${_selectedCountry.phoneCode}$phoneText',
+                                                    '+${_selectedCountry.phoneCode}$nationalNumber',
                                                   );
                                                   if (!phone.isValid(
                                                         type: PhoneNumberType
@@ -471,17 +480,11 @@ class _RegistrationState extends State<Registration> {
                                               () => _isRegistering = true,
                                             );
                                             try {
-                                              String apiPhoneText =
-                                                  _phoneController.text.trim();
-                                              if (widget.isSocialLogin &&
-                                                  _selectedCountry.phoneCode ==
-                                                      '966' &&
-                                                  apiPhoneText.startsWith(
-                                                    '0',
-                                                  )) {
-                                                apiPhoneText = apiPhoneText
-                                                    .substring(1);
-                                              }
+                                              final apiPhoneText =
+                                                  GlobalPhoneFormatter.toNationalNumber(
+                                                    _phoneController.text.trim(),
+                                                    _selectedCountry,
+                                                  );
 
                                               final response =
                                                   await ApiService().register(
@@ -914,7 +917,6 @@ class _RegistrationState extends State<Registration> {
                             _selectedCountry = country;
                             final formatted = GlobalPhoneFormatter.formatText(
                               _phoneController.text,
-                              country,
                             );
                             if (_phoneController.text != formatted) {
                               _phoneController.value = TextEditingValue(
@@ -1008,7 +1010,6 @@ class _RegistrationState extends State<Registration> {
                       inputFormatters: [
                         const LatinDigitsInputFormatter(),
                         GlobalPhoneFormatter(
-                          getCurrentCountry: () => _selectedCountry,
                           onCountryDetected: (country) {
                             if (mounted) setState(() => _selectedCountry = country);
                           },
