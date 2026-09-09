@@ -1423,7 +1423,19 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                                       BorderRadius.circular(12),
                                                 ),
                                                 child: TextField(
+                                                  // Show the keyboard already
+                                                  // shifted to caps, to match
+                                                  // the uppercase fold below.
+                                                  textCapitalization:
+                                                      TextCapitalization
+                                                          .characters,
                                                   inputFormatters: [
+                                                    // Only English letters and
+                                                    // digits. Arabic ٠-٩ is
+                                                    // rejected, not converted.
+                                                    FilteringTextInputFormatter.allow(
+                                                      RegExp(r'[A-Za-z0-9]'),
+                                                    ),
                                                     TextInputFormatter.withFunction(
                                                       (oldValue, newValue) =>
                                                           TextEditingValue(

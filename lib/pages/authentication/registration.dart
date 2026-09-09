@@ -12,6 +12,7 @@ import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/pages/home/home_screen.dart';
 import 'package:raheeq_main/pages/authentication/login.dart';
+import 'package:raheeq_main/utils/digits.dart';
 import 'package:raheeq_main/utils/phone_formatter.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/utils/rtl_helpers.dart';
@@ -1005,6 +1006,7 @@ class _RegistrationState extends State<Registration> {
                       controller: _phoneController,
                       keyboardType: TextInputType.phone,
                       inputFormatters: [
+                        const LatinDigitsInputFormatter(),
                         GlobalPhoneFormatter(
                           getCurrentCountry: () => _selectedCountry,
                           onCountryDetected: (country) {

@@ -14,6 +14,7 @@ import 'package:country_picker/country_picker.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
+import 'package:raheeq_main/utils/digits.dart';
 import 'package:raheeq_main/utils/phone_formatter.dart';
 
 class GiftCardPage extends StatefulWidget {
@@ -641,6 +642,7 @@ class _GiftCardPageState extends State<GiftCardPage> {
             autovalidateMode: AutovalidateMode.onUserInteraction,
             style: const TextStyle(color: AppColors.black, fontSize: 14),
             inputFormatters: [
+              const LatinDigitsInputFormatter(),
               GlobalPhoneFormatter(
                 getCurrentCountry: () => _selectedCountry,
                 onCountryDetected: (country) {
