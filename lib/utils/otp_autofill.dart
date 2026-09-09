@@ -3,6 +3,8 @@ import 'dart:io';
 
 import 'package:smart_auth/smart_auth.dart';
 
+import 'package:raheeq_main/utils/digits.dart';
+
 /// Shared owner of the Android SMS User Consent listener.
 ///
 /// Unlike the SMS Retriever API, User Consent shows the user a system dialog
@@ -22,9 +24,6 @@ class OtpAutofill {
   /// Arabic-Indic and Extended Arabic-Indic digits are matched explicitly —
   /// an Arabic SMS template would otherwise never autofill.
   static const _codeMatcher = r'[0-9٠-٩۰-۹]{4}';
-
-  static const _arabicIndicZero = 0x0660;
-  static const _extendedArabicIndicZero = 0x06F0;
 
   Completer<String?>? _pending;
   int _generation = 0;
@@ -66,22 +65,8 @@ class OtpAutofill {
 
   /// The API expects ASCII digits, so a code lifted from an Arabic template has
   /// to be folded back before it reaches the input.
-  static String? _toAsciiDigits(String? code) {
-    if (code == null) return null;
-
-    final buffer = StringBuffer();
-    for (final unit in code.runes) {
-      if (unit >= _arabicIndicZero && unit <= _arabicIndicZero + 9) {
-        buffer.writeCharCode(0x30 + unit - _arabicIndicZero);
-      } else if (unit >= _extendedArabicIndicZero &&
-          unit <= _extendedArabicIndicZero + 9) {
-        buffer.writeCharCode(0x30 + unit - _extendedArabicIndicZero);
-      } else {
-        buffer.writeCharCode(unit);
-      }
-    }
-    return buffer.toString();
-  }
+  static String? _toAsciiDigits(String? code) =>
+      code == null ? null : Digits.toLatin(code);
 
   /// Stops the listener started by [generation].
   ///

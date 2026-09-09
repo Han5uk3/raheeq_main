@@ -11,6 +11,7 @@ import 'package:flutter/services.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:raheeq_main/utils/otp_autofill.dart';
+import 'package:raheeq_main/utils/digits.dart';
 import 'package:raheeq_main/utils/phone_formatter.dart';
 import 'package:country_picker/country_picker.dart';
 import 'package:raheeq_main/common_widgets/language_switch.dart';
@@ -332,10 +333,8 @@ class _LoginState extends State<Login> {
       if (response.statusCode == 200 && response.data['success'] == true) {
         final resData = response.data['data'];
         if (resData['userExists'] == true) {
-          CustomSnackbar.show(
-            context: context,
-            message: AppLocalizations.of(context)!.login_successful,
-          );
+          // Reaching the home screen is confirmation enough — no success
+          // snackbar, matching the OTP path.
           Navigator.pushAndRemoveUntil(
             context,
             HomeScreen.route(),
@@ -499,7 +498,7 @@ class _LoginState extends State<Login> {
                                       ],
                                     ),
                                     padding: const EdgeInsets.symmetric(
-                                      horizontal: 16,
+                                      horizontal: 8,
                                     ),
                                     child: Row(
                                       children: [
@@ -615,14 +614,46 @@ class _LoginState extends State<Login> {
                                               },
                                               child: Row(
                                                 children: [
-                                                  CircleAvatar(
-                                                    radius: 14,
-                                                    backgroundColor:
-                                                        Colors.grey[200],
-                                                    backgroundImage:
-                                                        CachedNetworkImageProvider(
-                                                          "https://flagcdn.com/w80/${_selectedCountry.countryCode.toLowerCase()}.png",
+                                                  ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          60,
                                                         ),
+
+                                                    child: Container(
+                                                      height: 36,
+                                                      width: 60,
+                                                      decoration: BoxDecoration(
+                                                        borderRadius:
+                                                            BorderRadius.circular(
+                                                              10,
+                                                            ),
+                                                      ),
+                                                      child: CachedNetworkImage(
+                                                        fit: BoxFit.cover,
+                                                        imageUrl:
+                                                            "https://flagcdn.com/w80/${_selectedCountry.countryCode.toLowerCase()}.png",
+                                                        placeholder:
+                                                            (
+                                                              context,
+                                                              url,
+                                                            ) => WaterLoadingIndicator(
+                                                              size: 16,
+                                                              waveColor1: AppColors
+                                                                  .buttonBlueDark,
+                                                            ),
+                                                        errorWidget:
+                                                            (
+                                                              context,
+                                                              url,
+                                                              error,
+                                                            ) => const Icon(
+                                                              Icons.error,
+                                                              size: 16,
+                                                              color: Colors.red,
+                                                            ),
+                                                      ),
+                                                    ),
                                                   ),
                                                   const SizedBox(width: 8),
                                                   Directionality(
@@ -661,6 +692,7 @@ class _LoginState extends State<Login> {
                                             controller: _phoneController,
                                             keyboardType: TextInputType.phone,
                                             inputFormatters: [
+                                              const LatinDigitsInputFormatter(),
                                               GlobalPhoneFormatter(
                                                 getCurrentCountry: () =>
                                                     _selectedCountry,

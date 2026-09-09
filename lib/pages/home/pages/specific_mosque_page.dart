@@ -885,7 +885,9 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
           myLocationEnabled: true,
           myLocationButtonEnabled:
               false, // Disabled default to avoid overlap with our custom one
-          zoomControlsEnabled: true,
+          // Android-only control, drawn in the same bottom-right corner as
+          // our location button. Pinch to zoom still works.
+          zoomControlsEnabled: false,
         ),
         Positioned(
           bottom: 24,

@@ -17,6 +17,7 @@ import 'package:raheeq_main/common_widgets/subscription_plans_bottom_sheet.dart'
 import 'package:raheeq_main/common_widgets/subscription_details_bottom_sheet.dart';
 import 'package:raheeq_main/models/subscription_plan.dart';
 import 'package:raheeq_main/services/snackbar_insets_services.dart';
+import 'package:raheeq_main/utils/digits.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -203,134 +204,142 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
 
           AbsorbPointer(
             absorbing: _isLoading,
-            child: SingleChildScrollView(
-              physics: const ClampingScrollPhysics(),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  CustomAppBar(
-                    title: title,
-                    isStartAligned: true,
-                    showBackButton: true,
-                    hasBackgroundColor: true,
-                  ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                CustomAppBar(
+                  title: title,
+                  isStartAligned: true,
+                  showBackButton: true,
+                  hasBackgroundColor: true,
+                ),
 
-                  // Stack for List and Quantity Container to create floating effect
-                  Stack(
+                // Stack for List and Quantity Container to create floating effect
+                Expanded(
+                  child: Stack(
                     clipBehavior: Clip.none,
                     children: [
-                      // Quantity Selection Container (Background in Stack)
-                      Container(
-                        margin: const EdgeInsets.only(
-                          top: 100,
-                        ), // Start lower so list overlaps it
-                        width: double.infinity,
-                        constraints: BoxConstraints(
-                          minHeight: MediaQuery.of(context).size.height - 300,
-                        ),
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(30),
-                            topRight: Radius.circular(30),
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.black.withValues(alpha: 0.05),
-                              blurRadius: 10,
-                              offset: const Offset(0, -4),
+                      // Quantity Selection Container (Background in Stack).
+                      // Fills the space left below the header so the white
+                      // sheet stays put while only its contents scroll.
+                      Positioned.fill(
+                        top: 100, // Start lower so list overlaps it
+                        child: Container(
+                          width: double.infinity,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(30),
+                              topRight: Radius.circular(30),
                             ),
-                          ],
-                        ),
-                        child: ClipRRect(
-                          borderRadius: const BorderRadius.only(
-                            topLeft: Radius.circular(30),
-                            topRight: Radius.circular(30),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withValues(alpha: 0.05),
+                                blurRadius: 10,
+                                offset: const Offset(0, -4),
+                              ),
+                            ],
                           ),
-                          child: Column(
-                            children: [
-                              const SizedBox(
-                                height: 55,
-                              ), // Space for overlapping Horizontal Product List
-                              _buildCampaignBanner(_selectedProduct),
+                          child: ClipRRect(
+                            borderRadius: const BorderRadius.only(
+                              topLeft: Radius.circular(30),
+                              topRight: Radius.circular(30),
+                            ),
+                            // The viewport starts at the sheet's top edge so
+                            // content scrolls behind the overlapping product
+                            // list rather than being cut off below it.
+                            child: SingleChildScrollView(
+                              physics: const ClampingScrollPhysics(),
+                              child: Column(
+                                children: [
+                                  const SizedBox(
+                                    height: 55,
+                                  ), // Space for overlapping Horizontal Product List
+                                  _buildCampaignBanner(_selectedProduct),
 
-                              Container(
-                                width: double.infinity,
-                                margin: const EdgeInsetsDirectional.only(
-                                  top: 16,
-                                  start: 16,
-                                  end: 16,
-                                ),
-                                padding: EdgeInsetsDirectional.only(
-                                  start: 12,
-                                  end: 12,
-                                  top: 12,
-                                  bottom: 12,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: AppColors.buttonBlueDark,
-                                  border: Border.all(
-                                    color: AppColors.buttonBlueDark,
-                                  ),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                child: Row(
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.discount_outlined,
-                                      size: 16,
-                                      color: AppColors.white,
+                                  Container(
+                                    width: double.infinity,
+                                    margin: const EdgeInsetsDirectional.only(
+                                      top: 16,
+                                      start: 16,
+                                      end: 16,
                                     ),
-                                    const SizedBox(width: 8),
-                                    Expanded(
-                                      child: Text(
-                                        overflow: TextOverflow.ellipsis,
-                                        _selectedProduct?.localizedMessage(
-                                              isAr,
-                                            ) ??
-                                            "",
-                                        maxLines: 3,
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.w700,
+                                    padding: EdgeInsetsDirectional.only(
+                                      start: 12,
+                                      end: 12,
+                                      top: 12,
+                                      bottom: 12,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: AppColors.buttonBlueDark,
+                                      border: Border.all(
+                                        color: AppColors.buttonBlueDark,
+                                      ),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Row(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        Icon(
+                                          Icons.discount_outlined,
+                                          size: 16,
                                           color: AppColors.white,
                                         ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsetsDirectional.only(
-                                  start: 12,
-                                  end: 12,
-                                  top: 12, // spacing after banner
-                                  bottom:
-                                      MediaQuery.of(context).viewInsets.bottom >
-                                          0
-                                      ? 50
-                                      : 130, // extra space for bottom bar and keyboard
-                                ),
-                                child: _selectedProduct != null
-                                    ? _buildQuantitySection(context, isAr)
-                                    : Center(
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            vertical: 50,
-                                          ),
+                                        const SizedBox(width: 8),
+                                        Expanded(
                                           child: Text(
-                                            AppLocalizations.of(
-                                              context,
-                                            )!.select_a_product_to_continue,
-                                            style: const TextStyle(
-                                              color: Colors.grey,
+                                            overflow: TextOverflow.ellipsis,
+                                            _selectedProduct?.localizedMessage(
+                                                  isAr,
+                                                ) ??
+                                                "",
+                                            maxLines: 3,
+                                            style: TextStyle(
+                                              fontSize: 12,
+                                              fontWeight: FontWeight.w700,
+                                              color: AppColors.white,
                                             ),
                                           ),
                                         ),
-                                      ),
+                                      ],
+                                    ),
+                                  ),
+                                  Padding(
+                                    padding: EdgeInsetsDirectional.only(
+                                      start: 12,
+                                      end: 12,
+                                      top: 12, // spacing after banner
+                                      bottom:
+                                          MediaQuery.of(
+                                                context,
+                                              ).viewInsets.bottom >
+                                              0
+                                          ? 50
+                                          : 130, // extra space for bottom bar and keyboard
+                                    ),
+                                    child: _selectedProduct != null
+                                        ? _buildQuantitySection(context, isAr)
+                                        : Center(
+                                            child: Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    vertical: 50,
+                                                  ),
+                                              child: Text(
+                                                AppLocalizations.of(
+                                                  context,
+                                                )!.select_a_product_to_continue,
+                                                style: const TextStyle(
+                                                  color: Colors.grey,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                  ),
+                                ],
                               ),
-                            ],
+                            ),
                           ),
                         ),
                       ),
@@ -371,7 +380,8 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                                 horizontal: 16,
                               ),
                               child: Material(
-                                elevation: 2,
+                                color: Colors.transparent,
+                                elevation: 3,
                                 borderRadius: BorderRadius.circular(24),
                                 child: Container(
                                   padding: const EdgeInsets.symmetric(
@@ -457,8 +467,8 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                       ),
                     ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],
@@ -788,7 +798,10 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                 ),
 
                 keyboardType: TextInputType.number,
-                inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                inputFormatters: [
+                  const LatinDigitsInputFormatter(),
+                  FilteringTextInputFormatter.digitsOnly,
+                ],
                 onTap: () {
                   setState(() {
                     _isCustomMap[product.id] = true;
@@ -846,10 +859,7 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(16),
                 child: Container(
-                  padding: const EdgeInsetsDirectional.only(
-                    bottom: 16,
-                 
-                  ),
+                  padding: const EdgeInsetsDirectional.only(bottom: 16),
                   decoration: BoxDecoration(
                     color: Colors.white,
                     borderRadius: BorderRadius.circular(16),
@@ -875,7 +885,6 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                           IconButton(
                             style: const ButtonStyle(
                               padding: WidgetStatePropertyAll(EdgeInsets.zero),
-                              
                             ),
                             onPressed: () {
                               setState(() {
@@ -986,7 +995,11 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                       '${product.localizedName(isAr)}: ${AppLocalizations.of(context)!.minimum_quantity_is(product.minQuantity.toString())}',
                 )
                 .join('\n');
-            CustomSnackbar.show(context: context, message: message, isError: true);
+            CustomSnackbar.show(
+              context: context,
+              message: message,
+              isError: true,
+            );
           } else if (_hasAnySelection) {
             if (widget.campaign.canSubscribe) {
               _showDonationTypeDialog(context, isAr);

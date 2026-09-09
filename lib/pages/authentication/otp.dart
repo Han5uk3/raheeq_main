@@ -7,6 +7,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:pinput/pinput.dart';
 import 'package:dio/dio.dart';
+import 'package:raheeq_main/utils/digits.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/pages/authentication/registration.dart';
 import 'package:raheeq_main/pages/home/home_screen.dart';
@@ -215,18 +216,8 @@ class _OTPState extends State<OTP> with WidgetsBindingObserver {
       if (response.statusCode == 200 && response.data['success'] == true) {
         final data = response.data['data'];
         if (data['userExists'] == true) {
-          String successMessage = AppLocalizations.of(
-            context,
-          )!.login_successful;
-          if (response.data is Map && response.data['message'] != null) {
-            successMessage = response.data['message'];
-          }
-
-          CustomSnackbar.show(
-            bottomMargin: 130,
-            context: context,
-            message: successMessage,
-          );
+          // Reaching the home screen is confirmation enough — no success
+          // snackbar, and the server's success message is not surfaced.
           Navigator.pushAndRemoveUntil(
             context,
             HomeScreen.route(),
@@ -457,6 +448,9 @@ class _OTPState extends State<OTP> with WidgetsBindingObserver {
                               focusNode: _focusNode,
                               autofillHints: const [AutofillHints.oneTimeCode],
                               keyboardType: TextInputType.number,
+                              inputFormatters: const [
+                                LatinDigitsInputFormatter(),
+                              ],
                               onCompleted: (pin) {
                                 if (!_isVerifying) {
                                   _verifyOtp();
