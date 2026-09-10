@@ -733,6 +733,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get subscription_details => 'تفاصيل الاشتراك';
 
   @override
+  String get subscription_number => 'رقم الاشتراك';
+
+  @override
   String get delivery_days => 'أيام التوصيل';
 
   @override

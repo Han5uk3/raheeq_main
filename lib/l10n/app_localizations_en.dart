@@ -735,6 +735,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get subscription_details => 'Subscription Details';
 
   @override
+  String get subscription_number => 'Subscription Number';
+
+  @override
   String get delivery_days => 'Delivery Days';
 
   @override
