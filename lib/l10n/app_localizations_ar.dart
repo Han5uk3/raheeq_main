@@ -1495,7 +1495,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get mosques => 'المساجد';
 
   @override
-  String get reorder => 'أعد الطلب';
+  String get reorder => 'إعادة الطلب';
 
   @override
   String get status_cancelled => 'ملغى';
