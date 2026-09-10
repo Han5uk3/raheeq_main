@@ -757,6 +757,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get error_verifying_payment => 'حدث خطأ أثناء التحقق من الدفع';
 
   @override
+  String get expires_on => 'ينتهي في';
+
+  @override
+  String get subscription_duration => 'مدة الاشتراك';
+
+  @override
   String get pay_with_card => 'الدفع';
 
   @override
@@ -764,6 +770,12 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get stc_pay => 'STC Pay';
+
+  @override
+  String get status_failed => 'فشل';
+
+  @override
+  String get upcoming => 'قريبًا';
 
   @override
   String get apple_pay => 'أبل باي';
@@ -1735,4 +1747,50 @@ class AppLocalizationsAr extends AppLocalizations {
   String share_app_message(String link) {
     return 'تطبيق رحيق 💧 :- خدمة توصيل الماء للمساجد ودور الأيتام 🚚🕌. يقول النبي ﷺ من دلَّ على خيرٍ، فله مثل أجر فاعله 🌷 : انشر التطبيق - $link';
   }
+
+  @override
+  String months_left(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'يتبقى $count شهر',
+      many: 'يتبقى $count شهرًا',
+      few: 'يتبقى $count أشهر',
+      two: 'يتبقى شهران',
+      one: 'يتبقى شهر واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String days_left(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'يتبقى $count يوم',
+      many: 'يتبقى $count يومًا',
+      few: 'يتبقى $count أيام',
+      two: 'يتبقى يومان',
+      one: 'يتبقى يوم واحد',
+      zero: 'ينتهي اليوم',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String delivered_x_of_y_orders(int completed, int total) {
+    String _temp0 = intl.Intl.pluralLogic(
+      total,
+      locale: localeName,
+      other: 'تم توصيل $completed من $total طلبات',
+      one: 'تم توصيل $completed من طلب واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get subscription_expired => 'انتهى الاشتراك';
+
+  @override
+  String get delivery_calendar => 'تقويم التوصيل';
 }

@@ -1528,6 +1528,18 @@ abstract class AppLocalizations {
   /// **'Error verifying payment'**
   String get error_verifying_payment;
 
+  /// No description provided for @expires_on.
+  ///
+  /// In en, this message translates to:
+  /// **'Expires on'**
+  String get expires_on;
+
+  /// No description provided for @subscription_duration.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription Duration'**
+  String get subscription_duration;
+
   /// No description provided for @pay_with_card.
   ///
   /// In en, this message translates to:
@@ -1545,6 +1557,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'STC Pay'**
   String get stc_pay;
+
+  /// No description provided for @status_failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Failed'**
+  String get status_failed;
+
+  /// No description provided for @upcoming.
+  ///
+  /// In en, this message translates to:
+  /// **'Upcoming'**
+  String get upcoming;
 
   /// No description provided for @apple_pay.
   ///
@@ -3418,6 +3442,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Rahiq App 💧:- A water delivery service for mosques and orphanages 🚚🕌. The Prophet ﷺ said: \"Whoever guides someone to good will have a reward like the one who did it\" 🌷: Share the app - {link}'**
   String share_app_message(String link);
+
+  /// Time left on a subscription, shown once 30 or more days remain
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 month left} other{{count} months left}}'**
+  String months_left(int count);
+
+  /// Time left on a subscription, shown while fewer than 30 days remain
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Ends today} =1{1 day left} other{{count} days left}}'**
+  String days_left(int count);
+
+  /// Progress through the orders of a subscription
+  ///
+  /// In en, this message translates to:
+  /// **'{total, plural, =1{Delivered {completed} of 1 order} other{Delivered {completed} of {total} orders}}'**
+  String delivered_x_of_y_orders(int completed, int total);
+
+  /// No description provided for @subscription_expired.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription expired'**
+  String get subscription_expired;
+
+  /// No description provided for @delivery_calendar.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery Calendar'**
+  String get delivery_calendar;
 }
 
 class _AppLocalizationsDelegate

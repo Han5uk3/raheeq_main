@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/api/apis.dart';
@@ -25,6 +26,9 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
   bool _isLoading = true;
   String? _errorMessage;
   SubscriptionDetailsModel? _details;
+
+  /// The month the delivery calendar is showing. Set once the details arrive.
+  DateTime? _calendarMonth;
 
   List<dynamic> get _allGiftCards {
     if (_details == null) return [];
@@ -60,8 +64,10 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
       );
       if (response.statusCode == 200 && response.data['success'] == true) {
         final data = response.data['data'];
+        final details = SubscriptionDetailsModel.fromJson(data);
         setState(() {
-          _details = SubscriptionDetailsModel.fromJson(data);
+          _details = details;
+          _calendarMonth = _initialCalendarMonth(details);
           _isLoading = false;
         });
       } else {
@@ -108,6 +114,326 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
             )
             .join(' ');
     }
+  }
+
+  /// Whole days from [from] to [to], ignoring the time of day.
+  ///
+  /// Both ends are normalised to UTC midnight so a daylight-saving shift in
+  /// between cannot round the result off by a day.
+  int _daysBetween(DateTime from, DateTime to) {
+    final start = DateTime.utc(from.year, from.month, from.day);
+    final end = DateTime.utc(to.year, to.month, to.day);
+    return end.difference(start).inDays;
+  }
+
+  /// How much of the subscription is left, at month or day granularity.
+  ///
+  /// The countdown is measured from the start date, never from today, so a
+  /// subscription that has not begun yet reads as its full length instead of
+  /// counting the wait to get there.
+  String _durationLeftLabel() {
+    final loc = AppLocalizations.of(context)!;
+    final now = DateTime.now();
+    final start = _details!.startDate.toLocal();
+    final end = _details!.endDate.toLocal();
+
+    final from = _daysBetween(now, start) > 0 ? start : now;
+    final daysLeft = _daysBetween(from, end);
+
+    if (daysLeft < 0) return loc.subscription_expired;
+    // 30 days is a month here; the card only ever shows months or days.
+    if (daysLeft >= 30) return loc.months_left(daysLeft ~/ 30);
+    return loc.days_left(daysLeft);
+  }
+
+  /// Whether a delivery counts as done for the calendar's colouring.
+  bool _isDelivered(String status) {
+    final normalised = status.toUpperCase();
+    return normalised == 'DELIVERED' || normalised == 'COMPLETED';
+  }
+
+  /// The subscription's delivery days, each flagged with whether every
+  /// delivery falling on it has been completed.
+  Map<DateTime, bool> _deliveryDays(SubscriptionDetailsModel details) {
+    final days = <DateTime, bool>{};
+    for (final delivery in details.deliveries) {
+      final date = (delivery.scheduledDate ?? delivery.createdAt).toLocal();
+      final day = DateTime(date.year, date.month, date.day);
+      // Several deliveries can share a day; it only reads as done once all of
+      // them are.
+      days[day] = (days[day] ?? true) && _isDelivered(delivery.status);
+    }
+    return days;
+  }
+
+  /// Opens on the next delivery still to come, falling back to the last one,
+  /// so the calendar never lands on a month with nothing in it.
+  DateTime _initialCalendarMonth(SubscriptionDetailsModel details) {
+    final now = DateTime.now();
+    final days = _deliveryDays(details).keys.toList()..sort();
+    if (days.isEmpty) return DateTime(now.year, now.month);
+
+    final today = DateTime(now.year, now.month, now.day);
+    final next = days.firstWhere(
+      (day) => !day.isBefore(today),
+      orElse: () => days.last,
+    );
+    return DateTime(next.year, next.month);
+  }
+
+  Widget _buildDeliveryCalendar(bool isAr) {
+    final loc = AppLocalizations.of(context)!;
+    final material = MaterialLocalizations.of(context);
+    final deliveryDays = _deliveryDays(_details!);
+    final month = _calendarMonth ?? _initialCalendarMonth(_details!);
+
+    // Paging stays inside the months that actually hold deliveries.
+    final sorted = deliveryDays.keys.toList()..sort();
+    final firstMonth = DateTime(sorted.first.year, sorted.first.month);
+    final lastMonth = DateTime(sorted.last.year, sorted.last.month);
+
+    // The locale decides which weekday a week starts on, so the month's first
+    // day is offset from that rather than from Sunday.
+    final firstOfMonth = DateTime(month.year, month.month, 1);
+    final weekStart = material.firstDayOfWeekIndex;
+    final leadingBlanks = (firstOfMonth.weekday % 7 - weekStart + 7) % 7;
+    final daysInMonth = DateTime(month.year, month.month + 1, 0).day;
+
+    return Material(
+      elevation: 2,
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        padding: const EdgeInsets.all(8),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              loc.delivery_calendar,
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: AppColors.black,
+              ),
+            ),
+            const SizedBox(height: 8),
+            Divider(height: 1, color: AppColors.indicatorGrey.withAlpha(100)),
+            Row(
+              children: [
+                // Leading in the reading direction, so it flips with the locale.
+                _buildMonthArrow(
+                  icon: Icons.chevron_left,
+                  onPressed: month.isAfter(firstMonth)
+                      ? () => setState(
+                          () => _calendarMonth = DateTime(
+                            month.year,
+                            month.month - 1,
+                          ),
+                        )
+                      : null,
+                ),
+                Expanded(
+                  child: Text(
+                    textAlign: TextAlign.center,
+                    Formatters.formatMonthYear(context, month),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.black,
+                    ),
+                  ),
+                ),
+                _buildMonthArrow(
+                  icon: Icons.chevron_right,
+                  onPressed: month.isBefore(lastMonth)
+                      ? () => setState(
+                          () => _calendarMonth = DateTime(
+                            month.year,
+                            month.month + 1,
+                          ),
+                        )
+                      : null,
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            // Day numbers and weekday letters live in fixed-size cells, so cap
+            // how far accessibility text scaling can push them.
+            MediaQuery.withClampedTextScaling(
+              maxScaleFactor: 1.3,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  // Every column is an exact seventh of the card, so a weekday
+                  // letter and the day numbers under it can never drift apart.
+                  // The squircle keeps its design size wherever it fits and
+                  // only shrinks on a display too narrow for it, rather than
+                  // overflowing its column.
+                  final columnWidth = constraints.maxWidth / 7;
+                  final cellSize = (columnWidth - 4).clamp(24.0, 40.0);
+                  final rowCount = ((leadingBlanks + daysInMonth) / 7).ceil();
+
+                  return Column(
+                    children: [
+                      Row(
+                        children: List.generate(7, (index) {
+                          return Expanded(
+                            child: Center(
+                              child: Text(
+                                material.narrowWeekdays[(weekStart + index) %
+                                    7],
+                                maxLines: 1,
+                                overflow: TextOverflow.clip,
+                                style: const TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.grey,
+                                ),
+                              ),
+                            ),
+                          );
+                        }),
+                      ),
+                      const SizedBox(height: 4),
+                      ...List.generate(rowCount, (row) {
+                        return SizedBox(
+                          height: cellSize + 4,
+                          child: Row(
+                            children: List.generate(7, (column) {
+                              final day = row * 7 + column - leadingBlanks + 1;
+                              return Expanded(
+                                child: day < 1 || day > daysInMonth
+                                    ? const SizedBox.shrink()
+                                    : _buildCalendarDay(
+                                        month,
+                                        day,
+                                        deliveryDays,
+                                        cellSize,
+                                      ),
+                              );
+                            }),
+                          ),
+                        );
+                      }),
+                    ],
+                  );
+                },
+              ),
+            ),
+            Divider(height: 16, color: AppColors.indicatorGrey.withAlpha(100)),
+
+            Wrap(
+              spacing: 20,
+              runSpacing: 8,
+              children: [
+                _buildCalendarLegend(Colors.green, loc.delivered),
+                _buildCalendarLegend(
+                  AppColors.buttonBlueDark.withValues(alpha: 50),
+                  loc.upcoming,
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMonthArrow({
+    required IconData icon,
+    required VoidCallback? onPressed,
+  }) {
+    return IconButton(
+      onPressed: onPressed,
+      icon: Icon(icon, size: 20),
+      color: AppColors.buttonBlueDark,
+      disabledColor: AppColors.indicatorGrey,
+      padding: EdgeInsets.zero,
+      visualDensity: VisualDensity.compact,
+      constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+    );
+  }
+
+  Widget _buildCalendarDay(
+    DateTime month,
+    int day,
+    Map<DateTime, bool> deliveryDays,
+    double size,
+  ) {
+    final date = DateTime(month.year, month.month, day);
+    final now = DateTime.now();
+    final isToday = date == DateTime(now.year, now.month, now.day);
+    final isDelivery = deliveryDays.containsKey(date);
+    final fill = isDelivery
+        ? (deliveryDays[date]! ? Colors.green : AppColors.buttonBlueDark)
+        : null;
+
+    return Center(
+      child: Container(
+        width: size,
+        height: size,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: fill?.withAlpha(40),
+          borderRadius: BorderRadius.circular(6),
+          border: isToday && fill == null
+              ? Border.all(color: AppColors.buttonBlueDark, width: 1.5)
+              : null,
+        ),
+        child: FittedBox(
+          fit: BoxFit.scaleDown,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                '$day',
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: isDelivery || isToday
+                      ? FontWeight.bold
+                      : FontWeight.normal,
+                  // The tint carries the status, so the numeral stays high contrast.
+                  color: AppColors.black,
+                ),
+              ),
+              Container(
+                width: 4,
+                height: 4,
+                margin: const EdgeInsets.only(top: 2),
+                decoration: BoxDecoration(color: fill, shape: BoxShape.circle),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCalendarLegend(Color color, String label) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        // Same tint as a day cell, outlined so it still reads at this size.
+        Container(
+          width: 12,
+          height: 12,
+          decoration: BoxDecoration(
+            color: color.withAlpha(40),
+            borderRadius: BorderRadius.circular(4),
+            border: Border.all(color: color),
+          ),
+        ),
+        const SizedBox(width: 6),
+        Flexible(
+          child: Text(
+            label,
+            style: const TextStyle(fontSize: 11, color: AppColors.black),
+          ),
+        ),
+      ],
+    );
   }
 
   @override
@@ -198,7 +524,10 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
         child: Text(AppLocalizations.of(context)!.no_details_found),
       );
     }
-
+    bool shouldShowDeliveries = false;
+    bool hasGiftCardOrInvoice =
+        _details!.giftCards.isNotEmpty ||
+        (_details!.invoiceUrl != null && _details!.invoiceUrl!.isNotEmpty);
     return Padding(
       key: const ValueKey('content'),
       padding: const EdgeInsets.all(16),
@@ -206,32 +535,208 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildInfoCard(isAr),
-          const SizedBox(height: 24),
-          Text(
-            AppLocalizations.of(context)!.deliveries,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: AppColors.buttonBlueDark,
-            ),
-          ),
-          const SizedBox(height: 12),
-          if (_details!.deliveries.isEmpty)
-            Padding(
-              padding: const EdgeInsets.symmetric(vertical: 24),
-              child: Center(
-                child: Text(
-                  AppLocalizations.of(context)!.no_deliveries_found,
-                  style: const TextStyle(fontSize: 16, color: Colors.grey),
-                ),
+          if (hasGiftCardOrInvoice) ...[
+            const SizedBox(height: 24),
+            _buildGiftInvoiceButtonRow(),
+          ],
+          _buildDurationInfoCard(isAr),
+          if (_details!.deliveries.isNotEmpty) ...[
+            const SizedBox(height: 24),
+            _buildDeliveryCalendar(isAr),
+          ],
+
+          if (shouldShowDeliveries) ...[
+            const SizedBox(height: 24),
+            Text(
+              AppLocalizations.of(context)!.deliveries,
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+                color: AppColors.buttonBlueDark,
               ),
-            )
-          else
-            ..._details!.deliveries.map(
-              (delivery) => _buildDeliveryCard(delivery, isAr),
             ),
+            const SizedBox(height: 12),
+            if (_details!.deliveries.isEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 24),
+                child: Center(
+                  child: Text(
+                    AppLocalizations.of(context)!.no_deliveries_found,
+                    style: const TextStyle(fontSize: 16, color: Colors.grey),
+                  ),
+                ),
+              )
+            else
+              ..._details!.deliveries.map(
+                (delivery) => _buildDeliveryCard(delivery, isAr),
+              ),
+          ],
         ],
       ),
+    );
+  }
+
+  Widget _buildDurationInfoCard(bool isAr) {
+    return Material(
+      elevation: 2,
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // Card Body
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        AppLocalizations.of(context)!.subscription_duration,
+                        style: TextStyle(fontSize: 12, color: AppColors.black),
+                      ),
+                      Text(
+                        _durationLeftLabel(),
+                        style: TextStyle(fontSize: 12, color: AppColors.black),
+                      ),
+                    ],
+                  ),
+                  Divider(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        AppLocalizations.of(context)!.start_date,
+                        style: TextStyle(fontSize: 12, color: AppColors.black),
+                      ),
+                      Text(
+                        AppLocalizations.of(context)!.expires_on,
+                        style: TextStyle(fontSize: 12, color: AppColors.black),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 8),
+                  // Deliveries completed out of the total for the plan.
+                  _buildProgressBar(_details!, isAr),
+                  SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.buttonBlueDark.withAlpha(30),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 4,
+                        ),
+                        child: Text(
+                          Formatters.formatDate(context, _details!.startDate),
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: AppColors.black,
+                          ),
+                        ),
+                      ),
+                      Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.buttonBlueDark.withAlpha(30),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 6,
+                          vertical: 4,
+                        ),
+                        child: Text(
+                          Formatters.formatDate(context, _details!.endDate),
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: AppColors.black,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildGiftInvoiceButtonRow() {
+    return Row(
+      spacing: 16,
+      children: [
+        if (_details!.invoiceUrl != null &&
+            _details!.invoiceUrl!.isNotEmpty) ...[
+          Expanded(
+            child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.buttonBlueDark,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+              onPressed: () async {
+                final url = Uri.parse(_details!.invoiceUrl!);
+                if (await canLaunchUrl(url)) {
+                  await launchUrl(url);
+                } else {
+                  if (mounted) {
+                    CustomSnackbar.show(
+                      context: context,
+                      message: AppLocalizations.of(
+                        context,
+                      )!.could_not_open_invoice,
+                    );
+                  }
+                }
+              },
+              icon: const Icon(Icons.receipt, color: Colors.white, size: 18),
+              label: Text(
+                AppLocalizations.of(context)!.view_invoice,
+                style: const TextStyle(color: Colors.white, fontSize: 14),
+              ),
+            ),
+          ),
+        ],
+        if (_allGiftCards.isNotEmpty) ...[
+          Expanded(
+            child: ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.buttonBlueDark,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+              onPressed: () =>
+                  _showGiftCardsBottomSheet(context, _allGiftCards),
+              icon: const Icon(
+                Icons.card_giftcard,
+                color: Colors.white,
+                size: 18,
+              ),
+              label: Text(
+                AppLocalizations.of(context)!.show_gift_cards,
+                style: const TextStyle(color: Colors.white, fontSize: 14),
+              ),
+            ),
+          ),
+        ],
+      ],
     );
   }
 
@@ -283,7 +788,10 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
   }
 
   Widget _buildInfoCard(bool isAr) {
-    String dateFormat(DateTime date) => Formatters.formatDate(context, date);
+    final Color statusColor = _details!.status.toLowerCase() == 'active'
+        ? Colors.green
+        : Colors.red;
+
     return Card(
       color: Colors.white,
       elevation: 2,
@@ -293,6 +801,7 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
         child: Column(
           children: [
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 if (_details!.planImage.isNotEmpty) ...[
                   ClipRRect(
@@ -326,101 +835,62 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
                     ],
                   ),
                 ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: statusColor.withAlpha(40),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Row(
+                    children: [
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: statusColor,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        _localizeStatus(_details!.status, context),
+                        style: TextStyle(
+                          color: statusColor,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ],
             ),
             const Divider(height: 32),
-            _buildDetailRow(
-              AppLocalizations.of(context)!.payment_method,
-              _formatPaymentMethod(context, _details!.paymentMethod),
-            ),
 
-            const SizedBox(height: 8),
-            _buildDetailRow(
-              AppLocalizations.of(context)!.start_date,
-              dateFormat(_details!.startDate),
-            ),
-            const SizedBox(height: 8),
-            _buildDetailRow(
-              AppLocalizations.of(context)!.end_date,
-              dateFormat(_details!.endDate),
-            ),
-            const SizedBox(height: 8),
-            _buildDetailRow(
-              AppLocalizations.of(context)!.total_orders,
-              _details!.deliveries.length.toString(),
-            ),
-            const SizedBox(height: 8),
-            _buildDetailRow(
-              AppLocalizations.of(context)!.total_amount,
-              '\u202A${AppLocalizations.of(context)!.sar_currency} ${Formatters.formatPrice(_details!.totalAmount)}\u202C',
-              isBold: true,
-            ),
-            if (_details!.invoiceUrl != null &&
-                _details!.invoiceUrl!.isNotEmpty) ...[
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.buttonBlueDark,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 8),
+              decoration: BoxDecoration(
+                color: AppColors.buttonBlueDark,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Center(
+                child: Text(
+                  AppLocalizations.of(context)!.delivered_x_of_y_orders(
+                    _details?.completedCount ?? 0,
+                    _details?.ordersCount ?? 0,
                   ),
-                  onPressed: () async {
-                    final url = Uri.parse(_details!.invoiceUrl!);
-                    if (await canLaunchUrl(url)) {
-                      await launchUrl(url);
-                    } else {
-                      if (mounted) {
-                        CustomSnackbar.show(
-                          context: context,
-                          message: AppLocalizations.of(
-                            context,
-                          )!.could_not_open_invoice,
-                        );
-                      }
-                    }
-                  },
-                  icon: const Icon(
-                    Icons.receipt,
-                    color: Colors.white,
-                    size: 18,
-                  ),
-                  label: Text(
-                    AppLocalizations.of(context)!.view_invoice,
-                    style: const TextStyle(color: Colors.white, fontSize: 14),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                    color: AppColors.white,
                   ),
                 ),
               ),
-            ],
-            if (_allGiftCards.isNotEmpty) ...[
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.buttonBlueDark,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                  ),
-                  onPressed: () =>
-                      _showGiftCardsBottomSheet(context, _allGiftCards),
-                  icon: const Icon(
-                    Icons.card_giftcard,
-                    color: Colors.white,
-                    size: 18,
-                  ),
-                  label: Text(
-                    AppLocalizations.of(context)!.show_gift_cards,
-                    style: const TextStyle(color: Colors.white, fontSize: 14),
-                  ),
-                ),
-              ),
-            ],
+            ),
           ],
         ),
       ),
@@ -716,6 +1186,40 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
           ),
         );
       },
+    );
+  }
+
+  Widget _buildProgressBar(SubscriptionDetailsModel subscription, bool isAr) {
+    // A missing `totalCount` means the API has not been updated yet; the two
+    // counts arrive together, so fall back to the pair rather than to a
+    // separate default per field, which would report 1 completed delivery on a
+    // subscription the API says has none.
+    final bool hasCounts = subscription.ordersCount > 0;
+    final int total = hasCounts ? subscription.ordersCount : 10;
+    final int completed = hasCounts
+        ? subscription.completedCount.clamp(0, total)
+        : 1;
+
+    return Container(
+      width: double.infinity,
+      height: 10,
+      decoration: BoxDecoration(
+        color: AppColors.buttonBlueDark.withAlpha(30),
+        borderRadius: BorderRadius.circular(100),
+      ),
+      child: Align(
+        alignment: isAr ? Alignment.centerRight : Alignment.centerLeft,
+        child: FractionallySizedBox(
+          widthFactor: completed / total,
+          heightFactor: 1,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: AppColors.buttonBlueDark,
+              borderRadius: BorderRadius.circular(100),
+            ),
+          ),
+        ),
+      ),
     );
   }
 }

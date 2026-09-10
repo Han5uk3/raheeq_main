@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:shimmer/shimmer.dart';
@@ -22,6 +23,12 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
   bool _isLoading = true;
   String? _errorMessage;
   List<SubscriptionModel> _subscriptions = [];
+
+  /// Shown while the API still omits `completedCount` / `totalCount`, so the
+  /// card reads as a progress bar rather than an empty track. Drop these once
+  /// the endpoint returns both fields.
+  static const int _fallbackCompletedCount = 1;
+  static const int _fallbackTotalCount = 7;
 
   @override
   void initState() {
@@ -248,10 +255,13 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
 
   Widget _buildSubscriptionCard(SubscriptionModel subscription, bool isAr) {
     final bool isActive = subscription.status.toLowerCase() == 'active';
-    final bool isCancelled = subscription.status.toLowerCase() == 'cancelled';
+    final bool isCancelled =
+        subscription.status.toLowerCase() == 'cancelled' ||
+        subscription.status.toLowerCase() == 'failed' ||
+        subscription.status.toLowerCase() == 'expired';
     final Color statusColor = isActive
         ? Colors.green
-        : isCancelled
+        : isCancelled 
         ? Colors.red
         : AppColors.buttonBlueDark;
     final planName = isAr ? subscription.planNameAr : subscription.planName;
@@ -282,11 +292,8 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
             children: [
               // Top Banner (now white background)
               Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 16,
-                  vertical: 12,
-                ),
-                decoration: const BoxDecoration(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+                decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.only(
                     topLeft: Radius.circular(16),
@@ -296,81 +303,42 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Row(
-                      children: [
-                        Container(
-                          width: 8,
-                          height: 8,
-                          decoration: BoxDecoration(
-                            color: statusColor,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
-                        const SizedBox(width: 8),
-                        Text(
-                          _localizeStatus(subscription.status, context),
-                          style: TextStyle(
-                            color: statusColor,
-                            fontWeight: FontWeight.w600,
-                            fontSize: 16,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Text(
-                      "${AppLocalizations.of(context)!.since}${Formatters.formatDate(context, subscription.startDate)}",
-                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
-                    ),
-                  ],
-                ),
-              ),
-
-              // Card Body
-              Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Title
                     Text(
                       textDirection: TextDirection.ltr,
                       "#${subscription.subscriptionNumber}",
                       style: const TextStyle(
-                        fontSize: 20,
+                        fontSize: 14,
                         fontWeight: FontWeight.bold,
                         color: AppColors.buttonBlueDark,
                       ),
                     ),
-                    const SizedBox(height: 4),
 
-                    // Location (Target Name)
-                    const SizedBox(height: 12),
-
-                    // Package Details Box
                     Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: const Color(0xFFF5F7F8),
-                        borderRadius: BorderRadius.circular(12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                      decoration: BoxDecoration(
+                        color: statusColor.withAlpha(40),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
                         children: [
-                          Text(
-                            planName,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.buttonBlueDark,
+                          Container(
+                            width: 8,
+                            height: 8,
+                            decoration: BoxDecoration(
+                              color: statusColor,
+                              shape: BoxShape.circle,
                             ),
                           ),
-                          const SizedBox(height: 4),
+                          const SizedBox(width: 8),
                           Text(
-                            _localizeFrequency(subscription.frequency),
+                            _localizeStatus(subscription.status, context),
                             style: TextStyle(
-                              fontSize: 14,
-                              color: Colors.grey[600],
+                              color: statusColor,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 12,
                             ),
                           ),
                         ],
@@ -379,7 +347,167 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
                   ],
                 ),
               ),
+              Divider(
+                height: 1,
+                color: Colors.grey.shade300,
+                indent: 8,
+                endIndent: 8,
+              ),
+              // Card Body
+              Padding(
+                padding: const EdgeInsets.all(8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                
+                    Row(
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: CachedNetworkImage(
+                            imageUrl: subscription.planImage,
+                            width: 40,
+                            height: 40,
+                            fit: BoxFit.cover,
+                            placeholder: (context, url) => Container(
+                              width: 40,
+                              height: 40,
+                              color: Colors.grey[300],
+                            ),
+                            errorWidget: (context, url, error) => Container(
+                              width: 40,
+                              height: 40,
+                              color: Colors.grey[300],
+                              child: const Icon(Icons.error),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          planName,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.buttonBlueDark,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 8),
+                    Divider(height: 1, color: Colors.grey.shade300),
+                    SizedBox(height: 8),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          AppLocalizations.of(context)!.start_date,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.black,
+                          ),
+                        ),
+                        Text(
+                          AppLocalizations.of(context)!.expires_on,
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: AppColors.black,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 8),
+                    // Deliveries completed out of the total for the plan.
+                    _buildProgressBar(subscription, isAr),
+                    SizedBox(height: 12),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                            color: AppColors.buttonBlueDark.withAlpha(30),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 4,
+                          ),
+                          child: Text(
+                            Formatters.formatDate(
+                              context,
+                              subscription.startDate,
+                            ),
+                            style: const TextStyle(
+                              fontSize: 10,
+                              color: AppColors.black,
+                            ),
+                          ),
+                        ),
+                        Container(
+                          decoration: BoxDecoration(
+                            color: AppColors.buttonBlueDark.withAlpha(30),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 4,
+                          ),
+                          child: Text(
+                            Formatters.formatDate(
+                              context,
+                              subscription.endDate,
+                            ),
+                            style: const TextStyle(
+                              fontSize: 10,
+                              color: AppColors.black,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
             ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Progress through the subscription's deliveries.
+  ///
+  /// Fills from the left in English and from the right in Arabic, so the bar
+  /// always grows away from the start date shown beneath it.
+  Widget _buildProgressBar(SubscriptionModel subscription, bool isAr) {
+    // A missing `totalCount` means the API has not been updated yet; the two
+    // counts arrive together, so fall back to the pair rather than to a
+    // separate default per field, which would report 1 completed delivery on a
+    // subscription the API says has none.
+    final bool hasCounts = subscription.totalCount > 0;
+    final int total = hasCounts ? subscription.totalCount : _fallbackTotalCount;
+    final int completed = hasCounts
+        ? subscription.completedCount.clamp(0, total)
+        : _fallbackCompletedCount;
+
+    return Container(
+      width: double.infinity,
+      height: 10,
+      decoration: BoxDecoration(
+        color: AppColors.buttonBlueDark.withAlpha(30),
+        borderRadius: BorderRadius.circular(100),
+      ),
+      child: Align(
+        alignment: isAr ? Alignment.centerRight : Alignment.centerLeft,
+        child: FractionallySizedBox(
+          widthFactor: completed / total,
+          heightFactor: 1,
+          child: DecoratedBox(
+            decoration: BoxDecoration(
+              color: AppColors.buttonBlueDark,
+              borderRadius: BorderRadius.circular(100),
+            ),
           ),
         ),
       ),
@@ -415,6 +543,9 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
     }
     if (lowerStatus == 'pending') {
       return AppLocalizations.of(context)!.status_pending;
+    }
+    if (lowerStatus == 'failed') {
+      return AppLocalizations.of(context)!.status_failed;
     }
     if (lowerStatus == 'completed') {
       return AppLocalizations.of(context)!.status_completed;
