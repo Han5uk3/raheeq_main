@@ -521,6 +521,15 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
               );
             },
           ),
+          // Subscription details. Above the product so a recurring order is
+          // read as part of a plan before its contents.
+          if (order.subscription != null) ...[
+            _buildSubscriptionCard(order.subscription!, isAr),
+            // Every card below brings its own leading gap, so this one is
+            // only needed for the product card that does not.
+            if (order.product != null) const SizedBox(height: 12),
+          ],
+
           // Product details
           if (order.product != null) ...[
             _buildPremiumCard(
@@ -1023,6 +1032,180 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
         ],
       ),
     );
+  }
+
+  /// The plan an order recurs on, shown only for orders the backend links to
+  /// a subscription.
+  Widget _buildSubscriptionCard(OrderSubscription subscription, bool isAr) {
+    final plan = subscription.plan;
+    final Color statusColor = _subscriptionStatusColor(subscription.status);
+    final bool hasDetailRows =
+        subscription.subscriptionNumber.isNotEmpty ||
+        subscription.startDate != null ||
+        subscription.endDate != null;
+
+    return _buildPremiumCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildSectionHeader(
+            AppLocalizations.of(context)!.subscription_details,
+            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              if (plan != null && plan.image.isNotEmpty) ...[
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(12),
+                  child: CachedNetworkImage(
+                    imageUrl: plan.image,
+                    width: 60,
+                    height: 60,
+                    fit: BoxFit.cover,
+                    placeholder: (context, url) => Shimmer.fromColors(
+                      baseColor: Colors.grey[300]!,
+                      highlightColor: Colors.grey[100]!,
+                      child: Container(color: Colors.white),
+                    ),
+                    errorWidget: (context, url, error) => Container(
+                      color: Colors.grey[200],
+                      child: const Icon(Icons.event_repeat_outlined),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 16),
+              ],
+              if (plan != null)
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        isAr ? plan.nameAr : plan.name,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      if (plan.frequency.isNotEmpty) ...[
+                        const SizedBox(height: 4),
+                        Text(
+                          _localizeFrequency(plan.frequency),
+                          style: const TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey,
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                )
+              else
+                const Spacer(),
+              if (subscription.status.isNotEmpty)
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: statusColor.withAlpha(40),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        width: 8,
+                        height: 8,
+                        decoration: BoxDecoration(
+                          color: statusColor,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Text(
+                        _localizeSubscriptionStatus(subscription.status),
+                        style: TextStyle(
+                          color: statusColor,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 12,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+            ],
+          ),
+          if (hasDetailRows) const Divider(height: 32),
+          if (subscription.subscriptionNumber.isNotEmpty)
+            _buildInfoRow(
+              AppLocalizations.of(context)!.subscription_number,
+              subscription.subscriptionNumber,
+            ),
+          if (subscription.startDate != null)
+            _buildInfoRow(
+              AppLocalizations.of(context)!.start_date,
+              Formatters.formatDate(context, subscription.startDate!),
+            ),
+          if (subscription.endDate != null)
+            _buildInfoRow(
+              AppLocalizations.of(context)!.end_date,
+              Formatters.formatDate(context, subscription.endDate!),
+            ),
+        ],
+      ),
+    );
+  }
+
+  String _localizeFrequency(String frequency) {
+    switch (frequency.toLowerCase().trim()) {
+      case 'everyday':
+        return AppLocalizations.of(context)!.everyday;
+      case 'once_a_week':
+        return AppLocalizations.of(context)!.once_a_week;
+      case 'twice_a_week':
+        return AppLocalizations.of(context)!.twice_a_week;
+      case 'once_a_month':
+        return AppLocalizations.of(context)!.once_a_month;
+      case 'custom':
+        return AppLocalizations.of(context)!.custom;
+      default:
+        return frequency;
+    }
+  }
+
+  String _localizeSubscriptionStatus(String status) {
+    switch (status.toLowerCase().trim()) {
+      case 'active':
+        return AppLocalizations.of(context)!.status_active;
+      case 'cancelled':
+        return AppLocalizations.of(context)!.status_cancelled;
+      case 'expired':
+        return AppLocalizations.of(context)!.status_expired;
+      case 'pending':
+        return AppLocalizations.of(context)!.status_pending;
+      default:
+        return status.isNotEmpty
+            ? status[0].toUpperCase() + status.substring(1).toLowerCase()
+            : '';
+    }
+  }
+
+  Color _subscriptionStatusColor(String status) {
+    switch (status.toLowerCase().trim()) {
+      case 'active':
+        return Colors.green;
+      case 'cancelled':
+      case 'expired':
+        return Colors.red;
+      case 'pending':
+        return Colors.orange;
+      default:
+        return Colors.grey;
+    }
   }
 
   Widget _buildDeliveryProgressCard(OrderResponseModel order) {

@@ -16,6 +16,9 @@ class OrderResponseModel {
   final DateTime? confirmedAt;
   final DateTime? cancelledAt;
   final ParentOrder? parentOrder;
+
+  /// The subscription this order was generated from. Null on one-off orders.
+  final OrderSubscription? subscription;
   final OrderProduct? product;
   final OrderFinancials? financials;
   final OrderTarget? target;
@@ -52,6 +55,7 @@ class OrderResponseModel {
     this.confirmedAt,
     this.cancelledAt,
     this.parentOrder,
+    this.subscription,
     this.product,
     this.financials,
     this.target,
@@ -111,6 +115,9 @@ class OrderResponseModel {
           : null,
       parentOrder: json['parentOrder'] != null
           ? ParentOrder.fromJson(json['parentOrder'])
+          : null,
+      subscription: json['subscription'] is Map<String, dynamic>
+          ? OrderSubscription.fromJson(json['subscription'])
           : null,
       product: json['product'] != null
           ? OrderProduct.fromJson(json['product'])
@@ -198,6 +205,77 @@ class ParentOrder {
           json['invoiceUrl'] ??
           json['invoice'] ??
           json['invoice_url'],
+    );
+  }
+}
+
+/// The subscription an order belongs to, as the order-details payload sends
+/// it. Kept separate from [SubscriptionModel] because that one is built from
+/// the subscriptions endpoints, which flatten the plan onto the subscription
+/// instead of nesting it.
+class OrderSubscription {
+  final String id;
+  final String subscriptionNumber;
+  final String status;
+
+  /// The window the subscription runs over. Either can be missing on a
+  /// subscription that has not been scheduled yet.
+  final DateTime? startDate;
+  final DateTime? endDate;
+  final OrderSubscriptionPlan? plan;
+
+  OrderSubscription({
+    required this.id,
+    required this.subscriptionNumber,
+    required this.status,
+    this.startDate,
+    this.endDate,
+    this.plan,
+  });
+
+  factory OrderSubscription.fromJson(Map<String, dynamic> json) {
+    return OrderSubscription(
+      id: json['id'] ?? '',
+      subscriptionNumber: json['subscriptionNumber']?.toString() ?? '',
+      status: json['status'] ?? '',
+      startDate: json['startDate'] != null
+          ? DateTime.tryParse(json['startDate'])
+          : null,
+      endDate: json['endDate'] != null
+          ? DateTime.tryParse(json['endDate'])
+          : null,
+      plan: json['plan'] is Map<String, dynamic>
+          ? OrderSubscriptionPlan.fromJson(json['plan'])
+          : null,
+    );
+  }
+}
+
+class OrderSubscriptionPlan {
+  final String id;
+  final String name;
+  final String nameAr;
+
+  /// How often the plan delivers, as the backend's enum name — `TWICE_A_WEEK`
+  /// and friends. The UI localizes it.
+  final String frequency;
+  final String image;
+
+  OrderSubscriptionPlan({
+    required this.id,
+    required this.name,
+    required this.nameAr,
+    required this.frequency,
+    required this.image,
+  });
+
+  factory OrderSubscriptionPlan.fromJson(Map<String, dynamic> json) {
+    return OrderSubscriptionPlan(
+      id: json['id'] ?? '',
+      name: json['name'] ?? '',
+      nameAr: json['nameAr'] ?? '',
+      frequency: json['frequency'] ?? '',
+      image: json['image'] ?? '',
     );
   }
 }

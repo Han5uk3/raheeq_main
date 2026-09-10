@@ -1480,6 +1480,12 @@ abstract class AppLocalizations {
   /// **'Subscription Details'**
   String get subscription_details;
 
+  /// No description provided for @subscription_number.
+  ///
+  /// In en, this message translates to:
+  /// **'Subscription Number'**
+  String get subscription_number;
+
   /// No description provided for @delivery_days.
   ///
   /// In en, this message translates to:
