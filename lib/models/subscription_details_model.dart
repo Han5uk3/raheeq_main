@@ -8,6 +8,7 @@ class SubscriptionDetailsModel extends SubscriptionModel {
   final String? invoiceUrl;
   final List<SubscriptionDeliveryModel> deliveries;
   final List<dynamic> giftCards;
+  final int completedCount;
 
   SubscriptionDetailsModel({
     required super.id,
@@ -29,6 +30,7 @@ class SubscriptionDetailsModel extends SubscriptionModel {
     this.invoiceUrl,
     required this.deliveries,
     this.giftCards = const [],
+    this.completedCount = 0,
   });
 
   factory SubscriptionDetailsModel.fromJson(Map<String, dynamic> json) {
@@ -62,6 +64,7 @@ class SubscriptionDetailsModel extends SubscriptionModel {
               .toList() ??
           [],
       giftCards: json['giftCards'] ?? (json['giftCard'] != null ? [json['giftCard']] : []),
+      completedCount: json['completedCount'] ?? 0,
     );
   }
 }

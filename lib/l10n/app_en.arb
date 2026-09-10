@@ -287,9 +287,13 @@
   "no_of_orders": "No. of Orders",
   "payment_was_cancelled": "Payment was cancelled",
   "error_verifying_payment": "Error verifying payment",
+  "expires_on": "Expires on",
+  "subscription_duration": "Subscription Duration",
   "pay_with_card": "Pay with Card",
   "payment_method": "Payment Method",
   "stc_pay": "STC Pay",
+  "status_failed": "Failed",
+  "upcoming": "Upcoming",
   "apple_pay": "Apple Pay",
   "credit_card_mada": "Credit Card / Mada",
   "failed_to_apply_wallet": "Failed to apply wallet",
@@ -652,5 +656,37 @@
   "sign_in_required_notifications": "Sign in to your Rahiq account to see your notifications.",
   "sign_in_required_orders": "Sign in to your Rahiq account to view and track your orders.",
   "sign_in_required_impact": "Sign in to your Rahiq account to follow the impact of your donations.",
-  "sign_in_required_support": "Sign in to your Rahiq account so our support team can help you with your orders."
+  "sign_in_required_support": "Sign in to your Rahiq account so our support team can help you with your orders.",
+  "months_left": "{count, plural, =1{1 month left} other{{count} months left}}",
+  "@months_left": {
+    "description": "Time left on a subscription, shown once 30 or more days remain",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "days_left": "{count, plural, =0{Ends today} =1{1 day left} other{{count} days left}}",
+  "@days_left": {
+    "description": "Time left on a subscription, shown while fewer than 30 days remain",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "delivered_x_of_y_orders": "{total, plural, =1{Delivered {completed} of 1 order} other{Delivered {completed} of {total} orders}}",
+  "@delivered_x_of_y_orders": {
+    "description": "Progress through the orders of a subscription",
+    "placeholders": {
+      "completed": {
+        "type": "int"
+      },
+      "total": {
+        "type": "int"
+      }
+    }
+  },
+  "subscription_expired": "Subscription expired",
+  "delivery_calendar": "Delivery Calendar"
 }

@@ -1465,12 +1465,25 @@ class ApiService {
   /// Get My Subscriptions
   Future<Response> getMySubscriptions({int page = 1, int limit = 10}) async {
     try {
+      log(
+        'API REQUEST: GET /subscriptions?page=$page&limit=$limit',
+        name: 'SubscriptionAPI',
+      );
       final response = await _dio.get(
         '/subscriptions',
         queryParameters: {'page': page, 'limit': limit},
       );
+      log(
+        'API RESPONSE [${response.statusCode}]: ${response.data}',
+        name: 'SubscriptionAPI',
+      );
       return response;
     } catch (e) {
+      log(
+        'Error fetching subscriptions: $e',
+        name: 'SubscriptionAPI',
+        error: e,
+      );
       rethrow;
     }
   }
@@ -1478,9 +1491,19 @@ class ApiService {
   /// Get Subscription Details
   Future<Response> getSubscriptionDetails(String id) async {
     try {
+      log('API REQUEST: GET /subscriptions/$id', name: 'SubscriptionAPI');
       final response = await _dio.get('/subscriptions/$id');
+      log(
+        'API RESPONSE [${response.statusCode}]: ${response.data}',
+        name: 'SubscriptionAPI',
+      );
       return response;
     } catch (e) {
+      log(
+        'Error fetching subscription details: $e',
+        name: 'SubscriptionAPI',
+        error: e,
+      );
       rethrow;
     }
   }

@@ -246,9 +246,13 @@
   "payment_was_cancelled": "تم إلغاء عملية الدفع",
   "error_verifying_payment": "حدث خطأ أثناء التحقق من الدفع",
   "pay_with_card": "الدفع",
+  "expires_on": "ينتهي في",
+  "subscription_duration": "مدة الاشتراك",
   "no_of_orders": "عدد التوصيلات",
   "payment_method": "طريقة الدفع",
   "stc_pay": "STC Pay",
+  "upcoming": "قريبًا",
+  "status_failed": "فشل",
   "apple_pay": "أبل باي",
   "credit_card_mada": "بطاقة الائتمان / مدى",
   "failed_to_apply_wallet": "حدث خطأ أثناء تطبيق المحفظة",
@@ -594,5 +598,10 @@
   "sign_in_required_notifications": "سجّل الدخول إلى حسابك في رحيق لعرض إشعاراتك.",
   "sign_in_required_orders": "سجّل الدخول إلى حسابك في رحيق لعرض طلباتك وتتبعها.",
   "sign_in_required_impact": "سجّل الدخول إلى حسابك في رحيق لمتابعة أثر تبرعاتك.",
-  "sign_in_required_support": "سجّل الدخول إلى حسابك في رحيق ليتمكن فريق الدعم من مساعدتك في طلباتك."
+  "sign_in_required_support": "سجّل الدخول إلى حسابك في رحيق ليتمكن فريق الدعم من مساعدتك في طلباتك.",
+  "months_left": "{count, plural, one{يتبقى شهر واحد} two{يتبقى شهران} few{يتبقى {count} أشهر} many{يتبقى {count} شهرًا} other{يتبقى {count} شهر}}",
+  "days_left": "{count, plural, =0{ينتهي اليوم} one{يتبقى يوم واحد} two{يتبقى يومان} few{يتبقى {count} أيام} many{يتبقى {count} يومًا} other{يتبقى {count} يوم}}",
+  "delivered_x_of_y_orders": "{total, plural, one{تم توصيل {completed} من طلب واحد} other{تم توصيل {completed} من {total} طلبات}}",
+  "subscription_expired": "انتهى الاشتراك",
+  "delivery_calendar": "تقويم التوصيل"
 }

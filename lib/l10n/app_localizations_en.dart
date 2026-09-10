@@ -759,6 +759,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get error_verifying_payment => 'Error verifying payment';
 
   @override
+  String get expires_on => 'Expires on';
+
+  @override
+  String get subscription_duration => 'Subscription Duration';
+
+  @override
   String get pay_with_card => 'Pay with Card';
 
   @override
@@ -766,6 +772,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get stc_pay => 'STC Pay';
+
+  @override
+  String get status_failed => 'Failed';
+
+  @override
+  String get upcoming => 'Upcoming';
 
   @override
   String get apple_pay => 'Apple Pay';
@@ -1790,4 +1802,44 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get sign_in_required_support =>
       'Sign in to your Rahiq account so our support team can help you with your orders.';
+
+  @override
+  String months_left(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count months left',
+      one: '1 month left',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String days_left(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count days left',
+      one: '1 day left',
+      zero: 'Ends today',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String delivered_x_of_y_orders(int completed, int total) {
+    String _temp0 = intl.Intl.pluralLogic(
+      total,
+      locale: localeName,
+      other: 'Delivered $completed of $total orders',
+      one: 'Delivered $completed of 1 order',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get subscription_expired => 'Subscription expired';
+
+  @override
+  String get delivery_calendar => 'Delivery Calendar';
 }

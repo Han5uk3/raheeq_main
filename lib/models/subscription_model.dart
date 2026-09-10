@@ -11,6 +11,8 @@ class SubscriptionModel {
   final DateTime endDate;
   final String targetName;
   final String targetNameAr;
+  final int completedCount;
+  final int totalCount;
 
   SubscriptionModel({
     required this.id,
@@ -25,6 +27,8 @@ class SubscriptionModel {
     required this.endDate,
     this.targetName = '',
     this.targetNameAr = '',
+    this.completedCount = 0,
+    this.totalCount = 0,
   });
 
   factory SubscriptionModel.fromJson(Map<String, dynamic> json) {
@@ -45,8 +49,15 @@ class SubscriptionModel {
       endDate: json['endDate'] != null
           ? DateTime.parse(json['endDate'])
           : DateTime.now(),
-      targetName: json['target'] != null ? (json['target']['label'] ?? '') : (json['targetName'] ?? ''),
-      targetNameAr: json['target'] != null ? (json['target']['labelAr'] ?? '') : (json['targetNameAr'] ?? ''),
+      targetName: json['target'] != null
+          ? (json['target']['label'] ?? '')
+          : (json['targetName'] ?? ''),
+      targetNameAr: json['target'] != null
+          ? (json['target']['labelAr'] ?? '')
+          : (json['targetNameAr'] ?? ''),
+      completedCount: json['completedCount'] ?? 0,
+      totalCount: json['totalCount'] ?? 0,
+     
     );
   }
 }
