@@ -934,7 +934,7 @@ class AppLocalizationsEn extends AppLocalizations {
       'Our team has begun processing your order, and—God willing—it will be delivered within 24 hours.\nOnce completed, you will receive photos and a documentary video via WhatsApp on your registered number, allowing you to witness the impact of your generosity with confidence and transparency.';
 
   @override
-  String get payment_successful => 'Your order has been successfully placed ✅';
+  String get payment_successful => 'Your order has been confirmed ✅';
 
   @override
   String get confirm => 'Confirm';

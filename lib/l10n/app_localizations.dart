@@ -1862,7 +1862,7 @@ abstract class AppLocalizations {
   /// No description provided for @payment_successful.
   ///
   /// In en, this message translates to:
-  /// **'Your order has been successfully placed ✅'**
+  /// **'Your order has been confirmed ✅'**
   String get payment_successful;
 
   /// No description provided for @confirm.
