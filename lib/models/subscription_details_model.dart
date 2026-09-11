@@ -97,7 +97,7 @@ class SubscriptionDeliveryModel {
   final DateTime? scheduledDate;
   final DateTime createdAt;
   final String status;
-  final List<SubscriptionSubOrderModel> subOrders;
+ 
 
   SubscriptionDeliveryModel({
     required this.orderId,
@@ -105,7 +105,6 @@ class SubscriptionDeliveryModel {
     this.scheduledDate,
     required this.createdAt,
     required this.status,
-    required this.subOrders,
   });
 
   factory SubscriptionDeliveryModel.fromJson(Map<String, dynamic> json) {
@@ -119,59 +118,12 @@ class SubscriptionDeliveryModel {
           ? DateTime.parse(json['createdAt'])
           : DateTime.now(),
       status: json['status'] ?? 'PENDING',
-      subOrders:
-          (json['subOrders'] as List<dynamic>?)
-              ?.map((e) => SubscriptionSubOrderModel.fromJson(e))
-              .toList() ??
-          [],
+      
     );
   }
 }
 
-class SubscriptionSubOrderModel {
-  final String id;
-  final String subOrderNumber;
-  final String status;
-  final double totalAmount;
-  final SubscriptionProductModel? product;
-  final SubscriptionTargetModel? target;
-  final String? deliveryProof;
-  final Map<String, dynamic>? giftCard;
-  final bool? deliveredToDifferentMosque;
-  final String? differentMosqueReason;
 
-  SubscriptionSubOrderModel({
-    required this.id,
-    required this.subOrderNumber,
-    required this.status,
-    required this.totalAmount,
-    this.product,
-    this.target,
-    this.deliveryProof,
-    this.giftCard,
-    this.deliveredToDifferentMosque,
-    this.differentMosqueReason,
-  });
-
-  factory SubscriptionSubOrderModel.fromJson(Map<String, dynamic> json) {
-    return SubscriptionSubOrderModel(
-      id: json['id'] ?? '',
-      subOrderNumber: json['subOrderNumber'] ?? '',
-      status: json['status'] ?? 'PENDING',
-      totalAmount: (json['totalAmount'] ?? 0).toDouble(),
-      product: json['product'] != null
-          ? SubscriptionProductModel.fromJson(json['product'])
-          : null,
-      target: json['target'] != null
-          ? SubscriptionTargetModel.fromJson(json['target'])
-          : null,
-      deliveryProof: json['deliveryProof'],
-      giftCard: json['giftCard'],
-      deliveredToDifferentMosque: json['deliveredToDifferentMosque'],
-      differentMosqueReason: json['differentMosqueReason'],
-    );
-  }
-}
 
 class SubscriptionProductModel {
   final String id;

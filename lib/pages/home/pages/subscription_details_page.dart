@@ -9,7 +9,6 @@ import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/models/subscription_details_model.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
-import 'package:raheeq_main/pages/home/pages/track_subscription_delivery_page.dart';
 import 'package:raheeq_main/utils/formatters.dart';
 
 class SubscriptionDetailsPage extends StatefulWidget {
@@ -35,13 +34,6 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
     final list = <dynamic>[];
     if (_details!.giftCards.isNotEmpty) {
       list.addAll(_details!.giftCards);
-    }
-    for (var delivery in _details!.deliveries) {
-      for (var sub in delivery.subOrders) {
-        if (sub.giftCard != null) {
-          list.add(sub.giftCard);
-        }
-      }
     }
     return list;
   }
@@ -90,31 +82,7 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
     }
   }
 
-  String _formatPaymentMethod(BuildContext context, String method) {
-    if (method.isEmpty) return '';
-    final loc = AppLocalizations.of(context)!;
-    switch (method.toUpperCase()) {
-      case 'CREDIT_CARD':
-      case 'MADA':
-        return loc.credit_card_mada;
-      case 'STC_PAY':
-        return loc.stc_pay;
-      case 'APPLE_PAY':
-        return loc.apple_pay;
-      case 'BANK_TRANSFER':
-      case 'IBAN':
-        return loc.iban_bank_transfer;
-      default:
-        final parts = method.split('_');
-        return parts
-            .map(
-              (p) => p.isEmpty
-                  ? ''
-                  : '${p[0].toUpperCase()}${p.substring(1).toLowerCase()}',
-            )
-            .join(' ');
-    }
-  }
+  
 
   /// Whole days from [from] to [to], ignoring the time of day.
   ///
@@ -149,7 +117,7 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
   /// Whether a delivery counts as done for the calendar's colouring.
   bool _isDelivered(String status) {
     final normalised = status.toUpperCase();
-    return normalised == 'DELIVERED' || normalised == 'COMPLETED';
+    return normalised == 'CONFIRMED';
   }
 
   /// The subscription's delivery days, each flagged with whether every
@@ -519,7 +487,6 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
         child: Text(AppLocalizations.of(context)!.no_details_found),
       );
     }
-    bool shouldShowDeliveries = false;
     bool hasGiftCardOrInvoice =
         _details!.giftCards.isNotEmpty ||
         (_details!.invoiceUrl != null && _details!.invoiceUrl!.isNotEmpty);
@@ -547,34 +514,6 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
           if (_details!.deliveries.isNotEmpty) ...[
             const SizedBox(height: 24),
             _buildDeliveryCalendar(isAr),
-          ],
-         
-
-          if (shouldShowDeliveries) ...[
-            const SizedBox(height: 24),
-            Text(
-              AppLocalizations.of(context)!.deliveries,
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: AppColors.buttonBlueDark,
-              ),
-            ),
-            const SizedBox(height: 12),
-            if (_details!.deliveries.isEmpty)
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 24),
-                child: Center(
-                  child: Text(
-                    AppLocalizations.of(context)!.no_deliveries_found,
-                    style: const TextStyle(fontSize: 16, color: Colors.grey),
-                  ),
-                ),
-              )
-            else
-              ..._details!.deliveries.map(
-                (delivery) => _buildDeliveryCard(delivery, isAr),
-              ),
           ],
         ],
       ),
@@ -783,10 +722,10 @@ Widget _buildProductsCard(bool isAr) {
                         AppLocalizations.of(context)!.subscription_duration,
                         style: TextStyle(fontSize: 12, color: AppColors.black),
                       ),
-                      Text(
-                        _durationLeftLabel(),
-                        style: TextStyle(fontSize: 12, color: AppColors.black),
-                      ),
+                      // Text(
+                      //   _durationLeftLabel(),
+                      //   style: TextStyle(fontSize: 12, color: AppColors.black),
+                      // ),
                     ],
                   ),
                   Divider(height: 24),
@@ -1342,187 +1281,6 @@ Widget _buildProductsCard(bool isAr) {
         ),
       ),
     );
-  }
-
- 
-
-  Widget _buildDeliveryCard(SubscriptionDeliveryModel delivery, bool isAr) {
-    String dateFormat(DateTime date) => Formatters.formatDate(context, date);
-    return GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => TrackSubscriptionDeliveryPage(
-              orderId: delivery.orderId,
-              subOrderId: delivery.subOrders.isNotEmpty
-                  ? delivery.subOrders.first.id
-                  : "",
-            ),
-          ),
-        );
-      },
-      child: Card(
-        color: Colors.white,
-        margin: const EdgeInsets.only(bottom: 16),
-        elevation: 2,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(16),
-          side: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const SizedBox(height: 4),
-              Padding(
-                padding: const EdgeInsets.all(16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          '#${delivery.orderNumber}',
-                          style: TextStyle(
-                            color: Colors.grey[500],
-                            fontSize: 13,
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.calendar_today_outlined,
-                              size: 20,
-                              color: AppColors.buttonBlueDark,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              delivery.scheduledDate != null
-                                  ? dateFormat(delivery.scheduledDate!)
-                                  : dateFormat(delivery.createdAt),
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 16,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSubOrder(
-    SubscriptionSubOrderModel subOrder,
-    bool isAr,
-    String orderId,
-  ) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-      decoration: const BoxDecoration(color: Colors.transparent),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          if (subOrder.product != null &&
-              subOrder.product!.image.isNotEmpty) ...[
-            ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image.network(
-                subOrder.product!.image,
-                width: 48,
-                height: 48,
-                fit: BoxFit.cover,
-              ),
-            ),
-            const SizedBox(width: 16),
-          ],
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (subOrder.product != null)
-                  Text(
-                    '${subOrder.product!.quantity}x ${isAr ? subOrder.product!.nameAr : subOrder.product!.name}',
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w600,
-                      fontSize: 15,
-                      color: AppColors.buttonBlueDark,
-                    ),
-                  ),
-                if (subOrder.target != null) ...[
-                  const SizedBox(height: 6),
-                  Row(
-                    children: [
-                      const Icon(
-                        Icons.location_on,
-                        size: 14,
-                        color: Colors.grey,
-                      ),
-                      const SizedBox(width: 4),
-                      Expanded(
-                        child: Text(
-                          isAr
-                              ? subOrder.target!.labelAr
-                              : subOrder.target!.label,
-                          style: const TextStyle(
-                            color: Colors.grey,
-                            fontSize: 13,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ],
-            ),
-          ),
-          const SizedBox(width: 12),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              color: _getStatusColor(subOrder.status).withValues(alpha: 0.1),
-              borderRadius: BorderRadius.circular(20),
-            ),
-            child: Text(
-              _localizeStatus(subOrder.status, context),
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.bold,
-                color: _getStatusColor(subOrder.status),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Color _getStatusColor(String status) {
-    switch (status.toUpperCase()) {
-      case 'PENDING':
-      case 'PROCESSING':
-        return Colors.orange;
-      case 'DISPATCHED':
-      case 'OUT_FOR_DELIVERY':
-        return Colors.blue;
-      case 'DELIVERED':
-        return Colors.green;
-      case 'CANCELLED':
-        return Colors.red;
-      default:
-        return Colors.grey;
-    }
   }
 
   String _localizeFrequency(String frequency) {
