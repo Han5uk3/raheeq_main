@@ -68,7 +68,7 @@ flutter:
     - assets/splash/
 
   fonts:
-    - family: SF Pro
+    - family: SFProText
       fonts:
         - asset: assets/fonts/SF-Pro-Text-Regular.otf
         - asset: assets/fonts/SF-Pro-Text-Medium.otf
