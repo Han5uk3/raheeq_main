@@ -6,6 +6,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/pages/home/home_screen.dart';
 import 'package:raheeq_main/pages/home/pages/app_settings_page.dart';
@@ -54,6 +55,7 @@ class _ProfileTabState extends State<ProfileTab> {
   bool _isSaving = false; // Used for logout loading state
   User? _currentUser;
   int _unreadNotificationsCount = 0;
+  String _appVersion = '';
 
   @override
   void initState() {
@@ -61,12 +63,21 @@ class _ProfileTabState extends State<ProfileTab> {
     SnackbarInsets.setBottomInset(kBottomNavigationBarHeight + 10);
     _currentUser = AuthStorage.user;
     _unreadNotificationsCount = _cachedUnreadCount;
+    _initPackageInfo();
 
     // A guest has no profile to refresh and no token for the call.
     if (!AuthStorage.isGuest) {
       // Refresh user profile silently on load to match production APIs
       _refreshProfile();
     }
+  }
+
+  Future<void> _initPackageInfo() async {
+    final info = await PackageInfo.fromPlatform();
+    if (!mounted) return;
+    setState(() {
+      _appVersion = info.version;
+    });
   }
 
   Future<void> _refreshProfile() async {
@@ -734,7 +745,8 @@ class _ProfileTabState extends State<ProfileTab> {
                           const SizedBox(height: 24),
                           Center(
                             child: Text(
-                              "${AppLocalizations.of(context)!.version}: 0.1.0",
+                              '${AppLocalizations.of(context)!.version}: '
+                              '${_appVersion.isEmpty ? '...' : _appVersion}',
                               style: TextStyle(color: Colors.grey, fontSize: 13),
                             ),
                           ),
