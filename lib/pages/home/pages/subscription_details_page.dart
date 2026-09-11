@@ -535,10 +535,10 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
             _buildGiftInvoiceButtonRow(),
           ],
           _buildDurationInfoCard(isAr),
-          if (_details!.deliveryLocations.isNotEmpty) ...[
+          if (_details!.targets.isNotEmpty) ...[
             const SizedBox(height: 24),
 
-            _buildDeliveryLocationsCard(isAr),
+            _buildTargetsCard(isAr),
           ],
           if (_details!.products.isNotEmpty) ...[
             const SizedBox(height: 24),
@@ -655,9 +655,8 @@ Widget _buildProductsCard(bool isAr) {
     );
   }
 
-  Widget _buildDeliveryLocationsCard(bool isAr) {
-    final locations = _details!.deliveryLocations;
-    // if (locations.isEmpty) return SizedBox.shrink();
+  Widget _buildTargetsCard(bool isAr) {
+    final targets = _details!.targets;
 
     return Material(
       elevation: 2,
@@ -678,7 +677,7 @@ Widget _buildProductsCard(bool isAr) {
                 style: TextStyle(fontSize: 14, color: AppColors.black),
               ),
               Divider(height: 24),
-              ...locations.map((location) {
+              ...targets.map((target) {
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 4),
                   child: Container(
@@ -694,19 +693,56 @@ Widget _buildProductsCard(bool isAr) {
                     ),
                     child: Row(
                       children: [
-                        Icon(
-                          Icons.location_on,
-                          size: 16,
-                          color: AppColors.buttonBlueDark,
-                        ),
+                        if (target.image.isNotEmpty)
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(4),
+                            child: CachedNetworkImage(
+                              imageUrl: target.image,
+                              width: 32,
+                              height: 32,
+                              fit: BoxFit.cover,
+                              placeholder: (context, url) => Container(
+                                width: 32,
+                                height: 32,
+                                color: Colors.grey[300],
+                              ),
+                              errorWidget: (context, url, error) => Icon(
+                                Icons.location_on,
+                                size: 16,
+                                color: AppColors.buttonBlueDark,
+                              ),
+                            ),
+                          )
+                        else
+                          Icon(
+                            Icons.location_on,
+                            size: 16,
+                            color: AppColors.buttonBlueDark,
+                          ),
                         SizedBox(width: 8),
                         Expanded(
-                          child: Text(
-                            isAr ? location.nameAr : location.name,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: AppColors.black,
-                            ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                isAr ? target.nameAr : target.name,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.black,
+                                ),
+                              ),
+                              if (target.address.isNotEmpty) ...[
+                                SizedBox(height: 2),
+                                Text(
+                                  target.address,
+                                  style: TextStyle(
+                                    fontSize: 10,
+                                    color: Colors.grey,
+                                  ),
+                                ),
+                              ],
+                            ],
                           ),
                         ),
                       ],
@@ -885,6 +921,292 @@ Widget _buildProductsCard(bool isAr) {
     );
   }
 
+  /// Height of one line of text at [fontSize], measured with the font, locale
+  /// and text scale the loaded card will use.
+  ///
+  /// Arabic resolves to a taller fallback face than the Latin one — 19px to 17
+  /// at a font size of 12 — so a bar with a hardcoded height leaves the
+  /// skeleton and the loaded card at different heights in one locale or the
+  /// other, and the page shifts as it loads.
+  double _lineHeight(double fontSize) {
+    final sample = Localizations.localeOf(context).languageCode == 'ar'
+        ? 'نص'
+        : 'Text';
+    final painter = TextPainter(
+      text: TextSpan(
+        text: sample,
+        // The style a card's Text resolves to: Material hands its subtree
+        // bodyMedium, which carries the theme's font family and fallbacks.
+        style: (Theme.of(context).textTheme.bodyMedium ?? const TextStyle())
+            .copyWith(fontSize: fontSize),
+      ),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+      maxLines: 1,
+    )..layout();
+
+    return painter.height;
+  }
+
+  /// One placeholder shape.
+  ///
+  /// Painted white because [Shimmer] masks its subtree with [BlendMode.srcIn]:
+  /// only what the skeleton paints picks up the sweep, so the card itself has
+  /// to stay outside the shimmer to keep its white fill and elevation.
+  Widget _skeletonBox({
+    double? width,
+    required double height,
+    double radius = 4,
+  }) {
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(radius),
+      ),
+    );
+  }
+
+  /// A bar standing in for a line of text, sized to the line it replaces.
+  Widget _skeletonTextBar({required double width, required double fontSize}) {
+    return _skeletonBox(width: width, height: _lineHeight(fontSize));
+  }
+
+  /// The same card chrome the loaded sections use, wrapped around a skeleton.
+  Widget _skeletonCard({required Widget child}) {
+    return Material(
+      elevation: 2,
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      child: Shimmer.fromColors(
+        baseColor: Colors.grey[300]!,
+        highlightColor: Colors.grey[100]!,
+        child: Padding(padding: const EdgeInsets.all(8), child: child),
+      ),
+    );
+  }
+
+  /// Mirrors [_buildInfoCard]: plan image, name over frequency, status pill,
+  /// then the delivered-count banner.
+  Widget _skeletonInfoCard() {
+    return Card(
+      color: Colors.white,
+      elevation: 2,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      child: Shimmer.fromColors(
+        baseColor: Colors.grey[300]!,
+        highlightColor: Colors.grey[100]!,
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  _skeletonBox(width: 60, height: 60, radius: 8),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        _skeletonTextBar(width: 150, fontSize: 18),
+                        const SizedBox(height: 4),
+                        _skeletonTextBar(width: 90, fontSize: 14),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  // The pill wraps its label in 6px of vertical padding.
+                  _skeletonBox(
+                    width: 84,
+                    height: _lineHeight(12) + 12,
+                    radius: 10,
+                  ),
+                ],
+              ),
+              const Divider(height: 32),
+              // The banner pads its label by 8px top and bottom.
+              _skeletonBox(
+                width: double.infinity,
+                height: _lineHeight(12) + 16,
+                radius: 8,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// Mirrors [_buildDurationInfoCard]: two label rows around the progress bar,
+  /// with the start and end date chips beneath it.
+  Widget _skeletonDurationCard() {
+    return _skeletonCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _skeletonTextBar(width: 120, fontSize: 12),
+              _skeletonTextBar(width: 70, fontSize: 12),
+            ],
+          ),
+          const Divider(height: 24),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              _skeletonTextBar(width: 70, fontSize: 12),
+              _skeletonTextBar(width: 70, fontSize: 12),
+            ],
+          ),
+          const SizedBox(height: 8),
+          _skeletonBox(width: double.infinity, height: 10, radius: 100),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              // Date chips pad their label by 4px top and bottom.
+              _skeletonBox(width: 76, height: _lineHeight(10) + 8, radius: 8),
+              _skeletonBox(width: 76, height: _lineHeight(10) + 8, radius: 8),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Mirrors [_buildTargetsCard] and [_buildProductsCard], which share a
+  /// layout and differ only in thumbnail size.
+  Widget _skeletonListCard({required double thumbSize, int rows = 2}) {
+    return _skeletonCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: _skeletonTextBar(width: 110, fontSize: 14),
+          ),
+          const Divider(height: 24),
+          ...List.generate(
+            rows,
+            (index) => Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4),
+              child: Container(
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.white),
+                ),
+                child: Row(
+                  children: [
+                    _skeletonBox(
+                      width: thumbSize,
+                      height: thumbSize,
+                      radius: 4,
+                    ),
+                    const SizedBox(width: 8),
+                    _skeletonTextBar(width: 130, fontSize: 12),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// Mirrors [_buildDeliveryCalendar]: month pager, weekday letters, a grid of
+  /// day cells, then the legend.
+  Widget _skeletonCalendarCard() {
+    return _skeletonCard(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Align(
+            alignment: AlignmentDirectional.centerStart,
+            child: _skeletonTextBar(width: 130, fontSize: 14),
+          ),
+          const SizedBox(height: 8),
+          const Divider(height: 1),
+          // The month arrows are IconButtons with a 32px minimum.
+          SizedBox(
+            height: 32,
+            child: Row(
+              children: [
+                _skeletonBox(width: 20, height: 20, radius: 4),
+                Expanded(
+                  child: Center(
+                    child: _skeletonTextBar(width: 90, fontSize: 12),
+                  ),
+                ),
+                _skeletonBox(width: 20, height: 20, radius: 4),
+              ],
+            ),
+          ),
+          const SizedBox(height: 8),
+          LayoutBuilder(
+            builder: (context, constraints) {
+              // The same column maths the real calendar uses, so the skeleton
+              // cells sit where the day cells will.
+              final cellSize = (constraints.maxWidth / 7 - 4).clamp(24.0, 40.0);
+
+              return Column(
+                children: [
+                  Row(
+                    children: List.generate(
+                      7,
+                      (index) => Expanded(
+                        child: Center(
+                          child: _skeletonTextBar(width: 10, fontSize: 11),
+                        ),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  ...List.generate(
+                    5,
+                    (row) => SizedBox(
+                      height: cellSize + 4,
+                      child: Row(
+                        children: List.generate(
+                          7,
+                          (column) => Expanded(
+                            child: Center(
+                              child: _skeletonBox(
+                                width: cellSize,
+                                height: cellSize,
+                                radius: 6,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+          const Divider(height: 16),
+          Row(
+            children: [
+              _skeletonBox(width: 12, height: 12, radius: 4),
+              const SizedBox(width: 6),
+              _skeletonTextBar(width: 60, fontSize: 11),
+              const SizedBox(width: 20),
+              _skeletonBox(width: 12, height: 12, radius: 4),
+              const SizedBox(width: 6),
+              _skeletonTextBar(width: 60, fontSize: 11),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildShimmerLoading() {
     return Padding(
       key: const ValueKey('loader'),
@@ -892,41 +1214,16 @@ Widget _buildProductsCard(bool isAr) {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Shimmer.fromColors(
-            baseColor: Colors.grey[300]!,
-            highlightColor: Colors.grey[100]!,
-            child: Container(
-              height: 250,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
-              ),
-            ),
-          ),
+          _skeletonInfoCard(),
+          _skeletonDurationCard(),
           const SizedBox(height: 24),
-          Shimmer.fromColors(
-            baseColor: Colors.grey[300]!,
-            highlightColor: Colors.grey[100]!,
-            child: Container(width: 100, height: 20, color: Colors.white),
-          ),
-          const SizedBox(height: 12),
-          ...List.generate(
-            2,
-            (index) => Padding(
-              padding: const EdgeInsets.only(bottom: 16),
-              child: Shimmer.fromColors(
-                baseColor: Colors.grey[300]!,
-                highlightColor: Colors.grey[100]!,
-                child: Container(
-                  height: 150,
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                ),
-              ),
-            ),
-          ),
+          // Targets and products are both optional, but standing in for them
+          // keeps the calendar from jumping up the page once it loads.
+          _skeletonListCard(thumbSize: 32),
+          const SizedBox(height: 24),
+          _skeletonListCard(thumbSize: 40, rows: 1),
+          const SizedBox(height: 24),
+          _skeletonCalendarCard(),
         ],
       ),
     );
