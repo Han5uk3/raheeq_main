@@ -6,8 +6,6 @@ import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/pages/home/home_screen.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 
-
-
 class PaymentSuccessPage extends StatefulWidget {
   final PaymentStatus status;
   final String? message;
@@ -196,9 +194,7 @@ class _PaymentSuccessPageState extends State<PaymentSuccessPage>
                   padding: const EdgeInsets.symmetric(horizontal: 16),
                   child: Text(
                     description,
-                    textAlign: Directionality.of(context) == TextDirection.rtl
-                        ? TextAlign.justify
-                        : TextAlign.center,
+                    textAlign: TextAlign.justify,
                     style: TextStyle(
                       fontSize: 14,
                       color: Colors.grey.shade800,

@@ -342,7 +342,7 @@
   "an_error_occurred_while_processing_the_payment": "An error occurred while processing the payment.",
   "payment_failed": "Payment Failed",
   "thank_you_for_your_donation": "Our team has begun processing your order, and—God willing—it will be delivered within 24 hours.\nOnce completed, you will receive photos and a documentary video via WhatsApp on your registered number, allowing you to witness the impact of your generosity with confidence and transparency.",
-  "payment_successful": "Your order has been successfully placed ✅",
+  "payment_successful": "Your order has been confirmed ✅",
   "confirm": "Confirm",
   "enter_quantity_204": "Enter Quantity",
   "notes_optional": "Notes (Optional)",
