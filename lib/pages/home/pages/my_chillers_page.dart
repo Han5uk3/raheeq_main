@@ -197,6 +197,7 @@ class _MyChillersPageState extends State<MyChillersPage> {
                   ),
                   child: Column(
                     children: [
+                      SizedBox(height: 4),
                       Expanded(
                         child: AnimatedSwitcher(
                           duration: const Duration(milliseconds: 500),
@@ -233,10 +234,10 @@ class _MyChillersPageState extends State<MyChillersPage> {
                                   key: const ValueKey('content'),
                                   physics: const ClampingScrollPhysics(),
                                   padding: const EdgeInsets.only(
-                                    top: 16,
+                                    top: 12,
                                     left: 16,
                                     right: 16,
-                                    bottom: 60,
+                                    bottom: 80,
                                   ),
                                   itemCount: visibleChillers.length,
                                   itemBuilder: (context, index) {

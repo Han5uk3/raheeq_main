@@ -58,15 +58,27 @@ class DeliveryFeeValue extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (struckThrough) ...[amountText(), const SizedBox(width: 8)],
-        Text(
-          l10n.free,
-          style: baseStyle.copyWith(
-            fontWeight: FontWeight.bold,
-            color: Colors.green,
-            decoration: TextDecoration.none,
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+          decoration: BoxDecoration(
+            color: Colors.green.shade100,
+            borderRadius: BorderRadius.circular(4),
+          ),
+          child: Row(
+            children: [
+              Text(
+                "${l10n.free}🎉",
+                style: baseStyle.copyWith(
+                  fontWeight: FontWeight.bold,
+                  color: Colors.green,
+                  decoration: TextDecoration.none,
+                ),
+              ),
+            ],
           ),
         ),
+        if (struckThrough) ...[const SizedBox(width: 8), amountText()],
+        
       ],
     );
   }

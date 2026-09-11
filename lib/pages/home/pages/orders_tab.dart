@@ -1008,99 +1008,76 @@ class _OrderCardState extends State<_OrderCard> {
                           ),
                           SizedBox(height: _s(4)),
                         ],
-
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(
-                              totalCost,
-                              style: TextStyle(
-                                color: AppColors.buttonBlueDark,
-                                fontWeight: FontWeight.bold,
-                                fontSize: _s(14),
-                              ),
-                            ),
-                            Row(
-                              spacing: _s(6),
-                              mainAxisAlignment: MainAxisAlignment.end,
-                              children: [
-                                if (widget.stage == OrdersTabStage.delivered &&
-                                    widget.order.review == null)
-                                  SizedBox(
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor:
-                                            AppColors.buttonBlueDark,
-                                        padding: EdgeInsets.symmetric(
-                                          vertical: _s(8),
-                                          horizontal: _s(12),
-                                        ),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                        ),
+                        if (widget.order.status.toUpperCase() == "CONFIRMED")
+                          Row(
+                            spacing: _s(6),
+                            mainAxisAlignment: MainAxisAlignment.end,
+                            children: [
+                              if (widget.stage == OrdersTabStage.delivered &&
+                                  widget.order.review == null)
+                                SizedBox(
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.buttonBlueDark,
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: _s(8),
+                                        horizontal: _s(12),
                                       ),
-                                      onPressed: () {
-                                        _showRateOrderBottomSheet(
-                                          context,
-                                          widget.order.id,
-                                        );
-                                      },
-                                      child: Text(
-                                        AppLocalizations.of(
-                                          context,
-                                        )!.rate_order,
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: _s(11),
-                                        ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    onPressed: () {
+                                      _showRateOrderBottomSheet(
+                                        context,
+                                        widget.order.id,
+                                      );
+                                    },
+                                    child: Text(
+                                      AppLocalizations.of(context)!.rate_order,
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: _s(11),
                                       ),
                                     ),
                                   ),
-                                if (widget.order.status.toUpperCase() ==
-                                    'CONFIRMED')
-                                  SizedBox(
-                                    child: ElevatedButton(
-                                      style: ElevatedButton.styleFrom(
-                                        backgroundColor:
-                                            AppColors.buttonBlueDark,
-                                        padding: EdgeInsets.symmetric(
-                                          vertical: _s(8),
-                                          horizontal: _s(12),
-                                        ),
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            8,
-                                          ),
-                                        ),
+                                ),
+                              if (widget.order.status.toUpperCase() ==
+                                  'CONFIRMED')
+                                SizedBox(
+                                  child: ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.buttonBlueDark,
+                                      padding: EdgeInsets.symmetric(
+                                        vertical: _s(8),
+                                        horizontal: _s(12),
                                       ),
-                                      onPressed: () {
-                                        DeepLinkService().handleReorder(
-                                          widget.order.id,
-                                        );
-                                      },
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    onPressed: () {
+                                      DeepLinkService().handleReorder(
+                                        widget.order.id,
+                                      );
+                                    },
 
-                                      child: Text(
-                                        AppLocalizations.of(context)!.reorder,
-                                        style: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: _s(11),
-                                        ),
+                                    child: Text(
+                                      AppLocalizations.of(context)!.reorder,
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontSize: _s(11),
                                       ),
                                     ),
                                   ),
-                              ],
-                            ),
+                                ),
                           ],
                         ),
                       ],
                     ),
                   ),
                 ],
-              ),
-              SizedBox(height: _s(12)),
+              ),    
               const Divider(),
               _buildDeliveryProofs(widget.order),
               SizedBox(height: _s(8)),
