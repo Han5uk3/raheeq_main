@@ -8,7 +8,9 @@ class SubscriptionDetailsModel extends SubscriptionModel {
   final String? invoiceUrl;
   final List<SubscriptionDeliveryModel> deliveries;
   final List<dynamic> giftCards;
-  final int completedCount;
+  final int completeCount;
+  final List<DeliveryLocation> deliveryLocations;
+  final List<ProductModel> products;
 
   SubscriptionDetailsModel({
     required super.id,
@@ -30,7 +32,9 @@ class SubscriptionDetailsModel extends SubscriptionModel {
     this.invoiceUrl,
     required this.deliveries,
     this.giftCards = const [],
-    this.completedCount = 0,
+    this.completeCount = 0,
+    this.deliveryLocations = const [],
+    this.products = const [],
   });
 
   factory SubscriptionDetailsModel.fromJson(Map<String, dynamic> json) {
@@ -64,7 +68,17 @@ class SubscriptionDetailsModel extends SubscriptionModel {
               .toList() ??
           [],
       giftCards: json['giftCards'] ?? (json['giftCard'] != null ? [json['giftCard']] : []),
-      completedCount: json['completedCount'] ?? 0,
+      completeCount: json['completedCount'] ?? 0,
+      deliveryLocations:
+          (json['deliveryLocations'] as List<dynamic>?)
+              ?.map((e) => DeliveryLocation.fromJson(e))
+              .toList() ??
+          [],
+      products:
+          (json['products'] as List<dynamic>?)
+              ?.map((e) => ProductModel.fromJson(e))
+              .toList() ??
+          [],
     );
   }
 }
@@ -198,6 +212,51 @@ class SubscriptionTargetModel {
       type: json['type'] ?? '',
       label: json['label'] ?? '',
       labelAr: json['labelAr'] ?? '',
+      image: json['image'] ?? '',
+    );
+  }
+}
+class DeliveryLocation {
+  final String id;
+  final String name;
+  final String nameAr;
+  final String address;
+
+  DeliveryLocation({
+    required this.id,
+    required this.name,
+    required this.nameAr,
+    required this.address,
+  });
+
+  factory DeliveryLocation.fromJson(Map<String, dynamic> json) {
+    return DeliveryLocation(
+      id: json['id'] ?? '',
+      name: json['name'] ?? '',
+      nameAr: json['nameAr'] ?? '',
+      address: json['address'] ?? '',
+    );
+  }
+}
+
+class ProductModel {
+  final String id;
+  final String name;
+  final String nameAr;
+  final String image;
+
+  ProductModel({
+    required this.id,
+    required this.name,
+    required this.nameAr,
+    required this.image,
+  });
+
+  factory ProductModel.fromJson(Map<String, dynamic> json) {
+    return ProductModel(
+      id: json['id'] ?? '',
+      name: json['name'] ?? '',
+      nameAr: json['nameAr'] ?? '',
       image: json['image'] ?? '',
     );
   }

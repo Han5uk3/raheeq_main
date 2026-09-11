@@ -1522,6 +1522,12 @@ abstract class AppLocalizations {
   /// **'No. of Orders'**
   String get no_of_orders;
 
+  /// No description provided for @products.
+  ///
+  /// In en, this message translates to:
+  /// **'Products'**
+  String get products;
+
   /// No description provided for @payment_was_cancelled.
   ///
   /// In en, this message translates to:
@@ -1551,6 +1557,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Pay with Card'**
   String get pay_with_card;
+
+  /// No description provided for @delivery_locations.
+  ///
+  /// In en, this message translates to:
+  /// **'Delivery Locations'**
+  String get delivery_locations;
 
   /// No description provided for @payment_method.
   ///

@@ -756,6 +756,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get no_of_orders => 'No. of Orders';
 
   @override
+  String get products => 'Products';
+
+  @override
   String get payment_was_cancelled => 'Payment was cancelled';
 
   @override
@@ -769,6 +772,9 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pay_with_card => 'Pay with Card';
+
+  @override
+  String get delivery_locations => 'Delivery Locations';
 
   @override
   String get payment_method => 'Payment Method';
