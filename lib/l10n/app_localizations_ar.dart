@@ -754,6 +754,9 @@ class AppLocalizationsAr extends AppLocalizations {
   String get no_of_orders => 'عدد التوصيلات';
 
   @override
+  String get products => 'المنتجات';
+
+  @override
   String get payment_was_cancelled => 'تم إلغاء عملية الدفع';
 
   @override
@@ -767,6 +770,9 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get pay_with_card => 'الدفع';
+
+  @override
+  String get delivery_locations => 'مواقع التوصيل';
 
   @override
   String get payment_method => 'طريقة الدفع';

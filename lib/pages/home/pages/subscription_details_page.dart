@@ -363,8 +363,6 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
     double size,
   ) {
     final date = DateTime(month.year, month.month, day);
-    final now = DateTime.now();
-    final isToday = date == DateTime(now.year, now.month, now.day);
     final isDelivery = deliveryDays.containsKey(date);
     final fill = isDelivery
         ? (deliveryDays[date]! ? Colors.green : AppColors.buttonBlueDark)
@@ -378,9 +376,6 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
         decoration: BoxDecoration(
           color: fill?.withAlpha(40),
           borderRadius: BorderRadius.circular(6),
-          border: isToday && fill == null
-              ? Border.all(color: AppColors.buttonBlueDark, width: 1.5)
-              : null,
         ),
         child: FittedBox(
           fit: BoxFit.scaleDown,
@@ -391,7 +386,7 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
                 '$day',
                 style: TextStyle(
                   fontSize: 12,
-                  fontWeight: isDelivery || isToday
+                  fontWeight: isDelivery
                       ? FontWeight.bold
                       : FontWeight.normal,
                   // The tint carries the status, so the numeral stays high contrast.
@@ -540,10 +535,20 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
             _buildGiftInvoiceButtonRow(),
           ],
           _buildDurationInfoCard(isAr),
+          if (_details!.deliveryLocations.isNotEmpty) ...[
+            const SizedBox(height: 24),
+
+            _buildDeliveryLocationsCard(isAr),
+          ],
+          if (_details!.products.isNotEmpty) ...[
+            const SizedBox(height: 24),
+            _buildProductsCard(isAr),
+          ],
           if (_details!.deliveries.isNotEmpty) ...[
             const SizedBox(height: 24),
             _buildDeliveryCalendar(isAr),
           ],
+         
 
           if (shouldShowDeliveries) ...[
             const SizedBox(height: 24),
@@ -572,6 +577,146 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
               ),
           ],
         ],
+      ),
+    );
+  }
+
+Widget _buildProductsCard(bool isAr) {
+    return Material(
+      elevation: 2,
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                AppLocalizations.of(context)!.products,
+                style: TextStyle(fontSize: 14, color: AppColors.black),
+              ),
+              Divider(height: 24),
+              ..._details!.products.map((product) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Container(
+                    padding: const EdgeInsets.only(
+                      left: 8,
+                      right: 8,
+                      top: 8,
+                      bottom: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: AppColors.buttonBlueDark),
+                    ),
+                    child: Row(
+                      children: [
+                        CachedNetworkImage(
+                          imageUrl: product.image,
+                          width: 40,
+                          height: 40,
+                          fit: BoxFit.cover,
+                          placeholder: (context, url) => Container(
+                            width: 40,
+                            height: 40,
+                            color: Colors.grey[300],
+                          ),
+                          errorWidget: (context, url, error) => Icon(
+                            Icons.broken_image,
+                            size: 40,
+                            color: Colors.grey[400],
+                          ),
+                        ),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            isAr ? product.nameAr : product.name,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.black,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDeliveryLocationsCard(bool isAr) {
+    final locations = _details!.deliveryLocations;
+    // if (locations.isEmpty) return SizedBox.shrink();
+
+    return Material(
+      elevation: 2,
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.all(8),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              Text(
+                AppLocalizations.of(context)!.delivery_locations,
+                style: TextStyle(fontSize: 14, color: AppColors.black),
+              ),
+              Divider(height: 24),
+              ...locations.map((location) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 4),
+                  child: Container(
+                    padding: const EdgeInsets.only(
+                      left: 8,
+                      right: 8,
+                      top: 8,
+                      bottom: 8,
+                    ),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: AppColors.buttonBlueDark),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(
+                          Icons.location_on,
+                          size: 16,
+                          color: AppColors.buttonBlueDark,
+                        ),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            isAr ? location.nameAr : location.name,
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.black,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }),
+            ],
+          ),
+        ),
       ),
     );
   }
@@ -880,7 +1025,7 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
               child: Center(
                 child: Text(
                   AppLocalizations.of(context)!.delivered_x_of_y_orders(
-                    _details?.completedCount ?? 0,
+                    _details?.completeCount ?? 0,
                     _details?.ordersCount ?? 0,
                   ),
                   style: const TextStyle(
@@ -897,18 +1042,7 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
     );
   }
 
-  Widget _buildDetailRow(String label, String value, {bool isBold = false}) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      children: [
-        Text(label, style: const TextStyle(color: Colors.grey, fontSize: 14)),
-        Text(
-          value,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-        ),
-      ],
-    );
-  }
+ 
 
   Widget _buildDeliveryCard(SubscriptionDeliveryModel delivery, bool isAr) {
     String dateFormat(DateTime date) => Formatters.formatDate(context, date);
@@ -1197,7 +1331,7 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
     final bool hasCounts = subscription.ordersCount > 0;
     final int total = hasCounts ? subscription.ordersCount : 10;
     final int completed = hasCounts
-        ? subscription.completedCount.clamp(0, total)
+        ? subscription.completeCount.clamp(0, total)
         : 1;
 
     return Container(
