@@ -49,7 +49,12 @@ class OrdersFilterSelection {
   OrderPeriodParams? resolvePeriodParams() {
     if (period == null) return null;
     final now = DateTime.now();
-    String fmt(DateTime d) => DateFormat('yyyy-MM-dd').format(d);
+    // Pinned to en_US: these are query params, not display text, so they must
+    // stay ASCII whatever locale intl is defaulting to. Left bare, the digits
+    // follow Intl.getCurrentLocale() and an Arabic default would send
+    // '٢٠٢٦-٠٦-٢٠' to GET /v1/orders.
+    String fmt(DateTime d) =>
+        DateFormat('yyyy-MM-dd', Formatters.englishLocale).format(d);
 
     switch (period!) {
       case OrderPeriod.thisMonth:

@@ -66,9 +66,19 @@ class Formatters {
   /// `15.00%`.
   static String formatPercentage(num value) => _formatDouble(value.toDouble());
 
+  /// A [DateFormat] that always renders Western digits.
+  ///
+  /// intl takes its digits from the resolved locale's `ZERODIGIT`, and
+  /// `useNativeDigits` defaults to true. Plain `ar` carries no ZERODIGIT so it
+  /// already renders `20`, but `ar_EG` carries U+0660 and would render
+  /// `٢٠ يونيو ٢٠٢٦`. The app shows Western digits in both languages, so pin
+  /// that here rather than depending on which Arabic locale intl lands on.
+  static DateFormat _dateFormat(String pattern, String locale) =>
+      DateFormat(pattern, locale)..useNativeDigits = false;
+
   /// `20 June 2026` in English, `20 يونيو 2026` in Arabic.
   static String formatDate(BuildContext context, DateTime date) =>
-      DateFormat(_datePattern, localeOf(context)).format(date.toLocal());
+      _dateFormat(_datePattern, localeOf(context)).format(date.toLocal());
 
   /// `Friday, 14 August 2026` in English, `الجمعة، 14 أغسطس 2026` in Arabic
   /// (the comma is the Arabic one, U+060C).
@@ -76,13 +86,13 @@ class Formatters {
     final local = date.toLocal();
     final locale = localeOf(context);
     final separator = isArabic(context) ? '، ' : ', ';
-    final weekday = DateFormat(_weekdayPattern, locale).format(local);
-    return '$weekday$separator${DateFormat(_datePattern, locale).format(local)}';
+    final weekday = _dateFormat(_weekdayPattern, locale).format(local);
+    return '$weekday$separator${_dateFormat(_datePattern, locale).format(local)}';
   }
 
   /// `12:30 PM` in English, `12:30 م` in Arabic.
   static String formatTime(BuildContext context, DateTime date) =>
-      DateFormat(_timePattern, localeOf(context)).format(date.toLocal());
+      _dateFormat(_timePattern, localeOf(context)).format(date.toLocal());
 
   /// `20 June 2026, 12:30 PM` in English, `20 يونيو 2026، 12:30 م` in Arabic
   /// (the comma is the Arabic one, U+060C).
@@ -93,7 +103,7 @@ class Formatters {
 
   /// `June 2026` in English, `يونيو 2026` in Arabic.
   static String formatMonthYear(BuildContext context, DateTime date) =>
-      DateFormat(_monthYearPattern, localeOf(context)).format(date.toLocal());
+      _dateFormat(_monthYearPattern, localeOf(context)).format(date.toLocal());
 
   static String formatCount(num value) {
     if (value >= 1000000000) {
