@@ -9,7 +9,7 @@ class SubscriptionDetailsModel extends SubscriptionModel {
   final List<SubscriptionDeliveryModel> deliveries;
   final List<dynamic> giftCards;
   final int completeCount;
-  final List<DeliveryLocation> deliveryLocations;
+  final List<SubscriptionTarget> targets;
   final List<ProductModel> products;
 
   SubscriptionDetailsModel({
@@ -33,11 +33,17 @@ class SubscriptionDetailsModel extends SubscriptionModel {
     required this.deliveries,
     this.giftCards = const [],
     this.completeCount = 0,
-    this.deliveryLocations = const [],
+    this.targets = const [],
     this.products = const [],
   });
 
   factory SubscriptionDetailsModel.fromJson(Map<String, dynamic> json) {
+    final targets =
+        ((json['targets'] ?? json['deliveryLocations']) as List<dynamic>?)
+            ?.map((e) => SubscriptionTarget.fromJson(e))
+            .toList() ??
+        <SubscriptionTarget>[];
+
     return SubscriptionDetailsModel(
       id: json['id'] ?? '',
       subscriptionNumber: json['subscriptionNumber'] ?? '',
@@ -55,8 +61,14 @@ class SubscriptionDetailsModel extends SubscriptionModel {
       endDate: json['endDate'] != null
           ? DateTime.parse(json['endDate'])
           : DateTime.now(),
-      targetName: json['target'] != null ? (json['target']['label'] ?? '') : (json['targetName'] ?? ''),
-      targetNameAr: json['target'] != null ? (json['target']['labelAr'] ?? '') : (json['targetNameAr'] ?? ''),
+      targetName: json['target'] != null
+          ? (json['target']['label'] ?? '')
+          : (json['targetName'] ??
+                (targets.isNotEmpty ? targets.first.name : '')),
+      targetNameAr: json['target'] != null
+          ? (json['target']['labelAr'] ?? '')
+          : (json['targetNameAr'] ??
+                (targets.isNotEmpty ? targets.first.nameAr : '')),
       monthsCount: json['monthsCount'],
       ordersCount: json['ordersCount'] ?? 0,
       paymentMethod: json['paymentMethod'] ?? '',
@@ -69,11 +81,7 @@ class SubscriptionDetailsModel extends SubscriptionModel {
           [],
       giftCards: json['giftCards'] ?? (json['giftCard'] != null ? [json['giftCard']] : []),
       completeCount: json['completedCount'] ?? 0,
-      deliveryLocations:
-          (json['deliveryLocations'] as List<dynamic>?)
-              ?.map((e) => DeliveryLocation.fromJson(e))
-              .toList() ??
-          [],
+      targets: targets,
       products:
           (json['products'] as List<dynamic>?)
               ?.map((e) => ProductModel.fromJson(e))
@@ -216,25 +224,31 @@ class SubscriptionTargetModel {
     );
   }
 }
-class DeliveryLocation {
+class SubscriptionTarget {
   final String id;
+  final String type;
   final String name;
   final String nameAr;
   final String address;
+  final String image;
 
-  DeliveryLocation({
+  SubscriptionTarget({
     required this.id,
+    this.type = '',
     required this.name,
     required this.nameAr,
-    required this.address,
+    this.address = '',
+    this.image = '',
   });
 
-  factory DeliveryLocation.fromJson(Map<String, dynamic> json) {
-    return DeliveryLocation(
+  factory SubscriptionTarget.fromJson(Map<String, dynamic> json) {
+    return SubscriptionTarget(
       id: json['id'] ?? '',
+      type: json['type'] ?? '',
       name: json['name'] ?? '',
       nameAr: json['nameAr'] ?? '',
       address: json['address'] ?? '',
+      image: json['image'] ?? '',
     );
   }
 }

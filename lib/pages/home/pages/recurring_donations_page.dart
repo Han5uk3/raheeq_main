@@ -556,82 +556,155 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
         : '';
   }
 
-  Widget _buildShimmerLoading() {
-    return Shimmer.fromColors(
-      key: const ValueKey('loader'),
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
-      child: ListView.separated(
-        physics: const ClampingScrollPhysics(),
-        padding: const EdgeInsets.all(16),
-        itemCount: 5,
-        separatorBuilder: (context, index) => const SizedBox(height: 12),
-        itemBuilder: (context, index) {
-          return Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: Colors.white),
+  /// Height of one line of text at [fontSize], measured with the font, locale
+  /// and text scale the loaded card will use.
+  ///
+  /// Arabic resolves to a taller fallback face than the Latin one — 19px to 17
+  /// at a font size of 12 — so a bar with a hardcoded height leaves the
+  /// skeleton and the loaded card at different heights in one locale or the
+  /// other, and the list shifts as it loads.
+  double _lineHeight(double fontSize) {
+    // Two words, because a space splits the line into runs and pulls in the
+    // Arabic face the labels on these cards actually render in.
+    final sample = Localizations.localeOf(context).languageCode == 'ar'
+        ? 'نص عربي'
+        : 'Text';
+    final painter = TextPainter(
+      text: TextSpan(
+        text: sample,
+        // The style a card's Text resolves to: Material hands its subtree
+        // bodyMedium, which carries the theme's font family and fallbacks.
+        style: (Theme.of(context).textTheme.bodyMedium ?? const TextStyle())
+            .copyWith(fontSize: fontSize),
+      ),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+      // The locale picks the font fallback, the same way a Text does.
+      locale: Localizations.maybeLocaleOf(context),
+      textHeightBehavior: DefaultTextHeightBehavior.maybeOf(context),
+      maxLines: 1,
+    )..layout();
+
+    return painter.height;
+  }
+
+  /// One placeholder shape.
+  ///
+  /// Painted white because [Shimmer] masks its subtree with [BlendMode.srcIn]:
+  /// only what the skeleton paints picks up the sweep, so the card itself has
+  /// to stay outside the shimmer to keep its white fill and elevation.
+  Widget _skeletonBox({
+    double? width,
+    required double height,
+    double radius = 4,
+  }) {
+    return Container(
+      width: width,
+      height: height,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(radius),
+      ),
+    );
+  }
+
+  /// A bar standing in for a line of text, sized to the line it replaces.
+  Widget _skeletonTextBar({required double width, required double fontSize}) {
+    return _skeletonBox(width: width, height: _lineHeight(fontSize));
+  }
+
+  /// Mirrors [_buildSubscriptionCard]: number and status pill over the plan
+  /// image and name, then the date labels, progress bar and date chips.
+  Widget _buildShimmerCard() {
+    return Material(
+      elevation: 2,
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+      child: Shimmer.fromColors(
+        baseColor: Colors.grey[300]!,
+        highlightColor: Colors.grey[100]!,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  _skeletonTextBar(width: 96, fontSize: 14),
+                  // The pill wraps its label in 6px of vertical padding.
+                  _skeletonBox(
+                    width: 88,
+                    height: _lineHeight(12) + 12,
+                    radius: 10,
+                  ),
+                ],
+              ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 26,
+            Divider(
+              height: 1,
+              color: Colors.grey.shade300,
+              indent: 8,
+              endIndent: 8,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      _skeletonBox(width: 40, height: 40, radius: 8),
+                      const SizedBox(width: 8),
+                      _skeletonTextBar(width: 140, fontSize: 16),
+                    ],
                   ),
-                  decoration: const BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(16),
-                      topRight: Radius.circular(16),
-                    ),
-                  ),
-                  child: Row(
+                  const SizedBox(height: 8),
+                  Divider(height: 1, color: Colors.grey.shade300),
+                  const SizedBox(height: 8),
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Row(
-                        children: [
-                          Container(
-                            width: 8,
-                            height: 8,
-                            decoration: const BoxDecoration(
-                              color: Colors.white,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Container(width: 60, height: 16, color: Colors.white),
-                        ],
-                      ),
-                      Container(width: 80, height: 14, color: Colors.white),
+                      _skeletonTextBar(width: 70, fontSize: 12),
+                      _skeletonTextBar(width: 70, fontSize: 12),
                     ],
                   ),
-                ),
-                Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                  const SizedBox(height: 8),
+                  _skeletonBox(width: double.infinity, height: 10, radius: 100),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Container(width: 150, height: 20, color: Colors.white),
-                      const SizedBox(height: 16),
-                      Container(
-                        width: double.infinity,
-                        height: 70,
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
+                      // Date chips pad their label by 4px top and bottom.
+                      _skeletonBox(
+                        width: 76,
+                        height: _lineHeight(10) + 8,
+                        radius: 8,
+                      ),
+                      _skeletonBox(
+                        width: 76,
+                        height: _lineHeight(10) + 8,
+                        radius: 8,
                       ),
                     ],
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          );
-        },
+          ],
+        ),
       ),
+    );
+  }
+
+  Widget _buildShimmerLoading() {
+    return ListView.separated(
+      key: const ValueKey('loader'),
+      physics: const ClampingScrollPhysics(),
+      padding: const EdgeInsets.all(16),
+      itemCount: 4,
+      separatorBuilder: (context, index) => const SizedBox(height: 12),
+      itemBuilder: (context, index) => _buildShimmerCard(),
     );
   }
 }
