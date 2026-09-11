@@ -232,7 +232,12 @@ class _MyChillersPageState extends State<MyChillersPage> {
                               : ListView.builder(
                                   key: const ValueKey('content'),
                                   physics: const ClampingScrollPhysics(),
-                                  padding: const EdgeInsets.all(16),
+                                  padding: const EdgeInsets.only(
+                                    top: 16,
+                                    left: 16,
+                                    right: 16,
+                                    bottom: 60,
+                                  ),
                                   itemCount: visibleChillers.length,
                                   itemBuilder: (context, index) {
                                     return Padding(
