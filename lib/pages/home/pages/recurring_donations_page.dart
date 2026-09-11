@@ -564,8 +564,10 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
   /// skeleton and the loaded card at different heights in one locale or the
   /// other, and the list shifts as it loads.
   double _lineHeight(double fontSize) {
+    // Two words, because a space splits the line into runs and pulls in the
+    // Arabic face the labels on these cards actually render in.
     final sample = Localizations.localeOf(context).languageCode == 'ar'
-        ? 'نص'
+        ? 'نص عربي'
         : 'Text';
     final painter = TextPainter(
       text: TextSpan(
@@ -577,6 +579,9 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
       ),
       textDirection: Directionality.of(context),
       textScaler: MediaQuery.textScalerOf(context),
+      // The locale picks the font fallback, the same way a Text does.
+      locale: Localizations.maybeLocaleOf(context),
+      textHeightBehavior: DefaultTextHeightBehavior.maybeOf(context),
       maxLines: 1,
     )..layout();
 
@@ -673,12 +678,12 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
                       // Date chips pad their label by 4px top and bottom.
                       _skeletonBox(
                         width: 76,
-                        height: _lineHeight(10),
+                        height: _lineHeight(10) + 8,
                         radius: 8,
                       ),
                       _skeletonBox(
                         width: 76,
-                        height: _lineHeight(10),
+                        height: _lineHeight(10) + 8,
                         radius: 8,
                       ),
                     ],

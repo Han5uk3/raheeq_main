@@ -929,8 +929,10 @@ Widget _buildProductsCard(bool isAr) {
   /// skeleton and the loaded card at different heights in one locale or the
   /// other, and the page shifts as it loads.
   double _lineHeight(double fontSize) {
+    // Two words, because a space splits the line into runs and pulls in the
+    // Arabic face the labels on these cards actually render in.
     final sample = Localizations.localeOf(context).languageCode == 'ar'
-        ? 'نص'
+        ? 'نص عربي'
         : 'Text';
     final painter = TextPainter(
       text: TextSpan(
@@ -942,6 +944,9 @@ Widget _buildProductsCard(bool isAr) {
       ),
       textDirection: Directionality.of(context),
       textScaler: MediaQuery.textScalerOf(context),
+      // The locale picks the font fallback, the same way a Text does.
+      locale: Localizations.maybeLocaleOf(context),
+      textHeightBehavior: DefaultTextHeightBehavior.maybeOf(context),
       maxLines: 1,
     )..layout();
 
