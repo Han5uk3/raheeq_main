@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'dart:io';
 
 import 'package:freshchat_sdk/freshchat_sdk.dart';
@@ -45,6 +46,9 @@ class _ProfileTabState extends State<ProfileTab> {
   User? _currentUser;
   int _unreadNotificationsCount = 0;
   String _appVersion = '';
+
+  /// Anchors the iPad share popover to the button that opened it.
+  final GlobalKey _shareButtonKey = GlobalKey();
 
   @override
   void initState() {
@@ -758,18 +762,45 @@ class _ProfileTabState extends State<ProfileTab> {
     }
   }
 
-  void _shareApp() {
+  Future<void> _shareApp() async {
     final message = AppLocalizations.of(context)!.share_app_message(
       Platform.isAndroid ? _shareLinkAndroid : _shareLinkIOS,
     );
-    SharePlus.instance.share(ShareParams(text: message));
+
+    // On iPad the share sheet is a popover, and UIKit needs an anchor rect in
+    // window coordinates to hang it off. Without one the plugin rejects the
+    // call before anything is shown, which is why the button looked dead
+    // there. iPhone and Android present the sheet full width and ignore it.
+    final box =
+        _shareButtonKey.currentContext?.findRenderObject() as RenderBox?;
+    final origin = box != null && box.hasSize
+        ? box.localToGlobal(Offset.zero) & box.size
+        : null;
+
+    try {
+      await SharePlus.instance.share(
+        ShareParams(text: message, sharePositionOrigin: origin),
+      );
+    } catch (e) {
+      // The result used to be dropped on the floor, so every failure here read
+      // as an unresponsive button. Say something instead.
+      log('Failed to open the share sheet: $e', name: 'ProfileTab');
+      if (!mounted) return;
+      CustomSnackbar.show(
+        context: context,
+        isError: true,
+        message: AppLocalizations.of(context)!.error_occurred_try_again,
+      );
+    }
   }
 
   Widget _buildSocialButton({
     required FaIconData icon,
     required VoidCallback onTap,
+    Key? key,
   }) {
     return Material(
+      key: key,
       color: AppColors.buttonBlueDark,
       shape: const CircleBorder(),
       child: InkWell(
@@ -802,7 +833,10 @@ class _ProfileTabState extends State<ProfileTab> {
           onTap: () => _openSocialLink(_xUrl),
         ),
         const SizedBox(width: 16),
-        _buildSocialButton(icon: FontAwesomeIcons.shareNodes, onTap: _shareApp,
+        _buildSocialButton(
+          key: _shareButtonKey,
+          icon: FontAwesomeIcons.shareNodes,
+          onTap: _shareApp,
         ),
       ],
     );
