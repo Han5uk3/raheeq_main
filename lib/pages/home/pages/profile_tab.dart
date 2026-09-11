@@ -1017,8 +1017,7 @@ class _ProfileTabState extends State<ProfileTab> {
                   ),
                   child: Center(
                     child: Text(
-                      _currentUser!.firstName.substring(0, 1).toUpperCase() +
-                          _currentUser!.lastName.substring(0, 1).toUpperCase(),
+                      _currentUser!.firstName.substring(0, 1).toUpperCase(),
                       style: const TextStyle(
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
