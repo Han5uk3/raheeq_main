@@ -1,4 +1,4 @@
-package com.rahiq.app
+package com.rahiq.main
 
 import android.content.ContentValues
 import android.os.Build

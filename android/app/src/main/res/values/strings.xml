@@ -15,5 +15,5 @@
       a resource cannot use that placeholder, so the value is spelled out and
       the two have to be changed together if applicationId ever does.
     -->
-    <string name="freshchat_file_provider_authority" translatable="false">com.rahiq.app.provider</string>
+    <string name="freshchat_file_provider_authority" translatable="false">com.rahiq.main.provider</string>
 </resources>
