@@ -211,7 +211,6 @@ class _ReviewOrderPageState extends State<ReviewOrderPage>
       } else {
         response = await apiService.createCheckoutQuick(items: items);
       }
-      log('createCheckout response: ${response.data}');
 
       final checkoutDataMap = response.data['data'];
       final checkoutData = Checkout.fromJson(checkoutDataMap);

@@ -441,10 +441,6 @@ class FreshchatService {
         return null;
       }
 
-      log(
-        "Generating Freshchat token from backend...",
-        name: "FreshchatService",
-      );
       final response = await ApiService().generateFreshchatToken(freshchatUuid);
       if (response.statusCode != 200 || response.data['success'] != true) {
         log(

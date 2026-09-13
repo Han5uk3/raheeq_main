@@ -4,6 +4,7 @@ import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
+import 'package:raheeq_main/api/api_logger.dart';
 
 enum NetworkStatus { online, poor, offline }
 
@@ -26,7 +27,7 @@ class NetworkMonitor with WidgetsBindingObserver {
       sendTimeout: const Duration(seconds: 3),
       headers: {'Accept': 'application/json'},
     ),
-  );
+  )..interceptors.add(ApiLogger());
 
   StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
   Timer? _timer;
@@ -123,11 +124,6 @@ class NetworkMonitor with WidgetsBindingObserver {
       final response = await _healthDio.get('/health');
       stopwatch.stop();
       final latency = stopwatch.elapsedMilliseconds;
-
-      log(
-        'NetworkMonitor: health check ${response.statusCode} '
-        'in ${latency}ms (warmup=$isWarmup, grace=$inGrace)',
-      );
 
       if (isWarmup) {
         // Don't let the cold-start call affect status at all.

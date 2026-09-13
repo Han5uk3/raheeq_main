@@ -851,7 +851,6 @@ class _LoginState extends State<Login> {
                                               }
                                             }
 
-                                            log("apiservice called");
                                             setState(() => _isLoading = true);
                                             try {
                                               // Arm the SMS retriever before the OTP is

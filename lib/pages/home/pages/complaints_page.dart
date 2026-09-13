@@ -103,17 +103,9 @@ class _ComplaintsPageState extends State<ComplaintsPage> {
       _complaintError = false;
     });
     try {
-      log(
-        'Sending complaint API request: subOrderId=${_selectedOrder!.id}, description=$description',
-        name: 'ComplaintsPage',
-      );
       final res = await ApiService().createComplaint(
         subOrderId: _selectedOrder!.id,
         description: description,
-      );
-      log(
-        'Complaint API response: statusCode=${res.statusCode}, data=${res.data}',
-        name: 'ComplaintsPage',
       );
       if (res.statusCode == 200 || res.statusCode == 201) {
         if (mounted) {

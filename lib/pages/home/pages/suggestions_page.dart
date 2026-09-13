@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/api/apis.dart';
@@ -37,16 +36,8 @@ class _SuggestionsPageState extends State<SuggestionsPage> {
       _suggestionError = false;
     });
     try {
-      log(
-        'Sending feedback API request: message=${_suggestionController.text.trim()}',
-        name: 'SuggestionsPage',
-      );
       final res = await ApiService().createFeedback(
         message: _suggestionController.text.trim(),
-      );
-      log(
-        'Feedback API response: statusCode=${res.statusCode}, data=${res.data}',
-        name: 'SuggestionsPage',
       );
       // The API can reply 200 or 201 on success, so key off the `success`
       // flag rather than a specific status code.

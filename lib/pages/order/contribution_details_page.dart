@@ -118,7 +118,6 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
     try {
       final apiService = ApiService();
       final response = await apiService.applyCoupon(code);
-      log('Apply coupon response: ${response.data}');
       if (response.statusCode == 200 && response.data['success'] == true) {
         setState(() {
           _checkoutData = Checkout.fromJson(response.data['data']);
@@ -455,7 +454,6 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
 
     try {
       final apiService = ApiService();
-      log('Payment Flow: Calling createOrder API...', name: 'CheckoutFlow');
       final response = await apiService.createOrder(
         paymentMethod: paymentMethod,
       );
@@ -466,10 +464,6 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
       final orderNumber = data['orderNumber'];
       final paymentId = data['paymentId'];
       final paymentConfig = data['paymentConfig'];
-      log(
-        'Payment Flow: createOrder Response -> paymentStatus: $paymentStatus, orderId: $orderId, paymentId: $paymentId',
-        name: 'CheckoutFlow',
-      );
 
       if (paymentStatus == 'PAID' || _checkoutData.finalTotal == 0) {
         log(
@@ -657,10 +651,6 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
 
             try {
               final txId = transactionDetails["transactionReference"];
-              log(
-                'Payment Flow: Calling verifyPayment with txId: $txId',
-                name: 'CheckoutFlow',
-              );
               final verifyResponse = await apiService.verifyPayment(
                 paymentId: paymentId,
                 transactionId: txId,

@@ -38,7 +38,6 @@ class _NotificationsPageState extends State<NotificationsPage> {
 
     try {
       final response = await ApiService().getNotifications();
-      log('Get All Notifications Response: ${response.data}');
       if (response.statusCode == 200 && response.data['success'] == true) {
         final data = response.data['data'] as List;
         setState(() {

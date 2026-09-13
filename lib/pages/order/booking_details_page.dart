@@ -1,17 +1,10 @@
-import 'dart:convert';
 import 'dart:developer';
-import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:open_filex/open_filex.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/common_widgets/chiller_refill_badge.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
-import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
-import 'package:raheeq_main/common_widgets/delivery_fee_value.dart';
 import 'package:raheeq_main/common_widgets/payment_method_badge.dart';
-import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/pages/order/payment_details_page.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
@@ -20,8 +13,6 @@ import 'package:raheeq_main/pages/order/proof_media_viewer_page.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:raheeq_main/services/deep_link_service.dart';
-import 'package:raheeq_main/storage/auth_storage.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:video_player/video_player.dart';
 import 'package:raheeq_main/utils/formatters.dart';
 
@@ -57,15 +48,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
     });
 
     try {
-      log(
-        'Fetching order details for orderId: ${widget.orderId}',
-        name: 'BookingDetailsPage',
-      );
       final response = await ApiService().getOrderDetails(widget.orderId);
-      log(
-        'Order details response (${response.statusCode}): ${jsonEncode(response.data)}',
-        name: 'BookingDetailsPage',
-      );
       if (response.statusCode == 200 && response.data['success'] == true) {
         setState(() {
           _order = OrderResponseModel.fromJson(response.data['data']);
@@ -104,7 +87,11 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
         });
       }
     } catch (e) {
-      log('Error fetching order details: $e', name: 'BookingDetailsPage', error: e);
+      log(
+        'Error fetching order details: $e',
+        name: 'BookingDetailsPage',
+        error: e,
+      );
       String errorMessage = 'Failed to load order details';
       if (e is DioException &&
           e.response?.data is Map &&
@@ -118,7 +105,6 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
     }
   }
 
- 
   @override
   Widget build(BuildContext context) {
     // If order_details key doesn't exist, use fallback
@@ -600,7 +586,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                           walletAmount: 0,
                           discountAmount: 0,
                           totalAmount: 0,
-                    ),
+                        ),
                   ),
                 ),
               ),
@@ -638,7 +624,6 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                     Icon(Icons.chevron_right, color: Colors.black),
                   ],
                 ),
-       
               ),
             ),
             const SizedBox(height: 12), // spacing at bottom
@@ -647,10 +632,6 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
           // Delivery Progress
           _buildDeliveryProgressCard(order),
           const SizedBox(height: 12),
-
-
-     
-        
 
           // Customer Review
           if (order.review != null) ...[
@@ -699,14 +680,12 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
 
   /// The delivery fee row, which reads "SAR 25.00  Free" — original struck
   /// through — instead of a bare "SAR 0" when the delivery was free.
- 
+
   Widget _logo(String asset) => SizedBox(
     height: 40,
     width: 40,
     child: Image.asset(asset, fit: BoxFit.contain),
   );
-
- 
 
   Widget _buildInfoRow(String label, String value) {
     return Padding(
@@ -1096,9 +1075,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
 
     List<Widget> proofItems = [];
     for (int i = 0; i < mediaItems.length; i++) {
-      proofItems.add(
-        _buildSmallProofCard(mediaItems[i], i, mediaItems),
-      );
+      proofItems.add(_buildSmallProofCard(mediaItems[i], i, mediaItems));
     }
 
     return _buildPremiumCard(
@@ -1230,8 +1207,6 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
       ),
     );
   }
-
- 
 }
 
 class _VideoPlayerWidget extends StatefulWidget {
