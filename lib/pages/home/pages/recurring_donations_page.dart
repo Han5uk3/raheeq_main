@@ -6,6 +6,7 @@ import 'package:shimmer/shimmer.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
+import 'package:raheeq_main/common_widgets/subscription_status_badge.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/pages/home/home_screen.dart';
 import 'package:raheeq_main/models/subscription_model.dart';
@@ -254,16 +255,6 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
   }
 
   Widget _buildSubscriptionCard(SubscriptionModel subscription, bool isAr) {
-    final bool isActive = subscription.status.toLowerCase() == 'active';
-    final bool isCancelled =
-        subscription.status.toLowerCase() == 'cancelled' ||
-        subscription.status.toLowerCase() == 'failed' ||
-        subscription.status.toLowerCase() == 'expired';
-    final Color statusColor = isActive
-        ? Colors.green
-        : isCancelled 
-        ? Colors.red
-        : AppColors.buttonBlueDark;
     final planName = isAr ? subscription.planNameAr : subscription.planName;
 
     return GestureDetector(
@@ -313,37 +304,7 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
                       ),
                     ),
 
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                      decoration: BoxDecoration(
-                        color: statusColor.withAlpha(40),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      child: Row(
-                        children: [
-                          Container(
-                            width: 8,
-                            height: 8,
-                            decoration: BoxDecoration(
-                              color: statusColor,
-                              shape: BoxShape.circle,
-                            ),
-                          ),
-                          const SizedBox(width: 8),
-                          Text(
-                            _localizeStatus(subscription.status, context),
-                            style: TextStyle(
-                              color: statusColor,
-                              fontWeight: FontWeight.w600,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
+                    SubscriptionStatusBadge(status: subscription.status),
                   ],
                 ),
               ),
@@ -528,32 +489,6 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
       return AppLocalizations.of(context)!.custom;
     }
     return frequency;
-  }
-
-  String _localizeStatus(String status, BuildContext context) {
-    final lowerStatus = status.toLowerCase();
-    if (lowerStatus == 'active') {
-      return AppLocalizations.of(context)!.status_active;
-    }
-    if (lowerStatus == 'cancelled') {
-      return AppLocalizations.of(context)!.status_cancelled;
-    }
-    if (lowerStatus == 'expired') {
-      return AppLocalizations.of(context)!.status_expired;
-    }
-    if (lowerStatus == 'pending') {
-      return AppLocalizations.of(context)!.status_pending;
-    }
-    if (lowerStatus == 'failed') {
-      return AppLocalizations.of(context)!.status_failed;
-    }
-    if (lowerStatus == 'completed') {
-      return AppLocalizations.of(context)!.status_completed;
-    }
-
-    return status.isNotEmpty
-        ? status[0].toUpperCase() + status.substring(1).toLowerCase()
-        : '';
   }
 
   /// Height of one line of text at [fontSize], measured with the font, locale

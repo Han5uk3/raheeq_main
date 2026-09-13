@@ -9,6 +9,12 @@ class SubscriptionDetailsModel extends SubscriptionModel {
   final List<SubscriptionDeliveryModel> deliveries;
   final List<dynamic> giftCards;
   final int completeCount;
+
+  /// Days left on the subscription, counted on the server in Riyadh time.
+  final int? daysLeft;
+
+  /// How far through its duration the subscription is, from 0 to 100.
+  final double progressPercentage;
   final List<SubscriptionTarget> targets;
   final List<ProductModel> products;
 
@@ -33,6 +39,8 @@ class SubscriptionDetailsModel extends SubscriptionModel {
     required this.deliveries,
     this.giftCards = const [],
     this.completeCount = 0,
+    this.daysLeft,
+    this.progressPercentage = 0,
     this.targets = const [],
     this.products = const [],
   });
@@ -70,7 +78,7 @@ class SubscriptionDetailsModel extends SubscriptionModel {
           : (json['targetNameAr'] ??
                 (targets.isNotEmpty ? targets.first.nameAr : '')),
       monthsCount: json['monthsCount'],
-      ordersCount: json['ordersCount'] ?? 0,
+      ordersCount: json['totalOrdersCount'] ?? json['ordersCount'] ?? 0,
       paymentMethod: json['paymentMethod'] ?? '',
       totalAmount: (json['totalAmount'] ?? 0).toDouble(),
       invoiceUrl: json['invoiceUrl'],
@@ -80,7 +88,10 @@ class SubscriptionDetailsModel extends SubscriptionModel {
               .toList() ??
           [],
       giftCards: json['giftCards'] ?? (json['giftCard'] != null ? [json['giftCard']] : []),
-      completeCount: json['completedCount'] ?? 0,
+      completeCount:
+          json['completedOrdersCount'] ?? json['completedCount'] ?? 0,
+      daysLeft: (json['daysLeft'] as num?)?.toInt(),
+      progressPercentage: (json['progressPercentage'] ?? 0).toDouble(),
       targets: targets,
       products:
           (json['products'] as List<dynamic>?)
@@ -97,6 +108,9 @@ class SubscriptionDeliveryModel {
   final DateTime? scheduledDate;
   final DateTime createdAt;
   final String status;
+
+  /// The delivery day as `YYYY-MM-DD`, already in Riyadh time.
+  final String? date;
  
 
   SubscriptionDeliveryModel({
@@ -105,6 +119,7 @@ class SubscriptionDeliveryModel {
     this.scheduledDate,
     required this.createdAt,
     required this.status,
+    this.date,
   });
 
   factory SubscriptionDeliveryModel.fromJson(Map<String, dynamic> json) {
@@ -118,6 +133,7 @@ class SubscriptionDeliveryModel {
           ? DateTime.parse(json['createdAt'])
           : DateTime.now(),
       status: json['status'] ?? 'PENDING',
+      date: json['date'],
       
     );
   }
@@ -210,12 +226,14 @@ class ProductModel {
   final String name;
   final String nameAr;
   final String image;
+  final int quantity;
 
   ProductModel({
     required this.id,
     required this.name,
     required this.nameAr,
     required this.image,
+    this.quantity = 0,
   });
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
@@ -224,6 +242,7 @@ class ProductModel {
       name: json['name'] ?? '',
       nameAr: json['nameAr'] ?? '',
       image: json['image'] ?? '',
+      quantity: json['quantity'] ?? 0,
     );
   }
 }
