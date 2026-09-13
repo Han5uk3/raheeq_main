@@ -1092,7 +1092,6 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
         campaignId: widget.campaign.id,
         items: items,
       );
-      log('createCheckoutCampaign response: ${response.data}');
 
       final checkoutDataMap = response.data['data'];
       final checkoutData = Checkout.fromJson(checkoutDataMap);

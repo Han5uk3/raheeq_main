@@ -249,7 +249,9 @@ class MainApp extends StatelessWidget {
                 textSelectionTheme: TextSelectionThemeData(
                   cursorColor: AppColors.buttonBlueDark,
                   selectionHandleColor: AppColors.buttonBlueDark,
-                  selectionColor: AppColors.buttonBlueDark.withOpacity(0.3),
+                  selectionColor: AppColors.buttonBlueDark.withValues(
+                    alpha: 0.3,
+                  ),
                 ),
                 useMaterial3: true,
               );

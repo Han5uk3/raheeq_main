@@ -36,7 +36,6 @@ class _MyChillersPageState extends State<MyChillersPage> {
   Future<void> _fetchChillers() async {
     try {
       final response = await _apiService.getMyChillers();
-      log('My Chillers API Response: ${response.data}');
 
       if (response.statusCode == 200 && response.data['success'] == true) {
         final List<dynamic> data = response.data['data'] ?? [];

@@ -2,11 +2,11 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'dart:developer';
 import 'dart:convert';
 import 'dart:async';
 import '../storage/auth_storage.dart';
 import '../storage/app_storage.dart';
+import 'package:raheeq_main/api/api_logger.dart';
 import 'package:raheeq_main/main.dart';
 
 import 'package:raheeq_main/services/notification_service.dart';
@@ -47,10 +47,6 @@ class ApiService {
 
   static const String _retryKey = "_retry_count";
 
-  /// Set in [Options.extra] to a log name to log a request in full under it as
-  /// it goes out, with the Accept-Language header the interceptor adds.
-  static const String _logRequestKey = "_log_full_request";
-
   /// How long before actual expiry we treat the access token as "expiring
   /// soon" and proactively refresh it, so requests don't race the clock.
   static const Duration _expiryBuffer = Duration(seconds: 20);
@@ -88,7 +84,7 @@ class ApiService {
         e.error is SocketException;
   }
 
-  void _notifyConnectionError(DioException e, {String context = ''}) {
+  void _notifyConnectionError() {
     final now = DateTime.now();
     if (_lastConnectionErrorShown != null &&
         now.difference(_lastConnectionErrorShown!) < _connectionErrorThrottle) {
@@ -96,26 +92,7 @@ class ApiService {
     }
     _lastConnectionErrorShown = now;
 
-    _logNetwork(
-      "No internet / server unreachable${context.isNotEmpty ? ' ($context)' : ''}: "
-      "${e.requestOptions.method} ${e.requestOptions.path} — ${e.message}",
-    );
     onConnectionError?.call();
-  }
-
-  void _logNetwork(String message) {
-    debugPrint("[NETWORK] ${DateTime.now().toIso8601String()} $message");
-  }
-
-  void _logFullRequest(RequestOptions options, String logName) {
-    // Falls back to toString so an unencodable value can't fail the request.
-    final encoder = JsonEncoder.withIndent('  ', (value) => value.toString());
-    log(
-      'API REQUEST: ${options.method} ${options.uri}\n'
-      'Headers: ${encoder.convert(options.headers)}\n'
-      'Body: ${encoder.convert(options.data)}',
-      name: logName,
-    );
   }
 
   /// Called once when the session is conclusively invalid (refresh token
@@ -245,16 +222,11 @@ class ApiService {
           headers: {'Content-Type': 'application/json'},
         ),
       ) {
-    _dio.interceptors.add(
+    _dio.interceptors.addAll([
       InterceptorsWrapper(
         onRequest: (options, handler) async {
           final locale = AppStorage.localeCode;
           options.headers["Accept-Language"] = locale.isNotEmpty ? locale : 'ar';
-
-          final logName = options.extra[_logRequestKey];
-          if (logName is String) {
-            _logFullRequest(options, logName);
-          }
 
           if (_isAuthExempt(options.path)) {
             return handler.next(options);
@@ -282,9 +254,16 @@ class ApiService {
 
           return handler.next(options);
         },
+      ),
+      // Between the two wrappers on purpose: after the one above so requests
+      // are logged with the headers it adds, and before the one below because
+      // resolving a 401 with the retried response skips every later
+      // interceptor, so the 401 itself would never be logged.
+      ApiLogger(),
+      InterceptorsWrapper(
         onError: (DioException error, handler) async {
           if (_isConnectionError(error)) {
-            _notifyConnectionError(error);
+            _notifyConnectionError();
           }
 
           final requestOptions = error.requestOptions;
@@ -310,7 +289,7 @@ class ApiService {
             // error and let the user retry the action.
             _log("Refresh errored (network/server), not logging out: $e");
             if (e is DioException && _isConnectionError(e)) {
-              _notifyConnectionError(e, context: 'token refresh');
+              _notifyConnectionError();
             }
             return handler.next(error);
           }
@@ -331,7 +310,7 @@ class ApiService {
           }
         },
       ),
-    );
+    ]);
   }
 
   /// Call this ONCE at splash/startup to decide where to route the user.
@@ -380,15 +359,12 @@ class ApiService {
     required String countryCode,
   }) async {
     try {
-      log('Requesting OTP for $countryCode $phoneNumber', name: 'AuthFlow');
       final response = await _dio.post(
         '/auth/request-otp',
         data: {'phoneNumber': phoneNumber, 'countryCode': countryCode},
       );
-      log('Request OTP response data: ${response.data}', name: 'AuthFlow');
       return response;
     } catch (e) {
-      log('Error requesting OTP: $e', name: 'AuthFlow', error: e);
       rethrow;
     }
   }
@@ -403,7 +379,6 @@ class ApiService {
     String? deviceId,
   }) async {
     try {
-      log('Verifying OTP for $countryCode $phoneNumber', name: 'AuthFlow');
       fcmToken ??= await NotificationService().getToken();
       final data = {
         'countryCode': countryCode,
@@ -415,17 +390,10 @@ class ApiService {
         'locale': localeNotifier.value.languageCode,
       };
 
-      final response = await _dio.post(
-        '/auth/verify-otp',
-        data: data,
-        options: Options(extra: {_logRequestKey: 'AuthFlow'}),
-      );
-      log('Verify OTP response data: ${response.data}', name: 'AuthFlow');
+      final response = await _dio.post('/auth/verify-otp', data: data);
 
-      log('Verify OTP response: ${response.statusCode}', name: 'AuthFlow');
       // Automatically store token if login successful
       if (response.statusCode == 200 && response.data['success'] == true) {
-        log('OTP verified successfully, saving tokens.', name: 'AuthFlow');
         final resData = response.data['data'];
         if (resData['userExists'] == true) {
           await AuthStorage.saveTokens(
@@ -438,7 +406,6 @@ class ApiService {
 
       return response;
     } catch (e) {
-      log('Error verifying OTP: $e', name: 'AuthFlow', error: e);
       rethrow;
     }
   }
@@ -457,7 +424,6 @@ class ApiService {
     String? deviceId,
   }) async {
     try {
-      log('Registering user: $phoneNumber', name: 'AuthFlow');
       fcmToken ??= await NotificationService().getToken();
       final data = {
         'countryCode': countryCode,
@@ -475,10 +441,8 @@ class ApiService {
 
       final response = await _dio.post('/auth/register', data: data);
 
-      log('Register response: ${response.statusCode}', name: 'AuthFlow');
       if ((response.statusCode == 200 || response.statusCode == 201) &&
           response.data['success'] == true) {
-        log('User registered successfully, saving tokens.', name: 'AuthFlow');
         final resData = response.data['data'];
         await AuthStorage.saveTokens(
           accessToken: resData['accessToken'],
@@ -489,7 +453,6 @@ class ApiService {
 
       return response;
     } catch (e) {
-      log('Error during registration: $e', name: 'AuthFlow', error: e);
       rethrow;
     }
   }
@@ -502,7 +465,6 @@ class ApiService {
     String? deviceId,
   }) async {
     try {
-      log('Initiating Google Login', name: 'AuthFlow');
       fcmToken ??= await NotificationService().getToken();
       final data = {
         'idToken': idToken,
@@ -512,15 +474,9 @@ class ApiService {
         'locale': localeNotifier.value.languageCode,
       };
 
-      final response = await _dio.post(
-        '/auth/google',
-        data: data,
-        options: Options(extra: {_logRequestKey: 'AuthFlow'}),
-      );
+      final response = await _dio.post('/auth/google', data: data);
 
-      log('Google Login response: ${response.statusCode}', name: 'AuthFlow');
       if (response.statusCode == 200 && response.data['success'] == true) {
-        log('Google Login successful, saving tokens.', name: 'AuthFlow');
         final resData = response.data['data'];
         if (resData['userExists'] == true) {
           await AuthStorage.saveTokens(
@@ -533,7 +489,6 @@ class ApiService {
 
       return response;
     } catch (e) {
-      log('Error during Google Login: $e', name: 'AuthFlow', error: e);
       rethrow;
     }
   }
@@ -546,7 +501,6 @@ class ApiService {
     String? deviceId,
   }) async {
     try {
-      log('Initiating Apple Login', name: 'AuthFlow');
       fcmToken ??= await NotificationService().getToken();
       final data = {
         'idToken': idToken,
@@ -556,15 +510,9 @@ class ApiService {
         'locale': localeNotifier.value.languageCode,
       };
 
-      final response = await _dio.post(
-        '/auth/apple',
-        data: data,
-        options: Options(extra: {_logRequestKey: 'AuthFlow'}),
-      );
+      final response = await _dio.post('/auth/apple', data: data);
 
-      log('Apple Login response: ${response.statusCode}', name: 'AuthFlow');
       if (response.statusCode == 200 && response.data['success'] == true) {
-        log('Apple Login successful, saving tokens.', name: 'AuthFlow');
         final resData = response.data['data'];
         if (resData['userExists'] == true) {
           await AuthStorage.saveTokens(
@@ -577,7 +525,6 @@ class ApiService {
 
       return response;
     } catch (e) {
-      log('Error during Apple Login: $e', name: 'AuthFlow', error: e);
       rethrow;
     }
   }
@@ -620,7 +567,7 @@ class ApiService {
           connectTimeout: const Duration(seconds: 10),
           receiveTimeout: const Duration(seconds: 10),
         ),
-      );
+      )..interceptors.add(ApiLogger());
 
       final response = await dioRefresh.post(
         '/auth/refresh-token',
@@ -668,7 +615,6 @@ class ApiService {
     String? fcmToken,
   }) async {
     try {
-      log('Updating locale to $locale', name: 'LocaleAPI');
       fcmToken ??= await NotificationService().getToken();
       final response = await _dio.patch(
         '/me/locale',
@@ -676,20 +622,9 @@ class ApiService {
           'locale': locale,
           if (fcmToken != null && fcmToken.isNotEmpty) 'fcmToken': fcmToken,
         },
-        options: Options(extra: {_logRequestKey: 'LocaleAPI'}),
-      );
-      log(
-        'API RESPONSE [${response.statusCode}]: ${response.data}',
-        name: 'LocaleAPI',
       );
       return response;
     } catch (e) {
-      log(
-        'Error updating locale: $e'
-        '${e is DioException ? '\nResponse: ${e.response?.data}' : ''}',
-        name: 'LocaleAPI',
-        error: e,
-      );
       rethrow;
     }
   }
@@ -703,15 +638,7 @@ class ApiService {
       if (etag != null && etag.isNotEmpty) {
         options.headers = {'If-None-Match': etag};
       }
-      log(
-        'API REQUEST: GET /me${etag != null && etag.isNotEmpty ? ' (If-None-Match: $etag)' : ''}',
-        name: 'AccountAPI',
-      );
       final response = await _dio.get('/me', options: options);
-      log(
-        'API RESPONSE [${response.statusCode}]: ${response.data}',
-        name: 'AccountAPI',
-      );
 
       if (response.statusCode == 200 && response.data['success'] == true) {
         final resData = response.data['data'];
@@ -720,7 +647,6 @@ class ApiService {
 
       return response;
     } catch (e) {
-      log('Error fetching profile: $e', name: 'AccountAPI', error: e);
       rethrow;
     }
   }
@@ -728,15 +654,9 @@ class ApiService {
   /// Permanently delete the current user's account
   Future<Response> deleteAccount() async {
     try {
-      log('API REQUEST: DELETE /me', name: 'AccountAPI');
       final response = await _dio.delete('/me');
-      log(
-        'API RESPONSE [${response.statusCode}]: ${response.data}',
-        name: 'AccountAPI',
-      );
       return response;
     } catch (e) {
-      log('Error deleting account: $e', name: 'AccountAPI', error: e);
       rethrow;
     }
   }
@@ -744,26 +664,13 @@ class ApiService {
   /// Generate Freshchat JWT Token
   Future<Response> generateFreshchatToken(String freshchatUuid) async {
     try {
-      log(
-        'API REQUEST: POST /me/freshchat-token with freshchatUuid: $freshchatUuid',
-        name: 'FreshchatAPI',
-      );
       final response = await _dio.post(
         '/me/freshchat-token',
         data: {'freshchatUuid': freshchatUuid},
         options: Options(extra: {'hide_snackbar': true}),
       );
-      log(
-        'API RESPONSE [${response.statusCode}]: ${response.data}',
-        name: 'FreshchatAPI',
-      );
       return response;
     } catch (e) {
-      log(
-        'Error generating freshchat token: $e',
-        name: 'FreshchatAPI',
-        error: e,
-      );
       rethrow;
     }
   }
@@ -771,41 +678,22 @@ class ApiService {
   /// Save Freshchat Restore ID
   Future<Response> saveFreshchatRestoreId(String restoreId) async {
     try {
-      log(
-        'API REQUEST: POST /me/freshchat-restore-id with restoreId: $restoreId',
-        name: 'FreshchatAPI',
-      );
       final response = await _dio.post(
         '/me/freshchat-restore-id',
         data: {'restoreId': restoreId},
         options: Options(extra: {'hide_snackbar': true}),
       );
-      log(
-        'API RESPONSE [${response.statusCode}]: ${response.data}',
-        name: 'FreshchatAPI',
-      );
       return response;
     } catch (e) {
-      log(
-        'Error saving freshchat restore ID: $e',
-        name: 'FreshchatAPI',
-        error: e,
-      );
       rethrow;
     }
   }
 
   Future<Response> getHome() async {
     try {
-      log('API REQUEST: GET /home', name: 'HomeAPI');
       final response = await _dio.get('/home');
-      log(
-        'API RESPONSE [${response.statusCode}]: ${response.data}',
-        name: 'HomeAPI',
-      );
       return response;
     } catch (e) {
-      log('Error fetching home: $e', name: 'HomeAPI', error: e);
       rethrow;
     }
   }
@@ -1163,21 +1051,12 @@ class ApiService {
   /// Get Wallet Data
   Future<Response> getWallet({int page = 1, int limit = 10}) async {
     try {
-      log(
-        'API REQUEST: GET /wallet (page: $page, limit: $limit)',
-        name: 'WalletAPI',
-      );
       final response = await _dio.get(
         '/wallet',
         queryParameters: {'page': page, 'limit': limit},
       );
-      log(
-        'API RESPONSE [${response.statusCode}]: ${response.data}',
-        name: 'WalletAPI',
-      );
       return response;
     } catch (e) {
-      log('Error fetching wallet: $e', name: 'WalletAPI', error: e);
       rethrow;
     }
   }
@@ -1193,7 +1072,6 @@ class ApiService {
   }) async {
     try {
       final url = '/checkout/order';
-      log('API REQUEST: POST $url', name: 'CreateOrder');
       if (paymentMethod == 'IBAN') {
         final Map<String, dynamic> map = {
           'paymentMethod': paymentMethod,
@@ -1211,35 +1089,18 @@ class ApiService {
             map['ibanReceipt'] = ibanReceipt;
           }
         }
-        log('API REQUEST BODY (FormData map): $map', name: 'CreateOrder');
         final formData = FormData.fromMap(map);
         final response = await _dio.post(url, data: formData);
-        log(
-          'API RESPONSE [${response.statusCode}]: ${response.data}',
-          name: 'CreateOrder',
-        );
         return response;
       } else {
         final data = <String, dynamic>{
           'paymentMethod': paymentMethod,
           'note': ?note,
         };
-        log('API REQUEST BODY: $data', name: 'CreateOrder');
         final response = await _dio.post(url, data: data);
-        log(
-          'API RESPONSE [${response.statusCode}]: ${response.data}',
-          name: 'CreateOrder',
-        );
         return response;
       }
-    } on DioException catch (e) {
-      log(
-        'API ERROR RESPONSE [${e.response?.statusCode}]: ${e.response?.data}',
-        name: 'CreateOrder',
-      );
-      rethrow;
     } catch (e) {
-      log('API ERROR: $e', name: 'CreateOrder');
       rethrow;
     }
   }
@@ -1253,25 +1114,11 @@ class ApiService {
       final data = <String, dynamic>{'tranRef': ?transactionId};
 
       final url = '/orders/$paymentId/verify-payment';
-      log('API REQUEST: POST $url', name: 'VerifyPayment');
-      log('API REQUEST BODY: $data', name: 'VerifyPayment');
 
       final response = await _dio.post(url, data: data);
 
-      log(
-        'API RESPONSE [${response.statusCode}]: ${response.data}',
-        name: 'VerifyPayment',
-      );
-
       return response;
-    } on DioException catch (e) {
-      log(
-        'API ERROR RESPONSE [${e.response?.statusCode}]: ${e.response?.data}',
-        name: 'VerifyPayment',
-      );
-      rethrow;
     } catch (e) {
-      log('API ERROR: $e', name: 'VerifyPayment');
       rethrow;
     }
   }
@@ -1279,21 +1126,9 @@ class ApiService {
   /// Get Bank Accounts for IBAN Payment
   Future<Response> getBankAccounts() async {
     try {
-      log('API REQUEST: GET /bank-accounts', name: 'GetBankAccounts');
       final response = await _dio.get('/bank-accounts');
-      log(
-        'API RESPONSE [${response.statusCode}]: ${response.data}',
-        name: 'GetBankAccounts',
-      );
       return response;
-    } on DioException catch (e) {
-      log(
-        'API ERROR RESPONSE [${e.response?.statusCode}]: ${e.response?.data}',
-        name: 'GetBankAccounts',
-      );
-      rethrow;
     } catch (e) {
-      log('API ERROR: $e', name: 'GetBankAccounts');
       rethrow;
     }
   }
@@ -1400,7 +1235,6 @@ class ApiService {
       );
       return response;
     } catch (e) {
-      log('Error rating order: $e', name: 'Orders');
       rethrow;
     }
   }
@@ -1462,25 +1296,12 @@ class ApiService {
   /// Get My Subscriptions
   Future<Response> getMySubscriptions({int page = 1, int limit = 10}) async {
     try {
-      log(
-        'API REQUEST: GET /subscriptions?page=$page&limit=$limit',
-        name: 'SubscriptionAPI',
-      );
       final response = await _dio.get(
         '/subscriptions',
         queryParameters: {'page': page, 'limit': limit},
       );
-      log(
-        'API RESPONSE [${response.statusCode}]: ${response.data}',
-        name: 'SubscriptionAPI',
-      );
       return response;
     } catch (e) {
-      log(
-        'Error fetching subscriptions: $e',
-        name: 'SubscriptionAPI',
-        error: e,
-      );
       rethrow;
     }
   }
@@ -1488,19 +1309,9 @@ class ApiService {
   /// Get Subscription Details
   Future<Response> getSubscriptionDetails(String id) async {
     try {
-      log('API REQUEST: GET /subscriptions/$id', name: 'SubscriptionAPI');
       final response = await _dio.get('/subscriptions/$id');
-      log(
-        'API RESPONSE [${response.statusCode}]: ${response.data}',
-        name: 'SubscriptionAPI',
-      );
       return response;
     } catch (e) {
-      log(
-        'Error fetching subscription details: $e',
-        name: 'SubscriptionAPI',
-        error: e,
-      );
       rethrow;
     }
   }

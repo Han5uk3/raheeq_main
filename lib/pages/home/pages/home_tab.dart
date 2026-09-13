@@ -398,8 +398,6 @@ class _HomeTabState extends State<HomeTab>
         final rawData = response.data['data'];
         final currentJson = jsonEncode(rawData);
 
-        // log('Fetched Home Data: $currentJson', name: 'HomeTab');
-
         if (_hasLoadedOnce && currentJson == _cachedHomeDataJson) {
           // log('Home data unchanged. Skipping rebuild.', name: 'HomeTab');
           if (mounted && myGeneration == _fetchGeneration) {
