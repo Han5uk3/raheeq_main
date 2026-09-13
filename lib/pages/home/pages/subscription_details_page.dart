@@ -4,12 +4,27 @@ import 'package:flutter/material.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
+import 'package:raheeq_main/common_widgets/subscription_status_badge.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/models/subscription_details_model.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:raheeq_main/utils/formatters.dart';
+
+/// What a day on the delivery calendar shows, in rising precedence: when
+/// several deliveries share a day it takes the highest of their statuses, so a
+/// day with anything still to come reads as upcoming.
+enum _DeliveryStatus {
+  cancelled(SubscriptionStatusColors.cancelled),
+  delivered(SubscriptionStatusColors.delivered),
+  upcoming(SubscriptionStatusColors.upcoming);
+
+  const _DeliveryStatus(this.color);
+
+  /// The day's box tint and the dot under its number, and its legend entry.
+  final Color color;
+}
 
 class SubscriptionDetailsPage extends StatefulWidget {
   final String subscriptionId;
@@ -84,69 +99,83 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
 
   
 
-  /// Whole days from [from] to [to], ignoring the time of day.
-  ///
-  /// Both ends are normalised to UTC midnight so a daylight-saving shift in
-  /// between cannot round the result off by a day.
-  int _daysBetween(DateTime from, DateTime to) {
-    final start = DateTime.utc(from.year, from.month, from.day);
-    final end = DateTime.utc(to.year, to.month, to.day);
-    return end.difference(start).inDays;
-  }
-
-  /// How much of the subscription is left, at month or day granularity.
-  ///
-  /// The countdown is measured from the start date, never from today, so a
-  /// subscription that has not begun yet reads as its full length instead of
-  /// counting the wait to get there.
-  String _durationLeftLabel() {
+  /// The remaining-days badge, or null when the response carries no
+  /// `daysLeft`. The server counts it in Riyadh time: the full duration before
+  /// the start date, then down to 0.
+  String? _durationLeftLabel() {
     final loc = AppLocalizations.of(context)!;
-    final now = DateTime.now();
-    final start = _details!.startDate.toLocal();
-    final end = _details!.endDate.toLocal();
-
-    final from = _daysBetween(now, start) > 0 ? start : now;
-    final daysLeft = _daysBetween(from, end);
-
-    if (daysLeft < 0) return loc.subscription_expired;
-    // 30 days is a month here; the card only ever shows months or days.
-    if (daysLeft >= 30) return loc.months_left(daysLeft ~/ 30);
+    final daysLeft = _details!.daysLeft;
+    if (daysLeft == null) return null;
+    // An expired subscription reports 0 too, which would read as ending today.
+    if (_details!.status.toLowerCase() == 'expired') {
+      return loc.subscription_expired;
+    }
     return loc.days_left(daysLeft);
   }
 
-  /// Whether a delivery counts as done for the calendar's colouring.
-  bool _isDelivered(String status) {
-    final normalised = status.toUpperCase();
-    return normalised == 'CONFIRMED';
+  /// The calendar date [instant] falls on in Riyadh, the time zone the server
+  /// dates everything in. Saudi Arabia keeps UTC+3 all year, so a fixed offset
+  /// is exact. The result is a local midnight, so formatting it doesn't shift
+  /// it into the device's time zone.
+  DateTime _riyadhDate(DateTime instant) {
+    final riyadh = instant.toUtc().add(const Duration(hours: 3));
+    return DateTime(riyadh.year, riyadh.month, riyadh.day);
   }
 
-  /// The subscription's delivery days, each flagged with whether every
-  /// delivery falling on it has been completed.
-  Map<DateTime, bool> _deliveryDays(SubscriptionDetailsModel details) {
-    final days = <DateTime, bool>{};
+  DateTime _riyadhToday() => _riyadhDate(DateTime.now());
+
+  /// The calendar day a delivery falls on. `date` is already the Riyadh day,
+  /// so it is taken as is rather than shifted into the device's time zone.
+  DateTime _deliveryDay(SubscriptionDeliveryModel delivery) {
+    final date = DateTime.tryParse(delivery.date ?? '');
+    if (date == null) {
+      return _riyadhDate(delivery.scheduledDate ?? delivery.createdAt);
+    }
+    return DateTime(date.year, date.month, date.day);
+  }
+
+  /// The subscription's delivery days and the status each one shows.
+  Map<DateTime, _DeliveryStatus> _deliveryDays(
+    SubscriptionDetailsModel details,
+  ) {
+    final days = <DateTime, _DeliveryStatus>{};
     for (final delivery in details.deliveries) {
-      final date = (delivery.scheduledDate ?? delivery.createdAt).toLocal();
-      final day = DateTime(date.year, date.month, date.day);
-      // Several deliveries can share a day; it only reads as done once all of
-      // them are.
-      days[day] = (days[day] ?? true) && _isDelivered(delivery.status);
+      final day = _deliveryDay(delivery);
+      final status = switch (delivery.status.toUpperCase()) {
+        'DELIVERED' => _DeliveryStatus.delivered,
+        'CANCELLED' => _DeliveryStatus.cancelled,
+        _ => _DeliveryStatus.upcoming,
+      };
+      final current = days[day];
+      if (current == null || status.index > current.index) {
+        days[day] = status;
+      }
     }
     return days;
   }
 
-  /// Opens on the next delivery still to come, falling back to the last one,
-  /// so the calendar never lands on a month with nothing in it.
-  DateTime _initialCalendarMonth(SubscriptionDetailsModel details) {
-    final now = DateTime.now();
-    final days = _deliveryDays(details).keys.toList()..sort();
-    if (days.isEmpty) return DateTime(now.year, now.month);
+  /// The next delivery still to come, or null once none are left.
+  DateTime? _nextDeliveryDay(Map<DateTime, _DeliveryStatus> days) {
+    final today = _riyadhToday();
+    DateTime? next;
+    for (final MapEntry(key: day, value: status) in days.entries) {
+      if (status != _DeliveryStatus.upcoming || day.isBefore(today)) continue;
+      if (next == null || day.isBefore(next)) next = day;
+    }
+    return next;
+  }
 
-    final today = DateTime(now.year, now.month, now.day);
-    final next = days.firstWhere(
-      (day) => !day.isBefore(today),
-      orElse: () => days.last,
-    );
-    return DateTime(next.year, next.month);
+  /// Opens on the next delivery, falling back to the last one, so the
+  /// calendar never lands on a month with nothing in it.
+  DateTime _initialCalendarMonth(SubscriptionDetailsModel details) {
+    final days = _deliveryDays(details);
+    if (days.isEmpty) {
+      final now = DateTime.now();
+      return DateTime(now.year, now.month);
+    }
+
+    final day = _nextDeliveryDay(days) ?? (days.keys.toList()..sort()).last;
+    return DateTime(day.year, day.month);
   }
 
   Widget _buildDeliveryCalendar(bool isAr) {
@@ -296,10 +325,17 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
               spacing: 20,
               runSpacing: 8,
               children: [
-                _buildCalendarLegend(Colors.green, loc.delivered),
                 _buildCalendarLegend(
-                  AppColors.buttonBlueDark.withValues(alpha: 50),
+                  _DeliveryStatus.delivered.color,
+                  loc.delivered,
+                ),
+                _buildCalendarLegend(
+                  _DeliveryStatus.upcoming.color,
                   loc.upcoming,
+                ),
+                _buildCalendarLegend(
+                  _DeliveryStatus.cancelled.color,
+                  loc.status_cancelled,
                 ),
               ],
             ),
@@ -327,14 +363,12 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
   Widget _buildCalendarDay(
     DateTime month,
     int day,
-    Map<DateTime, bool> deliveryDays,
+    Map<DateTime, _DeliveryStatus> deliveryDays,
     double size,
   ) {
     final date = DateTime(month.year, month.month, day);
-    final isDelivery = deliveryDays.containsKey(date);
-    final fill = isDelivery
-        ? (deliveryDays[date]! ? Colors.green : AppColors.buttonBlueDark)
-        : null;
+    final status = deliveryDays[date];
+    final isDelivery = status != null;
 
     return Center(
       child: Container(
@@ -342,7 +376,7 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
         height: size,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: fill?.withAlpha(40),
+          color: status?.color.withAlpha(40),
           borderRadius: BorderRadius.circular(6),
         ),
         child: FittedBox(
@@ -365,7 +399,10 @@ class _SubscriptionDetailsPageState extends State<SubscriptionDetailsPage> {
                 width: 4,
                 height: 4,
                 margin: const EdgeInsets.only(top: 2),
-                decoration: BoxDecoration(color: fill, shape: BoxShape.circle),
+                decoration: BoxDecoration(
+                  color: status?.color,
+                  shape: BoxShape.circle,
+                ),
               ),
             ],
           ),
@@ -574,12 +611,29 @@ Widget _buildProductsCard(bool isAr) {
                         ),
                         SizedBox(width: 8),
                         Expanded(
-                          child: Text(
-                            isAr ? product.nameAr : product.name,
-                            style: TextStyle(
-                              fontSize: 12,
-                              color: AppColors.black,
-                            ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text(
+                                isAr ? product.nameAr : product.name,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.black,
+                                ),
+                              ),
+                              // if (product.quantity > 0) ...[
+                              //   SizedBox(height: 2),
+                              //   Text(
+                              //     '${AppLocalizations.of(context)!.quantity}: '
+                              //     '${product.quantity}',
+                              //     style: TextStyle(
+                              //       fontSize: 10,
+                              //       color: Colors.grey,
+                              //     ),
+                              //   ),
+                              // ],
+                            ],
                           ),
                         ),
                       ],
@@ -697,6 +751,8 @@ Widget _buildProductsCard(bool isAr) {
   }
 
   Widget _buildDurationInfoCard(bool isAr) {
+    final durationLeft = _durationLeftLabel();
+
     return Material(
       elevation: 2,
       color: Colors.white,
@@ -722,10 +778,24 @@ Widget _buildProductsCard(bool isAr) {
                         AppLocalizations.of(context)!.subscription_duration,
                         style: TextStyle(fontSize: 12, color: AppColors.black),
                       ),
-                      // Text(
-                      //   _durationLeftLabel(),
-                      //   style: TextStyle(fontSize: 12, color: AppColors.black),
-                      // ),
+                      // if (durationLeft != null)
+                      //   Container(
+                      //     decoration: BoxDecoration(
+                      //       color: AppColors.buttonBlueDark.withAlpha(30),
+                      //       borderRadius: BorderRadius.circular(8),
+                      //     ),
+                      //     padding: const EdgeInsets.symmetric(
+                      //       horizontal: 6,
+                      //       vertical: 4,
+                      //     ),
+                      //     child: Text(
+                      //       durationLeft,
+                      //       style: const TextStyle(
+                      //         fontSize: 10,
+                      //         color: AppColors.black,
+                      //       ),
+                      //     ),
+                      //   ),
                     ],
                   ),
                   Divider(height: 24),
@@ -743,7 +813,7 @@ Widget _buildProductsCard(bool isAr) {
                     ],
                   ),
                   SizedBox(height: 8),
-                  // Deliveries completed out of the total for the plan.
+                  // How far through its duration the subscription is.
                   _buildProgressBar(_details!, isAr),
                   SizedBox(height: 12),
                   Row(
@@ -759,7 +829,10 @@ Widget _buildProductsCard(bool isAr) {
                           vertical: 4,
                         ),
                         child: Text(
-                          Formatters.formatDate(context, _details!.startDate),
+                          Formatters.formatDate(
+                            context,
+                            _riyadhDate(_details!.startDate),
+                          ),
                           style: const TextStyle(
                             fontSize: 10,
                             color: AppColors.black,
@@ -776,7 +849,10 @@ Widget _buildProductsCard(bool isAr) {
                           vertical: 4,
                         ),
                         child: Text(
-                          Formatters.formatDate(context, _details!.endDate),
+                          Formatters.formatDate(
+                            context,
+                            _riyadhDate(_details!.endDate),
+                          ),
                           style: const TextStyle(
                             fontSize: 10,
                             color: AppColors.black,
@@ -994,7 +1070,8 @@ Widget _buildProductsCard(bool isAr) {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               _skeletonTextBar(width: 120, fontSize: 12),
-              _skeletonTextBar(width: 70, fontSize: 12),
+              // The remaining-days badge pads its label by 4px top and bottom.
+              _skeletonBox(width: 70, height: _lineHeight(10) + 8, radius: 8),
             ],
           ),
           const Divider(height: 24),
@@ -1135,16 +1212,20 @@ Widget _buildProductsCard(bool isAr) {
             },
           ),
           const Divider(height: 16),
-          Row(
-            children: [
-              _skeletonBox(width: 12, height: 12, radius: 4),
-              const SizedBox(width: 6),
-              _skeletonTextBar(width: 60, fontSize: 11),
-              const SizedBox(width: 20),
-              _skeletonBox(width: 12, height: 12, radius: 4),
-              const SizedBox(width: 6),
-              _skeletonTextBar(width: 60, fontSize: 11),
-            ],
+          Wrap(
+            spacing: 20,
+            runSpacing: 8,
+            children: List.generate(
+              3,
+              (index) => Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _skeletonBox(width: 12, height: 12, radius: 4),
+                  const SizedBox(width: 6),
+                  _skeletonTextBar(width: 60, fontSize: 11),
+                ],
+              ),
+            ),
           ),
         ],
       ),
@@ -1174,10 +1255,6 @@ Widget _buildProductsCard(bool isAr) {
   }
 
   Widget _buildInfoCard(bool isAr) {
-    final Color statusColor = _details!.status.toLowerCase() == 'active'
-        ? Colors.green
-        : Colors.red;
-
     return Card(
       color: Colors.white,
       elevation: 2,
@@ -1221,37 +1298,7 @@ Widget _buildProductsCard(bool isAr) {
                     ],
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 6,
-                  ),
-                  decoration: BoxDecoration(
-                    color: statusColor.withAlpha(40),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Row(
-                    children: [
-                      Container(
-                        width: 8,
-                        height: 8,
-                        decoration: BoxDecoration(
-                          color: statusColor,
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        _localizeStatus(_details!.status, context),
-                        style: TextStyle(
-                          color: statusColor,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 12,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+                SubscriptionStatusBadge(status: _details!.status),
               ],
             ),
             const Divider(height: 32),
@@ -1297,26 +1344,6 @@ Widget _buildProductsCard(bool isAr) {
       return AppLocalizations.of(context)!.custom;
     }
     return frequency;
-  }
-
-  String _localizeStatus(String status, BuildContext context) {
-    final lowerStatus = status.toLowerCase();
-    if (lowerStatus == 'active') {
-      return AppLocalizations.of(context)!.status_active;
-    }
-    if (lowerStatus == 'cancelled') {
-      return AppLocalizations.of(context)!.status_cancelled;
-    }
-    if (lowerStatus == 'expired') {
-      return AppLocalizations.of(context)!.status_expired;
-    }
-    if (lowerStatus == 'pending') {
-      return AppLocalizations.of(context)!.status_pending;
-    }
-
-    return status.isNotEmpty
-        ? status[0].toUpperCase() + status.substring(1).toLowerCase()
-        : '';
   }
 
   void _showGiftCardsBottomSheet(
@@ -1384,15 +1411,9 @@ Widget _buildProductsCard(bool isAr) {
   }
 
   Widget _buildProgressBar(SubscriptionDetailsModel subscription, bool isAr) {
-    // A missing `totalCount` means the API has not been updated yet; the two
-    // counts arrive together, so fall back to the pair rather than to a
-    // separate default per field, which would report 1 completed delivery on a
-    // subscription the API says has none.
-    final bool hasCounts = subscription.ordersCount > 0;
-    final int total = hasCounts ? subscription.ordersCount : 10;
-    final int completed = hasCounts
-        ? subscription.completeCount.clamp(0, total)
-        : 1;
+    // Worked out on the server in Riyadh time: empty until the start date,
+    // full once the subscription expires.
+    final progress = (subscription.progressPercentage / 100).clamp(0.0, 1.0);
 
     return Container(
       width: double.infinity,
@@ -1404,7 +1425,7 @@ Widget _buildProductsCard(bool isAr) {
       child: Align(
         alignment: isAr ? Alignment.centerRight : Alignment.centerLeft,
         child: FractionallySizedBox(
-          widthFactor: completed / total,
+          widthFactor: progress,
           heightFactor: 1,
           child: DecoratedBox(
             decoration: BoxDecoration(

@@ -591,7 +591,7 @@
   "share_app_message": "تطبيق رحيق 💧 :- خدمة توصيل الماء للمساجد ودور الأيتام 🚚🕌. يقول النبي ﷺ من دلَّ على خيرٍ، فله مثل أجر فاعله 🌷 : انشر التطبيق - {link}",
   "months_left": "{count, plural, one{يتبقى شهر واحد} two{يتبقى شهران} few{يتبقى {count} أشهر} many{يتبقى {count} شهرًا} other{يتبقى {count} شهر}}",
   "days_left": "{count, plural, =0{ينتهي اليوم} one{يتبقى يوم واحد} two{يتبقى يومان} few{يتبقى {count} أيام} many{يتبقى {count} يومًا} other{يتبقى {count} يوم}}",
-  "delivered_x_of_y_orders": "{total, plural, one{تم توصيل {completed} من طلب واحد} other{تم توصيل {completed} من {total} طلبات}}",
+  "delivered_x_of_y_orders": "تم توصيل {completed} من {total} طلب",
   "subscription_expired": "انتهى الاشتراك",
   "delivery_calendar": "تقويم التوصيل"
 }

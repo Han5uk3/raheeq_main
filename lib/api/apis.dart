@@ -47,6 +47,10 @@ class ApiService {
 
   static const String _retryKey = "_retry_count";
 
+  /// Set in [Options.extra] to a log name to log a request in full under it as
+  /// it goes out, with the Accept-Language header the interceptor adds.
+  static const String _logRequestKey = "_log_full_request";
+
   /// How long before actual expiry we treat the access token as "expiring
   /// soon" and proactively refresh it, so requests don't race the clock.
   static const Duration _expiryBuffer = Duration(seconds: 20);
@@ -101,6 +105,17 @@ class ApiService {
 
   void _logNetwork(String message) {
     debugPrint("[NETWORK] ${DateTime.now().toIso8601String()} $message");
+  }
+
+  void _logFullRequest(RequestOptions options, String logName) {
+    // Falls back to toString so an unencodable value can't fail the request.
+    final encoder = JsonEncoder.withIndent('  ', (value) => value.toString());
+    log(
+      'API REQUEST: ${options.method} ${options.uri}\n'
+      'Headers: ${encoder.convert(options.headers)}\n'
+      'Body: ${encoder.convert(options.data)}',
+      name: logName,
+    );
   }
 
   /// Called once when the session is conclusively invalid (refresh token
@@ -235,6 +250,11 @@ class ApiService {
         onRequest: (options, handler) async {
           final locale = AppStorage.localeCode;
           options.headers["Accept-Language"] = locale.isNotEmpty ? locale : 'ar';
+
+          final logName = options.extra[_logRequestKey];
+          if (logName is String) {
+            _logFullRequest(options, logName);
+          }
 
           if (_isAuthExempt(options.path)) {
             return handler.next(options);
@@ -395,7 +415,11 @@ class ApiService {
         'locale': localeNotifier.value.languageCode,
       };
 
-      final response = await _dio.post('/auth/verify-otp', data: data);
+      final response = await _dio.post(
+        '/auth/verify-otp',
+        data: data,
+        options: Options(extra: {_logRequestKey: 'AuthFlow'}),
+      );
       log('Verify OTP response data: ${response.data}', name: 'AuthFlow');
 
       log('Verify OTP response: ${response.statusCode}', name: 'AuthFlow');
@@ -488,7 +512,11 @@ class ApiService {
         'locale': localeNotifier.value.languageCode,
       };
 
-      final response = await _dio.post('/auth/google', data: data);
+      final response = await _dio.post(
+        '/auth/google',
+        data: data,
+        options: Options(extra: {_logRequestKey: 'AuthFlow'}),
+      );
 
       log('Google Login response: ${response.statusCode}', name: 'AuthFlow');
       if (response.statusCode == 200 && response.data['success'] == true) {
@@ -528,7 +556,11 @@ class ApiService {
         'locale': localeNotifier.value.languageCode,
       };
 
-      final response = await _dio.post('/auth/apple', data: data);
+      final response = await _dio.post(
+        '/auth/apple',
+        data: data,
+        options: Options(extra: {_logRequestKey: 'AuthFlow'}),
+      );
 
       log('Apple Login response: ${response.statusCode}', name: 'AuthFlow');
       if (response.statusCode == 200 && response.data['success'] == true) {
@@ -636,6 +668,7 @@ class ApiService {
     String? fcmToken,
   }) async {
     try {
+      log('Updating locale to $locale', name: 'LocaleAPI');
       fcmToken ??= await NotificationService().getToken();
       final response = await _dio.patch(
         '/me/locale',
@@ -643,9 +676,20 @@ class ApiService {
           'locale': locale,
           if (fcmToken != null && fcmToken.isNotEmpty) 'fcmToken': fcmToken,
         },
+        options: Options(extra: {_logRequestKey: 'LocaleAPI'}),
+      );
+      log(
+        'API RESPONSE [${response.statusCode}]: ${response.data}',
+        name: 'LocaleAPI',
       );
       return response;
     } catch (e) {
+      log(
+        'Error updating locale: $e'
+        '${e is DioException ? '\nResponse: ${e.response?.data}' : ''}',
+        name: 'LocaleAPI',
+        error: e,
+      );
       rethrow;
     }
   }

@@ -1788,13 +1788,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String delivered_x_of_y_orders(int completed, int total) {
-    String _temp0 = intl.Intl.pluralLogic(
-      total,
-      locale: localeName,
-      other: 'تم توصيل $completed من $total طلبات',
-      one: 'تم توصيل $completed من طلب واحد',
-    );
-    return '$_temp0';
+    return 'تم توصيل $completed من $total طلب';
   }
 
   @override

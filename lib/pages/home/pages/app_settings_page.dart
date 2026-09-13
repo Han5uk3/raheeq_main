@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:flutter/material.dart';
@@ -260,6 +262,11 @@ class _AppSettingsPageState extends State<AppSettingsPage> {
     final isSelected = currentLocaleCode == localeCode;
     return GestureDetector(
       onTap: () async {
+        log(
+          'Language switched from $currentLocaleCode to $localeCode '
+          '(app settings)',
+          name: 'LanguageSwitch',
+        );
         localeNotifier.value = Locale(localeCode);
         await AppStorage.saveLocale(localeCode);
         try {
