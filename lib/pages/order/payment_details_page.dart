@@ -21,14 +21,14 @@ import 'package:url_launcher/url_launcher.dart';
 class PaymentDetailsPage extends StatefulWidget {
   final OrderFinancials financials;
   final OrderResponseModel order;
-  final ParentOrder parentOrder;
+  final ParentOrder? parentOrder;
   final bool isAr;
   const PaymentDetailsPage({
     super.key,
     required this.order,
     required this.financials,
     required this.isAr,
-    required this.parentOrder
+    required this.parentOrder,
   });
 
   @override
@@ -243,8 +243,8 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage> {
                       Builder(
                         builder: (context) {
                           final bool showInvoice =
-                              widget.parentOrder.invoicePdfUrl != null &&
-                              widget.parentOrder.invoicePdfUrl != "";
+                              widget.parentOrder?.invoicePdfUrl != null &&
+                              widget.parentOrder?.invoicePdfUrl != "";
 
                           if (!showInvoice) return const SizedBox.shrink();
 
@@ -268,7 +268,7 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage> {
                                         ),
                                       ),
                                       onPressed: () => _openInvoice(
-                                        widget.parentOrder.invoicePdfUrl ?? "",
+                                        widget.parentOrder?.invoicePdfUrl ?? "",
                                       ),
                                       icon: const Icon(
                                         Icons.receipt,
@@ -317,7 +317,7 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 16),
-            if (widget.parentOrder.paymentMethod.isNotEmpty) ...[
+            if (widget.parentOrder?.paymentMethod.isNotEmpty ?? false) ...[
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -332,7 +332,7 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage> {
                     child: Align(
                       alignment: AlignmentDirectional.centerEnd,
                       child: PaymentMethodBadge(
-                        method: widget.parentOrder.paymentMethod,
+                        method: widget.parentOrder!.paymentMethod,
                       ),
                     ),
                   ),
@@ -342,7 +342,7 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage> {
               Divider(height: 1, color: Colors.grey.shade200),
               const SizedBox(height: 12),
             ],
-            if (widget.parentOrder.paymentStatus.isNotEmpty) ...[
+            if (widget.parentOrder?.paymentStatus.isNotEmpty ?? false) ...[
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -354,7 +354,7 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage> {
                     child: Align(
                       alignment: AlignmentDirectional.centerEnd,
                       child: PaymentStatusBadge(
-                        status: widget.parentOrder.paymentStatus,
+                        status: widget.parentOrder!.paymentStatus,
                       ),
                     ),
                   ),
