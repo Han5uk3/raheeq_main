@@ -456,7 +456,7 @@
   "people_helped": "People Helped",
   "water_cartons": "Water Cartons",
   "chillers": "Chillers",
-  "selected_items_count": "Selected: {count} items",
+  "selected_items_count": "{count, plural, =1{Selected: 1 location} other{Selected: {count} locations}}",
   "@selected_items_count": {
     "placeholders": {
       "count": {
