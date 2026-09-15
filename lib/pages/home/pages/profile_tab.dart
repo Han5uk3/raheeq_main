@@ -13,6 +13,7 @@ import 'package:raheeq_main/pages/home/home_screen.dart';
 import 'package:raheeq_main/pages/home/pages/app_settings_page.dart';
 import 'package:raheeq_main/pages/home/pages/my_wallet_page.dart';
 import 'package:raheeq_main/pages/home/pages/notifications_page.dart';
+import 'package:raheeq_main/services/app_settings.dart';
 import 'package:raheeq_main/services/snackbar_insets_services.dart';
 import 'package:raheeq_main/storage/auth_storage.dart';
 import 'package:raheeq_main/utils/colors.dart';
@@ -43,6 +44,9 @@ class _ProfileTabState extends State<ProfileTab> {
 
   bool _isLoading = false;
   bool _isSaving = false; // Used for logout loading state
+
+  /// Live `showDeleteAccount` switch, opened once for the life of the tab.
+  late final Stream<bool> _showDeleteAccount = AppSettings.showDeleteAccount();
   User? _currentUser;
   int _unreadNotificationsCount = 0;
   String _appVersion = '';
@@ -658,28 +662,37 @@ class _ProfileTabState extends State<ProfileTab> {
                           child: Text(AppLocalizations.of(context)!.logout),
                         ),
                       ),
-                      if (Platform.isIOS) ...[
-                        const SizedBox(height: 16),
-
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                            onPressed: _deleteAccount,
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25),
+                      // Shown on both platforms while App_Settings/v1 has
+                      // showDeleteAccount set to true.
+                      StreamBuilder<bool>(
+                        stream: _showDeleteAccount,
+                        initialData: false,
+                        builder: (context, snapshot) {
+                          if (snapshot.data != true) {
+                            return const SizedBox.shrink();
+                          }
+                          return Padding(
+                            padding: const EdgeInsets.only(top: 16),
+                            child: SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton(
+                                onPressed: _deleteAccount,
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.red,
+                                  foregroundColor: Colors.white,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(25),
+                                  ),
+                                  fixedSize: Size(double.infinity, 50),
+                                ),
+                                child: Text(
+                                  AppLocalizations.of(context)!.delete_account,
+                                ),
+                              ),
                             ),
-                            fixedSize: Size(double.infinity, 50),
-                          ),
-
-                            child: Text(
-                              AppLocalizations.of(context)!.delete_account,
-                            ),
-                          ),
-                        ),
-                      ],
+                          );
+                        },
+                      ),
                       const SizedBox(height: 24),
                       _buildSocialMediaRow(),
                       const SizedBox(height: 24),
