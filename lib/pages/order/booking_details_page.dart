@@ -575,6 +575,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                 MaterialPageRoute(
                   builder: (context) => PaymentDetailsPage(
                     isAr: isAr,
+                    parentOrder: order.parentOrder!,
                     order: order,
                     financials:
                         order.financials ??

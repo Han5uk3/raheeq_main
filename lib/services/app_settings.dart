@@ -31,11 +31,11 @@ class AppSettings {
   static Stream<bool> showDeleteAccount() => _watch('showDeleteAccount');
 
   /// Whether the login page offers to continue as a guest.
-  static Stream<bool> showGuestMode() => _watch('showGuestMode');
+  static Stream<bool> showGuestMode() => _watch('showGuestLogin');
 
   /// This platform's document: `App_settings/ios` or `App_settings/android`.
   static String get _documentPath =>
-      'App_settings/${Platform.isIOS ? 'ios' : 'android'}';
+      'App_Settings/${Platform.isIOS ? 'ios' : 'android'}';
 
   static Stream<bool> _watch(String field) async* {
     await _firebaseReady.future;

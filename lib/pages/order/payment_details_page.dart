@@ -13,7 +13,6 @@ import 'package:raheeq_main/common_widgets/payment_method_badge.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/models/order_response_model.dart';
-import 'package:raheeq_main/services/deep_link_service.dart';
 import 'package:raheeq_main/storage/auth_storage.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/utils/formatters.dart';
@@ -22,12 +21,14 @@ import 'package:url_launcher/url_launcher.dart';
 class PaymentDetailsPage extends StatefulWidget {
   final OrderFinancials financials;
   final OrderResponseModel order;
+  final ParentOrder parentOrder;
   final bool isAr;
   const PaymentDetailsPage({
     super.key,
     required this.order,
     required this.financials,
     required this.isAr,
+    required this.parentOrder
   });
 
   @override
@@ -236,21 +237,22 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage> {
                     );
                   },
                   child: Column(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       _buildContent(context),
                       Builder(
                         builder: (context) {
                           final bool showInvoice =
-                              widget.order.invoiceUrl != null &&
-                              widget.order.invoiceUrl!.isNotEmpty;
+                              widget.parentOrder.invoicePdfUrl != null &&
+                              widget.parentOrder.invoicePdfUrl != "";
 
-                          if (showInvoice) return const SizedBox.shrink();
+                          if (!showInvoice) return const SizedBox.shrink();
 
                           return Padding(
                             padding: const EdgeInsets.symmetric(horizontal: 16),
                             child: Row(
                               children: [
-                                if (true)
+                                if (showInvoice)
                                   Expanded(
                                     child: ElevatedButton.icon(
                                       style: ElevatedButton.styleFrom(
@@ -266,7 +268,7 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage> {
                                         ),
                                       ),
                                       onPressed: () => _openInvoice(
-                                        widget.order.invoiceUrl!,
+                                        widget.parentOrder.invoicePdfUrl ?? "",
                                       ),
                                       icon: const Icon(
                                         Icons.receipt,
@@ -315,8 +317,7 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(height: 16),
-            if (widget.order.parentOrder?.paymentMethod != null &&
-                widget.order.parentOrder!.paymentMethod.isNotEmpty) ...[
+            if (widget.parentOrder.paymentMethod.isNotEmpty) ...[
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -331,7 +332,7 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage> {
                     child: Align(
                       alignment: AlignmentDirectional.centerEnd,
                       child: PaymentMethodBadge(
-                        method: widget.order.parentOrder!.paymentMethod,
+                        method: widget.parentOrder.paymentMethod,
                       ),
                     ),
                   ),
@@ -341,8 +342,7 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage> {
               Divider(height: 1, color: Colors.grey.shade200),
               const SizedBox(height: 12),
             ],
-            if (widget.order.parentOrder?.paymentStatus != null &&
-                widget.order.parentOrder!.paymentStatus.isNotEmpty) ...[
+            if (widget.parentOrder.paymentStatus.isNotEmpty) ...[
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -354,7 +354,7 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage> {
                     child: Align(
                       alignment: AlignmentDirectional.centerEnd,
                       child: PaymentStatusBadge(
-                        status: widget.order.parentOrder!.paymentStatus,
+                        status: widget.parentOrder.paymentStatus,
                       ),
                     ),
                   ),
