@@ -117,8 +117,8 @@ class OrderChillerSheet extends StatefulWidget {
       );
       if (!context.mounted) return;
 
-      // Null — backing out of a picker that opened with nothing picked — leaves
-      // the selection as it was (see SpecificMosqueRoute).
+      // Null means the picker opened and was left with nothing picked, so the
+      // selection stays as it was (see SpecificMosqueRoute).
       if (places != null) {
         selection = _withPlaces(selection, request.category, places);
       }

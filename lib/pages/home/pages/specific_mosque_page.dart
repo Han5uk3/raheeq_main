@@ -57,13 +57,13 @@ class SpecificMosquePage extends StatefulWidget {
 ///
 /// Confirm completes it with the places picked. Leaving any other way — the
 /// app bar arrow, the system back button, the iOS edge swipe — carries no
-/// result, so the route asks the page what a back-out keeps:
+/// result, so the route asks the page what a back-out keeps, and that is the
+/// same as Confirm: the selection as it now stands, with places added or
+/// removed on the page, and an empty list after Clear All.
 ///
-/// * Opened with nothing selected: nothing. The route completes with null and
-///   the caller's selection stays as it was.
-/// * Opened with places already selected: the page was editing that selection,
-///   so the route completes with it as it now stands. Places picked since are
-///   kept, and after Clear All the list comes back empty.
+/// The one exception is a page that opened with nothing selected and is left
+/// with nothing selected. That completes with null, so the caller's selection
+/// stays as it was (an orphanage's "Most in need" choice, say).
 class SpecificMosqueRoute extends MaterialPageRoute<List<Place>> {
   SpecificMosqueRoute({required super.builder});
 
@@ -138,7 +138,9 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
 
   /// What leaving without Confirm keeps; see [SpecificMosqueRoute].
   List<Place>? _backOutResult() =>
-      widget.initialSelections.isEmpty ? null : List.of(_selectedItemsList);
+      widget.initialSelections.isEmpty && _selectedItemsList.isEmpty
+      ? null
+      : List.of(_selectedItemsList);
 
   void _scrollListener() {
     if (_scrollController.position.pixels >=
