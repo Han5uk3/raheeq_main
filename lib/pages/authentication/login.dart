@@ -62,7 +62,7 @@ class _LoginState extends State<Login> {
   final TextEditingController _phoneController = TextEditingController();
   final TapGestureRecognizer _termsTapRecognizer = TapGestureRecognizer();
 
-  /// Live `showGuestMode` switch, opened once for the life of the page.
+  /// Live `showGuestLogin` switch, opened once for the life of the page.
   late final Stream<bool> _showGuestMode = AppSettings.showGuestMode();
 
   @override
@@ -74,7 +74,7 @@ class _LoginState extends State<Login> {
 
   /// Enters guest mode and drops the user on the home screen. Reached from the
   /// continue-as-guest button, which is only shown while this platform's
-  /// App_settings document has showGuestMode set to true.
+  /// App_Settings document has showGuestLogin set to true.
   Future<void> _continueAsGuest() async {
     // The home and orders tabs cache their responses in statics that outlive a
     // sign-out, so drop them before a guest can be shown the previous
@@ -1062,8 +1062,8 @@ class _LoginState extends State<Login> {
                                   ),
                                 },
                                 // Browsing without signing in, while this
-                                // platform's App_settings document (android
-                                // or ios) has showGuestMode set to true.
+                                // platform's App_Settings document (android
+                                // or ios) has showGuestLogin set to true.
                                 StreamBuilder<bool>(
                                   stream: _showGuestMode,
                                   initialData: false,

@@ -7,7 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 /// Switches the app reads live from Firestore, so a button can be shown or
 /// hidden without shipping a new build.
 ///
-/// Each platform has its own document in the `App_settings` collection,
+/// Each platform has its own document in the `App_Settings` collection,
 /// `android` and `ios`, holding the same fields, so a switch can be set
 /// differently for the two apps.
 ///
@@ -30,10 +30,10 @@ class AppSettings {
   /// Whether the profile tab offers to delete the account.
   static Stream<bool> showDeleteAccount() => _watch('showDeleteAccount');
 
-  /// Whether the login page offers to continue as a guest.
+  /// Whether the login page offers to continue as a guest (`showGuestLogin`).
   static Stream<bool> showGuestMode() => _watch('showGuestLogin');
 
-  /// This platform's document: `App_settings/ios` or `App_settings/android`.
+  /// This platform's document: `App_Settings/ios` or `App_Settings/android`.
   static String get _documentPath =>
       'App_Settings/${Platform.isIOS ? 'ios' : 'android'}';
 
