@@ -726,8 +726,9 @@ class _ProfileTabState extends State<ProfileTab> {
                             ),
                           ),
                           // No account to delete while browsing as a guest.
-                          // Otherwise shown on both platforms while
-                          // App_Settings/v1 has showDeleteAccount set to true.
+                          // Otherwise shown while this platform's App_settings
+                          // document (android or ios) has showDeleteAccount
+                          // set to true.
                           if (!isGuest)
                             StreamBuilder<bool>(
                               stream: _showDeleteAccount,

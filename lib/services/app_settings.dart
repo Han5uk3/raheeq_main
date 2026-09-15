@@ -1,15 +1,20 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-/// Switches the app reads live from Firestore (`App_Settings/v1`), so a
-/// button can be shown or hidden without shipping a new build.
+/// Switches the app reads live from Firestore, so a button can be shown or
+/// hidden without shipping a new build.
 ///
-/// A switch is on only while the document holds `true` for it. A missing
-/// document or field, a value of another type, or a read the security rules
-/// refuse all leave it off. Firestore keeps the last value it received on the
-/// device, so a switch holds its state when the app starts offline.
+/// Each platform has its own document in the `App_settings` collection,
+/// `android` and `ios`, holding the same fields, so a switch can be set
+/// differently for the two apps.
+///
+/// A switch is on only while this platform's document holds `true` for it. A
+/// missing document or field, a value of another type, or a read the security
+/// rules refuse all leave it off. Firestore keeps the last value it received on
+/// the device, so a switch holds its state when the app starts offline.
 class AppSettings {
   AppSettings._();
 
@@ -28,15 +33,19 @@ class AppSettings {
   /// Whether the login page offers to continue as a guest.
   static Stream<bool> showGuestMode() => _watch('showGuestMode');
 
+  /// This platform's document: `App_settings/ios` or `App_settings/android`.
+  static String get _documentPath =>
+      'App_settings/${Platform.isIOS ? 'ios' : 'android'}';
+
   static Stream<bool> _watch(String field) async* {
     await _firebaseReady.future;
+    final path = _documentPath;
     yield* FirebaseFirestore.instance
-        .collection('App_Settings')
-        .doc('v1')
+        .doc(path)
         .snapshots()
         .map((snapshot) => snapshot.data()?[field] == true)
         .handleError((Object error) {
-          log('Could not read App_Settings/v1: $error', name: 'AppSettings');
+          log('Could not read $path: $error', name: 'AppSettings');
         })
         .distinct();
   }

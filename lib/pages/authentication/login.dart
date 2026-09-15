@@ -73,8 +73,8 @@ class _LoginState extends State<Login> {
   }
 
   /// Enters guest mode and drops the user on the home screen. Reached from the
-  /// continue-as-guest button, which is only shown while App_Settings/v1 has
-  /// showGuestMode set to true.
+  /// continue-as-guest button, which is only shown while this platform's
+  /// App_settings document has showGuestMode set to true.
   Future<void> _continueAsGuest() async {
     // The home and orders tabs cache their responses in statics that outlive a
     // sign-out, so drop them before a guest can be shown the previous
@@ -1061,9 +1061,9 @@ class _LoginState extends State<Login> {
                                         _socialLoadingProvider == 'Apple',
                                   ),
                                 },
-                                // Browsing without signing in, on both
-                                // platforms, while App_Settings/v1 has
-                                // showGuestMode set to true.
+                                // Browsing without signing in, while this
+                                // platform's App_settings document (android
+                                // or ios) has showGuestMode set to true.
                                 StreamBuilder<bool>(
                                   stream: _showGuestMode,
                                   initialData: false,

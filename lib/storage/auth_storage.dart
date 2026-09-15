@@ -62,9 +62,9 @@ class AuthStorage {
   /// True while the user is browsing the app without a customer session.
   ///
   /// Available on Android and iOS alike. Whether the login page offers it is
-  /// a remote switch (`showGuestMode` in App_Settings/v1, read through
-  /// `AppSettings`); turning that off only hides the button, so a guest who
-  /// is already browsing stays one.
+  /// a remote switch (`showGuestMode` in this platform's App_settings
+  /// document, read through `AppSettings`); turning that off only hides the
+  /// button, so a guest who is already browsing stays one.
   static bool get isGuest {
     if (!Hive.isBoxOpen(boxName)) return false;
     return _box.get(guestModeKey) == true;
