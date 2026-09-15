@@ -67,9 +67,10 @@ class OrderChillerSheet extends StatefulWidget {
   /// on Continue go to the order details page with the chiller selected.
   ///
   /// Every step back mirrors the step forward: backing out of the place picker
-  /// or the order details page reopens the sheet with the selection intact, so
-  /// the only way out of the flow is dismissing the sheet itself (or placing
-  /// the order, which unwinds the whole stack).
+  /// or the order details page reopens the sheet, so the only way out of the
+  /// flow is dismissing the sheet itself (or placing the order, which unwinds
+  /// the whole stack). The order details page hands the selection back intact;
+  /// what backing out of the picker keeps is decided by [SpecificMosqueRoute].
   static Future<void> start(BuildContext context) async {
     // The route the flow was started from. A completed payment pops back to
     // the root, taking this route with it — that is what tells the loop the
@@ -104,8 +105,8 @@ class OrderChillerSheet extends StatefulWidget {
         continue;
       }
 
-      final places = await Navigator.of(context).push<Object?>(
-        MaterialPageRoute(
+      final places = await Navigator.of(context).push(
+        SpecificMosqueRoute(
           builder: (_) => SpecificMosquePage(
             isEssentialProduct: false,
             slug: request.slug,
@@ -116,8 +117,9 @@ class OrderChillerSheet extends StatefulWidget {
       );
       if (!context.mounted) return;
 
-      // A back-out returns null and leaves the selection as it was.
-      if (places is List<Place>) {
+      // Null — backing out of a picker that opened with nothing picked — leaves
+      // the selection as it was (see SpecificMosqueRoute).
+      if (places != null) {
         selection = _withPlaces(selection, request.category, places);
       }
     }

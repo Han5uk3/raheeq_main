@@ -32,6 +32,8 @@ const TextStyle _cityMenuTextStyle = TextStyle(fontSize: 14);
 // input start gap (4), with a little slack so the widest label never wraps.
 const double _cityMenuHorizontalPadding = 34;
 
+/// Push this page with [SpecificMosqueRoute], which decides what leaving it
+/// without confirming keeps.
 class SpecificMosquePage extends StatefulWidget {
   final String slug;
   final List<Place> initialSelections;
@@ -48,6 +50,27 @@ class SpecificMosquePage extends StatefulWidget {
 
   @override
   State<SpecificMosquePage> createState() => _SpecificMosquePageState();
+}
+
+/// The route [SpecificMosquePage] is pushed with.
+///
+/// Confirm completes it with the places picked. Leaving any other way — the
+/// app bar arrow, the system back button, the iOS edge swipe — carries no
+/// result, so the route asks the page what a back-out keeps:
+///
+/// * Opened with nothing selected: nothing. The route completes with null and
+///   the caller's selection stays as it was.
+/// * Opened with places already selected: the page was editing that selection,
+///   so the route completes with it as it now stands. Places picked since are
+///   kept, and after Clear All the list comes back empty.
+class SpecificMosqueRoute extends MaterialPageRoute<List<Place>> {
+  SpecificMosqueRoute({required super.builder});
+
+  /// Supplied by the page once it is mounted.
+  ValueGetter<List<Place>?>? _backOutResult;
+
+  @override
+  List<Place>? get currentResult => _backOutResult?.call();
 }
 
 class _SpecificMosquePageState extends State<SpecificMosquePage>
@@ -104,6 +127,17 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
     _scrollController.addListener(_scrollListener);
     _initData();
   }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final route = ModalRoute.of(context);
+    if (route is SpecificMosqueRoute) route._backOutResult = _backOutResult;
+  }
+
+  /// What leaving without Confirm keeps; see [SpecificMosqueRoute].
+  List<Place>? _backOutResult() =>
+      widget.initialSelections.isEmpty ? null : List.of(_selectedItemsList);
 
   void _scrollListener() {
     if (_scrollController.position.pixels >=
@@ -1024,9 +1058,6 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
                     setState(() {
                       _selectedItemsList.clear();
                     });
-                    if (mounted) {
-                      Navigator.of(context).pop(_selectedItemsList);
-                    }
                   },
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.red,
