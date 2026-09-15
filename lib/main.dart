@@ -8,6 +8,7 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
+import 'package:raheeq_main/services/app_settings.dart';
 import 'package:raheeq_main/services/network_monitor.dart';
 
 import 'firebase_options.dart';
@@ -78,6 +79,7 @@ Future<void> _initDependencies() async {
 
   final ValueNotifier<double> snackbarBottomInset = ValueNotifier(0);
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  AppSettings.firebaseInitialized();
 
   await Permission.notification.request();
 
