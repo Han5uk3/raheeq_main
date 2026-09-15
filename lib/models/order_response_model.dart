@@ -155,18 +155,11 @@ class OrderResponseModel {
       invoiceUrl:
           json['invoice'] ??
           json['invoiceUrl'] ??
-          json['invoice_url'] ??
           json['invoicePdfUrl'] ??
-          json['invoicePdf'] ??
-          json['invoice_link'] ??
-          json['invoiceLink'] ??
           (json['parentOrder'] != null
               ? (json['parentOrder']['invoicePdfUrl'] ??
                     json['parentOrder']['invoiceUrl'] ??
-                    json['parentOrder']['invoice'] ??
-                    json['parentOrder']['invoice_url'] ??
-                    json['parentOrder']['invoice_link'] ??
-                    json['parentOrder']['invoiceLink'])
+                    json['parentOrder']['invoice'])
               : null),
       deliveredLocationDetails: json['deliveredLocationDetails'],
       isChillerAvailable: json['isChillerAvailable'],
