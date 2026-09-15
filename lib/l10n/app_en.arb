@@ -647,6 +647,19 @@
     }
   },
   "share_app_message": "Rahiq App 💧:- A water delivery service for mosques and orphanages 🚚🕌. The Prophet ﷺ said: \"Whoever guides someone to good will have a reward like the one who did it\" 🌷: Share the app - {link}",
+
+  "sign_in_required": "Sign in required",
+  "sign_in": "Sign in",
+  "not_now": "Not now",
+  "continue_as_guest": "Continue as a guest",
+  "browsing_as_guest": "You're browsing as a guest",
+  "guest_profile_subtitle": "Sign in to manage your account, orders and donations",
+  "sign_in_required_campaign": "Sign in to your Rahiq account to donate to this campaign.",
+  "sign_in_required_checkout": "Sign in to your Rahiq account to complete this order.",
+  "sign_in_required_notifications": "Sign in to your Rahiq account to see your notifications.",
+  "sign_in_required_orders": "Sign in to your Rahiq account to view and track your orders.",
+  "sign_in_required_impact": "Sign in to your Rahiq account to follow the impact of your donations.",
+  "sign_in_required_support": "Sign in to your Rahiq account so our support team can help you with your orders.",
   "months_left": "{count, plural, =1{1 month left} other{{count} months left}}",
   "@months_left": {
     "description": "Time left on a subscription, shown once 30 or more days remain",

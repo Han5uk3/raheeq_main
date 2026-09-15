@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
+import 'package:raheeq_main/common_widgets/sign_in_required_dialog.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/services/network_monitor.dart';
 import 'package:raheeq_main/services/snackbar_insets_services.dart';
@@ -52,6 +53,11 @@ class HomeTab extends StatefulWidget {
 
   /// Clears the basket. Called after a successful payment.
   static void clearBasket() => _HomeTabState._clearBasket();
+
+  /// Drops every cached response. Called when the session changes hands —
+  /// signing out and straight back in as a guest, say — so the next reader
+  /// never sees the previous user's data.
+  static void resetCache() => _HomeTabState._resetCache();
 
   @override
   State<HomeTab> createState() => _HomeTabState();
@@ -109,6 +115,24 @@ class _HomeTabState extends State<HomeTab>
   /// Clears the basket. Called after a successful payment.
   static void _clearBasket() {
     _selectedItems.clear();
+  }
+
+  static void _resetCache() {
+    _hasLoadedOnce = false;
+    _cachedBannerData = [];
+    _cachedCampaigns = [];
+    _cachedCategories = [];
+    _cachedProducts = [];
+    _cachedEssentialProducts = [];
+    _cachedCities = [];
+    _cachedImpactData = null;
+    _cachedHomeDataJson = null;
+    _cachedProfileETag = null;
+    _cachedCitiesETag = null;
+    _cachedImpactETag = null;
+    showOrdersOverview = false;
+    _selectedItems.clear();
+    _pendingItems.clear();
   }
 
   int _currentIndex = 0;
@@ -229,8 +253,14 @@ class _HomeTabState extends State<HomeTab>
         _errorMessage = null;
       });
 
+      // The rest of these are per-customer endpoints, so in guest mode they
+      // are skipped rather than left to come back 401 with nothing to show.
+      // /home and the cities list below are public and run either way.
+      final isGuest = AuthStorage.isGuest;
+
       // Run independent API calls concurrently to reduce load time
       final profileFuture = () async {
+        if (isGuest) return;
         try {
           final profileResponse = await ApiService().getProfile(
             etag: _cachedProfileETag,
@@ -247,6 +277,8 @@ class _HomeTabState extends State<HomeTab>
         } catch (_) {}
       }();
 
+      // Cities are needed by the selection flow, which guests can walk
+      // through, so this one runs for them too — see ApiService.publicPaths.
       final citiesFuture = () async {
         try {
           final citiesResponse = await ApiService().getCities(
@@ -276,6 +308,7 @@ class _HomeTabState extends State<HomeTab>
       }();
 
       final impactFuture = () async {
+        if (isGuest) return;
         try {
           final impactRes = await ApiService().getImpact(
             showSnackbar: true,
@@ -519,7 +552,7 @@ class _HomeTabState extends State<HomeTab>
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           Text(
-                            "${AppLocalizations.of(context)!.welcome}, ${AuthStorage.user?.fullName ?? "User"}",
+                            "${AppLocalizations.of(context)!.welcome}, ${AuthStorage.isGuest ? AppLocalizations.of(context)!.guest_user : AuthStorage.user?.fullName ?? "User"}",
                             style: TextStyle(
                               color: Colors.white,
                               fontSize: 18,
@@ -528,7 +561,14 @@ class _HomeTabState extends State<HomeTab>
                           ),
 
                           InkWell(
-                            onTap: () {
+                            onTap: () async {
+                              if (!await SignInRequired.guard(
+                                context,
+                                GuestAction.notifications,
+                              )) {
+                                return;
+                              }
+                              if (!context.mounted) return;
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
@@ -795,6 +835,18 @@ class _HomeTabState extends State<HomeTab>
                         (i) => i.category.slug == 'essential_supplies',
                       );
                       if (isEssential) {
+                        // Essential supplies skip the package sheet and go
+                        // straight to the order review page, so this button is
+                        // where a guest is asked to sign in. The water package
+                        // path below stays open — its own Continue button is
+                        // the gate there.
+                        if (!await SignInRequired.guard(
+                          context,
+                          GuestAction.checkout,
+                        )) {
+                          return;
+                        }
+                        if (!context.mounted) return;
                         final orderStates = <OrderCategoryState>[];
                         for (final item in _selectedItems) {
                           if (item.specificData is EssentialSelection) {
@@ -2274,7 +2326,9 @@ class _HomeTabState extends State<HomeTab>
 
   Widget buildRecentDonationCard(BuildContext context) {
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
+        if (!await SignInRequired.guard(context, GuestAction.impact)) return;
+        if (!context.mounted) return;
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const ImpactPage()),

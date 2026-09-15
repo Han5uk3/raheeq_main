@@ -1770,6 +1770,49 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get sign_in_required => 'Sign in required';
+
+  @override
+  String get sign_in => 'Sign in';
+
+  @override
+  String get not_now => 'Not now';
+
+  @override
+  String get continue_as_guest => 'Continue as a guest';
+
+  @override
+  String get browsing_as_guest => 'You\'re browsing as a guest';
+
+  @override
+  String get guest_profile_subtitle =>
+      'Sign in to manage your account, orders and donations';
+
+  @override
+  String get sign_in_required_campaign =>
+      'Sign in to your Rahiq account to donate to this campaign.';
+
+  @override
+  String get sign_in_required_checkout =>
+      'Sign in to your Rahiq account to complete this order.';
+
+  @override
+  String get sign_in_required_notifications =>
+      'Sign in to your Rahiq account to see your notifications.';
+
+  @override
+  String get sign_in_required_orders =>
+      'Sign in to your Rahiq account to view and track your orders.';
+
+  @override
+  String get sign_in_required_impact =>
+      'Sign in to your Rahiq account to follow the impact of your donations.';
+
+  @override
+  String get sign_in_required_support =>
+      'Sign in to your Rahiq account so our support team can help you with your orders.';
+
+  @override
   String months_left(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

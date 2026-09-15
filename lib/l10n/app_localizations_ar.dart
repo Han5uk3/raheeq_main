@@ -1758,6 +1758,49 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get sign_in_required => 'تسجيل الدخول مطلوب';
+
+  @override
+  String get sign_in => 'تسجيل الدخول';
+
+  @override
+  String get not_now => 'ليس الآن';
+
+  @override
+  String get continue_as_guest => 'المتابعة كزائر';
+
+  @override
+  String get browsing_as_guest => 'أنت تتصفح كزائر';
+
+  @override
+  String get guest_profile_subtitle =>
+      'سجّل الدخول لإدارة حسابك وطلباتك وتبرعاتك';
+
+  @override
+  String get sign_in_required_campaign =>
+      'سجّل الدخول إلى حسابك في رحيق للتبرع لهذه الحملة.';
+
+  @override
+  String get sign_in_required_checkout =>
+      'سجّل الدخول إلى حسابك في رحيق لإتمام هذا الطلب.';
+
+  @override
+  String get sign_in_required_notifications =>
+      'سجّل الدخول إلى حسابك في رحيق لعرض إشعاراتك.';
+
+  @override
+  String get sign_in_required_orders =>
+      'سجّل الدخول إلى حسابك في رحيق لعرض طلباتك وتتبعها.';
+
+  @override
+  String get sign_in_required_impact =>
+      'سجّل الدخول إلى حسابك في رحيق لمتابعة أثر تبرعاتك.';
+
+  @override
+  String get sign_in_required_support =>
+      'سجّل الدخول إلى حسابك في رحيق ليتمكن فريق الدعم من مساعدتك في طلباتك.';
+
+  @override
   String months_left(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

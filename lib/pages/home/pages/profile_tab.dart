@@ -28,11 +28,17 @@ import 'package:raheeq_main/pages/home/pages/customer_reviews_page.dart';
 import 'package:raheeq_main/pages/home/pages/my_chillers_page.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
+import 'package:raheeq_main/common_widgets/sign_in_required_dialog.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class ProfileTab extends StatefulWidget {
   const ProfileTab({super.key});
+
+  /// Drops the cached notification count. Called when the session changes
+  /// hands — signing out and straight back in as a guest, say — so the badge
+  /// never carries over from the previous user.
+  static void resetCache() => _ProfileTabState._resetCache();
 
   @override
   State<ProfileTab> createState() => _ProfileTabState();
@@ -41,6 +47,11 @@ class ProfileTab extends StatefulWidget {
 class _ProfileTabState extends State<ProfileTab> {
   static String? _cachedNotificationsETag;
   static int _cachedUnreadCount = 0;
+
+  static void _resetCache() {
+    _cachedNotificationsETag = null;
+    _cachedUnreadCount = 0;
+  }
 
   bool _isLoading = false;
   bool _isSaving = false; // Used for logout loading state
@@ -62,8 +73,11 @@ class _ProfileTabState extends State<ProfileTab> {
     _unreadNotificationsCount = _cachedUnreadCount;
     _initPackageInfo();
 
-    // Refresh user profile silently on load to match production APIs
-    _refreshProfile();
+    // A guest has no profile to refresh and no token for the call.
+    if (!AuthStorage.isGuest) {
+      // Refresh user profile silently on load to match production APIs
+      _refreshProfile();
+    }
   }
 
   Future<void> _initPackageInfo() async {
@@ -397,321 +411,378 @@ class _ProfileTabState extends State<ProfileTab> {
 
   @override
   Widget build(BuildContext context) {
-    if (_currentUser == null) {
+    final isGuest = AuthStorage.isGuest;
+    if (_currentUser == null && !isGuest) {
       return Scaffold(
         body: Center(child: Text(AppLocalizations.of(context)!.no_session)),
       );
     }
+    // Standard CustomAppBar to match orders_tab.dart. Held in a variable so
+    // the sheet below can be sized against its height.
+    final appBar = CustomAppBar(
+      hasBackgroundColor: true,
+      centerTitle: true,
+      title: AppLocalizations.of(context)!.profile,
+      subtitle: AppLocalizations.of(context)!.manage_account_settings,
+    );
+
     return Scaffold(
       backgroundColor: AppColors.buttonBlueDark,
-      body: SingleChildScrollView(
-        key: const ValueKey('content'),
-        physics: const ClampingScrollPhysics(),
-        child: Column(
-          children: [
-            // Standard CustomAppBar to match orders_tab.dart
-            CustomAppBar(
-              hasBackgroundColor: true,
-              centerTitle: true,
-              title: AppLocalizations.of(context)!.profile,
-              subtitle: AppLocalizations.of(context)!.manage_account_settings,
-            ),
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          // CustomAppBar wraps a primary AppBar, so it lays out at its
+          // toolbar height plus the status bar inset above it.
+          final sheetMinHeight =
+              constraints.maxHeight -
+              appBar.height -
+              MediaQuery.of(context).padding.top;
 
-            // Rounded sheet containing all sections
-            Transform.translate(
-              offset: const Offset(0, -1),
-              child: Container(
-                width: double.infinity,
-                decoration: const BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(30),
-                    topRight: Radius.circular(30),
-                  ),
+          return SingleChildScrollView(
+            key: const ValueKey('content'),
+            physics: const ClampingScrollPhysics(),
+            child: Column(
+              children: [
+                // Nudged down a pixel so the sheet paints over its bottom
+                // edge and no hairline can open between the two. Done here
+                // rather than by lifting the sheet, which would leave the
+                // sheet a pixel short of the bottom of the screen.
+                Transform.translate(
+                  offset: const Offset(0, 1),
+                  child: appBar,
                 ),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 16),
-                      _buildInfoCard(),
-                      const SizedBox(height: 16),
-                      _buildSection(
-                        AppLocalizations.of(context)!.account_section,
-                        [
-                          _buildMenuTile(
-                            icon: Icons.person_outline_rounded,
-                            title: AppLocalizations.of(
-                              context,
-                            )!.personal_information,
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const MyProfileScreen(),
-                                ),
-                              ).then((_) {
-                                // Refresh user info when returning from subpage
-                                if (mounted) {
-                                  setState(() {
-                                    _currentUser = AuthStorage.user;
-                                  });
-                                }
-                              });
-                            },
-                          ),
-                          _buildMenuTile(
-                            icon: Icons.favorite_border_rounded,
-                            title: AppLocalizations.of(context)!.saved_mosques,
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const SavedMosquesPage(),
-                                ),
-                              );
-                            },
-                          ),
-                          _buildMenuTile(
-                            icon: Icons.cached_rounded,
-                            title: AppLocalizations.of(
-                              context,
-                            )!.recurring_donations,
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const RecurringDonationsPage(),
-                                ),
-                              );
-                            },
-                          ),
-                        ],
+
+                // Rounded sheet containing all sections. It is sized by its
+                // content, and a guest's is short — the account, payment
+                // and support sections are all hidden for them — so without
+                // a floor it stopped partway down and left the scaffold's
+                // blue showing beneath it. Taller content overshoots the
+                // floor and scrolls exactly as before.
+                //
+                // A floor rather than SliverFillRemaining or IntrinsicHeight:
+                // both of those measure the child's intrinsic height, and the
+                // shrink-wrapped ListViews inside _buildSection throw when
+                // asked for one.
+                ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: sheetMinHeight < 0 ? 0 : sheetMinHeight,
+                  ),
+                  child: Container(
+                    width: double.infinity,
+                    decoration: const BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.only(
+                        topLeft: Radius.circular(30),
+                        topRight: Radius.circular(30),
                       ),
-                      const SizedBox(height: 16),
-
-                      _buildSection(
-                        AppLocalizations.of(context)!.payment_orders_section,
-                        [
-                          _buildMenuTile(
-                            icon: Icons.account_balance_wallet_outlined,
-                            title: AppLocalizations.of(context)!.my_wallet,
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const MyWalletPage(),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 16),
+                          isGuest ? _buildGuestCard() : _buildInfoCard(),
+                          const SizedBox(height: 16),
+                          // Every row in these two sections needs a customer
+                          // session, so a guest is shown none of them rather than
+                          // a list that only leads to a sign-in prompt.
+                          if (!isGuest) ...[
+                            _buildSection(
+                              AppLocalizations.of(context)!.account_section,
+                              [
+                                _buildMenuTile(
+                                  icon: Icons.person_outline_rounded,
+                                  title: AppLocalizations.of(
+                                    context,
+                                  )!.personal_information,
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => const MyProfileScreen(),
+                                      ),
+                                    ).then((_) {
+                                      // Refresh user info when returning from subpage
+                                      if (mounted) {
+                                        setState(() {
+                                          _currentUser = AuthStorage.user;
+                                        });
+                                      }
+                                    });
+                                  },
                                 ),
-                              );
-                            },
-                          ),
-
-                          _buildMenuTile(
-                            icon: Icons.kitchen_outlined,
-                            title: AppLocalizations.of(context)!.my_chillers,
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const MyChillersPage(),
+                                _buildMenuTile(
+                                  icon: Icons.favorite_border_rounded,
+                                  title: AppLocalizations.of(context)!.saved_mosques,
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const SavedMosquesPage(),
+                                      ),
+                                    );
+                                  },
                                 ),
-                              );
-                            },
-                          ),
-                          _buildMenuTile(
-                            icon: Symbols.package_2,
-                            title: AppLocalizations.of(context)!.order_history,
-                            onTap: () {
-                              HomeScreen.switchTabNotifier.value = 1;
-                            },
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-
-                      _buildSection(
-                        AppLocalizations.of(context)!.settings_section,
-                        [
-                          _buildMenuTile(
-                            icon: Icons.notifications_outlined,
-                            title: AppLocalizations.of(context)!.notifications,
-                            badgeCount: _unreadNotificationsCount,
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const NotificationsPage(),
+                                _buildMenuTile(
+                                  icon: Icons.cached_rounded,
+                                  title: AppLocalizations.of(
+                                    context,
+                                  )!.recurring_donations,
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const RecurringDonationsPage(),
+                                      ),
+                                    );
+                                  },
                                 ),
-                              ).then((_) {
-                                _refreshProfile();
-                              });
-                            },
-                          ),
-                          _buildMenuTile(
-                            icon: Icons.file_copy_outlined,
-                            title: AppLocalizations.of(
-                              context,
-                            )!.terms_conditions,
-                            onTap: () async {
-                              final url = Uri.parse(
-                                "https://suqyarahiq.com/terms-and-conditions.html",
-                              );
-                              if (await canLaunchUrl(url)) {
-                                await launchUrl(
-                                  url,
-                                  mode: LaunchMode.externalApplication,
-                                );
-                              } else {
-                                // Show error toast
-                                CustomSnackbar.show(
-                                  context: context,
-                                  message: "couldnot launch url",
-                                );
-                              }
-                            },
-                          ),
-                          _buildMenuTile(
-                            icon: Icons.policy_outlined,
-                            title: AppLocalizations.of(context)!.privacy_policy,
-                            onTap: () async {
-                              final url = Uri.parse(
-                                "https://suqyarahiq.com/privacy-policy.html",
-                              );
-                              if (await canLaunchUrl(url)) {
-                                await launchUrl(
-                                  url,
-                                  mode: LaunchMode.externalApplication,
-                                );
-                              } else {
-                                // Show error toast
-                                CustomSnackbar.show(
-                                  context: context,
-                                  message: "couldnot launch url",
-                                );
-                              }
-                            },
-                          ),
-                          _buildMenuTile(
-                            icon: Icons.settings_outlined,
-                            title: AppLocalizations.of(context)!.app_settings,
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const AppSettingsPage(),
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                      const SizedBox(height: 16),
-
-                      _buildSection(
-                        AppLocalizations.of(context)!.support_section,
-                        [
-                          _buildMenuTile(
-                            icon: Icons.phone_outlined,
-                            title: AppLocalizations.of(context)!.contact_us,
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const ContactUsPage(),
-                                ),
-                              );
-                            },
-                          ),
-                          _buildMenuTile(
-                            icon: Icons.star_outline_rounded,
-                            title: AppLocalizations.of(
-                              context,
-                            )!.customer_reviews,
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) =>
-                                      const CustomerReviewsPage(),
-                                ),
-                              );
-                            },
-                          ),
-                        ],
-                      ),
-                    
-                      const SizedBox(height: 24),
-
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: _logout,
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.buttonBlueDark,
-                            foregroundColor: Colors.white,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(25),
+                              ],
                             ),
-                            fixedSize: Size(double.infinity, 50),
-                          ),
+                            const SizedBox(height: 16),
 
-                          child: Text(AppLocalizations.of(context)!.logout),
-                        ),
-                      ),
-                      // Shown on both platforms while App_Settings/v1 has
-                      // showDeleteAccount set to true.
-                      StreamBuilder<bool>(
-                        stream: _showDeleteAccount,
-                        initialData: false,
-                        builder: (context, snapshot) {
-                          if (snapshot.data != true) {
-                            return const SizedBox.shrink();
-                          }
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 16),
-                            child: SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton(
-                                onPressed: _deleteAccount,
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.red,
-                                  foregroundColor: Colors.white,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(25),
-                                  ),
-                                  fixedSize: Size(double.infinity, 50),
+                            _buildSection(
+                              AppLocalizations.of(context)!.payment_orders_section,
+                              [
+                                _buildMenuTile(
+                                  icon: Icons.account_balance_wallet_outlined,
+                                  title: AppLocalizations.of(context)!.my_wallet,
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => const MyWalletPage(),
+                                      ),
+                                    );
+                                  },
                                 ),
-                                child: Text(
-                                  AppLocalizations.of(context)!.delete_account,
+
+                                _buildMenuTile(
+                                  icon: Icons.kitchen_outlined,
+                                  title: AppLocalizations.of(context)!.my_chillers,
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => const MyChillersPage(),
+                                      ),
+                                    );
+                                  },
                                 ),
+                                _buildMenuTile(
+                                  icon: Symbols.package_2,
+                                  title: AppLocalizations.of(context)!.order_history,
+                                  onTap: () {
+                                    HomeScreen.switchTabNotifier.value = 1;
+                                  },
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 16),
+                          ],
+
+                          _buildSection(
+                            AppLocalizations.of(context)!.settings_section,
+                            [
+                              // Terms, privacy and the app settings below are all
+                              // local or public, so they stay for a guest.
+                              if (!isGuest)
+                                _buildMenuTile(
+                                  icon: Icons.notifications_outlined,
+                                  title: AppLocalizations.of(context)!.notifications,
+                                  badgeCount: _unreadNotificationsCount,
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const NotificationsPage(),
+                                      ),
+                                    ).then((_) {
+                                      _refreshProfile();
+                                    });
+                                  },
+                                ),
+                              _buildMenuTile(
+                                icon: Icons.file_copy_outlined,
+                                title: AppLocalizations.of(
+                                  context,
+                                )!.terms_conditions,
+                                onTap: () async {
+                                  final url = Uri.parse(
+                                    "https://suqyarahiq.com/terms-and-conditions.html",
+                                  );
+                                  if (await canLaunchUrl(url)) {
+                                    await launchUrl(
+                                      url,
+                                      mode: LaunchMode.externalApplication,
+                                    );
+                                  } else {
+                                    // Show error toast
+                                    CustomSnackbar.show(
+                                      context: context,
+                                      message: "couldnot launch url",
+                                    );
+                                  }
+                                },
+                              ),
+                              _buildMenuTile(
+                                icon: Icons.policy_outlined,
+                                title: AppLocalizations.of(context)!.privacy_policy,
+                                onTap: () async {
+                                  final url = Uri.parse(
+                                    "https://suqyarahiq.com/privacy-policy.html",
+                                  );
+                                  if (await canLaunchUrl(url)) {
+                                    await launchUrl(
+                                      url,
+                                      mode: LaunchMode.externalApplication,
+                                    );
+                                  } else {
+                                    // Show error toast
+                                    CustomSnackbar.show(
+                                      context: context,
+                                      message: "couldnot launch url",
+                                    );
+                                  }
+                                },
+                              ),
+                              _buildMenuTile(
+                                icon: Icons.settings_outlined,
+                                title: AppLocalizations.of(context)!.app_settings,
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const AppSettingsPage(),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+
+                          // Support chat and customer reviews both run against the
+                          // customer account, so this section goes too.
+                          if (!isGuest)
+                            _buildSection(
+                              AppLocalizations.of(context)!.support_section,
+                              [
+                                _buildMenuTile(
+                                  icon: Icons.phone_outlined,
+                                  title: AppLocalizations.of(context)!.contact_us,
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => const ContactUsPage(),
+                                      ),
+                                    );
+                                  },
+                                ),
+                                _buildMenuTile(
+                                  icon: Icons.star_outline_rounded,
+                                  title: AppLocalizations.of(
+                                    context,
+                                  )!.customer_reviews,
+                                  onTap: () {
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) =>
+                                            const CustomerReviewsPage(),
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ],
+                            ),
+                  
+                          const SizedBox(height: 24),
+
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              onPressed: isGuest
+                                  ? () => SignInRequired.goToLogin(context)
+                                  : _logout,
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.buttonBlueDark,
+                                foregroundColor: Colors.white,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(25),
+                                ),
+                                fixedSize: Size(double.infinity, 50),
+                              ),
+
+                              child: Text(
+                                isGuest
+                                    ? AppLocalizations.of(context)!.sign_in
+                                    : AppLocalizations.of(context)!.logout,
                               ),
                             ),
-                          );
-                        },
+                          ),
+                          // No account to delete while browsing as a guest.
+                          // Otherwise shown on both platforms while
+                          // App_Settings/v1 has showDeleteAccount set to true.
+                          if (!isGuest)
+                            StreamBuilder<bool>(
+                              stream: _showDeleteAccount,
+                              initialData: false,
+                              builder: (context, snapshot) {
+                                if (snapshot.data != true) {
+                                  return const SizedBox.shrink();
+                                }
+                                return Padding(
+                                  padding: const EdgeInsets.only(top: 16),
+                                  child: SizedBox(
+                                    width: double.infinity,
+                                    child: ElevatedButton(
+                                      onPressed: _deleteAccount,
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.red,
+                                        foregroundColor: Colors.white,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            25,
+                                          ),
+                                        ),
+                                        fixedSize: Size(double.infinity, 50),
+                                      ),
+                                      child: Text(
+                                        AppLocalizations.of(
+                                          context,
+                                        )!.delete_account,
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              },
+                            ),
+                          const SizedBox(height: 24),
+                          _buildSocialMediaRow(),
+                          const SizedBox(height: 24),
+                          Center(
+                            child: Text(
+                              '${AppLocalizations.of(context)!.version}: '
+                              '${_appVersion.isEmpty ? '...' : _appVersion}',
+                              style: TextStyle(color: Colors.grey, fontSize: 13),
+                            ),
+                          ),
+              
+                          const SizedBox(height: 120),
+                        ],
                       ),
-                      const SizedBox(height: 24),
-                      _buildSocialMediaRow(),
-                      const SizedBox(height: 24),
-                      Center(
-                        child: Text(
-                          '${AppLocalizations.of(context)!.version}: '
-                          '${_appVersion.isEmpty ? '...' : _appVersion}',
-                          style: TextStyle(color: Colors.grey, fontSize: 13),
-                        ),
-                      ),
-                
-                      const SizedBox(height: 120),
-                    ],
+                    ),
                   ),
                 ),
-              ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }
@@ -762,7 +833,7 @@ class _ProfileTabState extends State<ProfileTab> {
       'https://play.google.com/store/apps/details?id=com.rahiq.main';
 
   static const String _shareLinkIOS = 'https://apps.apple.com/app/6775236301';
-
+  
   Future<void> _openSocialLink(String urlString) async {
     final url = Uri.parse(urlString);
     if (await canLaunchUrl(url)) {
@@ -852,6 +923,73 @@ class _ProfileTabState extends State<ProfileTab> {
           onTap: _shareApp,
         ),
       ],
+    );
+  }
+
+  /// Stands in for [_buildInfoCard] in guest mode, where there is no name,
+  /// phone number or email to show.
+  Widget _buildGuestCard() {
+    return Card(
+      color: Colors.white,
+      elevation: 2,
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Row(
+          children: [
+            Container(
+              width: 84,
+              height: 84,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                gradient: const LinearGradient(
+                  begin: AlignmentDirectional.bottomEnd,
+                  end: AlignmentDirectional.topStart,
+                  colors: [
+                    Color(0xFFBCECF5),
+                    AppColors.headerlightblue,
+                    AppColors.buttonBlueDark,
+                  ],
+                  stops: [0.0, 0.05, 1.0],
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: AppColors.headerlightblue.withValues(alpha: 0.35),
+                    blurRadius: 16,
+                    offset: const Offset(-4, 6),
+                  ),
+                ],
+              ),
+              child: const Center(
+                child: Icon(
+                  Icons.person_outline_rounded,
+                  color: Colors.white,
+                  size: 34,
+                ),
+              ),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    AppLocalizations.of(context)!.guest_user,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    AppLocalizations.of(context)!.guest_profile_subtitle,
+                    style: const TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 

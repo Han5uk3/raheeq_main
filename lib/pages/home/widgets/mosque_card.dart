@@ -108,11 +108,13 @@ Widget mosqueCard({
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
-                    if (slug != 'orphanages')
+                    // No toggle passed in, no heart: that is how a guest, who
+                    // has no saved list to add to, gets a card without one.
+                    if (slug != 'orphanages' && toggleFavorite != null)
                       Padding(
                         padding: const EdgeInsets.symmetric(horizontal: 16.0),
                         child: GestureDetector(
-                          onTap: () => toggleFavorite?.call(),
+                          onTap: () => toggleFavorite.call(),
                           child: Icon(
                             favoriteMosqueIds.contains(item.id)
                                 ? Icons.favorite

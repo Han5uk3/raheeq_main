@@ -13,6 +13,7 @@ class AuthStorage {
   static const String refreshTokenKey = 'refreshToken';
   static const String registrationTokenKey = 'registrationToken';
   static const String userDataKey = 'userData';
+  static const String guestModeKey = 'guestMode';
 
   // Global key for programmatic routing (e.g. token invalidation redirection)
   static final GlobalKey<NavigatorState> navigatorKey =
@@ -44,10 +45,44 @@ class AuthStorage {
     await Hive.initFlutter();
     await Hive.openBox(boxName);
     isLoggedInNotifier.value = accessToken != null;
+    isGuestNotifier.value = isGuest;
     if (!_readyCompleter.isCompleted) _readyCompleter.complete();
   }
 
   static Box get _box => Hive.box(boxName);
+
+  // -------------------------------------------------------------------
+  // Guest mode
+  // -------------------------------------------------------------------
+
+  /// Notifies listeners when the app enters or leaves guest mode, so anything
+  /// built while browsing as a guest can rebuild the moment a session exists.
+  static final ValueNotifier<bool> isGuestNotifier = ValueNotifier<bool>(false);
+
+  /// True while the user is browsing the app without a customer session.
+  ///
+  /// Available on Android and iOS alike. Whether the login page offers it is
+  /// a remote switch (`showGuestMode` in App_Settings/v1, read through
+  /// `AppSettings`); turning that off only hides the button, so a guest who
+  /// is already browsing stays one.
+  static bool get isGuest {
+    if (!Hive.isBoxOpen(boxName)) return false;
+    return _box.get(guestModeKey) == true;
+  }
+
+  /// Starts browsing without signing in.
+  static Future<void> enterGuestMode() async {
+    await _box.put(guestModeKey, true);
+    isGuestNotifier.value = true;
+  }
+
+  /// Leaves guest mode. Callers sending the user to the login screen call this
+  /// first, so nothing left on screen still reads as a guest.
+  static Future<void> exitGuestMode() async {
+    if (!Hive.isBoxOpen(boxName)) return;
+    await _box.delete(guestModeKey);
+    isGuestNotifier.value = false;
+  }
 
   static Future<void> saveTokens({
     required String accessToken,
@@ -55,6 +90,10 @@ class AuthStorage {
   }) async {
     await _box.put(accessTokenKey, accessToken);
     await _box.put(refreshTokenKey, refreshToken);
+    // Every login path funnels through here, so this is the single place that
+    // has to retire guest mode: a real session always supersedes it.
+    await _box.delete(guestModeKey);
+    isGuestNotifier.value = false;
     isLoggedInNotifier.value = true;
   }
 
@@ -99,6 +138,7 @@ class AuthStorage {
   static Future<void> clear() async {
     await _box.clear();
     isLoggedInNotifier.value = false;
+    isGuestNotifier.value = false;
 
     try {
       Freshchat.resetUser();

@@ -21,6 +21,10 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:raheeq_main/pages/authentication/otp.dart';
 import 'package:raheeq_main/pages/authentication/registration.dart';
 import 'package:raheeq_main/pages/home/home_screen.dart';
+import 'package:raheeq_main/pages/home/pages/home_tab.dart';
+import 'package:raheeq_main/pages/home/pages/orders_tab.dart';
+import 'package:raheeq_main/pages/home/pages/profile_tab.dart';
+import 'package:raheeq_main/services/app_settings.dart';
 import 'package:raheeq_main/storage/app_storage.dart';
 import 'package:raheeq_main/utils/apple_id_token.dart';
 import 'package:raheeq_main/storage/auth_storage.dart';
@@ -58,11 +62,31 @@ class _LoginState extends State<Login> {
   final TextEditingController _phoneController = TextEditingController();
   final TapGestureRecognizer _termsTapRecognizer = TapGestureRecognizer();
 
+  /// Live `showGuestMode` switch, opened once for the life of the page.
+  late final Stream<bool> _showGuestMode = AppSettings.showGuestMode();
+
   @override
   void dispose() {
     _phoneController.dispose();
     _termsTapRecognizer.dispose();
     super.dispose();
+  }
+
+  /// Enters guest mode and drops the user on the home screen. Reached from the
+  /// continue-as-guest button, which is only shown while App_Settings/v1 has
+  /// showGuestMode set to true.
+  Future<void> _continueAsGuest() async {
+    // The home and orders tabs cache their responses in statics that outlive a
+    // sign-out, so drop them before a guest can be shown the previous
+    // account's data.
+    HomeTab.resetCache();
+    OrdersTab.resetCache();
+    ProfileTab.resetCache();
+    await AuthStorage.enterGuestMode();
+    if (!mounted) return;
+    Navigator.of(
+      context,
+    ).pushAndRemoveUntil(HomeScreen.route(), (route) => false);
   }
 
   Future<void> _openTermsAndConditions() async {
@@ -1037,6 +1061,53 @@ class _LoginState extends State<Login> {
                                         _socialLoadingProvider == 'Apple',
                                   ),
                                 },
+                                // Browsing without signing in, on both
+                                // platforms, while App_Settings/v1 has
+                                // showGuestMode set to true.
+                                StreamBuilder<bool>(
+                                  stream: _showGuestMode,
+                                  initialData: false,
+                                  builder: (context, snapshot) {
+                                    if (snapshot.data != true) {
+                                      return const SizedBox.shrink();
+                                    }
+                                    return Padding(
+                                      padding: const EdgeInsets.only(top: 14),
+                                      child: TextButton(
+                                        onPressed:
+                                            (_isLoading ||
+                                                _socialLoadingProvider != null)
+                                            ? null
+                                            : _continueAsGuest,
+                                        style: TextButton.styleFrom(
+                                          minimumSize: const Size(
+                                            double.infinity,
+                                            52,
+                                          ),
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius: BorderRadius.circular(
+                                              35,
+                                            ),
+                                          ),
+                                        ),
+                                        child: Text(
+                                          AppLocalizations.of(
+                                            context,
+                                          )!.continue_as_guest,
+                                          style: const TextStyle(
+                                            color: AppColors.buttonBlueDark,
+                                            fontSize: 15,
+                                            fontWeight: FontWeight.w600,
+                                            decoration:
+                                                TextDecoration.underline,
+                                            decorationColor:
+                                                AppColors.buttonBlueDark,
+                                          ),
+                                        ),
+                                      ),
+                                    );
+                                  },
+                                ),
                                 const SizedBox(height: 24),
                               ],
                             ),
