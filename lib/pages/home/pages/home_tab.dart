@@ -86,8 +86,6 @@ class _HomeTabState extends State<HomeTab>
   static String? _cachedProfileETag;
   static String? _cachedCitiesETag;
   static String? _cachedImpactETag;
-  static String? _cachedNotificationsETag;
-  static int _cachedUnreadCount = 0;
   static bool showOrdersOverview = false;
 
   // Queue for items added from external pages (e.g., Saved Mosques)
@@ -101,39 +99,6 @@ class _HomeTabState extends State<HomeTab>
     image: '',
     sortOrder: 0,
   );
-  Future<void> _refreshUnreadCount() async {
-    // Guests have no notifications; the endpoint needs a customer token.
-    if (AuthStorage.isGuest) return;
-    try {
-      // Don't send the cached ETag here — we just came back from the
-      // notifications page and know the count may have changed, so we
-      // want a guaranteed fresh value rather than a possible 304.
-      final unreadRes = await ApiService().getUnreadNotificationsCount(
-        showSnackbar: false,
-      );
-      if (unreadRes.statusCode == 200 && unreadRes.data['success'] == true) {
-        final newEtag = unreadRes.headers.value('etag');
-        if (newEtag != null) _cachedNotificationsETag = newEtag;
-
-        final countData = unreadRes.data['data'];
-        int? parsedCount;
-        if (countData != null && countData['count'] != null) {
-          parsedCount = countData['count'] as int;
-        } else if (countData is int) {
-          parsedCount = countData;
-        }
-
-        if (parsedCount != null && mounted) {
-          setState(() {
-            _cachedUnreadCount = parsedCount!;
-            _unreadNotificationsCount = parsedCount;
-          });
-        }
-      }
-    } catch (e) {
-      // log('Error refreshing unread notifications count: $e', name: 'HomeTab');
-    }
-  }
 
   bool _isLoading = true;
   String? _errorMessage;
@@ -165,22 +130,18 @@ class _HomeTabState extends State<HomeTab>
     _cachedProfileETag = null;
     _cachedCitiesETag = null;
     _cachedImpactETag = null;
-    _cachedNotificationsETag = null;
-    _cachedUnreadCount = 0;
     showOrdersOverview = false;
     _selectedItems.clear();
     _pendingItems.clear();
   }
 
   int _currentIndex = 0;
-  int _unreadNotificationsCount = 0;
 
   @override
   void initState() {
     super.initState();
     SnackbarInsets.setBottomInset(kBottomNavigationBarHeight + 10);
     WidgetsBinding.instance.addObserver(this);
-    _unreadNotificationsCount = _cachedUnreadCount;
     if (_hasLoadedOnce) {
       _bannerData = _cachedBannerData;
       _campaigns = _cachedCampaigns;
@@ -286,7 +247,6 @@ class _HomeTabState extends State<HomeTab>
         _cachedProfileETag = null;
         _cachedCitiesETag = null;
         _cachedImpactETag = null;
-        _cachedNotificationsETag = null;
       }
       setState(() {
         if (!_hasLoadedOnce) _isLoading = true;
@@ -373,48 +333,12 @@ class _HomeTabState extends State<HomeTab>
         }
       }();
 
-      final notificationsFuture = () async {
-        if (isGuest) return;
-        try {
-          final unreadRes = await ApiService().getUnreadNotificationsCount(
-            showSnackbar: true,
-            etag: _cachedNotificationsETag,
-          );
-          if (unreadRes.statusCode == 304) {
-            // log('Unread notifications unchanged (304).', name: 'HomeTab');
-            if (mounted && myGeneration == _fetchGeneration) {
-              setState(() {
-                _unreadNotificationsCount = _cachedUnreadCount;
-              });
-            }
-            return;
-          }
-          if (unreadRes.statusCode == 200 &&
-              unreadRes.data['success'] == true) {
-            final newEtag = unreadRes.headers.value('etag');
-            if (newEtag != null) _cachedNotificationsETag = newEtag;
-
-            final countData = unreadRes.data['data'];
-            if (countData != null && countData['count'] != null) {
-              _cachedUnreadCount = countData['count'] as int;
-              _unreadNotificationsCount = _cachedUnreadCount;
-            } else if (countData is int) {
-              _cachedUnreadCount = countData;
-              _unreadNotificationsCount = _cachedUnreadCount;
-            }
-          }
-        } catch (e) {
-          // log('Error fetching unread notifications count: $e', name: 'HomeTab');
-        }
-      }();
-
       final homeFuture = ApiService().getHome();
 
       await Future.wait([
         profileFuture,
         citiesFuture,
         impactFuture,
-        notificationsFuture,
         homeFuture,
       ]);
 
@@ -645,15 +569,13 @@ class _HomeTabState extends State<HomeTab>
                                 return;
                               }
                               if (!context.mounted) return;
-                              await Navigator.push(
+                              Navigator.push(
                                 context,
                                 MaterialPageRoute(
                                   builder: (context) =>
                                       const NotificationsPage(),
                                 ),
                               );
-                              // Refresh notifications count when returning
-                              _refreshUnreadCount();
                             },
                             child: Material(
                               color: Colors.white,
@@ -661,41 +583,10 @@ class _HomeTabState extends State<HomeTab>
                               child: SizedBox(
                                 height: 36,
                                 width: 36,
-                                child: Stack(
-                                  alignment: Alignment.center,
-                                  children: [
-                                    Icon(
-                                      Icons.notifications_outlined,
-                                      color: AppColors.buttonBlueDark,
-                                      size: 20,
-                                    ),
-                                    if (_unreadNotificationsCount > 0)
-                                      Positioned(
-                                        top: 0,
-                                        right: 0,
-                                        child: Container(
-                                          padding: const EdgeInsets.all(2),
-                                          decoration: BoxDecoration(
-                                            color: Colors.red,
-                                            borderRadius: BorderRadius.circular(
-                                              20,
-                                            ),
-                                          ),
-                                          constraints: BoxConstraints(
-                                            minWidth: 16,
-                                            minHeight: 16,
-                                          ),
-                                          child: Text(
-                                            '$_unreadNotificationsCount',
-                                            style: const TextStyle(
-                                              color: Colors.white,
-                                              fontSize: 8,
-                                            ),
-                                            textAlign: TextAlign.center,
-                                          ),
-                                        ),
-                                      ),
-                                  ],
+                                child: Icon(
+                                  Icons.notifications_outlined,
+                                  color: AppColors.buttonBlueDark,
+                                  size: 20,
                                 ),
                               ),
                             ),
@@ -1939,7 +1830,7 @@ class _HomeTabState extends State<HomeTab>
                           .toList();
 
                       final specificItems = await Navigator.of(context).push(
-                        MaterialPageRoute(
+                        SpecificMosqueRoute(
                           builder: (_) => SpecificMosquePage(
                             isEssentialProduct: false,
                             slug: category.slug,
@@ -1948,8 +1839,7 @@ class _HomeTabState extends State<HomeTab>
                           ),
                         ),
                       );
-                      if (specificItems != null &&
-                          specificItems is List<Place>) {
+                      if (specificItems != null) {
                         setState(() {
                           _selectedItems.removeWhere(
                             (item) => item.category.slug == slug,
@@ -2033,7 +1923,7 @@ class _HomeTabState extends State<HomeTab>
                       .toList();
 
                   final mosques = await Navigator.of(context).push(
-                    MaterialPageRoute(
+                    SpecificMosqueRoute(
                       builder: (_) => SpecificMosquePage(
                         isEssentialProduct: false,
                         slug: category.slug,
@@ -2042,7 +1932,7 @@ class _HomeTabState extends State<HomeTab>
                       ),
                     ),
                   );
-                  if (mosques != null && mosques is List<Place>) {
+                  if (mosques != null) {
                     setState(() {
                       _selectedItems.removeWhere(
                         (item) => item.category.slug == slug,
@@ -2210,7 +2100,7 @@ class _HomeTabState extends State<HomeTab>
                         });
                       } else if (result == 'specific') {
                         final specificItems = await Navigator.of(context).push(
-                          MaterialPageRoute(
+                          SpecificMosqueRoute(
                             builder: (_) => SpecificMosquePage(
                               isEssentialProduct: true,
                               slug: 'mosques_in_need',
@@ -2219,9 +2109,7 @@ class _HomeTabState extends State<HomeTab>
                             ),
                           ),
                         );
-                        if (specificItems != null &&
-                            specificItems is List<Place> &&
-                            specificItems.isNotEmpty) {
+                        if (specificItems != null && specificItems.isNotEmpty) {
                           setState(() {
                             for (final specificItem in specificItems) {
                               _selectedItems.add(
