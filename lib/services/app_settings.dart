@@ -25,6 +25,9 @@ class AppSettings {
   /// Whether the profile tab offers to delete the account.
   static Stream<bool> showDeleteAccount() => _watch('showDeleteAccount');
 
+  /// Whether the login page offers to continue as a guest.
+  static Stream<bool> showGuestMode() => _watch('showGuestMode');
+
   static Stream<bool> _watch(String field) async* {
     await _firebaseReady.future;
     yield* FirebaseFirestore.instance

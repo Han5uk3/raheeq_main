@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
@@ -53,44 +52,26 @@ class AuthStorage {
   static Box get _box => Hive.box(boxName);
 
   // -------------------------------------------------------------------
-  // Guest mode (iOS only)
+  // Guest mode
   // -------------------------------------------------------------------
 
   /// Notifies listeners when the app enters or leaves guest mode, so anything
   /// built while browsing as a guest can rebuild the moment a session exists.
   static final ValueNotifier<bool> isGuestNotifier = ValueNotifier<bool>(false);
 
-  /// DEBUG SWITCH — set back to `false` before shipping.
-  ///
-  /// Guest mode is an iOS-only feature. This opens it on Android as well so
-  /// the flow can be exercised on an Android device.
-  static const bool allowGuestModeOnAndroid = false;
-
-  /// Whether this platform may enter guest mode at all. iOS only, unless
-  /// [allowGuestModeOnAndroid] is up.
-  ///
-  /// The single gate everything platform-dependent reads — the login button,
-  /// [isGuest] and [enterGuestMode] alike — so opening guest mode up to
-  /// another platform, or closing it again, is a one-line change here rather
-  /// than a hunt through the call sites.
-  static bool get guestModeSupported =>
-      Platform.isIOS || allowGuestModeOnAndroid;
-
   /// True while the user is browsing the app without a customer session.
   ///
-  /// The platform gate is repeated here rather than left to the callers: a
-  /// flag carried over by a restored backup then still can't put an
-  /// unsupported platform into guest mode.
+  /// Available on Android and iOS alike. Whether the login page offers it is
+  /// a remote switch (`showGuestMode` in App_Settings/v1, read through
+  /// `AppSettings`); turning that off only hides the button, so a guest who
+  /// is already browsing stays one.
   static bool get isGuest {
-    if (!guestModeSupported) return false;
     if (!Hive.isBoxOpen(boxName)) return false;
     return _box.get(guestModeKey) == true;
   }
 
-  /// Starts browsing without signing in. No-op where guest mode is not
-  /// supported — see [guestModeSupported].
+  /// Starts browsing without signing in.
   static Future<void> enterGuestMode() async {
-    if (!guestModeSupported) return;
     await _box.put(guestModeKey, true);
     isGuestNotifier.value = true;
   }
