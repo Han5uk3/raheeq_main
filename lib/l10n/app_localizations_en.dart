@@ -1266,7 +1266,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String selected_items_count(int count) {
-    return 'Selected: $count items';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Selected: $count locations',
+      one: 'Selected: 1 location',
+    );
+    return '$_temp0';
   }
 
   @override

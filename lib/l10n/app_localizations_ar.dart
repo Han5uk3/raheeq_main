@@ -1257,7 +1257,16 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String selected_items_count(int count) {
-    return 'محدد: $count عناصر';
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'محدد: $count موقع',
+      many: 'محدد: $count موقعًا',
+      few: 'محدد: $count مواقع',
+      two: 'محدد: موقعان',
+      one: 'محدد: موقع واحد',
+    );
+    return '$_temp0';
   }
 
   @override

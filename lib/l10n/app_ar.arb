@@ -413,7 +413,7 @@
   "people_helped": "الأشخاص المستفيدين",
   "water_cartons": "كراتين المياه",
   "chillers": "البرادات",
-  "selected_items_count": "محدد: {count} عناصر",
+  "selected_items_count": "{count, plural, one{محدد: موقع واحد} two{محدد: موقعان} few{محدد: {count} مواقع} many{محدد: {count} موقعًا} other{محدد: {count} موقع}}",
   "@selected_items_count": {
     "placeholders": {
       "count": {

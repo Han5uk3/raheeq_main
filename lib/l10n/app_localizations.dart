@@ -2504,7 +2504,7 @@ abstract class AppLocalizations {
   /// No description provided for @selected_items_count.
   ///
   /// In en, this message translates to:
-  /// **'Selected: {count} items'**
+  /// **'{count, plural, =1{Selected: 1 location} other{Selected: {count} locations}}'**
   String selected_items_count(int count);
 
   /// No description provided for @customer_reviews.
