@@ -74,6 +74,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "579658096080-9gghpj5ecroq9td73qjalcajk69qjg12.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.rahiq.main",
+            "certificate_hash": "50b88d23c13355157beb16af6dcf79fbbbe47d33"
+          }
+        },
+        {
+          "client_id": "579658096080-bru4o5mqih02vrk77aosaf11tt2hghmr.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.rahiq.main",
+            "certificate_hash": "3295dddb90f6fdf81ae26b5bef38f5c13ee197e7"
+          }
+        },
+        {
           "client_id": "579658096080-e70hfih82g3dmti8e2i52dcgvoetto5h.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
