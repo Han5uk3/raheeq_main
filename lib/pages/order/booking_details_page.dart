@@ -497,7 +497,6 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
 
                 return Column(
                   children: [
-                    const SizedBox(height: 12),
                     _buildPremiumCard(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -515,48 +514,51 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => Scaffold(
-                                    backgroundColor: Colors.black,
-                                    appBar: AppBar(
-                                      backgroundColor: Colors.black,
-                                      iconTheme: const IconThemeData(
-                                        color: Colors.white,
+                                  // Opens in the delivery proof viewer so both
+                                  // look and behave the same.
+                                  builder: (context) => ProofMediaViewerPage(
+                                    mediaItems: [
+                                      ProofMediaItem(
+                                        title: AppLocalizations.of(
+                                          context,
+                                        )!.gift_card,
+                                        url: giftCardUrl,
+                                        isVideo: false,
+                                        fileLabel: 'gift_card',
                                       ),
-                                    ),
-                                    body: Center(
-                                      child: InteractiveViewer(
-                                        child: CachedNetworkImage(
-                                          imageUrl: giftCardUrl,
-                                          fit: BoxFit.contain,
-                                        ),
-                                      ),
-                                    ),
+                                    ],
+                                    showDownload: false,
                                   ),
                                 ),
                               );
                             },
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(12),
-                              child: CachedNetworkImage(
-                                imageUrl: giftCardUrl,
-                                height: 290,
-                                width: double.infinity,
-                                fit: BoxFit.cover,
-                                placeholder: (context, url) =>
-                                    Shimmer.fromColors(
-                                      baseColor: Colors.grey[300]!,
-                                      highlightColor: Colors.grey[100]!,
-                                      child: Container(
+                              child: AspectRatio(
+                                aspectRatio: 1.8,
+                                child: CachedNetworkImage(
+                                  imageUrl: giftCardUrl,
+
+                                  fit: BoxFit.cover,
+                                  placeholder: (context, url) =>
+                                      Shimmer.fromColors(
+                                        baseColor: Colors.grey[300]!,
+                                        highlightColor: Colors.grey[100]!,
+                                        child: Container(
+                                          height: 290,
+                                          width: double.infinity,
+                                          color: Colors.white,
+                                        ),
+                                      ),
+                                  errorWidget: (context, url, error) =>
+                                      Container(
+                                        color: Colors.grey[200],
                                         height: 290,
                                         width: double.infinity,
-                                        color: Colors.white,
+                                        child: const Center(
+                                          child: Icon(Icons.error),
+                                        ),
                                       ),
-                                    ),
-                                errorWidget: (context, url, error) => Container(
-                                  color: Colors.grey[200],
-                                  height: 290,
-                                  width: double.infinity,
-                                  child: const Center(child: Icon(Icons.error)),
                                 ),
                               ),
                             ),
@@ -698,14 +700,18 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
             flex: 2,
             child: Text(
               label,
-              style: const TextStyle(color: Colors.grey, fontSize: 14),
+              style: const TextStyle(color: Colors.black, fontSize: 14),
             ),
           ),
           Expanded(
             flex: 3,
             child: Text(
               value,
-              style: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
+              style: const TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 14,
+                color: Colors.grey,
+              ),
             ),
           ),
         ],

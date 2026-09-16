@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:developer';
 
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 
 /// The one place API traffic is logged.
 ///
@@ -10,7 +11,10 @@ import 'package:dio/dio.dart';
 /// name. Nothing else should log API calls; flip [enabled] instead.
 class ApiLogger extends Interceptor {
   /// Turns all API request/response logging on or off.
-  static const bool enabled = true;
+  ///
+  /// Off outside debug builds: `log` output never reaches the device console
+  /// there, yet pretty-printing large bodies still stalls the UI thread.
+  static const bool enabled = kDebugMode;
 
   static const String _startedAtKey = '_api_logger_started_at';
 

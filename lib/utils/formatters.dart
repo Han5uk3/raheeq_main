@@ -64,7 +64,14 @@ class Formatters {
   /// A rate as it reads next to a label, with no trailing zeros: 15.00 reads
   /// as `15` and 15.50 as `15.5`, so a whole percentage never renders as
   /// `15.00%`.
-  static String formatPercentage(num value) => _formatDouble(value.toDouble());
+  ///
+  /// The `%` comes with the number and the pair is wrapped left-to-right, so
+  /// it reads `15%` in both languages. Arabic letters make the digits that
+  /// follow them an Arabic number, which leaves the `%` a neutral that bidi
+  /// pushes to the other side of the digits and renders as `%15`. Phone
+  /// numbers and amounts are pinned left-to-right for the same reason.
+  static String formatPercentage(num value) =>
+      '\u202A${_formatDouble(value.toDouble())}%\u202C';
 
   /// A [DateFormat] that always renders Western digits.
   ///

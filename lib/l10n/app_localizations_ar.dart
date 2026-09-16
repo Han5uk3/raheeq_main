@@ -679,7 +679,7 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String vat_with_percentage(String percentage) {
-    return 'ضريبة القيمة المضافة ($percentage%)';
+    return 'ضريبة القيمة المضافة ($percentage)';
   }
 
   @override

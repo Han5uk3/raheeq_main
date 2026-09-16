@@ -39,11 +39,15 @@ class ProofMediaViewerPage extends StatefulWidget {
   /// Prefixes downloaded files so they can be traced back to their order.
   final String? orderNumber;
 
+  /// Gift cards turn this off; only delivery proofs are meant to be saved.
+  final bool showDownload;
+
   const ProofMediaViewerPage({
     super.key,
     required this.mediaItems,
     this.initialIndex = 0,
     this.orderNumber,
+    this.showDownload = true,
   });
 
   @override
@@ -53,6 +57,7 @@ class ProofMediaViewerPage extends StatefulWidget {
 class _ProofMediaViewerPageState extends State<ProofMediaViewerPage> {
   late PageController _pageController;
   late int _currentIndex;
+  bool _isZoomed = false;
 
   @override
   void initState() {
@@ -227,11 +232,12 @@ class _ProofMediaViewerPageState extends State<ProofMediaViewerPage> {
           icon: const Icon(Icons.arrow_back, color: Colors.black),
         ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.download),
-            onPressed: _downloadCurrent,
-            tooltip: AppLocalizations.of(context)!.download,
-          ),
+          if (widget.showDownload)
+            IconButton(
+              icon: const Icon(Icons.download),
+              onPressed: _downloadCurrent,
+              tooltip: AppLocalizations.of(context)!.download,
+            ),
         ],
       ),
       body: Column(
@@ -239,10 +245,16 @@ class _ProofMediaViewerPageState extends State<ProofMediaViewerPage> {
           Expanded(
             child: PageView.builder(
               controller: _pageController,
+              // A zoomed image keeps one finger drags for panning; the pages
+              // only swipe once it is back at its normal size.
+              physics: _isZoomed
+                  ? const NeverScrollableScrollPhysics()
+                  : const PageScrollPhysics(),
               itemCount: widget.mediaItems.length,
               onPageChanged: (index) {
                 setState(() {
                   _currentIndex = index;
+                  _isZoomed = false;
                 });
               },
               itemBuilder: (context, index) {
@@ -250,25 +262,13 @@ class _ProofMediaViewerPageState extends State<ProofMediaViewerPage> {
                 if (item.isVideo) {
                   return _VideoPlayerItem(url: item.url);
                 } else {
-                  return InteractiveViewer(
-                    child: Center(
-                      child: CachedNetworkImage(
-                        imageUrl: item.url,
-                        fit: BoxFit.contain,
-                        placeholder: (context, url) => const Center(
-                          child: WaterLoadingIndicator(
-                            waveColor1: Colors.white,
-                          ),
-                        ),
-                        errorWidget: (context, url, error) => const Center(
-                          child: Icon(
-                            Icons.broken_image,
-                            color: Colors.white,
-                            size: 50,
-                          ),
-                        ),
-                      ),
-                    ),
+                  return _ZoomableImageItem(
+                    url: item.url,
+                    onZoomChanged: (isZoomed) {
+                      if (index == _currentIndex && isZoomed != _isZoomed) {
+                        setState(() => _isZoomed = isZoomed);
+                      }
+                    },
                   );
                 }
               },
@@ -309,6 +309,67 @@ class _ProofMediaViewerPageState extends State<ProofMediaViewerPage> {
   }
 }
 
+class _ZoomableImageItem extends StatefulWidget {
+  final String url;
+  final ValueChanged<bool> onZoomChanged;
+
+  const _ZoomableImageItem({required this.url, required this.onZoomChanged});
+
+  @override
+  State<_ZoomableImageItem> createState() => _ZoomableImageItemState();
+}
+
+class _ZoomableImageItemState extends State<_ZoomableImageItem> {
+  final TransformationController _transformationController =
+      TransformationController();
+  bool _isZoomed = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _transformationController.addListener(_onTransformChanged);
+  }
+
+  @override
+  void dispose() {
+    _transformationController.removeListener(_onTransformChanged);
+    _transformationController.dispose();
+    super.dispose();
+  }
+
+  void _onTransformChanged() {
+    // A small tolerance, since pinching back out rarely lands on exactly 1.
+    final isZoomed = _transformationController.value.getMaxScaleOnAxis() > 1.01;
+    if (isZoomed == _isZoomed) return;
+    setState(() => _isZoomed = isZoomed);
+    widget.onZoomChanged(isZoomed);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return InteractiveViewer(
+      transformationController: _transformationController,
+      maxScale: 8.0,
+      minScale: 1.0,
+      // At normal size one finger drags are left to the PageView, so they
+      // swipe between pages instead of racing the viewer for the gesture.
+      panEnabled: _isZoomed,
+      child: Center(
+        child: CachedNetworkImage(
+          imageUrl: widget.url,
+          fit: BoxFit.contain,
+          placeholder: (context, url) => const Center(
+            child: WaterLoadingIndicator(waveColor1: Colors.white),
+          ),
+          errorWidget: (context, url, error) => const Center(
+            child: Icon(Icons.broken_image, color: Colors.white, size: 50),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _VideoPlayerItem extends StatefulWidget {
   final String url;
   const _VideoPlayerItem({required this.url});
@@ -320,11 +381,13 @@ class _VideoPlayerItem extends StatefulWidget {
 class _VideoPlayerItemState extends State<_VideoPlayerItem> {
   late VideoPlayerController _controller;
   bool _isError = false;
+  bool _isPlaying = false;
 
   @override
   void initState() {
     super.initState();
     _controller = VideoPlayerController.networkUrl(Uri.parse(widget.url))
+      ..addListener(_onVideoChanged)
       ..initialize()
           .then((_) {
             if (mounted) {
@@ -341,8 +404,30 @@ class _VideoPlayerItemState extends State<_VideoPlayerItem> {
           });
   }
 
+  /// Playback can stop without a tap, most often by reaching the end, so the
+  /// play button follows the player rather than only the taps on it.
+  void _onVideoChanged() {
+    final isPlaying = _controller.value.isPlaying;
+    if (isPlaying != _isPlaying && mounted) {
+      setState(() => _isPlaying = isPlaying);
+    }
+  }
+
+  void _togglePlayback() {
+    final value = _controller.value;
+    if (value.isPlaying) {
+      _controller.pause();
+    } else if (value.isCompleted || value.position >= value.duration) {
+      // Playing from the end would stop straight away, so start over.
+      _controller.seekTo(Duration.zero).then((_) => _controller.play());
+    } else {
+      _controller.play();
+    }
+  }
+
   @override
   void dispose() {
+    _controller.removeListener(_onVideoChanged);
     _controller.dispose();
     super.dispose();
   }
@@ -370,16 +455,10 @@ class _VideoPlayerItemState extends State<_VideoPlayerItem> {
           children: [
             VideoPlayer(_controller),
             GestureDetector(
-              onTap: () {
-                setState(() {
-                  _controller.value.isPlaying
-                      ? _controller.pause()
-                      : _controller.play();
-                });
-              },
+              onTap: _togglePlayback,
               child: Center(
                 child: AnimatedOpacity(
-                  opacity: _controller.value.isPlaying ? 0.0 : 1.0,
+                  opacity: _isPlaying ? 0.0 : 1.0,
                   duration: const Duration(milliseconds: 300),
                   child: Container(
                     decoration: BoxDecoration(
@@ -393,6 +472,22 @@ class _VideoPlayerItemState extends State<_VideoPlayerItem> {
                       size: 40,
                     ),
                   ),
+                ),
+              ),
+            ),
+            // Drawn after the tap target so dragging along it scrubs the
+            // video instead of toggling playback.
+            Positioned(
+              right: 0,
+              bottom: 0,
+              left: 0,
+              child: VideoProgressIndicator(
+                _controller,
+                allowScrubbing: false,
+                colors: const VideoProgressColors(
+                  playedColor: Colors.white,
+                  bufferedColor: Colors.white38,
+                  backgroundColor: Colors.white12,
                 ),
               ),
             ),
