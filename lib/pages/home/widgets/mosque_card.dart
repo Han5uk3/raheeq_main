@@ -53,7 +53,7 @@ Widget mosqueCard({
           Padding(
             padding: const EdgeInsetsDirectional.all(12),
             child: SizedBox(
-              height: 73,
+              height: 80,
               width: 80,
               child: ClipRRect(
                 borderRadius: BorderRadius.circular(12),
@@ -102,9 +102,9 @@ Widget mosqueCard({
                         item.localizedName(isAr),
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: isAr ? 16 : 14,
+                          fontSize: isAr ? 14 : 12,
                         ),
-                        maxLines: 1,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
@@ -139,10 +139,10 @@ Widget mosqueCard({
                             item.address,
                             style: const TextStyle(
                               color: Colors.grey,
-                              fontSize: 12,
+                              fontSize: 11,
                               overflow: TextOverflow.ellipsis,
                             ),
-                            maxLines: 2,
+                            maxLines: 3,
                           ),
                         ),
                       ],

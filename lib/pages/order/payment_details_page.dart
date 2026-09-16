@@ -323,7 +323,7 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage> {
                 children: [
                   Text(
                     AppLocalizations.of(context)!.payment_method,
-                    style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+                    style: TextStyle(fontSize: 14, color: Colors.black),
                   ),
                   // The badge carries the method's own name and colour,
                   // so WALLET, FREE and MANUAL — which have no logo —
@@ -348,7 +348,7 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage> {
                 children: [
                   Text(
                     AppLocalizations.of(context)!.payment_status,
-                    style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+                    style: TextStyle(fontSize: 14, color: Colors.black),
                   ),
                   Flexible(
                     child: Align(
@@ -434,7 +434,7 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage> {
                 style: TextStyle(
                   fontSize: 12,
                   fontStyle: FontStyle.italic,
-                  color: Colors.grey[600],
+                  color: Colors.black,
                 ),
               ),
             ],
@@ -455,17 +455,17 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage> {
       children: [
         Text(
           AppLocalizations.of(context)!.delivery_fee,
-          style: TextStyle(fontSize: 14, color: Colors.grey[700]),
+          style: TextStyle(fontSize: 14, color: Colors.black),
         ),
         DeliveryFeeValue(
           isFree: isFree,
           amount: isFree
               ? financials.strikethroughDeliveryFee
               : financials.deliveryFee,
-          baseStyle: const TextStyle(
+          baseStyle: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.bold,
-            color: Colors.black,
+            color: Colors.grey.shade600,
           ),
         ),
       ],
@@ -487,7 +487,7 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage> {
           style: TextStyle(
             fontSize: isTotal ? 16 : 14,
             fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
-            color: isTotal ? AppColors.buttonBlueDark : Colors.grey[700],
+            color: isTotal ? AppColors.buttonBlueDark : Colors.black,
           ),
         ),
         Text(
@@ -495,7 +495,7 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage> {
           style: TextStyle(
             fontSize: isTotal ? 16 : 14,
             fontWeight: FontWeight.bold,
-            color: isTotal ? AppColors.buttonBlueDark : Colors.black,
+            color: isTotal ? AppColors.buttonBlueDark : Colors.grey.shade600,
           ),
         ),
       ],

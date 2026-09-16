@@ -207,13 +207,14 @@ class ChillerDetailsPage extends StatelessWidget {
                                   ),
                                 ],
                               ),
-                              const Divider(height: 24),
+                             
 
                               if (chiller.deliveredLocation?.address != null &&
                                   chiller
                                       .deliveredLocation!
                                       .address
                                       .isNotEmpty) ...[
+                                const Divider(height: 24),
                                 _buildInfoRow(
                                   '${AppLocalizations.of(context)!.address}:',
                                   chiller.deliveredLocation!.address,
@@ -372,7 +373,7 @@ class ChillerDetailsPage extends StatelessWidget {
           label,
           style: TextStyle(
             fontSize: 14,
-            color: Colors.grey[600],
+            color: Colors.black,
             fontWeight: FontWeight.w500,
           ),
         ),
@@ -380,9 +381,9 @@ class ChillerDetailsPage extends StatelessWidget {
         Expanded(
           child: Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
-              color: Colors.black87,
+              color: Colors.grey.shade600,
               fontWeight: FontWeight.w600,
             ),
             textAlign: TextAlign.end,

@@ -3,6 +3,7 @@ import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/common_widgets/custom_snackbar.dart';
 import 'package:raheeq_main/common_widgets/delivery_fee_value.dart';
 import 'package:raheeq_main/pages/order/payment_success.dart';
+import 'package:raheeq_main/pages/order/proof_media_viewer_page.dart';
 import 'package:raheeq_main/services/network_monitor.dart';
 import 'package:raheeq_main/services/snackbar_insets_services.dart';
 import 'package:shimmer/shimmer.dart';
@@ -375,7 +376,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                         width: isSelected ? 2 : 1,
                         color: isSelected
                             ? AppColors.buttonBlueDark
-                            : AppColors.grey,
+                            : Colors.grey.shade600,
                       ),
                     ),
                     contentPadding: EdgeInsetsDirectional.only(start: 8),
@@ -414,7 +415,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                       if (states.contains(WidgetState.selected)) {
                         return AppColors.buttonBlueDark;
                       }
-                      return AppColors.grey;
+                      return Colors.grey.shade600;
                     }),
                   ),
                 ),
@@ -940,6 +941,18 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
 
     List<Widget> rows = [];
 
+    rows.add(
+      Text(
+        AppLocalizations.of(context)!.subscription_details,
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.bold,
+          color: Colors.black,
+        ),
+      ),
+    );
+    rows.add(SizedBox(height: 8));
+
     if (type == 'EVERYDAY') {
       if (startDate != null && endDate != null) {
         // Calculate occurrences from startDate and endDate if not provided or 0
@@ -1084,15 +1097,6 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            AppLocalizations.of(context)!.subscription_details,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: AppColors.buttonBlueDark,
-            ),
-          ),
-          const SizedBox(height: 8),
           Container(
             padding: const EdgeInsets.all(12),
             decoration: BoxDecoration(
@@ -1102,7 +1106,10 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                 color: AppColors.buttonBlueDark.withValues(alpha: 0.1),
               ),
             ),
-            child: Column(children: rows),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: rows,
+            ),
           ),
         ],
       ),
@@ -1115,16 +1122,13 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            label,
-            style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
-          ),
+          Text(label, style: TextStyle(fontSize: 14, color: Colors.black)),
           Text(
             value,
-            style: const TextStyle(
+            style: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
-              color: AppColors.buttonBlueDark,
+              color: Colors.grey.shade600,
             ),
           ),
         ],
@@ -1526,11 +1530,11 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                                             _applyCoupon(isAr),
                                                   style: ElevatedButton.styleFrom(
                                                     backgroundColor: isEmpty
-                                                        ? AppColors.grey
+                                                        ? Colors.grey.shade600
                                                         : AppColors
                                                               .buttonBlueDark,
                                                     disabledBackgroundColor:
-                                                        AppColors.grey,
+                                                        Colors.grey.shade600,
                                                     disabledForegroundColor:
                                                         Colors.white,
                                                     foregroundColor:
@@ -1767,8 +1771,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                                 crossAxisAlignment:
                                                     CrossAxisAlignment.start,
                                                 children: [
-                                               
-                                                    Text(
+                                                  Text(
                                                     sp.quantity > 10
                                                         ? (sp.product
                                                                   .localizedSubtitlePlural(
@@ -1782,21 +1785,20 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                                               .localizedSubtitle(
                                                                 isAr,
                                                               ),
-                                                      style: const TextStyle(
-                                                        fontSize: 17,
-                                                        fontWeight:
-                                                            FontWeight.w500,
-                                                        color: AppColors
-                                                            .buttonBlueDark,
-                                                      ),
+                                                    style: const TextStyle(
+                                                      fontSize: 17,
+                                                      fontWeight:
+                                                          FontWeight.w500,
+                                                      color: AppColors
+                                                          .buttonBlueDark,
+                                                    ),
                                                   ),
-                                                
+
                                                   Text(
                                                     "${AppLocalizations.of(context)!.quantity} : ${sp.quantity}",
                                                     style: TextStyle(
                                                       fontSize: 15,
-                                                      color:
-                                                          Colors.grey.shade600,
+                                                      color: Colors.black,
                                                     ),
                                                   ),
                                                 ],
@@ -1804,8 +1806,9 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                                             ),
                                             Text(
                                               "\u202A${AppLocalizations.of(context)!.sar_currency} ${Formatters.formatPrice(sp.product.price * sp.quantity, decimals: 2)}\u202C",
-                                              style: const TextStyle(
+                                              style: TextStyle(
                                                 fontSize: 15,
+                                                color: Colors.grey.shade600,
                                                 fontWeight: FontWeight.w700,
                                               ),
                                             ),
@@ -2063,6 +2066,15 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
     bool isAr,
     List<CheckoutItem> itemsWithGiftCards,
   ) {
+    // The cards sit side by side, so the title always reserves two lines. A
+    // one-line title then leaves the quantity and the preview under it at the
+    // same height as its neighbours, and every preview ends up the same box.
+    const titleStyle = TextStyle(
+      fontSize: 12,
+      fontWeight: FontWeight.bold,
+      height: 1.2,
+    );
+    const titleHeight = 12 * 1.2 * 3;
     showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -2143,190 +2155,227 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  SizedBox(
-                    height: itemsWithGiftCards.length == 1 ? 300 : 230,
-                    child: ListView.separated(
+                  // A horizontal ListView fills all the height it is offered,
+                  // so the row is sized to its tallest card instead.
+                  Flexible(
+                    child: SingleChildScrollView(
                       physics: const ClampingScrollPhysics(),
                       padding: const EdgeInsets.symmetric(horizontal: 24),
                       scrollDirection: Axis.horizontal,
-                      itemCount: itemsWithGiftCards.length,
-                      separatorBuilder: (_, __) => const SizedBox(width: 8),
-                      itemBuilder: (context, index) {
-                        final item = itemsWithGiftCards[index];
-                        final productName =
-                            item.product?.localizedName(isAr) ?? '';
-                        String extraInfo = item.location != null
-                            ? (isAr
-                                  ? item.location['nameAr']
-                                  : item.location['name'])
-                            : (item.city != null
-                                  ? (isAr
-                                        ? item.city['nameAr']
-                                        : item.city['name'])
-                                  : (item.category?.localizedLabel(isAr) ??
-                                        ''));
+                      child: IntrinsicHeight(
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            for (final (index, item)
+                                in itemsWithGiftCards.indexed) ...[
+                              if (index > 0) const SizedBox(width: 8),
+                              Builder(
+                                builder: (context) {
+                                  final productName =
+                                      item.product?.localizedName(isAr) ?? '';
+                                  String extraInfo = item.location != null
+                                      ? (isAr
+                                            ? item.location['nameAr']
+                                            : item.location['name'])
+                                      : (item.city != null
+                                            ? (isAr
+                                                  ? item.city['nameAr']
+                                                  : item.city['name'])
+                                            : (item.category?.localizedLabel(
+                                                    isAr,
+                                                  ) ??
+                                                  ''));
 
-                        final title = extraInfo.isNotEmpty
-                            ? "$productName - $extraInfo"
-                            : productName;
-                        final qty = item.quantity;
+                                  final title = extraInfo.isNotEmpty
+                                      ? "$productName - $extraInfo"
+                                      : productName;
+                                  final qty = item.quantity;
 
-                        final giftCardData =
-                            item.giftCard != null && item.giftCard is Map
-                            ? item.giftCard
-                            : null;
+                                  final giftCardData =
+                                      item.giftCard != null &&
+                                          item.giftCard is Map
+                                      ? item.giftCard
+                                      : null;
 
-                        final templateTitle =
-                            ''; // Template title is not provided in the checkout response
+                                  final templateImage = giftCardData != null
+                                      ? giftCardData['generatedImage']
+                                      : null;
 
-                        final templateImage = giftCardData != null
-                            ? giftCardData['generatedImage']
-                            : null;
+                                  return SizedBox(
+                                    width: itemsWithGiftCards.length == 1
+                                        ? MediaQuery.of(context).size.width - 48
+                                        : (MediaQuery.of(context).size.width -
+                                                  64) /
+                                              2.1,
+                                    child: Stack(
+                                      fit: StackFit.expand,
+                                      clipBehavior: Clip.none,
+                                      children: [
+                                        Container(
+                                          width: double.infinity,
 
-                        return SizedBox(
-                          width: itemsWithGiftCards.length == 1
-                              ? MediaQuery.of(context).size.width - 48
-                              : (MediaQuery.of(context).size.width - 64) / 2.1,
-                          child: Stack(
-                            clipBehavior: Clip.none,
-                            children: [
-                              Container(
-                                width: double.infinity,
-
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(16),
-                                  border: Border.all(
-                                    color: Colors.grey.shade300,
-                                  ),
-                                ),
-                                padding: const EdgeInsets.all(12),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      title,
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      maxLines: 2,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      "${AppLocalizations.of(context)!.quantity}: $qty",
-                                      style: TextStyle(
-                                        fontSize: 12,
-                                        color: Colors.grey.shade700,
-                                      ),
-                                    ),
-                                    if (templateTitle
-                                        .toString()
-                                        .isNotEmpty) ...[
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        templateTitle,
-                                        style: const TextStyle(
-                                          fontSize: 12,
-                                          color: AppColors.buttonBlueDark,
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ],
-                                    if (templateImage != null) ...[
-                                      const SizedBox(height: 8),
-                                      Expanded(
-                                        child: Center(
-                                          child: GestureDetector(
-                                            onTap: () => _showFullscreenImage(
-                                              context,
-                                              templateImage,
-                                              isAr,
+                                          // Fills the row's height, so a card whose
+                                          // preview is missing still matches the rest.
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            borderRadius: BorderRadius.circular(
+                                              16,
                                             ),
-                                            child: ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(12),
-                                              child: Stack(
-                                                fit: StackFit.expand,
+                                            border: Border.all(
+                                              color: Colors.grey.shade300,
+                                            ),
+                                          ),
+                                          padding: const EdgeInsets.all(12),
+                                          child: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
                                                 children: [
-                                                  CachedNetworkImage(
-                                                    imageUrl: templateImage,
-                                                    fit: BoxFit.cover,
-                                                    width: double.infinity,
-                                                    placeholder:
-                                                        (
-                                                          context,
-                                                          url,
-                                                        ) => Shimmer.fromColors(
-                                                          baseColor:
-                                                              Colors.grey[300]!,
-                                                          highlightColor:
-                                                              Colors.grey[100]!,
-                                                          child: Container(
-                                                            color: Colors.white,
-                                                            width:
-                                                                double.infinity,
-                                                            height:
-                                                                double.infinity,
-                                                          ),
-                                                        ),
-                                                    errorWidget: (_, __, ___) =>
-                                                        const Icon(
-                                                          Icons.broken_image,
-                                                          size: 40,
-                                                        ),
-                                                  ),
-                                                  Container(
-                                                    color: Colors.black
-                                                        .withValues(alpha: 0.3),
-                                                    child: const Center(
-                                                      child: Icon(
-                                                        Icons.zoom_in,
-                                                        color: Colors.white,
-                                                        size: 28,
+                                                  Expanded(
+                                                    child: SizedBox(
+                                                      height: titleHeight,
+                                                      child: Text(
+                                                        title,
+                                                        style: titleStyle,
+                                                        maxLines: 3,
+                                                        overflow: TextOverflow
+                                                            .ellipsis,
                                                       ),
                                                     ),
                                                   ),
+                                                  SizedBox(width: 5),
                                                 ],
+                                              ),
+                                              const SizedBox(height: 4),
+                                              Text(
+                                                "${AppLocalizations.of(context)!.quantity}: $qty",
+                                                style: TextStyle(
+                                                  fontSize: 12,
+                                                  color: Colors.grey.shade600,
+                                                ),
+                                              ),
+
+                                              if (templateImage != null) ...[
+                                                const SizedBox(height: 8),
+                                                GestureDetector(
+                                                  onTap: () =>
+                                                      _showGiftCardViewer(
+                                                        context,
+                                                        itemsWithGiftCards,
+                                                        item,
+                                                        isAr,
+                                                      ),
+                                                  child: ClipRRect(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                          12,
+                                                        ),
+                                                    child: Stack(
+                                                      children: [
+                                                        AspectRatio(
+                                                          aspectRatio: 1.8,
+                                                          child: CachedNetworkImage(
+                                                            imageUrl:
+                                                                templateImage,
+                                                            fit: BoxFit.contain,
+
+                                                            placeholder:
+                                                                (
+                                                                  context,
+                                                                  url,
+                                                                ) => Shimmer.fromColors(
+                                                                  baseColor: Colors
+                                                                      .grey[300]!,
+                                                                  highlightColor:
+                                                                      Colors
+                                                                          .grey[100]!,
+                                                                  child: Container(
+                                                                    color: Colors
+                                                                        .white,
+                                                                    width: double
+                                                                        .infinity,
+                                                                    height: double
+                                                                        .infinity,
+                                                                  ),
+                                                                ),
+                                                            errorWidget:
+                                                                (
+                                                                  _,
+                                                                  __,
+                                                                  ___,
+                                                                ) => const Icon(
+                                                                  Icons
+                                                                      .broken_image,
+                                                                  size: 40,
+                                                                ),
+                                                          ),
+                                                        ),
+                                                        // Tells the user the card
+                                                        // opens a full preview.
+                                                        Positioned.fill(
+                                                          child: ColoredBox(
+                                                            color: Colors.black
+                                                                .withValues(
+                                                                  alpha: 0.5,
+                                                                ),
+                                                            child: Center(
+                                                              child: Icon(
+                                                                Icons
+                                                                    .visibility_outlined,
+                                                                color: Colors
+                                                                    .white,
+                                                                size: 28,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ],
+                                          ),
+                                        ),
+                                        Positioned.directional(
+                                          textDirection: isAr
+                                              ? TextDirection.rtl
+                                              : TextDirection.ltr,
+                                          top: 0,
+                                          end: 0,
+                                          child: GestureDetector(
+                                            onTap: () async {
+                                              await _removeGiftCard(
+                                                item.id!,
+                                                isAr,
+                                              );
+                                              if (mounted) {
+                                                Navigator.pop(context);
+                                              }
+                                            },
+                                            child: Container(
+                                              decoration: const BoxDecoration(
+                                                color: Colors.white,
+                                                shape: BoxShape.circle,
+                                              ),
+                                              child: Icon(
+                                                Icons.cancel,
+                                                color: Colors.red,
+                                                size: 28,
                                               ),
                                             ),
                                           ),
                                         ),
-                                      ),
-                                    ],
-                                  ],
-                                ),
-                              ),
-                              Positioned.directional(
-                                textDirection: isAr
-                                    ? TextDirection.rtl
-                                    : TextDirection.ltr,
-                                top: 0,
-                                end: 0,
-                                child: GestureDetector(
-                                  onTap: () async {
-                                    await _removeGiftCard(item.id!, isAr);
-                                    if (mounted) Navigator.pop(context);
-                                  },
-                                  child: Container(
-                                    decoration: const BoxDecoration(
-                                      color: Colors.white,
-                                      shape: BoxShape.circle,
+                                      ],
                                     ),
-                                    child: const Icon(
-                                      Icons.cancel,
-                                      color: Colors.red,
-                                      size: 28,
-                                    ),
-                                  ),
-                                ),
+                                  );
+                                },
                               ),
                             ],
-                          ),
-                        );
-                      },
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                   const SizedBox(height: 24),
@@ -2423,67 +2472,41 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
     }
   }
 
-  void _showFullscreenImage(BuildContext context, String imageUrl, bool isAr) {
-    showDialog(
-      context: context,
-      barrierColor: Colors.black.withValues(alpha: 0.9),
-      builder: (ctx) => Dialog(
-        backgroundColor: Colors.transparent,
-        insetPadding: EdgeInsets.zero,
-        child: SizedBox(
-          width: double.infinity,
-          height: double.infinity,
-          child: Column(
-            children: [
-              Align(
-                alignment: AlignmentDirectional.topStart,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: GestureDetector(
-                    onTap: () => Navigator.pop(ctx),
-                    child: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: Colors.grey[200],
-                      ),
-                      child: const Icon(
-                        Icons.arrow_back,
-                        size: 20,
-                        color: Colors.black,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-              Expanded(
-                child: InteractiveViewer(
-                  minScale: 1.0,
-                  maxScale: 5.0,
+  /// Opens the gift cards in the delivery proof viewer so both look and behave
+  /// the same, starting at [tapped] and swiping through the rest.
+  void _showGiftCardViewer(
+    BuildContext context,
+    List<CheckoutItem> itemsWithGiftCards,
+    CheckoutItem tapped,
+    bool isAr,
+  ) {
+    final viewable = itemsWithGiftCards
+        .where(
+          (item) =>
+              item.giftCard is Map && item.giftCard['generatedImage'] != null,
+        )
+        .toList();
+    final mediaItems = [
+      for (final (index, item) in viewable.indexed)
+        ProofMediaItem(
+          title: AppLocalizations.of(context)!.gift_card,
+          url: item.giftCard['generatedImage'],
+          isVideo: false,
+          fileLabel: viewable.length == 1
+              ? 'gift_card'
+              : 'gift_card_${index + 1}',
+        ),
+    ];
 
-                  child: CachedNetworkImage(
-                    imageUrl: imageUrl,
-                    fit: BoxFit.contain,
-                    placeholder: (context, url) => Shimmer.fromColors(
-                      baseColor: Colors.grey[300]!,
-                      highlightColor: Colors.grey[100]!,
-                      child: Container(
-                        color: Colors.white,
-                        width: double.infinity,
-                        height: double.infinity,
-                      ),
-                    ),
-                    errorWidget: (_, __, ___) => const Icon(
-                      Icons.broken_image,
-                      size: 60,
-                      color: Colors.grey,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ProofMediaViewerPage(
+          mediaItems: mediaItems,
+          showDownload: false,
+          initialIndex: viewable
+              .indexOf(tapped)
+              .clamp(0, mediaItems.length - 1),
         ),
       ),
     );
@@ -2604,14 +2627,15 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
         children: [
           Text(
             AppLocalizations.of(context)!.delivery_fee,
-            style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
+            style: TextStyle(fontSize: 14, color: Colors.black),
           ),
           DeliveryFeeValue(
             isFree: isFree,
             amount: isFree ? _originalDeliveryFee : _deliveryFee,
-            baseStyle: const TextStyle(
+            baseStyle: TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
+              color: Colors.grey.shade600,
             ),
           ),
         ],
@@ -2627,13 +2651,14 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            title,
-            style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
-          ),
+          Text(title, style: TextStyle(fontSize: 14, color: Colors.black)),
           Text(
             "\u202A${AppLocalizations.of(context)!.sar_currency} ${Formatters.formatPrice(value, decimals: 2)}\u202C",
-            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: Colors.grey.shade600,
+            ),
           ),
         ],
       ),

@@ -524,6 +524,8 @@ class _NotificationsPageState extends State<NotificationsPage> {
             fit: StackFit.expand,
             children: [
               InteractiveViewer(
+                maxScale: 5.0,
+                minScale: 1.0,
                 child: CachedNetworkImage(
                   imageUrl: imageUrl,
                   fit: BoxFit.contain,
