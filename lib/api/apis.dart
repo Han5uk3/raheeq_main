@@ -25,7 +25,7 @@ enum SessionStatus {
 }
 
 class ApiService {
-  static const String baseUrl = 'https://api-staging.suqyarahiq.com/api/v1';
+  static const String baseUrl = 'https://api.suqyarahiq.com/api/v1';
   static final ApiService _instance = ApiService._internal();
 
   factory ApiService() => _instance;
