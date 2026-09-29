@@ -6,6 +6,14 @@ import '../../../models/city.dart';
 import '../../../utils/colors.dart';
 import '../../../utils/rtl_helpers.dart';
 
+/// Cities left out of the most needy mosques selector.
+const _hiddenCityIds = {
+  '5ba292b6-3105-454e-9f2d-3ef4de34fc4f', // Makkah
+  'd14a4e72-bfbe-4a1b-a6f6-71a6cf6227db', // Madinah
+};
+
+bool _isShown(City city) => !_hiddenCityIds.contains(city.id);
+
 class CitySelectorDialog extends StatefulWidget {
   final List<City> initialSelections;
   final List<City> allCities;
@@ -29,10 +37,10 @@ class _CitySelectorDialogState extends State<CitySelectorDialog> {
   @override
   void initState() {
     super.initState();
-    _selectedItemsList.addAll(widget.initialSelections);
+    _selectedItemsList.addAll(widget.initialSelections.where(_isShown));
 
     if (widget.allCities.isNotEmpty) {
-      _cities = widget.allCities;
+      _cities = widget.allCities.where(_isShown).toList();
       _isLoading = false;
     } else {
       _fetchCities();
@@ -48,6 +56,7 @@ class _CitySelectorDialogState extends State<CitySelectorDialog> {
           setState(() {
             _cities = data
                 .map((e) => City.fromJson(e as Map<String, dynamic>))
+                .where(_isShown)
                 .toList();
             _isLoading = false;
           });
