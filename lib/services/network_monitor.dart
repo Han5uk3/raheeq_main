@@ -5,6 +5,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
 import 'package:raheeq_main/api/api_logger.dart';
+import 'package:raheeq_main/api/apis.dart';
 
 enum NetworkStatus { online, poor, offline }
 
@@ -21,7 +22,7 @@ class NetworkMonitor with WidgetsBindingObserver {
 
   late final Dio _healthDio = Dio(
     BaseOptions(
-      baseUrl: 'https://api-staging.suqyarahiq.com/api/v1',
+      baseUrl: ApiService.baseUrl,
       connectTimeout: const Duration(seconds: 3),
       receiveTimeout: const Duration(seconds: 3),
       sendTimeout: const Duration(seconds: 3),
