@@ -6,6 +6,7 @@ class OrderResponseModel {
   final String status;
   final DateTime createdAt;
   final DateTime? assignedAt;
+  final String? customerNote;
 
   /// When the order was accepted for delivery, and when it was handed over.
   /// Both are only sent by the orders-list endpoint, so they are null on the
@@ -56,6 +57,7 @@ class OrderResponseModel {
     this.cancelledAt,
     this.parentOrder,
     this.subscription,
+    this.customerNote,
     this.product,
     this.financials,
     this.target,
@@ -81,12 +83,14 @@ class OrderResponseModel {
         : null;
 
     return OrderResponseModel(
+         
       id: json['id'] ?? '',
       subOrderNumber: json['subOrderNumber'] ?? '',
       status: json['status'] ?? 'PENDING',
       createdAt: json['createdAt'] != null
           ? DateTime.parse(json['createdAt'])
           : DateTime.now(),
+      customerNote: json['customerNote'] ?? json['note'] ?? '',
       assignedAt: json['assignedAt'] != null
           ? DateTime.tryParse(json['assignedAt'])
           : (json['dispatchedAt'] != null
@@ -138,6 +142,7 @@ class OrderResponseModel {
               ...financialsJson,
             })
           : null,
+     
       target: json['target'] != null
           ? OrderTarget.fromJson(json['target'])
           : null,

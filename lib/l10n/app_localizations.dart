@@ -2501,6 +2501,18 @@ abstract class AppLocalizations {
   /// **'Chillers'**
   String get chillers;
 
+  /// No description provided for @customer_note.
+  ///
+  /// In en, this message translates to:
+  /// **'Customer Note'**
+  String get customer_note;
+
+  /// No description provided for @no_note.
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get no_note;
+
   /// No description provided for @selected_items_count.
   ///
   /// In en, this message translates to:

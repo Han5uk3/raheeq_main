@@ -631,6 +631,7 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
             ),
             const SizedBox(height: 12), // spacing at bottom
           ],
+          _buildCustomerNotesCard(order),
 
           // Delivery Progress
           _buildDeliveryProgressCard(order),
@@ -677,6 +678,30 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
             const SizedBox(height: 24),
           ],
         ],
+      ),
+    );
+  }
+
+  Widget _buildCustomerNotesCard(OrderResponseModel order) {
+    return SizedBox(
+      width: double.infinity,
+      child: _buildPremiumCard(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildSectionHeader(
+              AppLocalizations.of(context)!.customer_note,
+              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              (order.customerNote == "" || order.customerNote == null)
+                  ? AppLocalizations.of(context)!.no_note
+                  : order.customerNote ?? "",
+              style: const TextStyle(fontSize: 14, color: Colors.black87),
+            ),
+          ],
+        ),
       ),
     );
   }
