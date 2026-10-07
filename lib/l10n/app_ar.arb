@@ -253,6 +253,8 @@
   "subscription_duration": "مدة الاشتراك",
   "no_of_orders": "عدد التوصيلات",
   "payment_method": "طريقة الدفع",
+  "customer_note": "ملاحظات العميل",
+  "no_note":" لا يوجد",
   "stc_pay": "STC Pay",
   "upcoming": "قريبًا",
   "status_failed": "فشل",

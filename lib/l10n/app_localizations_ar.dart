@@ -1256,6 +1256,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get chillers => 'البرادات';
 
   @override
+  String get customer_note => 'ملاحظات العميل';
+
+  @override
+  String get no_note => ' لا يوجد';
+
+  @override
   String selected_items_count(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

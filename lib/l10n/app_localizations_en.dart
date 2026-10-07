@@ -1265,6 +1265,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get chillers => 'Chillers';
 
   @override
+  String get customer_note => 'Customer Note';
+
+  @override
+  String get no_note => 'None';
+
+  @override
   String selected_items_count(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,
