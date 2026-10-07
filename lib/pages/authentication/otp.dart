@@ -329,7 +329,7 @@ class _OTPState extends State<OTP> with WidgetsBindingObserver {
                     bottomRight: Radius.circular(40),
                   ),
                   child: Container(
-                    padding: const EdgeInsetsDirectional.only(bottom: 30),
+                    padding: const EdgeInsetsDirectional.only(bottom: 16),
                     height: MediaQuery.of(context).size.height * 0.35,
                     width: MediaQuery.of(context).size.width,
                     decoration: BoxDecoration(
@@ -340,8 +340,8 @@ class _OTPState extends State<OTP> with WidgetsBindingObserver {
                       ),
                     ),
                     child: Image.asset(
-                      'assets/login/otp.png',
-                      fit: BoxFit.cover,
+                      'assets/login/otp_2.png',
+                      fit: BoxFit.contain,
                     ),
                   ),
                 ),
