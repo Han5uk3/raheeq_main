@@ -9,6 +9,9 @@
           {
             "/": "/delivery-proof*"
           },
+           {
+            "/": "/delivery-video*"
+          },
           {
             "/": "/reorder*"
           }
