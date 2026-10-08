@@ -52,3 +52,5 @@ app.*.map.json
 /android/app/keystore
 /android/app/google-services.json
 .env
+# Widget Preview related
+.widget_preview/
