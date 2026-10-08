@@ -16,14 +16,6 @@ class AppStorage {
 
   static String get localeCode => _box.get(localeKey, defaultValue: 'ar');
 
-  static const String _lastDeepLinkKey = 'lastProcessedDeepLink';
-
-  static Future<void> saveLastProcessedDeepLink(String uri) async {
-    await _box.put(_lastDeepLinkKey, uri);
-  }
-
-  static String? get lastProcessedDeepLink => _box.get(_lastDeepLinkKey);
-
   static const String _latitudeKey = 'userLatitude';
   static const String _longitudeKey = 'userLongitude';
 

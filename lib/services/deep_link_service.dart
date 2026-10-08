@@ -4,7 +4,6 @@ import 'package:app_links/app_links.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/services/network_monitor.dart';
 import 'package:raheeq_main/storage/auth_storage.dart';
-import 'package:raheeq_main/storage/app_storage.dart';
 import 'package:raheeq_main/pages/order/contribution_details_page.dart';
 import 'package:raheeq_main/models/checkout.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
@@ -28,21 +27,9 @@ class DeepLinkService {
 
     _appLinks = AppLinks();
 
-    // Check initial link if app was in cold state (terminated)
-    try {
-      final initialUri = await _appLinks.getInitialLink();
-      if (initialUri != null) {
-        final lastProcessed = AppStorage.lastProcessedDeepLink;
-        if (lastProcessed != initialUri.toString()) {
-          AppStorage.saveLastProcessedDeepLink(initialUri.toString());
-          _handleDeepLink(initialUri);
-        }
-      }
-    } catch (e) {
-      debugPrint("Failed to get initial app link: $e");
-    }
-
-    // Handle link when app is in warm state (foreground or background)
+    // The stream also delivers the link that launched the app, once per app
+    // run, and the plugin skips launches from recents. Reading getInitialLink()
+    // as well handled a cold-start link twice (two reorders).
     _linkSubscription = _appLinks.uriLinkStream.listen(
       (uri) {
         _handleDeepLink(uri);
