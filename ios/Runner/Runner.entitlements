@@ -15,6 +15,7 @@
 	<key>com.apple.developer.associated-domains</key>
 	<array>
 		<string>applinks:suqyarahiq.com</string>
+		<string>applinks:www.suqyarahiq.com</string>
 	</array>
 </dict>
 </plist>
