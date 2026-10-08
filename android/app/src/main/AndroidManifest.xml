@@ -7,6 +7,9 @@
                  while the Flutter UI initializes. After that, this theme continues
                  to determine the Window background behind the Flutter UI. -->
             <meta-data android:name="io.flutter.embedding.android.NormalTheme" android:resource="@style/NormalTheme" />
+            <!-- Links are handled by DeepLinkService (app_links); without this,
+                 Flutter also pushes them as named routes, which MaterialApp lacks. -->
+            <meta-data android:name="flutter_deeplinking_enabled" android:value="false" />
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -16,9 +19,15 @@
                 <action android:name="android.intent.action.VIEW" />
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
-                <!-- Handle deep links for suqyarahiq.com -->
-                <data android:scheme="http" android:host="suqyarahiq.com" />
-                <data android:scheme="https" android:host="suqyarahiq.com" />
+                <!-- Only the paths in apple-app-site-association; the rest of
+                     suqyarahiq.com (terms, privacy policy) must stay in the browser. -->
+                <data android:scheme="http" />
+                <data android:scheme="https" />
+                <data android:host="suqyarahiq.com" />
+                <data android:host="www.suqyarahiq.com" />
+                <data android:pathPrefix="/reorder" />
+                <data android:pathPrefix="/delivery-video" />
+                <data android:pathPrefix="/delivery-proof" />
             </intent-filter>
         </activity>
         <!-- Don't delete the meta-data below.

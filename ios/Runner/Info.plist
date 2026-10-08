@@ -37,6 +37,8 @@
 	</array>
 	<key>CFBundleVersion</key>
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<key>FlutterDeepLinkingEnabled</key>
+	<false/>
 	<key>GIDClientID</key>
 	<string>579658096080-ncd5iskpiei33dfg2j255sujkjer39vq.apps.googleusercontent.com</string>
 	<key>LSRequiresIPhoneOS</key>
