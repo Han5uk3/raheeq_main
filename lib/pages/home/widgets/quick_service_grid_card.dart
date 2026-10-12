@@ -11,6 +11,7 @@ Widget buildQuickServiceGridCard(
   BuildContext context,
   String title,
   String imgPath, {
+  bool isSpecific = false,
   bool isSelected = false,
   bool requiresChoosing = false,
   VoidCallback? onClear,
@@ -78,7 +79,7 @@ Widget buildQuickServiceGridCard(
               Expanded(
                 child: Container(
                   padding: const EdgeInsets.symmetric(
-                    horizontal: 10,
+                    horizontal: 6,
                     vertical: 4,
                   ),
                   alignment: Alignment.center,
@@ -87,11 +88,11 @@ Widget buildQuickServiceGridCard(
                     textAlign: TextAlign.center,
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontSize: 11,
+                    style: TextStyle(
+                      fontSize: isSpecific ? 9 : 11,
                       fontWeight: FontWeight.w600,
                       color: Colors.black87,
-                      height: 1.0,
+                    
                     ),
                   ),
                 ),

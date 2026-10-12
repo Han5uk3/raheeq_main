@@ -11,6 +11,7 @@ import 'package:raheeq_main/pages/home/pages/home_tab.dart';
 import 'package:raheeq_main/pages/home/pages/specific_mosque_page.dart';
 import 'package:raheeq_main/pages/home/widgets/city_selector_dialog.dart';
 import 'package:raheeq_main/pages/home/widgets/option_selector_dialog.dart';
+import 'package:raheeq_main/pages/home/widgets/place_picker_sheet.dart';
 import 'package:raheeq_main/pages/home/widgets/quick_service_grid_card.dart';
 import 'package:raheeq_main/pages/order/order_details_page.dart';
 import 'package:raheeq_main/utils/colors.dart';
@@ -21,8 +22,10 @@ import 'package:raheeq_main/utils/colors.dart';
 /// rendered while a modal bottom sheet is still mounted underneath stalls the
 /// renderer hard enough to ANR the process. So the sheet closes and asks the
 /// caller to run the picker, exactly as every other bottom sheet in the app
-/// pops before it pushes. [OrderChillerSheet.start] reopens the sheet with the
-/// selection carried across.
+/// pops before it pushes. Orphanages and miqat mosques are picked in
+/// [PlacePickerSheet], itself a bottom sheet, and run the same way so the two
+/// never stack. [OrderChillerSheet.start] reopens the sheet with the selection
+/// carried across.
 class _PlacePickerRequest {
   final Category category;
   final String label;
@@ -105,16 +108,25 @@ class OrderChillerSheet extends StatefulWidget {
         continue;
       }
 
-      final places = await Navigator.of(context).push(
-        SpecificMosqueRoute(
-          builder: (_) => SpecificMosquePage(
-            isEssentialProduct: false,
-            slug: request.slug,
-            initialSelections: _selectedPlacesFor(selection, request.slug),
-            title: request.label,
-          ),
-        ),
-      );
+      final initialSelections = _selectedPlacesFor(selection, request.slug);
+      final places =
+          request.slug == 'orphanages' || request.slug == 'meqat_mosques'
+          ? await PlacePickerSheet.show(
+              context,
+              slug: request.slug,
+              title: request.label,
+              initialSelections: initialSelections,
+            )
+          : await Navigator.of(context).push(
+              SpecificMosqueRoute(
+                builder: (_) => SpecificMosquePage(
+                  isEssentialProduct: false,
+                  slug: request.slug,
+                  initialSelections: initialSelections,
+                  title: request.label,
+                ),
+              ),
+            );
       if (!context.mounted) return;
 
       // Null means the picker opened and was left with nothing picked, so the

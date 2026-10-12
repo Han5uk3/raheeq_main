@@ -633,16 +633,16 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
                 const Icon(
                   Icons.auto_awesome,
                   color: AppColors.buttonBlueDark,
-                  size: 18,
+                  size: 16,
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 4),
                 Expanded(
                   child: Text(
                     overflow: TextOverflow.ellipsis,
-                    maxLines: 2,
+                    maxLines: 1,
                     AppLocalizations.of(context)!.select_your_impact,
                     style: TextStyle(
-                      fontSize: isAr ? 14 : 14,
+                      fontSize: isAr ? 14 : 12,
                       fontWeight: FontWeight.bold,
                       color: AppColors.black,
                     ),

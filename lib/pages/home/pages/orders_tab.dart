@@ -443,7 +443,7 @@ class _OrdersTabState extends State<OrdersTab>
                   children: [
                     const SizedBox(height: 16),
                     Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 24.0),
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
                       child: Container(
                         height: 50,
                         decoration: BoxDecoration(
@@ -642,6 +642,7 @@ class _OrdersTabState extends State<OrdersTab>
             baseColor: Colors.grey[300]!,
             highlightColor: Colors.grey[100]!,
             child: Card(
+              margin: EdgeInsets.all(0),
               color: Colors.white,
               elevation: 2,
               shape: RoundedRectangleBorder(
