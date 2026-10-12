@@ -26,6 +26,7 @@ const int _maxVisibleSelectedTiles = 4;
 // Material's scrollbar thickness (8) plus its cross axis margin (2), rounded up.
 const double _scrollbarGutter = 12;
 const int _mapItemsLimit = 30;
+const int _listItemsLimit = 1000;
 
 const TextStyle _cityMenuTextStyle = TextStyle(fontSize: 14);
 // MenuItemButton's default horizontal padding (12 + 12) plus DropdownMenu's
@@ -47,6 +48,10 @@ class SpecificMosquePage extends StatefulWidget {
     this.title,
     this.isEssentialProduct = false,
   });
+
+  /// Orphanages and miqat mosques are picked from the list alone: the page
+  /// shows no List/Map switcher, and builds and loads nothing for the map.
+  bool get needMap => slug != 'orphanages' && slug != 'meqat_mosques';
 
   @override
   State<SpecificMosquePage> createState() => _SpecificMosquePageState();
@@ -123,7 +128,7 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
   @override
   void initState() {
     super.initState();
-    _loadMapPinIcon();
+    if (widget.needMap) _loadMapPinIcon();
     _selectedItemsList.addAll(widget.initialSelections);
     _tabController = TabController(length: 2, vsync: this);
     _tabController.addListener(_onTabChanged);
@@ -191,7 +196,8 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
     _locationResolved = true;
     _startMapItemsIfReady();
     await _fetchFavorites();
-    _fetchCities();
+    // Cities only fill the map's filter.
+    if (widget.needMap) _fetchCities();
     await _fetchItems();
   }
 
@@ -213,17 +219,27 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
     }
   }
 
+  // Where the map goes for a picked city. Not the first pin loaded for it:
+  // /mosques/miqat ignores the city filter, so that pin is the same for
+  // every city.
+  static LatLng? _cityCenter(City? city) {
+    final latitude = city?.latitude;
+    final longitude = city?.longitude;
+    if (latitude == null || longitude == null) return null;
+    return LatLng(latitude, longitude);
+  }
+
   // Fetches map markers page by page (capped at `_mapItemsLimit` per
   // request) until every page for the current city filter has been loaded,
-  // replacing whatever the map showed before. `centerOnFirstResult`
-  // re-centers the map on the first item of the first page once it arrives,
-  // which is how city selection is navigated on the map since cities
-  // themselves carry no coordinates.
+  // replacing whatever the map showed before. `citySelected` marks a run
+  // started by picking a city: once the first page arrives it tells the user
+  // if the city has nothing to show, and for a city without coordinates of
+  // its own it centers the map on the first pin instead.
   //
   // Each call starts a new generation. A run whose generation is no longer
   // current (the city changed while it was loading) drops what it fetched and
   // stops, so pins from a previous filter never mix into the new one.
-  Future<void> _fetchMapItems({bool centerOnFirstResult = false}) async {
+  Future<void> _fetchMapItems({bool citySelected = false}) async {
     final int generation = ++_mapFetchGeneration;
     final String? cityId = _selectedCity?.id;
 
@@ -299,16 +315,18 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
         _isLoadingMapItems = false;
       });
 
-      if (page == 1 && centerOnFirstResult) {
-        if (newItems.isNotEmpty && _mapController != null) {
-          final first = newItems.first;
-          _mapController!.animateCamera(
-            CameraUpdate.newLatLngZoom(
-              LatLng(first.latitude, first.longitude),
-              12.0,
-            ),
-          );
-        } else if (newItems.isEmpty) {
+      if (page == 1 && citySelected) {
+        if (newItems.isNotEmpty) {
+          if (_cityCenter(_selectedCity) == null) {
+            final first = newItems.first;
+            _mapController?.animateCamera(
+              CameraUpdate.newLatLngZoom(
+                LatLng(first.latitude, first.longitude),
+                12.0,
+              ),
+            );
+          }
+        } else {
           String emptyMessage;
           if (widget.slug == 'orphanages') {
             emptyMessage = AppLocalizations.of(
@@ -441,17 +459,17 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
       if (widget.slug == 'orphanages') {
         response = await _apiService.getOrphanages(
           page: _currentPage,
-          limit: 1000,
+          limit: _listItemsLimit,
         );
       } else if (widget.slug == 'meqat_mosques') {
         response = await _apiService.getMiqatMosques(
           page: _currentPage,
-          limit: 1000,
+          limit: _listItemsLimit,
         );
       } else {
         response = await _apiService.getMosques(
           page: _currentPage,
-          limit: 1000,
+          limit: _listItemsLimit,
           latitude: _currentUserPosition?.latitude ?? AppStorage.userLatitude,
           longitude:
               _currentUserPosition?.longitude ?? AppStorage.userLongitude,
@@ -489,7 +507,10 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
             final int totalPages = meta['totalPages'] ?? 1;
             _hasMore = _currentPage < totalPages;
           } else {
-            _hasMore = newItems.isNotEmpty;
+            // Without paging info, a short page is the last one. The miqat
+            // endpoint sends none and ignores `page`, so asking for more
+            // would just append the same mosques again.
+            _hasMore = newItems.length == _listItemsLimit;
           }
 
           _onSearchChanged(); // update _filteredItems
@@ -578,45 +599,52 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
                       padding: const EdgeInsets.all(16),
                       child: _buildDynamicHeader(isAr),
                     ),
-                    Padding(
-                      padding: EdgeInsets.only(left: 16, right: 16, bottom: 16),
-                      child: Material(
-                        color: const Color(0xFFE5E9EC),
-                        borderRadius: BorderRadius.circular(25),
-                        clipBehavior: Clip.antiAlias,
-                        child: SizedBox(
-                          height: 50,
-                          child: TabBar(
-                            splashFactory: NoSplash.splashFactory,
-                            overlayColor: WidgetStateProperty.all(
-                              Colors.transparent,
-                            ),
-                            dividerHeight: 0,
-                            dividerColor: Colors.transparent,
-                            controller: _tabController,
-                            labelColor: Colors.white,
-                            unselectedLabelColor: AppColors.buttonBlueDark,
-                            indicatorSize: TabBarIndicatorSize.tab,
-                            indicator: BoxDecoration(
-                              borderRadius: BorderRadius.circular(25),
-                              color: AppColors.buttonBlueDark,
-                            ),
-                            labelStyle: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                            ),
-                            tabs: [
-                              Tab(text: listTabText),
-                              Tab(
-                                text: AppLocalizations.of(
-                                  context,
-                                )!.choose_from_map,
+                    // Without it the controller stays on the list tab, so the
+                    // map is never opened, built or loaded.
+                    if (widget.needMap)
+                      Padding(
+                        padding: EdgeInsets.only(
+                          left: 16,
+                          right: 16,
+                          bottom: 16,
+                        ),
+                        child: Material(
+                          color: const Color(0xFFE5E9EC),
+                          borderRadius: BorderRadius.circular(25),
+                          clipBehavior: Clip.antiAlias,
+                          child: SizedBox(
+                            height: 50,
+                            child: TabBar(
+                              splashFactory: NoSplash.splashFactory,
+                              overlayColor: WidgetStateProperty.all(
+                                Colors.transparent,
                               ),
-                            ],
+                              dividerHeight: 0,
+                              dividerColor: Colors.transparent,
+                              controller: _tabController,
+                              labelColor: Colors.white,
+                              unselectedLabelColor: AppColors.buttonBlueDark,
+                              indicatorSize: TabBarIndicatorSize.tab,
+                              indicator: BoxDecoration(
+                                borderRadius: BorderRadius.circular(25),
+                                color: AppColors.buttonBlueDark,
+                              ),
+                              labelStyle: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                              tabs: [
+                                Tab(text: listTabText),
+                                Tab(
+                                  text: AppLocalizations.of(
+                                    context,
+                                  )!.choose_from_map,
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
                     Expanded(
                       child: _isLoading
                           ? _buildShimmerLoading()
@@ -672,8 +700,11 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
     return position;
   }
 
-  Future<void> _getUserLocationAndMoveCamera() async {
+  // A GPS fix can take seconds. With [keepCity], a city picked while it was
+  // pending keeps the camera, rather than being pulled back to the user.
+  Future<void> _getUserLocationAndMoveCamera({bool keepCity = false}) async {
     Position? position = await _getUserLocation();
+    if (keepCity && _selectedCity != null) return;
     if (position != null && _mapController != null) {
       _mapController!.animateCamera(
         CameraUpdate.newLatLngZoom(
@@ -813,8 +844,14 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
           setState(() {
             _selectedCity = val;
           });
+          final center = _cityCenter(val);
+          if (center != null) {
+            _mapController?.animateCamera(
+              CameraUpdate.newLatLngZoom(center, 12.0),
+            );
+          }
           _mapItemsStarted = true;
-          _fetchMapItems(centerOnFirstResult: true);
+          _fetchMapItems(citySelected: true);
         },
       );
     }
@@ -929,16 +966,20 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
           
           onMapCreated: (controller) {
             _mapController = controller;
-            if (_selectedCity != null && _allMapItems.isNotEmpty) {
-              final first = _allMapItems.first;
+            final center =
+                _cityCenter(_selectedCity) ??
+                (_selectedCity != null && _allMapItems.isNotEmpty
+                    ? LatLng(
+                        _allMapItems.first.latitude,
+                        _allMapItems.first.longitude,
+                      )
+                    : null);
+            if (center != null) {
               _mapController!.animateCamera(
-                CameraUpdate.newLatLngZoom(
-                  LatLng(first.latitude, first.longitude),
-                  12.0,
-                ),
+                CameraUpdate.newLatLngZoom(center, 12.0),
               );
             } else {
-              _getUserLocationAndMoveCamera();
+              _getUserLocationAndMoveCamera(keepCity: true);
             }
           },
           myLocationEnabled: true,
