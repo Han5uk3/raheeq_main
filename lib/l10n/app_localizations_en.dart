@@ -390,7 +390,8 @@ class AppLocalizationsEn extends AppLocalizations {
       'Or enter custom quantity (min. \$min)';
 
   @override
-  String get select_your_impact => 'Rahiq delivers your generosity.';
+  String get select_your_impact =>
+      'With Rahiq, your orders reach their destination';
 
   @override
   String get select_a_product_to_continue => 'Select a product to continue';
@@ -461,6 +462,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get essential_mosque_supplies => 'Essential Mosque Supplies';
+
+  @override
+  String get options_title => 'Water Supply and Delivery Destinations';
+
+  @override
+  String get options_desc => 'Select the destination and specify the quantity.';
 
   @override
   String get choose_where_to_give_and_create_a_lasting_impact =>

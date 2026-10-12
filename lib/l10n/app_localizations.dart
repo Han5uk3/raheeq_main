@@ -821,7 +821,7 @@ abstract class AppLocalizations {
   /// No description provided for @select_your_impact.
   ///
   /// In en, this message translates to:
-  /// **'Rahiq delivers your generosity.'**
+  /// **'With Rahiq, your orders reach their destination'**
   String get select_your_impact;
 
   /// No description provided for @select_a_product_to_continue.
@@ -961,6 +961,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Essential Mosque Supplies'**
   String get essential_mosque_supplies;
+
+  /// No description provided for @options_title.
+  ///
+  /// In en, this message translates to:
+  /// **'Water Supply and Delivery Destinations'**
+  String get options_title;
+
+  /// No description provided for @options_desc.
+  ///
+  /// In en, this message translates to:
+  /// **'Select the destination and specify the quantity.'**
+  String get options_desc;
 
   /// No description provided for @choose_where_to_give_and_create_a_lasting_impact.
   ///

@@ -28,6 +28,7 @@ import 'campaign_detail_page.dart';
 import '../widgets/city_selector_dialog.dart';
 import 'specific_mosque_page.dart';
 import '../widgets/option_selector_dialog.dart';
+import '../widgets/place_picker_sheet.dart';
 import '../widgets/quick_service_grid_card.dart';
 import 'package:raheeq_main/models/selected_category_item.dart';
 import 'package:raheeq_main/pages/order/choose_water_package_screen.dart';
@@ -1710,9 +1711,9 @@ class _HomeTabState extends State<HomeTab>
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          AppLocalizations.of(context)!.giving_opportunities,
-          style: const TextStyle(
-            fontSize: 18,
+          AppLocalizations.of(context)!.options_title,
+          style: TextStyle(
+            fontSize: isAr ? 18 : 16,
             fontWeight: FontWeight.bold,
             color: Colors.black87,
           ),
@@ -1720,9 +1721,9 @@ class _HomeTabState extends State<HomeTab>
         Text(
           AppLocalizations.of(
             context,
-          )!.choose_where_to_give_and_create_a_lasting_impact,
+          )!.options_desc,
           style: TextStyle(
-            fontSize: 14,
+            fontSize: isAr ? 14 : 13,
             fontWeight: FontWeight.bold,
             color: Colors.grey.shade500,
           ),
@@ -1735,8 +1736,8 @@ class _HomeTabState extends State<HomeTab>
           itemCount: _categories.length,
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
             crossAxisCount: 3,
-            crossAxisSpacing: 16,
-            mainAxisSpacing: 16,
+            crossAxisSpacing: 10,
+            mainAxisSpacing: 10,
             childAspectRatio: 0.75,
           ),
           itemBuilder: (context, index) {
@@ -1829,15 +1830,11 @@ class _HomeTabState extends State<HomeTab>
                           .map((item) => item.specificData as Place)
                           .toList();
 
-                      final specificItems = await Navigator.of(context).push(
-                        SpecificMosqueRoute(
-                          builder: (_) => SpecificMosquePage(
-                            isEssentialProduct: false,
-                            slug: category.slug,
-                            initialSelections: currentlySelected,
-                            title: label,
-                          ),
-                        ),
+                      final specificItems = await PlacePickerSheet.show(
+                        context,
+                        slug: category.slug,
+                        title: label,
+                        initialSelections: currentlySelected,
                       );
                       if (specificItems != null) {
                         setState(() {
@@ -1986,7 +1983,9 @@ class _HomeTabState extends State<HomeTab>
                         });
                       }
                     : null,
+                isSpecific: slug == 'specific_mosque'
               ),
+             
             );
           },
         ),
@@ -2414,6 +2413,7 @@ class _HomeTabState extends State<HomeTab>
     BuildContext context,
     String title,
     String imgPath, {
+    bool isSpecific = false,
     bool isSelected = false,
     bool requiresChoosing = false,
     VoidCallback? onClear,
@@ -2425,6 +2425,7 @@ class _HomeTabState extends State<HomeTab>
       isSelected: isSelected,
       requiresChoosing: requiresChoosing,
       onClear: onClear,
+      isSpecific: isSpecific,
     );
   }
 
