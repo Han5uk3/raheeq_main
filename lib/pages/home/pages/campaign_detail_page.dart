@@ -3,7 +3,6 @@ import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/common_widgets/bottom_action_pill.dart';
 import 'package:raheeq_main/common_widgets/sign_in_required_dialog.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -72,9 +71,6 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
   @override
   void initState() {
     super.initState();
-    debugPrint(
-      'CampaignDetailPage: ${widget.campaign.id} has ${widget.campaign.products.length} products',
-    );
     SnackbarInsets.setBottomInset(kBottomNavigationBarHeight);
 
     // Auto-select first product if available
@@ -1123,7 +1119,6 @@ class _CampaignDetailPageState extends State<CampaignDetailPage> {
           _isLoading = false;
         });
       }
-      log('Error creating checkout: $e', error: e);
       if (mounted) {
         String errorMessage = AppLocalizations.of(
           context,

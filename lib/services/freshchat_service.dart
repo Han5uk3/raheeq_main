@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:developer';
 import 'dart:io' show Platform;
 
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -86,7 +85,6 @@ class FreshchatService {
       final result = await Freshchat.getUnreadCountAsync.timeout(
         const Duration(seconds: 5),
       );
-      log("Freshchat unread lookup: $result", name: "FreshchatService");
 
       // Both platforms answer with {status, count}. A failed lookup still
       // carries a count — 0 on iOS — so trusting it would clear a badge that
@@ -99,20 +97,10 @@ class FreshchatService {
       if (count != unreadCount.value) {
         unreadCount.value = count;
       }
-    } catch (e) {
-      log(
-        "Failed to read Freshchat unread count: $e",
-        name: "FreshchatService",
-        error: e,
-      );
-    }
+    } catch (_) {}
   }
 
   static void init() {
-    log(
-      "Initializing Freshchat Service listeners...",
-      name: "FreshchatService",
-    );
     // Nothing here restarts the bot any more. That is the bot's own job now,
     // via the "start new conversation" action at the end of its flow — the app
     // has no silent way to do it, since `Freshchat.sendMessage` is the plugin's
@@ -128,16 +116,6 @@ class FreshchatService {
     Freshchat.onFreshchatEvents.listen((event) {
       final map = event is Map ? event : const {};
       final eventName = map['event_name']?.toString();
-      final properties = map['properties'];
-
-      // Properties are logged in full because anything built on these events
-      // depends on exact strings the SDK never documents; the resolution
-      // matcher that sat here for months, matching a name no event has, is
-      // what guessing at them costs.
-      log(
-        "Freshchat event: $eventName ${properties ?? ''}",
-        name: "FreshchatService",
-      );
       if (eventName == null) return;
 
       final name = eventName.toLowerCase();
@@ -164,10 +142,6 @@ class FreshchatService {
     if (Platform.isAndroid) {
       FirebaseMessaging.instance.onTokenRefresh.listen((token) {
         Freshchat.setPushRegistrationToken(token);
-        log(
-          "Freshchat push registration token refreshed.",
-          name: "FreshchatService",
-        );
       });
     }
 
@@ -175,10 +149,6 @@ class FreshchatService {
     if (Platform.isIOS) {
       _pushChannel.setMethodCallHandler((call) async {
         if (call.method == 'onApnsTokenReceived') {
-          log(
-            "APNs token received by AppDelegate; syncing with Freshchat...",
-            name: "FreshchatService",
-          );
           await registerPushToken(maxRetries: 3);
         }
       });
@@ -190,7 +160,6 @@ class FreshchatService {
     // listening to both costs a status read and closes the gap if one is
     // silent.
     Freshchat.onJwtRefresh.listen((_) async {
-      log("Freshchat asked for a fresh JWT.", name: "FreshchatService");
       await ensureAuthenticated();
       await registerPushToken();
     });
@@ -211,24 +180,12 @@ class FreshchatService {
     for (int attempt = 1; attempt <= maxRetries; attempt++) {
       final success = await _executeTokenRegistration();
       if (success) {
-        log(
-          "Freshchat push token registered successfully (attempt $attempt/$maxRetries).",
-          name: "FreshchatService",
-        );
         return true;
       }
       if (attempt < maxRetries) {
-        log(
-          "Freshchat push token not ready on attempt $attempt/$maxRetries; retrying in ${delay.inMilliseconds}ms...",
-          name: "FreshchatService",
-        );
         await Future.delayed(delay);
       }
     }
-    log(
-      "Freshchat push token registration unconfirmed after $maxRetries attempts.",
-      name: "FreshchatService",
-    );
     return false;
   }
 
@@ -236,17 +193,8 @@ class FreshchatService {
     if (Platform.isIOS) {
       try {
         final applied = await _pushChannel.invokeMethod<bool>('syncPushToken');
-        log(
-          "Freshchat APNs token sync response: $applied",
-          name: "FreshchatService",
-        );
         return applied == true;
       } catch (e) {
-        log(
-          "Failed to re-send APNs token to Freshchat: $e",
-          name: "FreshchatService",
-          error: e,
-        );
         return false;
       }
     }
@@ -257,21 +205,11 @@ class FreshchatService {
       final token = await FirebaseMessaging.instance.getToken();
       if (token != null && token.isNotEmpty) {
         Freshchat.setPushRegistrationToken(token);
-        log(
-          "Freshchat FCM push registration token set (${token.length > 10 ? token.substring(0, 10) : token}...).",
-          name: "FreshchatService",
-        );
         return true;
       } else {
-        log("No FCM token available yet.", name: "FreshchatService");
         return false;
       }
     } catch (e) {
-      log(
-        "Failed to set Freshchat push registration token: $e",
-        name: "FreshchatService",
-        error: e,
-      );
       return false;
     }
   }
@@ -288,11 +226,6 @@ class FreshchatService {
     try {
       return await Freshchat.getUserIdTokenStatus;
     } catch (e) {
-      log(
-        "Failed to read Freshchat JWT status: $e",
-        name: "FreshchatService",
-        error: e,
-      );
       // Treat an unreadable status as "no token": re-sending one the SDK
       // already has is harmless, skipping one it needs is not.
       return JwtTokenStatus.TOKEN_NOT_SET;
@@ -322,7 +255,6 @@ class FreshchatService {
       if (AuthStorage.user == null) return;
 
       final status = await _idTokenStatus();
-      log("Freshchat JWT status: $status", name: "FreshchatService");
 
       // Already good, or a token is mid-handshake and a second one would only
       // restart it.
@@ -334,13 +266,6 @@ class FreshchatService {
 
       if (status == JwtTokenStatus.TOKEN_INVALID &&
           ++_rejectedTokens > _maxRejectedTokens) {
-        log(
-          "Freshchat rejected $_rejectedTokens tokens; giving up for this "
-          "session. Check that the backend signs with the account's current "
-          "encrypted key and that the payload carries freshchat_uuid and "
-          "reference_id.",
-          name: "FreshchatService",
-        );
         return;
       }
 
@@ -349,10 +274,6 @@ class FreshchatService {
       // it costs a method call rather than a round trip.
       final stored = AuthStorage.freshchatToken;
       if (status == JwtTokenStatus.TOKEN_NOT_SET && !_isTokenExpired(stored)) {
-        log(
-          "Restoring Freshchat user with the stored token.",
-          name: "FreshchatService",
-        );
         Freshchat.restoreUserWithIdToken(stored!);
         await _awaitTokenSettled();
         return;
@@ -369,20 +290,11 @@ class FreshchatService {
       // it (as this did) left the SDK holding a token for a user it never
       // restored.
       Freshchat.restoreUserWithIdToken(token);
-      log(
-        "Freshchat user restored with a fresh token.",
-        name: "FreshchatService",
-      );
       await _awaitTokenSettled();
     } catch (e) {
       // Most callers here are fire-and-forget event listeners, so an escaping
       // error would surface as an unhandled async error rather than anything
       // useful.
-      log(
-        "Freshchat authentication failed: $e",
-        name: "FreshchatService",
-        error: e,
-      );
     }
   }
 
@@ -411,16 +323,9 @@ class FreshchatService {
           status == JwtTokenStatus.TOKEN_NOT_SET) {
         continue;
       }
-      log("Freshchat token settled as $status.", name: "FreshchatService");
       if (status == JwtTokenStatus.TOKEN_VALID) _rejectedTokens = 0;
       return;
     }
-
-    log(
-      "Freshchat token still unsettled after ${limit.inSeconds}s; opening "
-      "the chat anyway.",
-      name: "FreshchatService",
-    );
   }
 
   /// Asks the backend for a JWT naming this device's Freshchat user and stores
@@ -434,36 +339,22 @@ class FreshchatService {
     try {
       final freshchatUuid = await Freshchat.getFreshchatUserId;
       if (freshchatUuid.isEmpty) {
-        log(
-          "No Freshchat uuid yet; skipping token generation.",
-          name: "FreshchatService",
-        );
         return null;
       }
 
       final response = await ApiService().generateFreshchatToken(freshchatUuid);
       if (response.statusCode != 200 || response.data['success'] != true) {
-        log(
-          "Backend declined to mint a Freshchat token: ${response.statusCode}",
-          name: "FreshchatService",
-        );
         return null;
       }
 
       final token = response.data['data']?['token'] as String?;
       if (token == null || token.isEmpty) {
-        log("Backend returned no Freshchat token.", name: "FreshchatService");
         return null;
       }
 
       await AuthStorage.saveFreshchatToken(token);
       return token;
     } catch (e) {
-      log(
-        "Failed to generate Freshchat token: $e",
-        name: "FreshchatService",
-        error: e,
-      );
       return null;
     }
   }
@@ -560,12 +451,6 @@ class FreshchatService {
       // The count read at startup belonged to whoever the SDK had before this
       // user was restored, so take it again now that it means something.
       await refreshUnreadCount();
-    } catch (e) {
-      log(
-        "Failed to authenticate Freshchat user: $e",
-        name: "FreshchatService",
-        error: e,
-      );
-    }
+    } catch (_) {}
   }
 }

@@ -4,15 +4,6 @@ import GoogleMaps
 import UserNotifications
 import freshchat_sdk
 
-/// Temporary push diagnostics. `print` reaches `flutter run`'s console (stdout)
-/// and `NSLog` reaches Xcode / Console.app (os_log); neither alone shows up in
-/// both places, and a run that surfaces nothing is indistinguishable from a
-/// hook that never fired. Remove once the push path is confirmed on a device.
-private func freshchatLog(_ message: String) {
-  print("[Freshchat] \(message)")
-  NSLog("[Freshchat] %@", message)
-}
-
 @main
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
   override func application(
@@ -120,12 +111,10 @@ private func freshchatLog(_ message: String) {
         return
       }
       guard let token = self?.apnsDeviceToken else {
-        freshchatLog("syncPushToken: no APNs token cached yet")
         result(false)
         return
       }
       FreshchatSdkPlugin().setPushRegistrationToken(token)
-      freshchatLog("syncPushToken: re-sent cached APNs token (\(token.count) bytes) to SDK")
       result(true)
     }
   }
@@ -155,26 +144,12 @@ private func freshchatLog(_ message: String) {
     didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data
   ) {
     apnsDeviceToken = deviceToken
-    freshchatLog("APNs token received (\(deviceToken.count) bytes), handing to SDK")
     FreshchatSdkPlugin().setPushRegistrationToken(deviceToken)
     pushChannel?.invokeMethod("onApnsTokenReceived", arguments: nil)
     super.application(
       application,
       didRegisterForRemoteNotificationsWithDeviceToken: deviceToken
     )
-  }
-
-  override func application(
-    _ application: UIApplication,
-    didFailToRegisterForRemoteNotificationsWithError error: Error
-  ) {
-    // Without a token Freshchat can only fall back on its own sync, which is
-    // the slow path this whole section exists to avoid — so a failure here is
-    // the first thing to look for, not something to swallow silently. Usual
-    // causes: running on the simulator, a provisioning profile without the
-    // push entitlement, or no network at launch.
-    freshchatLog("APNs registration FAILED: \(error.localizedDescription)")
-    super.application(application, didFailToRegisterForRemoteNotificationsWithError: error)
   }
 
   /// The hook Freshchat's own docs name for handling a push in the active or
@@ -196,13 +171,7 @@ private func freshchatLog(_ message: String) {
     fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void
   ) {
     let plugin = FreshchatSdkPlugin()
-    let isFreshchat = plugin.isFreshchatNotification(userInfo)
-    freshchatLog(
-      "remote notification received (appState=\(application.applicationState.rawValue)), "
-        + "isFreshchat=\(isFreshchat)"
-    )
-
-    if isFreshchat {
+    if plugin.isFreshchatNotification(userInfo) {
       plugin.handlePushNotification(userInfo)
       completionHandler(.newData)
       return
@@ -222,13 +191,8 @@ private func freshchatLog(_ message: String) {
   ) {
     let plugin = FreshchatSdkPlugin()
     let payload = notification.request.content.userInfo
-    let isFreshchat = plugin.isFreshchatNotification(payload)
 
-    // Distinguishes "no push reached the device at all" (no line) from
-    // "a push arrived but the SDK didn't claim it" (line, isFreshchat=false).
-    freshchatLog("foreground push received, isFreshchat=\(isFreshchat)")
-
-    if isFreshchat {
+    if plugin.isFreshchatNotification(payload) {
       // Hand it to the SDK and present nothing: the conversation the user is
       // looking at updates itself, and a banner over it would be noise.
       plugin.handlePushNotification(payload)

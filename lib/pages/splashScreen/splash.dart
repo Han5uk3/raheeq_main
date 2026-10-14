@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
@@ -66,12 +64,9 @@ class _SplashScreenState extends State<SplashScreen> {
     // 401 handling catches the session on the next call.
     try {
       await startupSessionCheck?.timeout(_sessionCheckGrace);
-    } catch (e) {
-      log("Splash: startup profile check did not settle in time: $e");
-    }
+    } catch (_) {}
 
     final status = await _apiService.checkSession();
-    log("Splash session check: $status");
 
     // Routing decision made — session failures from here on redirect on
     // their own instead of waiting for the splash.

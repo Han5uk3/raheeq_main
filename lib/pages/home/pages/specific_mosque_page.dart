@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:math' as math;
 
 import 'package:raheeq_main/api/apis.dart';
@@ -25,8 +26,19 @@ const double _selectedTileGap = 8;
 const int _maxVisibleSelectedTiles = 4;
 // Material's scrollbar thickness (8) plus its cross axis margin (2), rounded up.
 const double _scrollbarGutter = 12;
-const int _mapItemsLimit = 30;
+const int _mapItemsLimit = 60;
+// The mosque list loads this many at a time, and the next page once it is
+// scrolled near its end. Its search runs on the server, once typing has
+// paused for [_searchDelay].
+const int _mosqueListPageSize = 30;
+const Duration _searchDelay = Duration(milliseconds: 400);
+// Orphanages and miqat mosques still load in one request, and their search
+// filters what was loaded. The miqat endpoint ignores `page`, so it could not
+// be paged anyway.
 const int _listItemsLimit = 1000;
+// How far, in meters, the map has to move from where its pins were fetched
+// before stopping fetches new ones.
+const double _mapRefetchDistance = 50;
 
 const TextStyle _cityMenuTextStyle = TextStyle(fontSize: 14);
 // MenuItemButton's default horizontal padding (12 + 12) plus DropdownMenu's
@@ -82,6 +94,12 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
     with SingleTickerProviderStateMixin {
   final ApiService _apiService = ApiService();
   bool _isLoading = true;
+  // The list is loading its first page again, for a new search. Unlike
+  // [_isLoading] this covers only the list, so the map stays mounted.
+  bool _isReloadingList = false;
+  int _listFetchGeneration = 0;
+  String _searchQuery = '';
+  Timer? _searchTimer;
   List<Place> _items = [];
   List<Place> _allMapItems = [];
   bool _isLoadingMapItems = true;
@@ -109,7 +127,12 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
   int _shownTabIndex = 0;
   bool _mapTabOpened = false;
   bool _locationResolved = false;
-  bool _mapItemsStarted = false;
+  // Where the camera is, once it has moved; null while it is still where it
+  // opened.
+  LatLng? _mapCenter;
+  // Where the shown (or loading) pins were fetched around; null until the
+  // first fetch starts.
+  LatLng? _mapItemsCenter;
   BitmapDescriptor? _mapPinIcon;
   BitmapDescriptor? _mapPinSelectedIcon;
 
@@ -119,8 +142,9 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
     if (mounted) {
       setState(() {
         if (mapPinIcon != null) _mapPinIcon = mapPinIcon;
-        if (mapPinSelectedIcon != null)
+        if (mapPinSelectedIcon != null) {
           _mapPinSelectedIcon = mapPinSelectedIcon;
+        }
       });
     }
   }
@@ -156,12 +180,31 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
     _startMapItemsIfReady();
   }
 
-  // Map pins are fetched near the user, so they also wait for the location
-  // lookup in [_initData].
+  // The first map pins are fetched near the user, so they also wait for the
+  // location lookup in [_initData]. After that the pins follow the camera;
+  // see [_onCameraIdle].
   void _startMapItemsIfReady() {
-    if (!_mapTabOpened || !_locationResolved || _mapItemsStarted) return;
-    _mapItemsStarted = true;
-    _fetchMapItems();
+    if (!_mapTabOpened || !_locationResolved || _mapItemsCenter != null) {
+      return;
+    }
+    _fetchMapItems(_userLocation);
+  }
+
+  // Once the camera stops, the mosques nearest its new center replace the
+  // pins. A stop close to where they were fetched (the opening GPS fix
+  // settling, say) keeps them.
+  void _onCameraIdle() {
+    final center = _mapCenter;
+    final fetchedAround = _mapItemsCenter;
+    if (center == null || fetchedAround == null) return;
+    final moved = Geolocator.distanceBetween(
+      fetchedAround.latitude,
+      fetchedAround.longitude,
+      center.latitude,
+      center.longitude,
+    );
+    if (moved < _mapRefetchDistance) return;
+    _fetchMapItems(center);
   }
 
   /// What leaving without Confirm keeps; see [SpecificMosqueRoute].
@@ -174,6 +217,7 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
     if (_scrollController.position.pixels >=
             _scrollController.position.maxScrollExtent - 200 &&
         !_isLoading &&
+        !_isReloadingList &&
         !_isLoadingMore &&
         _hasMore) {
       _loadMoreItems();
@@ -185,11 +229,24 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
     setState(() {
       _isLoadingMore = true;
     });
-    _currentPage++;
     await _fetchItems(isLoadMore: true);
   }
 
+  // Every slug but these lists from /mosques, which pages and searches on the
+  // server.
+  bool get _isMosqueList =>
+      widget.slug != 'orphanages' && widget.slug != 'meqat_mosques';
+
+  int get _listPageSize =>
+      _isMosqueList ? _mosqueListPageSize : _listItemsLimit;
+
   Position? _currentUserPosition;
+
+  // Where the map opens: the user, or Riyadh when their location is unknown.
+  LatLng get _userLocation => LatLng(
+    _currentUserPosition?.latitude ?? AppStorage.userLatitude ?? 24.7136,
+    _currentUserPosition?.longitude ?? AppStorage.userLongitude ?? 46.6753,
+  );
 
   Future<void> _initData() async {
     _currentUserPosition = await _getUserLocation();
@@ -229,128 +286,83 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
     return LatLng(latitude, longitude);
   }
 
-  // Fetches map markers page by page (capped at `_mapItemsLimit` per
-  // request) until every page for the current city filter has been loaded,
-  // replacing whatever the map showed before. `citySelected` marks a run
-  // started by picking a city: once the first page arrives it tells the user
-  // if the city has nothing to show, and for a city without coordinates of
-  // its own it centers the map on the first pin instead.
+  // Fetches the `_mapItemsLimit` mosques nearest [center], within the picked
+  // city if there is one, in place of the pins the map showed before. That
+  // they are the nearest relies on /mosques ordering what it returns by
+  // distance from the coordinates it is sent. Only the mosque slugs reach the
+  // map (see [SpecificMosquePage.needMap]), so only /mosques is asked.
   //
-  // Each call starts a new generation. A run whose generation is no longer
-  // current (the city changed while it was loading) drops what it fetched and
-  // stops, so pins from a previous filter never mix into the new one.
-  Future<void> _fetchMapItems({bool citySelected = false}) async {
+  // `citySelected` marks a fetch started by picking a city: it takes the old
+  // pins down at once, since they may lie outside the new filter, and once
+  // the results arrive it tells the user if the city has nothing to show, and
+  // for a city without coordinates of its own it centers the map on the first
+  // pin instead. Otherwise the old pins stay up until the new ones arrive.
+  //
+  // Each call starts a new generation. A fetch whose generation is no longer
+  // current (the map moved on, or the city changed, while it was loading)
+  // drops what it fetched, so only the latest pins are ever shown.
+  Future<void> _fetchMapItems(
+    LatLng center, {
+    bool citySelected = false,
+  }) async {
     final int generation = ++_mapFetchGeneration;
     final String? cityId = _selectedCity?.id;
+    _mapItemsCenter = center;
 
     setState(() {
-      _allMapItems = [];
+      if (citySelected) _allMapItems = [];
       _isLoadingMapItems = true;
     });
 
-    int page = 1;
-    while (true) {
-      dynamic response;
-      try {
-        if (widget.slug == 'orphanages') {
-          response = await _apiService.getOrphanages(
-            page: page,
-            limit: _mapItemsLimit,
-            cityId: cityId,
-          );
-        } else if (widget.slug == 'meqat_mosques') {
-          response = await _apiService.getMiqatMosques(
-            page: page,
-            limit: _mapItemsLimit,
-            cityId: cityId,
-          );
-        } else {
-          response = await _apiService.getMosques(
-            page: page,
-            limit: _mapItemsLimit,
-            latitude: _currentUserPosition?.latitude ?? AppStorage.userLatitude,
-            longitude:
-                _currentUserPosition?.longitude ?? AppStorage.userLongitude,
-            cityId: cityId,
-          );
-        }
-      } catch (e) {
-        if (mounted && generation == _mapFetchGeneration) {
-          setState(() => _isLoadingMapItems = false);
-        }
-        return;
-      }
-
-      if (!mounted || generation != _mapFetchGeneration) return;
-
-      if (response.statusCode != 200 || response.data['success'] != true) {
+    dynamic response;
+    try {
+      response = await _apiService.getMosques(
+        limit: _mapItemsLimit,
+        latitude: center.latitude,
+        longitude: center.longitude,
+        cityId: cityId,
+      );
+    } catch (e) {
+      if (mounted && generation == _mapFetchGeneration) {
         setState(() => _isLoadingMapItems = false);
-        return;
       }
+      return;
+    }
 
-      final List<dynamic> data = response.data['data'] ?? [];
-      final Map<String, dynamic>? meta = response.data['meta'];
+    if (!mounted || generation != _mapFetchGeneration) return;
 
-      List<Place> newItems;
-      if (widget.slug == 'orphanages') {
-        newItems = data
-            .map((e) => Orphanage.fromJson(e as Map<String, dynamic>))
-            .toList();
-      } else if (widget.slug == 'meqat_mosques') {
-        newItems = data
-            .map((e) => MeqatMosque.fromJson(e as Map<String, dynamic>))
-            .toList();
-      } else {
-        newItems = data
-            .map((e) => Mosque.fromJson(e as Map<String, dynamic>))
-            .toList();
-      }
+    if (response.statusCode != 200 || response.data['success'] != true) {
+      setState(() => _isLoadingMapItems = false);
+      return;
+    }
 
-      final bool hasMore = meta != null
-          ? page < (meta['totalPages'] ?? 1)
-          : newItems.length == _mapItemsLimit;
+    final List<dynamic> data = response.data['data'] ?? [];
+    final List<Place> newItems = data
+        .map((e) => Mosque.fromJson(e as Map<String, dynamic>))
+        .toList();
 
-      setState(() {
-        _allMapItems = [..._allMapItems, ...newItems];
-        _isLoadingMapItems = false;
-      });
+    setState(() {
+      _allMapItems = newItems;
+      _isLoadingMapItems = false;
+    });
 
-      if (page == 1 && citySelected) {
-        if (newItems.isNotEmpty) {
-          if (_cityCenter(_selectedCity) == null) {
-            final first = newItems.first;
-            _mapController?.animateCamera(
-              CameraUpdate.newLatLngZoom(
-                LatLng(first.latitude, first.longitude),
-                12.0,
-              ),
-            );
-          }
-        } else {
-          String emptyMessage;
-          if (widget.slug == 'orphanages') {
-            emptyMessage = AppLocalizations.of(
-              context,
-            )!.no_orphanages_available_in_selected_city;
-          } else if (widget.slug == 'meqat_mosques') {
-            emptyMessage = AppLocalizations.of(
-              context,
-            )!.no_meqat_mosques_available_in_selected_city;
-          } else {
-            emptyMessage = AppLocalizations.of(
-              context,
-            )!.no_mosques_available_in_selected_city;
-          }
-          CustomSnackbar.show(
-            context: context,
-            message: emptyMessage,
-            isError: true,
-          );
-        }
-      }
-
-      if (!hasMore) return;
-      page++;
+    if (!citySelected) return;
+    if (newItems.isEmpty) {
+      CustomSnackbar.show(
+        context: context,
+        message: AppLocalizations.of(
+          context,
+        )!.no_mosques_available_in_selected_city,
+        isError: true,
+      );
+    } else if (_cityCenter(_selectedCity) == null) {
+      final first = newItems.first;
+      _mapController?.animateCamera(
+        CameraUpdate.newLatLngZoom(
+          LatLng(first.latitude, first.longitude),
+          12.0,
+        ),
+      );
     }
   }
 
@@ -422,65 +434,91 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
     _selectedItemsScrollController.dispose();
     _tabController.dispose();
     _searchController.dispose();
+    _searchTimer?.cancel();
     super.dispose();
   }
 
   void _onSearchChanged() {
-    final query = _searchController.text.trim().toLowerCase();
-    setState(() {
-      if (query.isEmpty) {
-        _filteredItems = _items;
-      } else {
-        _filteredItems = _items.where((m) {
-          final nameEn = m.name.toLowerCase();
-          final nameAr = m.nameAr.toLowerCase();
-          final address = m.address.toLowerCase();
-          return nameEn.contains(query) ||
-              nameAr.contains(query) ||
-              address.contains(query);
-        }).toList();
-      }
-    });
+    final query = _searchController.text.trim();
+    // The controller also notifies when only the cursor moves.
+    if (query == _searchQuery) return;
+    _searchQuery = query;
+    if (_isMosqueList) {
+      _searchTimer?.cancel();
+      _searchTimer = Timer(_searchDelay, _fetchItems);
+    } else {
+      setState(_filterItems);
+    }
   }
 
+  // The server has already searched the mosque list, so only the places
+  // loaded in one go are filtered here.
+  void _filterItems() {
+    final query = _searchQuery.toLowerCase();
+    if (_isMosqueList || query.isEmpty) {
+      _filteredItems = _items;
+      return;
+    }
+    _filteredItems = _items.where((m) {
+      final nameEn = m.name.toLowerCase();
+      final nameAr = m.nameAr.toLowerCase();
+      final address = m.address.toLowerCase();
+      return nameEn.contains(query) ||
+          nameAr.contains(query) ||
+          address.contains(query);
+    }).toList();
+  }
+
+  // Loading the first page (again, for a new search) starts a new generation,
+  // and a fetch whose generation is no longer current drops what it fetched:
+  // results for an older search never land in the list.
   Future<void> _fetchItems({bool isLoadMore = false}) async {
+    final int generation = isLoadMore
+        ? _listFetchGeneration
+        : ++_listFetchGeneration;
     if (!isLoadMore) {
       if (!mounted) return;
       setState(() {
-        _isLoading = true;
+        _isReloadingList = true;
         _currentPage = 1;
         _hasMore = true;
         _items.clear();
       });
     }
 
+    // A page only counts as loaded once it arrives, so one that fails is
+    // asked for again on the next scroll rather than skipped.
+    final int page = isLoadMore ? _currentPage + 1 : 1;
+
     try {
       dynamic response;
       if (widget.slug == 'orphanages') {
         response = await _apiService.getOrphanages(
-          page: _currentPage,
-          limit: _listItemsLimit,
+          page: page,
+          limit: _listPageSize,
         );
       } else if (widget.slug == 'meqat_mosques') {
         response = await _apiService.getMiqatMosques(
-          page: _currentPage,
-          limit: _listItemsLimit,
+          page: page,
+          limit: _listPageSize,
         );
       } else {
         response = await _apiService.getMosques(
-          page: _currentPage,
-          limit: _listItemsLimit,
+          page: page,
+          limit: _listPageSize,
           latitude: _currentUserPosition?.latitude ?? AppStorage.userLatitude,
           longitude:
               _currentUserPosition?.longitude ?? AppStorage.userLongitude,
+          search: _searchQuery,
         );
       }
+
+      if (!mounted || generation != _listFetchGeneration) return;
 
       if (response.statusCode == 200 && response.data['success'] == true) {
         final List<dynamic> data = response.data['data'] ?? [];
         final Map<String, dynamic>? meta = response.data['meta'];
 
-        if (!mounted) return;
         setState(() {
           List<Place> newItems = [];
           if (widget.slug == 'orphanages') {
@@ -502,32 +540,35 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
           } else {
             _items = newItems;
           }
+          _currentPage = page;
 
           if (meta != null) {
             final int totalPages = meta['totalPages'] ?? 1;
-            _hasMore = _currentPage < totalPages;
+            _hasMore = page < totalPages;
           } else {
             // Without paging info, a short page is the last one. The miqat
             // endpoint sends none and ignores `page`, so asking for more
             // would just append the same mosques again.
-            _hasMore = newItems.length == _listItemsLimit;
+            _hasMore = newItems.length == _listPageSize;
           }
 
-          _onSearchChanged(); // update _filteredItems
+          _filterItems();
           _isLoading = false;
+          _isReloadingList = false;
           _isLoadingMore = false;
         });
       } else {
-        if (!mounted) return;
         setState(() {
           _isLoading = false;
+          _isReloadingList = false;
           _isLoadingMore = false;
         });
       }
     } catch (e) {
-      if (!mounted) return;
+      if (!mounted || generation != _listFetchGeneration) return;
       setState(() {
         _isLoading = false;
+        _isReloadingList = false;
         _isLoadingMore = false;
       });
     }
@@ -658,7 +699,9 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
                                     color: Colors.white,
                                     width: double.infinity,
                                     height: double.infinity,
-                                    child: _buildListTab(isAr),
+                                    child: _isReloadingList
+                                        ? _buildShimmerLoading()
+                                        : _buildListTab(isAr),
                                   ),
                               ],
                             ),
@@ -850,8 +893,10 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
               CameraUpdate.newLatLngZoom(center, 12.0),
             );
           }
-          _mapItemsStarted = true;
-          _fetchMapItems(citySelected: true);
+          _fetchMapItems(
+            center ?? _mapCenter ?? _userLocation,
+            citySelected: true,
+          );
         },
       );
     }
@@ -922,7 +967,14 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
   }
 
   Widget _buildMapTab(bool isAr) {
-    final Set<Marker> markers = _allMapItems.map((item) {
+    // Picked places keep their pins once the map moves away from them.
+    final pinnedItems = [
+      ..._allMapItems,
+      ..._selectedItemsList.where(
+        (selected) => !_allMapItems.any((item) => item.id == selected.id),
+      ),
+    ];
+    final Set<Marker> markers = pinnedItems.map((item) {
       return Marker(
         markerId: MarkerId(item.id),
         position: LatLng(item.latitude, item.longitude),
@@ -952,18 +1004,12 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
       children: [
         GoogleMap(
           initialCameraPosition: CameraPosition(
-            target: LatLng(
-              _currentUserPosition?.latitude ??
-                  AppStorage.userLatitude ??
-                  24.7136,
-              _currentUserPosition?.longitude ??
-                  AppStorage.userLongitude ??
-                  46.6753,
-            ),
+            target: _userLocation,
             zoom: 12,
           ),
           markers: markers,
-          
+          onCameraMove: (position) => _mapCenter = position.target,
+          onCameraIdle: _onCameraIdle,
           onMapCreated: (controller) {
             _mapController = controller;
             final center =
@@ -1008,13 +1054,18 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
             ),
           ),
         ),
-        // Overlaid rather than swapped in for the GoogleMap so the map
-        // widget (and its controller) stays mounted across city changes.
+        // A bar rather than a cover over the map: pins load each time the map
+        // stops, and the map has to stay usable while they do.
         if (_isLoadingMapItems)
-          Shimmer.fromColors(
-            baseColor: Colors.grey[300]!,
-            highlightColor: Colors.grey[100]!,
-            child: Container(color: Colors.white),
+          const Positioned(
+            top: 0,
+            left: 0,
+            right: 0,
+            child: LinearProgressIndicator(
+              minHeight: 3,
+              color: AppColors.buttonBlueDark,
+              backgroundColor: Colors.transparent,
+            ),
           ),
       ],
     );

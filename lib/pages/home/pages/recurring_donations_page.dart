@@ -123,7 +123,7 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
                       alignment: Alignment.topCenter,
                       children: <Widget>[
                         ...previousChildren,
-                        if (currentChild != null) currentChild,
+                        ?currentChild,
                       ],
                     );
                   },
@@ -475,21 +475,21 @@ class _RecurringDonationsPageState extends State<RecurringDonationsPage> {
     );
   }
 
-  String _localizeFrequency(String frequency) {
-    final freq = frequency.toLowerCase().trim();
-    if (freq == 'everyday') {
-      return AppLocalizations.of(context)!.everyday;
-    } else if (freq == 'once_a_week') {
-      return AppLocalizations.of(context)!.once_a_week;
-    } else if (freq == 'once_a_month') {
-      return AppLocalizations.of(context)!.once_a_month;
-    } else if (freq == "twice_a_week") {
-      return AppLocalizations.of(context)!.twice_a_week;
-    } else if (freq == 'custom') {
-      return AppLocalizations.of(context)!.custom;
-    }
-    return frequency;
-  }
+  // String _localizeFrequency(String frequency) {
+  //   final freq = frequency.toLowerCase().trim();
+  //   if (freq == 'everyday') {
+  //     return AppLocalizations.of(context)!.everyday;
+  //   } else if (freq == 'once_a_week') {
+  //     return AppLocalizations.of(context)!.once_a_week;
+  //   } else if (freq == 'once_a_month') {
+  //     return AppLocalizations.of(context)!.once_a_month;
+  //   } else if (freq == "twice_a_week") {
+  //     return AppLocalizations.of(context)!.twice_a_week;
+  //   } else if (freq == 'custom') {
+  //     return AppLocalizations.of(context)!.custom;
+  //   }
+  //   return frequency;
+  // }
 
   /// Height of one line of text at [fontSize], measured with the font, locale
   /// and text scale the loaded card will use.

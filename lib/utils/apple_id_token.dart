@@ -1,5 +1,4 @@
 import 'dart:convert';
-import 'dart:developer';
 
 /// Reads the claims Apple puts inside the Sign in with Apple identity token.
 ///
@@ -24,7 +23,6 @@ class AppleIdToken {
     try {
       final parts = idToken.split('.');
       if (parts.length != 3) {
-        log('Apple identity token is not a 3-part JWT', name: 'AuthFlow');
         return null;
       }
       final payload = utf8.decode(base64Url.decode(base64Url.normalize(parts[1])));
@@ -32,7 +30,6 @@ class AppleIdToken {
       if (decoded is! Map) return null;
       return Map<String, dynamic>.from(decoded);
     } catch (e) {
-      log('Failed to decode Apple identity token: $e', name: 'AuthFlow');
       return null;
     }
   }

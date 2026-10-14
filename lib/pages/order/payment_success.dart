@@ -65,16 +65,16 @@ class _PaymentSuccessPageState extends State<PaymentSuccessPage>
     String title = '';
     String description = '';
     Color color = AppColors.buttonBlueDark;
-    Color lightColor = Colors.white;
-    IconData fallbackIcon = Icons.info;
+    // Color lightColor = Colors.white;
+    // IconData fallbackIcon = Icons.info;
 
     switch (widget.status) {
       case PaymentStatus.success:
         title = AppLocalizations.of(context)!.payment_successful;
         description = AppLocalizations.of(context)!.thank_you_for_your_donation;
         color = AppColors.buttonBlueDark;
-        lightColor = AppColors.buttonBlueDark.withValues(alpha: 0.1);
-        fallbackIcon = Icons.check_circle_outline;
+        // lightColor = AppColors.buttonBlueDark.withValues(alpha: 0.1);
+        // fallbackIcon = Icons.check_circle_outline;
         break;
       case PaymentStatus.failed:
         title = AppLocalizations.of(context)!.payment_failed;
@@ -84,15 +84,15 @@ class _PaymentSuccessPageState extends State<PaymentSuccessPage>
               context,
             )!.an_error_occurred_while_processing_the_payment;
         color = Colors.red;
-        lightColor = Colors.red.withValues(alpha: 0.1);
-        fallbackIcon = Icons.error_outline;
+        // lightColor = Colors.red.withValues(alpha: 0.1);
+        // fallbackIcon = Icons.error_outline;
         break;
       case PaymentStatus.pendingApproval:
         title = AppLocalizations.of(context)!.pending_approval;
         description = AppLocalizations.of(context)!.order_received_iban_message;
         color = Colors.yellow.shade700;
-        lightColor = Colors.yellow.shade700.withValues(alpha: 0.1);
-        fallbackIcon = Icons.access_time;
+        // lightColor = Colors.yellow.shade700.withValues(alpha: 0.1);
+        // fallbackIcon = Icons.access_time;
         break;
       case PaymentStatus.serverError:
         title = widget.isAr ? 'خطأ في الخادم' : 'Server Error';
@@ -102,8 +102,8 @@ class _PaymentSuccessPageState extends State<PaymentSuccessPage>
                 ? 'سيتم التحقق من الدفع بمجرد عودتنا ومعالجة طلبك.'
                 : 'Payment will be verified as soon as we are back and process your order.');
         color = Colors.orange;
-        lightColor = Colors.orange.withValues(alpha: 0.1);
-        fallbackIcon = Icons.cloud_off;
+        // lightColor = Colors.orange.withValues(alpha: 0.1);
+        // fallbackIcon = Icons.cloud_off;
         break;
       case PaymentStatus.cancelled:
         title = AppLocalizations.of(context)!.status_cancelled;
@@ -111,8 +111,8 @@ class _PaymentSuccessPageState extends State<PaymentSuccessPage>
             widget.message ??
             AppLocalizations.of(context)!.payment_was_cancelled;
         color = Colors.redAccent;
-        lightColor = Colors.redAccent.withValues(alpha: 0.1);
-        fallbackIcon = Icons.cancel_outlined;
+        // lightColor = Colors.redAccent.withValues(alpha: 0.1);
+        // fallbackIcon = Icons.cancel_outlined;
         break;
     }
 
@@ -214,31 +214,31 @@ class _PaymentSuccessPageState extends State<PaymentSuccessPage>
     );
   }
 
-  Widget _buildPrimaryButton(
-    BuildContext context, {
-    required String text,
-    required VoidCallback onPressed,
-    Color color = AppColors.buttonBlueDark,
-  }) {
-    return ElevatedButton(
-      onPressed: onPressed,
-      style: ElevatedButton.styleFrom(
-        backgroundColor: color,
-        foregroundColor: Colors.white,
-        padding: const EdgeInsets.symmetric(vertical: 18),
-        elevation: 0,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      ),
-      child: Text(
-        text,
-        style: const TextStyle(
-          fontSize: 16,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 0.5,
-        ),
-      ),
-    );
-  }
+  // Widget _buildPrimaryButton(
+  //   BuildContext context, {
+  //   required String text,
+  //   required VoidCallback onPressed,
+  //   Color color = AppColors.buttonBlueDark,
+  // }) {
+  //   return ElevatedButton(
+  //     onPressed: onPressed,
+  //     style: ElevatedButton.styleFrom(
+  //       backgroundColor: color,
+  //       foregroundColor: Colors.white,
+  //       padding: const EdgeInsets.symmetric(vertical: 18),
+  //       elevation: 0,
+  //       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+  //     ),
+  //     child: Text(
+  //       text,
+  //       style: const TextStyle(
+  //         fontSize: 16,
+  //         fontWeight: FontWeight.w700,
+  //         letterSpacing: 0.5,
+  //       ),
+  //     ),
+  //   );
+  // }
 
   Widget _buildSecondaryButton(
     BuildContext context, {

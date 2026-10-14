@@ -139,9 +139,7 @@ Future<void> _initDependencies() async {
       if (user != null) {
         await FreshchatService.authenticateUser(user);
       }
-    } catch (e) {
-      debugPrint("Failed to set Freshchat user: $e");
-    }
+    } catch (_) {}
   }
 }
 
@@ -169,15 +167,12 @@ Future<void> _validateStoredSession() async {
     await ApiService().getProfile();
   } on DioException catch (e) {
     if (e.response?.statusCode == 401) {
-      debugPrint('Startup profile check returned 401. Clearing session.');
       // Wipes tokens + userData from Hive and resets Freshchat.
       await AuthStorage.clear();
     }
     // Anything else (offline, timeout, 5xx) is not proof the session is bad,
     // so leave storage alone rather than logging the user out over a blip.
-  } catch (e) {
-    debugPrint('Startup profile check failed: $e');
-  }
+  } catch (_) {}
 }
 
 class MainApp extends StatelessWidget {

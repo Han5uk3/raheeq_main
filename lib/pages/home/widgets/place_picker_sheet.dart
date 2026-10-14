@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/api/apis.dart';
@@ -8,8 +10,13 @@ import 'package:raheeq_main/models/place.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:shimmer/shimmer.dart';
 
-// The page size the place page's list asks for.
-const int _pageSize = 1000;
+// Orphanages load this many at a time, and the next page once the grid is
+// scrolled near its end. Their search runs on the server, once typing has
+// paused for [_searchDelay].
+const int _orphanagePageSize = 30;
+const Duration _searchDelay = Duration(milliseconds: 400);
+// Miqat mosques load whole, with no search: their endpoint ignores `page`.
+const int _miqatPageSize = 1000;
 
 const SliverGridDelegate _gridDelegate =
     SliverGridDelegateWithFixedCrossAxisCount(
@@ -78,24 +85,123 @@ class _PlacePickerSheetState extends State<PlacePickerSheet> {
   List<Place> _places = [];
   bool _isLoading = true;
 
+  // Orphanages only; see [_fetchOrphanages].
+  final TextEditingController _searchController = TextEditingController();
+  final ScrollController _scrollController = ScrollController();
+  Timer? _searchTimer;
+  String _searchQuery = '';
+  int _loadedPages = 0;
+  bool _hasMore = true;
+  bool _isLoadingMore = false;
+  int _fetchGeneration = 0;
+
   bool get _isOrphanages => widget.slug == 'orphanages';
 
   @override
   void initState() {
     super.initState();
-    _fetchPlaces();
+    if (_isOrphanages) {
+      _searchController.addListener(_onSearchChanged);
+      _scrollController.addListener(_onScroll);
+      _fetchOrphanages();
+    } else {
+      _fetchMiqatMosques();
+    }
   }
 
-  // The same requests the place page's list makes for these slugs, every page
-  // of them.
-  Future<void> _fetchPlaces() async {
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _scrollController.dispose();
+    _searchTimer?.cancel();
+    super.dispose();
+  }
+
+  void _onSearchChanged() {
+    final query = _searchController.text.trim();
+    // The controller also notifies when only the cursor moves.
+    if (query == _searchQuery) return;
+    _searchQuery = query;
+    _searchTimer?.cancel();
+    _searchTimer = Timer(_searchDelay, _fetchOrphanages);
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent - 200 &&
+        !_isLoading &&
+        !_isLoadingMore &&
+        _hasMore) {
+      _fetchOrphanages(loadMore: true);
+    }
+  }
+
+  // One page of the orphanages matching the search. The first page (again,
+  // for a new search) starts a new generation, and a fetch whose generation
+  // is no longer current drops what it fetched: results for an older search
+  // never land in the grid. A page only counts as loaded once it arrives, so
+  // one that fails is asked for again on the next scroll rather than skipped.
+  Future<void> _fetchOrphanages({bool loadMore = false}) async {
+    final int generation = loadMore ? _fetchGeneration : ++_fetchGeneration;
+    final int page = loadMore ? _loadedPages + 1 : 1;
+    setState(() {
+      if (loadMore) {
+        _isLoadingMore = true;
+      } else {
+        _isLoading = true;
+      }
+    });
+
+    try {
+      final response = await _apiService.getOrphanages(
+        page: page,
+        limit: _orphanagePageSize,
+        search: _searchQuery,
+      );
+      if (!mounted || generation != _fetchGeneration) return;
+      if (response.statusCode != 200 || response.data['success'] != true) {
+        setState(() {
+          _isLoading = false;
+          _isLoadingMore = false;
+        });
+        return;
+      }
+
+      final List<dynamic> data = response.data['data'] ?? [];
+      final Map<String, dynamic>? meta = response.data['meta'];
+      final orphanages = data.map<Place>(
+        (e) => Orphanage.fromJson(e as Map<String, dynamic>),
+      );
+      setState(() {
+        _places = loadMore ? [..._places, ...orphanages] : orphanages.toList();
+        _loadedPages = page;
+        // Without paging info, a short page is the last one.
+        _hasMore = meta != null
+            ? page < (meta['totalPages'] ?? 1)
+            : data.length == _orphanagePageSize;
+        _isLoading = false;
+        _isLoadingMore = false;
+      });
+    } catch (e) {
+      if (!mounted || generation != _fetchGeneration) return;
+      setState(() {
+        _isLoading = false;
+        _isLoadingMore = false;
+      });
+    }
+  }
+
+  // The same requests the place page's list makes for miqat mosques, every
+  // page of them.
+  Future<void> _fetchMiqatMosques() async {
     final places = <Place>[];
     int page = 1;
     try {
       while (true) {
-        final response = _isOrphanages
-            ? await _apiService.getOrphanages(page: page, limit: _pageSize)
-            : await _apiService.getMiqatMosques(page: page, limit: _pageSize);
+        final response = await _apiService.getMiqatMosques(
+          page: page,
+          limit: _miqatPageSize,
+        );
         if (response.statusCode != 200 || response.data['success'] != true) {
           break;
         }
@@ -104,9 +210,7 @@ class _PlacePickerSheetState extends State<PlacePickerSheet> {
         final Map<String, dynamic>? meta = response.data['meta'];
         places.addAll(
           data.map<Place>(
-            (e) => _isOrphanages
-                ? Orphanage.fromJson(e as Map<String, dynamic>)
-                : MeqatMosque.fromJson(e as Map<String, dynamic>),
+            (e) => MeqatMosque.fromJson(e as Map<String, dynamic>),
           ),
         );
 
@@ -114,7 +218,7 @@ class _PlacePickerSheetState extends State<PlacePickerSheet> {
         // endpoint sends none and ignores `page`.
         final bool hasMore = meta != null
             ? page < (meta['totalPages'] ?? 1)
-            : data.length == _pageSize;
+            : data.length == _miqatPageSize;
         if (!hasMore) break;
         page++;
       }
@@ -145,28 +249,82 @@ class _PlacePickerSheetState extends State<PlacePickerSheet> {
   @override
   Widget build(BuildContext context) {
     final isAr = Localizations.localeOf(context).languageCode == 'ar';
+    final maxHeight = MediaQuery.sizeOf(context).height * 0.75;
 
-    return Container(
-      constraints: BoxConstraints(
-        maxHeight: MediaQuery.sizeOf(context).height * 0.75,
-      ),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.only(
-          topLeft: Radius.circular(10),
-          topRight: Radius.circular(10),
+    return Padding(
+      // Keeps the search box clear of the keyboard.
+      padding: EdgeInsets.only(bottom: MediaQuery.viewInsetsOf(context).bottom),
+      child: Container(
+        // The orphanage grid grows as it is scrolled and changes with every
+        // search, so its sheet keeps its full height rather than jumping
+        // with each result.
+        height: _isOrphanages ? maxHeight : null,
+        constraints: BoxConstraints(maxHeight: maxHeight),
+        decoration: const BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(10),
+            topRight: Radius.circular(10),
+          ),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const SizedBox(height: 16),
+            _buildHeader(),
+            const SizedBox(height: 20),
+            if (_isOrphanages) ...[
+              _buildSearchField(),
+              const SizedBox(height: 12),
+            ],
+            Flexible(
+              fit: _isOrphanages ? FlexFit.tight : FlexFit.loose,
+              child: _buildGrid(isAr),
+            ),
+            _buildButtons(),
+            SizedBox(height: MediaQuery.viewPaddingOf(context).bottom),
+          ],
         ),
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const SizedBox(height: 16),
-          _buildHeader(),
-          const SizedBox(height: 20),
-          Flexible(child: _buildGrid(isAr)),
-          _buildButtons(),
-          SizedBox(height: MediaQuery.viewPaddingOf(context).bottom),
-        ],
+    );
+  }
+
+  // Styled like the search box on the place page.
+  Widget _buildSearchField() {
+    final border = OutlineInputBorder(
+      borderRadius: BorderRadius.circular(16),
+      borderSide: const BorderSide(color: AppColors.buttonBlueDark),
+    );
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16),
+      child: SizedBox(
+        height: 50,
+        child: TextField(
+          controller: _searchController,
+          cursorColor: AppColors.buttonBlueDark,
+          style: const TextStyle(color: AppColors.buttonBlueDark, fontSize: 14),
+          textInputAction: TextInputAction.search,
+          decoration: InputDecoration(
+            hintText: AppLocalizations.of(context)!.search_orphanages,
+            hintStyle: TextStyle(
+              color: AppColors.buttonBlueDark.withValues(alpha: 0.8),
+              fontSize: 14,
+            ),
+            prefixIcon: const Icon(
+              Icons.search,
+              color: AppColors.buttonBlueDark,
+            ),
+            border: border,
+            enabledBorder: border,
+            focusedBorder: border.copyWith(
+              borderSide: const BorderSide(
+                color: AppColors.buttonBlueDark,
+                width: 1.5,
+              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -236,12 +394,7 @@ class _PlacePickerSheetState extends State<PlacePickerSheet> {
           padding: _gridPadding,
           itemCount: 6,
           gridDelegate: _gridDelegate,
-          itemBuilder: (context, index) => Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-            ),
-          ),
+          itemBuilder: (context, index) => _buildPlaceholderCard(),
         ),
       );
     }
@@ -258,12 +411,32 @@ class _PlacePickerSheetState extends State<PlacePickerSheet> {
     }
 
     return GridView.builder(
+      controller: _scrollController,
       shrinkWrap: true,
       physics: const ClampingScrollPhysics(),
       padding: _gridPadding,
-      itemCount: _places.length,
+      // A row of placeholders while the next page loads.
+      itemCount: _places.length + (_isLoadingMore ? 2 : 0),
       gridDelegate: _gridDelegate,
-      itemBuilder: (context, index) => _buildCard(_places[index], isAr),
+      itemBuilder: (context, index) {
+        if (index >= _places.length) {
+          return Shimmer.fromColors(
+            baseColor: Colors.grey[300]!,
+            highlightColor: Colors.grey[100]!,
+            child: _buildPlaceholderCard(),
+          );
+        }
+        return _buildCard(_places[index], isAr);
+      },
+    );
+  }
+
+  Widget _buildPlaceholderCard() {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+      ),
     );
   }
 

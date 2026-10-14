@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:freshchat_sdk/freshchat_sdk.dart';
@@ -869,7 +868,6 @@ class _ProfileTabState extends State<ProfileTab> {
     } catch (e) {
       // The result used to be dropped on the floor, so every failure here read
       // as an unresponsive button. Say something instead.
-      log('Failed to open the share sheet: $e', name: 'ProfileTab');
       if (!mounted) return;
       CustomSnackbar.show(
         context: context,

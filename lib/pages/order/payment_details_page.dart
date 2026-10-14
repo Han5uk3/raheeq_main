@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:dio/dio.dart';
@@ -55,7 +54,7 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage> {
           '${widget.order.subOrderNumber}'
           '.pdf';
 
-      final response = await Dio().download(
+      await Dio().download(
         uri.toString(),
         filePath,
         options: Options(headers: await _invoiceHeaders(uri)),
@@ -68,7 +67,6 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage> {
       final file = File(filePath);
       final problem = await _pdfProblem(file);
       if (problem != null) {
-        await _logBadInvoice(uri, response, file, problem);
         if (mounted) Navigator.pop(context); // hide loading
         await _openInvoiceInBrowser(uri);
         return;
@@ -85,7 +83,6 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage> {
         );
       }
     } catch (e) {
-      log('Error opening invoice: $e', name: 'BookingDetailsPage', error: e);
       if (mounted) {
         Navigator.pop(context); // hide loading
         CustomSnackbar.show(
@@ -104,13 +101,7 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage> {
     var launched = false;
     try {
       launched = await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } catch (e) {
-      log(
-        'Could not open the invoice in a browser: $e',
-        name: 'BookingDetailsPage',
-        error: e,
-      );
-    }
+    } catch (_) {}
 
     if (!launched && mounted) {
       CustomSnackbar.show(
@@ -178,26 +169,6 @@ class _PaymentDetailsPageState extends State<PaymentDetailsPage> {
     if (!tail.contains('%%EOF')) return 'truncated: no %%EOF trailer';
 
     return null;
-  }
-
-  Future<void> _logBadInvoice(
-    Uri uri,
-    Response<dynamic> response,
-    File file,
-    String problem,
-  ) async {
-    final length = await file.exists() ? await file.length() : 0;
-    final head = String.fromCharCodes(await _readBytes(file, count: 200));
-    log(
-      'Invoice is not usable — $problem.\n'
-      'url: $uri\n'
-      'status: ${response.statusCode}\n'
-      'content-type: ${response.headers.value('content-type')}\n'
-      'content-length header: ${response.headers.value('content-length')}\n'
-      'bytes written: $length\n'
-      'starts with: $head',
-      name: 'BookingDetailsPage',
-    );
   }
 
   @override

@@ -5,8 +5,6 @@ import 'package:raheeq_main/common_widgets/sign_in_required_dialog.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
 import 'package:raheeq_main/services/network_monitor.dart';
 import 'package:raheeq_main/services/snackbar_insets_services.dart';
-// Re-enable together with the commented-out log() calls below.
-// import 'dart:developer';
 import 'package:raheeq_main/utils/formatters.dart';
 
 import 'dart:convert';
@@ -266,12 +264,7 @@ class _HomeTabState extends State<HomeTab>
           final profileResponse = await ApiService().getProfile(
             etag: _cachedProfileETag,
           );
-          if (profileResponse.statusCode == 304) {
-            // log(
-            //   'Profile data unchanged (304). Using cached ETag.',
-            //   name: 'HomeTab',
-            // );
-          } else if (profileResponse.statusCode == 200) {
+          if (profileResponse.statusCode == 200) {
             final newEtag = profileResponse.headers.value('etag');
             if (newEtag != null) _cachedProfileETag = newEtag;
           }
@@ -286,13 +279,7 @@ class _HomeTabState extends State<HomeTab>
             showSnackbar: true,
             etag: _cachedCitiesETag,
           );
-          if (citiesResponse.statusCode == 304) {
-            // log(
-            //   'Cities data unchanged (304). Using cached ETag.',
-            //   name: 'HomeTab',
-            // );
-            return;
-          }
+          if (citiesResponse.statusCode == 304) return;
           if (citiesResponse.statusCode == 200 &&
               citiesResponse.data['success'] == true) {
             final newEtag = citiesResponse.headers.value('etag');
@@ -303,9 +290,7 @@ class _HomeTabState extends State<HomeTab>
                 .map((e) => City.fromJson(e as Map<String, dynamic>))
                 .toList();
           }
-        } catch (e) {
-          // log('Error fetching cities: $e', name: 'HomeTab');
-        }
+        } catch (_) {}
       }();
 
       final impactFuture = () async {
@@ -315,13 +300,7 @@ class _HomeTabState extends State<HomeTab>
             showSnackbar: true,
             etag: _cachedImpactETag,
           );
-          if (impactRes.statusCode == 304) {
-            // log(
-            //   'Impact data unchanged (304). Using cached ETag.',
-            //   name: 'HomeTab',
-            // );
-            return;
-          }
+          if (impactRes.statusCode == 304) return;
           if (impactRes.statusCode == 200 &&
               impactRes.data['success'] == true) {
             final newEtag = impactRes.headers.value('etag');
@@ -329,9 +308,7 @@ class _HomeTabState extends State<HomeTab>
 
             _cachedImpactData = ImpactModel.fromJson(impactRes.data['data']);
           }
-        } catch (e) {
-          // log('Error fetching impact: $e', name: 'HomeTab');
-        }
+        } catch (_) {}
       }();
 
       final homeFuture = ApiService().getHome();
@@ -349,20 +326,13 @@ class _HomeTabState extends State<HomeTab>
       // started — that call's result (or its own future in-flight
       // request) should win. Applying this response now would risk
       // overwriting fresher data with stale data. Discard silently.
-      if (myGeneration != _fetchGeneration) {
-        // log(
-        //   'Discarding stale home fetch (gen $myGeneration, latest $_fetchGeneration)',
-        //   name: 'HomeTab',
-        // );
-        return;
-      }
+      if (myGeneration != _fetchGeneration) return;
 
       if (response.statusCode == 200 && response.data['success'] == true) {
         final rawData = response.data['data'];
         final currentJson = jsonEncode(rawData);
 
         if (_hasLoadedOnce && currentJson == _cachedHomeDataJson) {
-          // log('Home data unchanged. Skipping rebuild.', name: 'HomeTab');
           if (mounted && myGeneration == _fetchGeneration) {
             setState(() {
               _isLoading = false;
@@ -451,13 +421,7 @@ class _HomeTabState extends State<HomeTab>
         // Re-check right before committing to the static caches — this is
         // the line that was letting a slow, stale request corrupt shared
         // state that every future HomeTab instance reads from.
-        if (myGeneration != _fetchGeneration) {
-          // log(
-          //   'Discarding stale home fetch after precache (gen $myGeneration, latest $_fetchGeneration)',
-          //   name: 'HomeTab',
-          // );
-          return;
-        }
+        if (myGeneration != _fetchGeneration) return;
 
         _cachedBannerData = banners;
         _cachedCampaigns = campaigns;
