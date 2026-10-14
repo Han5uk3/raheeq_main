@@ -13,7 +13,6 @@ import 'package:raheeq_main/services/snackbar_insets_services.dart';
 import 'package:raheeq_main/utils/chiller_refill_errors.dart';
 import 'package:raheeq_main/utils/colors.dart';
 import 'package:raheeq_main/models/checkout.dart';
-import 'dart:developer';
 import 'package:raheeq_main/common_widgets/donation_type_bottom_sheet.dart';
 import 'package:raheeq_main/common_widgets/subscription_plans_bottom_sheet.dart';
 import 'package:raheeq_main/common_widgets/subscription_details_bottom_sheet.dart';
@@ -226,7 +225,6 @@ class _ReviewOrderPageState extends State<ReviewOrderPage>
         );
       }
     } catch (e) {
-      log('Error creating checkout: $e', error: e);
       if (mounted) {
         setState(() {
           _isProcessing = false;

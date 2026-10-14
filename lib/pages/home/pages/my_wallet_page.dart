@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:dio/dio.dart';
 
 import 'package:flutter/material.dart';
@@ -60,12 +58,6 @@ class _MyWalletPageState extends State<MyWalletPage> {
         final walletData = WalletData.fromJson(
           response.data['data'] as Map<String, dynamic>,
         );
-        log(
-          'Parsed wallet: balance=${walletData.balance}, '
-          'transactions=${walletData.transactions.length}, '
-          'page=${walletData.page}, hasMore=${walletData.hasMore}',
-          name: 'WalletAPI',
-        );
         setState(() {
           _balance = walletData.balance;
           _transactions = walletData.transactions;
@@ -74,22 +66,11 @@ class _MyWalletPageState extends State<MyWalletPage> {
           _isLoading = false;
         });
       } else {
-        log(
-          'Wallet fetch not applied: statusCode=${response.statusCode}, '
-          'success=${response.data is Map ? response.data['success'] : response.data}',
-          name: 'WalletAPI',
-        );
         setState(() {
           _isLoading = false;
         });
       }
-    } catch (e, stackTrace) {
-      log(
-        'Error parsing wallet response: $e',
-        name: 'WalletAPI',
-        error: e,
-        stackTrace: stackTrace,
-      );
+    } catch (e) {
       setState(() {
         _isLoading = false;
       });
@@ -126,14 +107,7 @@ class _MyWalletPageState extends State<MyWalletPage> {
           _hasMore = walletData.hasMore;
         });
       }
-    } catch (e, stackTrace) {
-      log(
-        'Error loading more transactions: $e',
-        name: 'WalletAPI',
-        error: e,
-        stackTrace: stackTrace,
-      );
-    } finally {
+    } catch (_) {} finally {
       if (mounted) {
         setState(() {
           _isLoadingMore = false;

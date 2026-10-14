@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dio/dio.dart';
 import 'package:raheeq_main/api/apis.dart';
@@ -410,7 +409,6 @@ class _NotificationsPageState extends State<NotificationsPage> {
       color: notification.isRead ? Colors.white : const Color(0xFFF0F8FF),
       child: InkWell(
         onTap: () {
-          log('Notification Full Data: ${notification.toJson()}');
           _readNotification(notification);
         },
         child: Padding(

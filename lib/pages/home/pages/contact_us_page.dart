@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'package:raheeq_main/utils/colors.dart';
@@ -126,10 +125,6 @@ class _ContactUsPageState extends State<ContactUsPage> {
                       icon: Icons.chat_bubble_outline,
                       onTap: () {
                         _handleTap(context, () {
-                          log(
-                            "Attempting to open Freshchat conversations with tags: ['chat_with_us'] and title: 'Rahiq Support'",
-                            name: "FreshchatService",
-                          );
                           FreshchatService.showConversations(
                             context,
                             tags: FreshchatService.supportTags,

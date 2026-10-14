@@ -199,9 +199,7 @@ class _OTPState extends State<OTP> with WidgetsBindingObserver {
           final AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
           deviceId = androidInfo.id;
         }
-      } catch (e) {
-        debugPrint('Failed to get device info: $e');
-      }
+      } catch (_) {}
 
       final response = await ApiService().verifyOtp(
         countryCode: widget.countryCode,

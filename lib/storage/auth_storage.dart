@@ -110,7 +110,7 @@ class AuthStorage {
     // is several platform-channel round trips into an SDK we do not control —
     // one of them hanging would leave the user watching a spinner on a login
     // that has already succeeded. Nothing here needs the result, and the
-    // service logs its own failures.
+    // service catches its own failures.
     final currentUser = user;
     if (currentUser != null) {
       unawaited(FreshchatService.authenticateUser(currentUser));
@@ -142,9 +142,7 @@ class AuthStorage {
 
     try {
       Freshchat.resetUser();
-    } catch (e) {
-      debugPrint("Failed to reset Freshchat user: $e");
-    }
+    } catch (_) {}
 
     // Still on the splash screen: storage is wiped, but the splash finishes
     // its animation and routes to Login itself once the local session check

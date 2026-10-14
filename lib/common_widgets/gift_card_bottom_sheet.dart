@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:phone_numbers_parser/phone_numbers_parser.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/utils/rtl_helpers.dart';
@@ -96,7 +95,6 @@ class _GiftCardPageState extends State<GiftCardPage> {
         setState(() => _isLoadingTemplates = false);
       }
     } catch (e) {
-      log('Error fetching templates: $e');
       setState(() => _isLoadingTemplates = false);
     }
   }
@@ -146,7 +144,6 @@ class _GiftCardPageState extends State<GiftCardPage> {
         throw Exception("Failed to apply");
       }
     } catch (e) {
-      log('Error applying gift card: $e');
       CustomSnackbar.show(
         context: context,
         message: AppLocalizations.of(context)!.error_applying_gift_card,

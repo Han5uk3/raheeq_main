@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
@@ -122,7 +121,6 @@ class _ComplaintsPageState extends State<ComplaintsPage> {
         }
       }
     } catch (e) {
-      log('Complaint API error: $e', name: 'ComplaintsPage', error: e);
       if (mounted) {
         String errorMessage = 'Failed to send complaint';
         if (e is DioException &&

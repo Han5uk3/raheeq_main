@@ -34,9 +34,7 @@ class DeepLinkService {
       (uri) {
         _handleDeepLink(uri);
       },
-      onError: (err) {
-        debugPrint("App Links stream error: $err");
-      },
+      onError: (_) {},
     );
   }
 
@@ -46,8 +44,6 @@ class DeepLinkService {
   }
 
   void _handleDeepLink(Uri uri) {
-    debugPrint("Received Deep Link: $uri");
-
     if (AuthStorage.accessToken == null) {
       _pendingDeepLink = uri;
       return;

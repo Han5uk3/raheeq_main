@@ -6,7 +6,6 @@ import 'dart:convert';
 import 'dart:async';
 import '../storage/auth_storage.dart';
 import '../storage/app_storage.dart';
-import 'package:raheeq_main/api/api_logger.dart';
 import 'package:raheeq_main/main.dart';
 
 import 'package:raheeq_main/services/notification_service.dart';
@@ -147,7 +146,6 @@ class ApiService {
       await AuthStorage.clear();
       _cachedTokenForExpiry = null;
       _cachedExpiry = null;
-      _log("Session cleared. Notifying listeners.");
       onSessionExpired?.call();
     } finally {
       _loggingOut = false;
@@ -178,10 +176,6 @@ class ApiService {
     );
   }
 
-  void _log(String message) {
-    debugPrint("[AUTH] ${DateTime.now().toIso8601String()} $message");
-  }
-
   // ---------------------------------------------------------------------
   // JWT expiry inspection (no extra package required).
   // ---------------------------------------------------------------------
@@ -203,7 +197,6 @@ class ApiService {
 
       return DateTime.fromMillisecondsSinceEpoch(exp * 1000, isUtc: true);
     } catch (e) {
-      _log("Could not decode token expiry: $e");
       return null;
     }
   }
@@ -258,15 +251,7 @@ class ApiService {
           // Guest mode: there is no session to attach or refresh. Sending the
           // request bare is right for the public endpoints, and the UI keeps
           // guests away from the rest.
-          if (AuthStorage.isGuest) {
-            if (!isPublicPath(options.path)) {
-              _log(
-                "Guest mode: ${options.path} needs a customer token and will "
-                "be rejected. This call should have been gated in the UI.",
-              );
-            }
-            return handler.next(options);
-          }
+          if (AuthStorage.isGuest) return handler.next(options);
 
           // Proactively refresh BEFORE the request goes out if the token
           // is missing/expiring. Concurrent requests all funnel through
@@ -279,7 +264,6 @@ class ApiService {
               // Network/server hiccup while refreshing proactively: let
               // the request go out with whatever token we have. If it's
               // truly invalid, the onError 401 path below will retry it.
-              _log("Proactive refresh failed, continuing request: $e");
             }
           }
 
@@ -291,11 +275,6 @@ class ApiService {
           return handler.next(options);
         },
       ),
-      // Between the two wrappers on purpose: after the one above so requests
-      // are logged with the headers it adds, and before the one below because
-      // resolving a 401 with the retried response skips every later
-      // interceptor, so the 401 itself would never be logged.
-      ApiLogger(),
       InterceptorsWrapper(
         onError: (DioException error, handler) async {
           if (_isConnectionError(error)) {
@@ -317,7 +296,6 @@ class ApiService {
           }
 
           if (_retryCount(requestOptions) >= _maxRetryCount) {
-            _log("Retry limit hit for ${requestOptions.path}. Logging out.");
             await _logout();
             return handler.next(error);
           }
@@ -330,7 +308,6 @@ class ApiService {
             // because the refresh token is invalid. Don't destroy the
             // session over a transient failure - surface the original
             // error and let the user retry the action.
-            _log("Refresh errored (network/server), not logging out: $e");
             if (e is DioException && _isConnectionError(e)) {
               _notifyConnectionError();
             }
@@ -338,7 +315,6 @@ class ApiService {
           }
 
           if (!refreshed) {
-            _log("Refresh token invalid/expired. Logging out.");
             await _logout();
             return handler.next(error);
           }
@@ -394,7 +370,6 @@ class ApiService {
       await _logout();
       return SessionStatus.invalid;
     } catch (e) {
-      _log("Session check: refresh failed due to network/server error: $e");
       return SessionStatus.networkError;
     }
   }
@@ -578,7 +553,6 @@ class ApiService {
   Future<bool> _ensureRefreshed() async {
     // Someone else is already refreshing.
     if (_refreshFuture != null) {
-      _log("Refresh already in progress. Waiting...");
       return await _refreshFuture!;
     }
 
@@ -592,12 +566,9 @@ class ApiService {
   }
 
   Future<bool> _doRefresh() async {
-    _log("Starting refresh...");
-
     final refreshToken = AuthStorage.refreshToken;
 
     if (refreshToken == null) {
-      _log("No refresh token.");
       return false;
     }
 
@@ -612,7 +583,7 @@ class ApiService {
           connectTimeout: const Duration(seconds: 10),
           receiveTimeout: const Duration(seconds: 10),
         ),
-      )..interceptors.add(ApiLogger());
+      );
 
       final response = await dioRefresh.post(
         '/auth/refresh-token',
@@ -631,24 +602,16 @@ class ApiService {
         _cachedTokenForExpiry = null;
         _cachedExpiry = null;
 
-        _log("Refresh successful.");
-
         return true;
       }
-
-      _log("Refresh failed with unexpected response.");
 
       return false;
     } on DioException catch (e) {
       final statusCode = e.response?.statusCode;
 
       if (statusCode != null && statusCode >= 400 && statusCode < 500) {
-        _log("Refresh rejected. Status: $statusCode");
-
         return false;
       }
-
-      _log("Refresh failed due to network/server error.");
 
       rethrow;
     }
@@ -836,12 +799,16 @@ class ApiService {
     double? latitude,
     double? longitude,
     String? cityId,
+    String? search,
   }) async {
     try {
       final queryParameters = <String, dynamic>{'page': page, 'limit': limit};
       if (latitude != null) queryParameters['latitude'] = latitude;
       if (longitude != null) queryParameters['longitude'] = longitude;
       if (cityId != null) queryParameters['cityId'] = cityId;
+      if (search != null && search.isNotEmpty) {
+        queryParameters['search'] = search;
+      }
 
       final response = await _dio.get(
         '/mosques',
@@ -875,10 +842,14 @@ class ApiService {
     int page = 1,
     int limit = 10,
     String? cityId,
+    String? search,
   }) async {
     try {
       final queryParameters = <String, dynamic>{'page': page, 'limit': limit};
       if (cityId != null) queryParameters['cityId'] = cityId;
+      if (search != null && search.isNotEmpty) {
+        queryParameters['search'] = search;
+      }
 
       final response = await _dio.get(
         '/orphanages',

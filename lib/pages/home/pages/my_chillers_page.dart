@@ -8,7 +8,6 @@ import 'package:raheeq_main/models/chiller_model.dart';
 import 'package:raheeq_main/pages/order/choose_water_package_screen.dart';
 import 'package:raheeq_main/utils/chiller_refill_target.dart';
 import 'package:raheeq_main/utils/colors.dart';
-import 'dart:developer';
 import 'package:shimmer/shimmer.dart';
 import 'package:raheeq_main/pages/home/pages/home_tab.dart';
 import 'package:raheeq_main/pages/home/widgets/order_chiller_sheet.dart';
@@ -53,7 +52,6 @@ class _MyChillersPageState extends State<MyChillersPage> {
         }
       }
     } catch (e) {
-      log('Error fetching chillers: $e');
       if (!mounted) return;
       if (e.toString().contains('connection error')) {
         _errorMessage = AppLocalizations.of(context)!.internet_error;

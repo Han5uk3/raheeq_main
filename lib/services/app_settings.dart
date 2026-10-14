@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -44,9 +43,7 @@ class AppSettings {
         .doc(path)
         .snapshots()
         .map((snapshot) => snapshot.data()?[field] == true)
-        .handleError((Object error) {
-          log('Could not read $path: $error', name: 'AppSettings');
-        })
+        .handleError((Object _) {})
         .distinct();
   }
 }

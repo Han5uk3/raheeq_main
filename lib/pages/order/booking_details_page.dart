@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/api/apis.dart';
@@ -87,11 +86,6 @@ class _BookingDetailsPageState extends State<BookingDetailsPage> {
         });
       }
     } catch (e) {
-      log(
-        'Error fetching order details: $e',
-        name: 'BookingDetailsPage',
-        error: e,
-      );
       String errorMessage = 'Failed to load order details';
       if (e is DioException &&
           e.response?.data is Map &&

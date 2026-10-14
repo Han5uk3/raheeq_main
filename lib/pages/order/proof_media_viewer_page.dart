@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:io' show File, Platform;
 
 import 'package:dio/dio.dart';
@@ -187,7 +186,6 @@ class _ProofMediaViewerPageState extends State<ProofMediaViewerPage> {
       // system sheet so it can still be kept somewhere.
       await SharePlus.instance.share(ShareParams(files: [XFile(tempPath)]));
     } catch (e) {
-      log('Failed to download proof media: $e', name: 'ProofMediaViewer');
       if (!mounted) return;
       if (isLoaderShowing) Navigator.pop(context); // hide loading
       CustomSnackbar.show(

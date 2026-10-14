@@ -8,7 +8,6 @@ import 'package:raheeq_main/services/network_monitor.dart';
 import 'package:raheeq_main/services/snackbar_insets_services.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:raheeq_main/l10n/app_localizations.dart';
-import 'dart:developer';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -133,7 +132,6 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
         throw Exception('Failed to apply coupon');
       }
     } catch (e) {
-      log('Error applying coupon: $e', error: e);
       if (mounted) {
         String errorMessage = AppLocalizations.of(context)!.invalid_coupon_code;
         if (e is DioException &&
@@ -179,7 +177,6 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
         throw Exception('Failed to remove coupon');
       }
     } catch (e) {
-      log('Error removing coupon: $e', error: e);
       if (mounted) {
         String errorMessage = AppLocalizations.of(
           context,
@@ -229,7 +226,6 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
         throw Exception('Failed to toggle wallet');
       }
     } on DioException catch (e) {
-      log('Error toggling wallet: $e', error: e);
       if (mounted) {
         String errorMessage = AppLocalizations.of(
           context,
@@ -260,7 +256,6 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
         );
       }
     } catch (e) {
-      log('Error toggling wallet: $e', error: e);
       if (mounted) {
         CustomSnackbar.show(
           context: context,
@@ -286,15 +281,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
       );
       return;
     }
-    log(
-      'Payment Flow Started: Confirm & Pay clicked. Total Amount: ${_checkoutData.finalTotal}',
-      name: 'CheckoutFlow',
-    );
     if (_checkoutData.finalTotal == 0) {
-      log(
-        'Payment Flow: Order total is 0. Bypassing SDK.',
-        name: 'CheckoutFlow',
-      );
       _processPayment(
         context,
         isAr,
@@ -304,17 +291,12 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
     }
 
     if (_selectedPaymentMethod == 'IBAN') {
-      log('Payment Flow: Selected IBAN', name: 'CheckoutFlow');
       ChooseIbanAccountBottomSheet.showAsBottomSheet(
         context,
         isAr: isAr,
         checkoutData: _checkoutData,
       );
     } else {
-      log(
-        'Payment Flow: Selected $_selectedPaymentMethod',
-        name: 'CheckoutFlow',
-      );
       _processPayment(context, isAr, _selectedPaymentMethod);
     }
   }
@@ -442,10 +424,6 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
       );
       return;
     }
-    log(
-      'Payment Flow: Starting _processPayment with method: $paymentMethod',
-      name: 'CheckoutFlow',
-    );
 
     final int attemptToken = ++_paymentAttemptToken;
 
@@ -467,10 +445,6 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
       final paymentConfig = data['paymentConfig'];
 
       if (paymentStatus == 'PAID' || _checkoutData.finalTotal == 0) {
-        log(
-          'Payment Flow: Status is PAID or Total is 0. Bypassing SDK.',
-          name: 'CheckoutFlow',
-        );
         if (mounted) {
           setState(() {
             _isProcessingPayment = false;
@@ -487,10 +461,6 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
           ),
         );
       } else if (paymentStatus == 'PENDING' && paymentConfig != null) {
-        log(
-          'Payment Flow: Status is PENDING. Preparing SDK configuration.',
-          name: 'CheckoutFlow',
-        );
         final amount = (paymentConfig['amount'] ?? _checkoutData.finalTotal)
             .toDouble();
 
@@ -536,11 +506,6 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
           "12345",
         );
 
-        log(
-          'Payment Flow: Billing details -> name: $userName, email: $userEmail, phone: $userPhone',
-          name: 'CheckoutFlow',
-        );
-
         var config = PaymentSdkConfigurationDetails(
           profileId: paymentConfig['profileId'].toString(),
           serverKey: paymentConfig['serverKey'],
@@ -573,8 +538,6 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
         } else if (paymentMethod == 'STC_PAY') {
           config.alternativePaymentMethods = [PaymentSdkAPms.STC_PAY];
         }
-
-        log('Payment Flow: SDK Configuration generated.', name: 'CheckoutFlow');
 
         final theme = IOSThemeConfigurations();
         theme.logoImage = "assets/app_logo/logo.png";
@@ -614,19 +577,8 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
         config.iOSThemeConfigurations = theme;
 
         void handlePaymentResult(dynamic event) async {
-          log(
-            'Payment Flow: Received PayTabs SDK event -> ${event.toString()}',
-            name: 'CheckoutFlow',
-          );
-
           if (!mounted) return;
           if (attemptToken != _paymentAttemptToken) {
-            log(
-              'Payment Flow: Ignoring stale PayTabs event from a superseded '
-              'attempt (event attempt: $attemptToken, current attempt: '
-              '$_paymentAttemptToken).',
-              name: 'CheckoutFlow',
-            );
             return;
           }
 
@@ -634,12 +586,6 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
           // number") inside data.paymentResult, even when the bridge itself
           // returns status "success". Surface it instead of a generic message.
           final sdkDeclineReason = _extractSdkDeclineReason(event);
-          if (sdkDeclineReason != null) {
-            log(
-              'Payment Flow: PayTabs decline reason -> $sdkDeclineReason',
-              name: 'CheckoutFlow',
-            );
-          }
 
           if (event["status"] == "success") {
             var transactionDetails = event["data"];
@@ -659,11 +605,6 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
 
               if (!mounted) return;
               if (attemptToken != _paymentAttemptToken) {
-                log(
-                  'Payment Flow: Dropping verifyPayment result for a '
-                  'superseded attempt.',
-                  name: 'CheckoutFlow',
-                );
                 return;
               }
 
@@ -676,10 +617,6 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                 if (paymentStatus == 'COMPLETED' ||
                     paymentStatus == 'PAID' ||
                     paymentStatus == 'SUCCESS') {
-                  log(
-                    'Payment Flow: verifyPayment successful. Status: $paymentStatus',
-                    name: 'CheckoutFlow',
-                  );
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
@@ -697,10 +634,6 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                     paymentStatus == 'DECLINED' ||
                     paymentStatus == 'CANCELLED' ||
                     paymentStatus == 'PENDING') {
-                  log(
-                    'Payment Flow: verifyPayment failed. Status: $paymentStatus',
-                    name: 'CheckoutFlow',
-                  );
                   await Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -720,10 +653,6 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                     });
                   }
                 } else {
-                  log(
-                    'Payment Flow: verifyPayment returned pending/unknown status: $paymentStatus',
-                    name: 'CheckoutFlow',
-                  );
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
@@ -735,10 +664,6 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                   );
                 }
               } else {
-                log(
-                  'Payment Flow: verifyPayment failed: ${verifyResponse.data['message']}',
-                  name: 'CheckoutFlow',
-                );
                 await Navigator.push(
                   context,
                   MaterialPageRoute(
@@ -758,11 +683,6 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                 }
               }
             } catch (e) {
-              log(
-                'Payment Flow: verifyPayment API error: $e',
-                name: 'CheckoutFlow',
-              );
-
               bool is502Error = false;
               if (e is DioException) {
                 if (e.response?.statusCode == 502) {
@@ -859,7 +779,6 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
           _isProcessingPayment = false;
         });
       }
-      log('Error processing payment: $e', error: e);
       if (!mounted) return;
       String? errorMessage;
       if (e is DioException &&

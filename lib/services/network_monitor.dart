@@ -1,10 +1,8 @@
 import 'dart:async';
-import 'dart:developer';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/widgets.dart';
 import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
-import 'package:raheeq_main/api/api_logger.dart';
 import 'package:raheeq_main/api/apis.dart';
 
 enum NetworkStatus { online, poor, offline }
@@ -28,7 +26,7 @@ class NetworkMonitor with WidgetsBindingObserver {
       sendTimeout: const Duration(seconds: 3),
       headers: {'Accept': 'application/json'},
     ),
-  )..interceptors.add(ApiLogger());
+  );
 
   StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
   Timer? _timer;
@@ -75,7 +73,6 @@ class NetworkMonitor with WidgetsBindingObserver {
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
       _resumedAt = DateTime.now();
-      log('NetworkMonitor: app resumed, entering grace period');
       // Re-check shortly after resume, but the grace period below
       // stops a single cold/slow reading from flipping the toast.
       Future.delayed(const Duration(milliseconds: 500), _checkNetwork);
@@ -116,7 +113,6 @@ class NetworkMonitor with WidgetsBindingObserver {
       final hasInternet = await InternetConnection().hasInternetAccess;
 
       if (!hasInternet) {
-        log('NetworkMonitor: no internet access (grace=$inGrace)');
         if (!inGrace) _proposeStatus(NetworkStatus.offline);
         return;
       }
@@ -143,11 +139,7 @@ class NetworkMonitor with WidgetsBindingObserver {
       } else {
         if (!inGrace) _proposeStatus(NetworkStatus.offline);
       }
-    } on DioException catch (e) {
-      log('NetworkMonitor: DioException ${e.type} (grace=$inGrace)');
-      if (!inGrace) _proposeStatus(NetworkStatus.offline);
-    } catch (e) {
-      log('NetworkMonitor: error $e (grace=$inGrace)');
+    } catch (_) {
       if (!inGrace) _proposeStatus(NetworkStatus.offline);
     } finally {
       _isChecking = false;
@@ -169,7 +161,6 @@ class NetworkMonitor with WidgetsBindingObserver {
     if (_pendingStatus != proposed) {
       _pendingStatus = proposed;
       _pendingSince = now;
-      log('NetworkMonitor: proposing $proposed, starting confirm window');
       return;
     }
 
@@ -184,7 +175,6 @@ class NetworkMonitor with WidgetsBindingObserver {
     final previous = status.value;
     if (previous == newStatus) return;
 
-    log('NetworkMonitor: status $previous -> $newStatus');
     status.value = newStatus;
 
     switch (newStatus) {

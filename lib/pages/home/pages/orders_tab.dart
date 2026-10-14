@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/api/apis.dart';
@@ -206,7 +205,6 @@ class _OrdersTabState extends State<OrdersTab>
         });
       }
     } catch (e) {
-      log('GET /orders failed: $e', name: 'orders', error: e);
       if (mounted) {
         setState(() {
           if (e.toString().contains('connection error')) {

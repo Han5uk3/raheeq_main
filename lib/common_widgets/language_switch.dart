@@ -1,5 +1,3 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import '../main.dart';
 import '../storage/app_storage.dart';
@@ -15,11 +13,6 @@ class LanguageSwitchButton extends StatelessWidget {
     return GestureDetector(
       onTap: () {
         final newLocaleCode = isArabic ? 'en' : 'ar';
-        log(
-          'Language switched from ${currentLocale.languageCode} to '
-          '$newLocaleCode (language toggle, isFromLogin: $isFromLogin)',
-          name: 'LanguageSwitch',
-        );
         localeNotifier.value = Locale(newLocaleCode);
         AppStorage.saveLocale(newLocaleCode);
       },

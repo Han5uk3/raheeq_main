@@ -3,7 +3,6 @@ import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/common_widgets/water_loading.dart';
 import 'dart:async';
 import 'dart:io';
-import 'dart:developer';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
@@ -124,7 +123,6 @@ class _LoginState extends State<Login> {
   }
 
   Future<void> _handleGoogleSignIn() async {
-    log('Tapped Google Sign-In button');
     try {
       final google_sign_in.GoogleSignIn instance =
           google_sign_in.GoogleSignIn.instance;
@@ -133,15 +131,12 @@ class _LoginState extends State<Login> {
             '579658096080-e8oiqp649otjnrbs4h9rijcp2hnhlme4.apps.googleusercontent.com',
       );
 
-      log('Starting Google Sign-In authentication...');
       final google_sign_in.GoogleSignInAccount account = await instance
           .authenticate();
-      log('Google Sign-In Account retrieved: ${account.email}');
 
       final google_sign_in.GoogleSignInAuthentication auth =
           account.authentication;
       if (auth.idToken != null) {
-        log('Google Sign-In ID Token retrieved successfully');
         final names = account.displayName?.split(' ') ?? [];
         final firstName = names.isNotEmpty ? names.first : null;
         final lastName = names.length > 1 ? names.sublist(1).join(' ') : null;
@@ -153,7 +148,6 @@ class _LoginState extends State<Login> {
           lastName: lastName,
         );
       } else {
-        log('Google Sign-In failed: idToken is null');
         if (mounted) {
           CustomSnackbar.show(
             context: context,
@@ -165,7 +159,6 @@ class _LoginState extends State<Login> {
         }
       }
     } catch (error) {
-      log('Google Sign-In Error: $error');
       if (mounted) {
         final l10n = AppLocalizations.of(context)!;
         final isCancelled =
@@ -183,9 +176,7 @@ class _LoginState extends State<Login> {
   }
 
   Future<void> _handleAppleSignIn() async {
-    log('Tapped Apple Sign-In button');
     try {
-      log('Starting Apple Sign-In authentication...');
       final credential = await SignInWithApple.getAppleIDCredential(
         scopes: [
           AppleIDAuthorizationScopes.email,
@@ -194,7 +185,6 @@ class _LoginState extends State<Login> {
       );
 
       if (credential.identityToken == null) {
-        log('Apple Sign-In failed: identityToken is null');
         if (mounted) {
           CustomSnackbar.show(
             context: context,
@@ -240,12 +230,6 @@ class _LoginState extends State<Login> {
         );
       }
 
-      log(
-        'Apple Sign-In credential retrieved '
-        '(email: ${email ?? "none"}, name: ${firstName ?? "none"} '
-        '${lastName ?? ""}, emailFromCredential: ${credential.email != null})',
-      );
-
       await _authenticateSocial(
         'Apple',
         credential.identityToken!,
@@ -254,7 +238,6 @@ class _LoginState extends State<Login> {
         lastName: lastName,
       );
     } catch (error) {
-      log('Apple Sign-In Error: $error');
       if (mounted) {
         // Cancelling is a deliberate user action rather than a failure, so it
         // gets its own message. SignInWithApple surfaces it as a canceled
@@ -313,9 +296,7 @@ class _LoginState extends State<Login> {
           final AndroidDeviceInfo androidInfo = await deviceInfo.androidInfo;
           deviceId = androidInfo.id;
         }
-      } catch (e) {
-        log('Failed to get device info: $e');
-      }
+      } catch (_) {}
 
       final apiService = ApiService();
       final response = provider == 'Google'
@@ -874,9 +855,7 @@ class _LoginState extends State<Login> {
                                                     countryCode:
                                                         '+${_selectedCountry.phoneCode}',
                                                   );
-                                              log("context not mounted");
                                               if (!context.mounted) return;
-                                              log("context mounted");
                                               if (response.statusCode == 200 &&
                                                   response.data['success'] ==
                                                       true) {
@@ -894,24 +873,17 @@ class _LoginState extends State<Login> {
                                                     ),
                                                   ),
                                                 );
-                                                log("otp sent");
                                                 if (mounted) {
                                                   setState(
                                                     () => _isLoading = false,
                                                   );
                                                 }
-                                                log(
-                                                  "otp sent and state changed",
-                                                );
                                               } else {
                                                 if (mounted) {
                                                   setState(
                                                     () => _isLoading = false,
                                                   );
                                                 }
-                                                log(
-                                                  "otp not sent and state changed",
-                                                );
                                                 CustomSnackbar.show(
                                                   context: context,
                                                   message:
