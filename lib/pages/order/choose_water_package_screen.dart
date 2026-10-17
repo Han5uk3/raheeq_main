@@ -99,16 +99,19 @@ String _slotPriceText(BuildContext context, _ProductSlot slot) {
 // A lightweight model to represent one "slot" in the horizontal list
 class _ProductSlot {
   final Product product;
-  final bool isChiller;
   final int quantity;
 
-  const _ProductSlot({
-    required this.product,
-    required this.isChiller,
-    required this.quantity,
-  });
+  const _ProductSlot({required this.product, required this.quantity});
 
   String get id => '${product.id}_$quantity';
+
+  /// Only one card per group can be selected: one chiller, one carton (serial
+  /// numbers 1 and 4 are both cartons), and one of each other product.
+  String get group => switch (product.serialNumber) {
+    2 => 'chiller',
+    1 || 4 => 'carton',
+    _ => product.id,
+  };
 }
 
 class ChooseWaterPackageScreen extends StatefulWidget {
@@ -163,8 +166,8 @@ class ChooseWaterPackageScreen extends StatefulWidget {
 }
 
 class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
-  String? _selectedChillerSlotId;
-  String? _selectedCartonSlotId;
+  /// Selected slot id per [_ProductSlot.group].
+  final Map<String, String> _selectedSlotIds = {};
 
   final ScrollController _scrollController = ScrollController();
 
@@ -175,18 +178,9 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
   }
 
   void _autoSelectFirstCarton() {
-    final cartons = widget.availableProducts.where(
-      (p) => p.serialNumber == 1 || p.serialNumber == 4,
-    );
-
-    for (final carton in cartons) {
-      final quantities =
-          carton.presetQuantities.where((q) => q >= carton.minQuantity).toList()
-            ..sort();
-      if (quantities.isNotEmpty) {
-        _selectedCartonSlotId = '${carton.id}_${quantities.first}';
-        break;
-      }
+    final firstCarton = _slots.where((s) => s.group == 'carton').firstOrNull;
+    if (firstCarton != null) {
+      _selectedSlotIds[firstCarton.group] = firstCarton.id;
     }
   }
 
@@ -199,68 +193,45 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
   // ── Build the flat list of slots ────────────────────────────────────────────
 
   List<_ProductSlot> get _slots {
-    final slots = <_ProductSlot>[];
+    // Chillers first, then cartons, then every other product (Quran etc.) in
+    // the order the API returns them. One card per preset quantity.
+    bool isChiller(Product p) => p.serialNumber == 2;
+    bool isCarton(Product p) => p.serialNumber == 1 || p.serialNumber == 4;
+    final products = widget.availableProducts;
 
-    // 1. Chiller first (One card per preset quantity)
-    final chillers = widget.availableProducts.where((p) => p.serialNumber == 2);
-
-    for (final chiller in chillers) {
-      final quantities =
-          chiller.presetQuantities
-              .where((q) => q >= chiller.minQuantity)
-              .toList()
-            ..sort();
-      for (final qty in quantities) {
-        slots.add(
-          _ProductSlot(product: chiller, isChiller: true, quantity: qty),
-        );
-      }
-    }
-
-    // 2. One card per preset quantity for every carton product
-    final cartons = widget.availableProducts.where(
-      (p) => p.serialNumber == 1 || p.serialNumber == 4,
-    );
-
-    for (final carton in cartons) {
-      final quantities =
-          carton.presetQuantities.where((q) => q >= carton.minQuantity).toList()
-            ..sort();
-      for (final qty in quantities) {
-        slots.add(
-          _ProductSlot(product: carton, isChiller: false, quantity: qty),
-        );
-      }
-    }
-
-    return slots;
+    return [
+      for (final product in [
+        ...products.where(isChiller),
+        ...products.where(isCarton),
+        ...products.where((p) => !isChiller(p) && !isCarton(p)),
+      ])
+        for (final qty
+            in product.presetQuantities
+                .where((q) => q >= product.minQuantity)
+                .toList()
+              ..sort())
+          _ProductSlot(product: product, quantity: qty),
+    ];
   }
 
   // ── Selection helpers ────────────────────────────────────────────────────────
 
-  bool _isSlotSelected(_ProductSlot slot) {
-    return slot.isChiller
-        ? _selectedChillerSlotId == slot.id
-        : _selectedCartonSlotId == slot.id;
-  }
+  bool _isSlotSelected(_ProductSlot slot) =>
+      _selectedSlotIds[slot.group] == slot.id;
 
   void _toggleSlot(_ProductSlot slot) {
     setState(() {
-      if (slot.isChiller) {
-        _selectedChillerSlotId = _selectedChillerSlotId == slot.id
-            ? null
-            : slot.id;
+      // Selecting a card replaces any other selection in its group; tapping
+      // the already-selected card deselects it.
+      if (_isSlotSelected(slot)) {
+        _selectedSlotIds.remove(slot.group);
       } else {
-        // Tapping the already-selected carton deselects it
-        _selectedCartonSlotId = _selectedCartonSlotId == slot.id
-            ? null
-            : slot.id;
+        _selectedSlotIds[slot.group] = slot.id;
       }
     });
   }
 
-  bool get _isContinueEnabled =>
-      _selectedChillerSlotId != null || _selectedCartonSlotId != null;
+  bool get _isContinueEnabled => _selectedSlotIds.isNotEmpty;
 
   // ── Navigation ───────────────────────────────────────────────────────────────
 
@@ -272,32 +243,11 @@ class _ChooseWaterPackageScreenState extends State<ChooseWaterPackageScreen> {
     if (!await SignInRequired.guard(context, GuestAction.checkout)) return;
     if (!mounted) return;
 
-    final allSlots = _slots;
-    final List<SelectedProduct> selectedProducts = [];
-
-    if (_selectedChillerSlotId != null) {
-      final selectedChiller = allSlots.firstWhere(
-        (s) => s.id == _selectedChillerSlotId,
-      );
-      selectedProducts.add(
-        SelectedProduct(
-          product: selectedChiller.product,
-          quantity: selectedChiller.quantity,
-        ),
-      );
-    }
-
-    if (_selectedCartonSlotId != null) {
-      final selectedCarton = allSlots.firstWhere(
-        (s) => s.id == _selectedCartonSlotId,
-      );
-      selectedProducts.add(
-        SelectedProduct(
-          product: selectedCarton.product,
-          quantity: selectedCarton.quantity,
-        ),
-      );
-    }
+    final List<SelectedProduct> selectedProducts = [
+      for (final slot in _slots)
+        if (_isSlotSelected(slot))
+          SelectedProduct(product: slot.product, quantity: slot.quantity),
+    ];
 
     final List<OrderCategoryState> orderStates = widget.selectedCategories.map((
       categoryItem,

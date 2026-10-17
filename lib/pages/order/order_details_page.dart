@@ -90,6 +90,28 @@ class _ReviewOrderPageState extends State<ReviewOrderPage>
     return widget.orderStates.fold(0, (sum, state) => sum + state.totalPrice);
   }
 
+  static const double _tabLabelPadding = 16;
+  static const TextStyle _tabLabelStyle = TextStyle(
+    fontWeight: FontWeight.bold,
+    fontSize: 12,
+  );
+
+  /// Width [label] renders at in the product tab bar.
+  double _tabLabelWidth(BuildContext context, String label) {
+    final painter = TextPainter(
+      text: TextSpan(
+        text: label,
+        style: DefaultTextStyle.of(context).style.merge(_tabLabelStyle),
+      ),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+      maxLines: 1,
+    )..layout();
+    final width = painter.width;
+    painter.dispose();
+    return width;
+  }
+
   void _showDonationTypeDialog(BuildContext context, bool isAr) {
     showModalBottomSheet(
       context: context,
@@ -677,44 +699,88 @@ class _ReviewOrderPageState extends State<ReviewOrderPage>
                           child: ClipRRect(
                             borderRadius: BorderRadius.circular(25),
                             child: Container(
+                              // A scrollable TabBar is only as wide as its
+                              // tabs, so the bar has to claim the full width.
+                              width: double.infinity,
                               height: 50,
                               decoration: BoxDecoration(
                                 color: const Color(0xFFE5E9EC),
                                 borderRadius: BorderRadius.circular(25),
                               ),
-                              child: TabBar(
-                                controller: _tabController,
-                                splashBorderRadius: BorderRadius.circular(25),
-                                isScrollable: _uniqueProducts.length > 3,
-                                dividerColor: Colors.transparent,
-                                dividerHeight: 0,
-                                labelColor: Colors.white,
-                                unselectedLabelColor: AppColors.buttonBlueDark,
-                                indicatorSize: TabBarIndicatorSize.tab,
-                                indicator: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(25),
-                                  color: AppColors.buttonBlueDark,
-                                ),
-                                labelPadding: EdgeInsets.zero,
-                                labelStyle: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 14,
-                                ),
-                                tabs: _uniqueProducts
-                                    .map(
-                                      (p) => Tab(
-                                        child: Padding(
-                                          padding: const EdgeInsets.symmetric(
-                                            horizontal: 0,
-                                          ),
+                              child: LayoutBuilder(
+                                builder: (context, constraints) {
+                                  final labels = [
+                                    for (final p in _uniqueProducts)
+                                      p.localizedName(isAr).trim(),
+                                  ];
+                                  final widths = [
+                                    for (final l in labels)
+                                      _tabLabelWidth(context, l),
+                                  ];
+                                  final widest = widths.fold(
+                                    0.0,
+                                    (a, b) => a > b ? a : b,
+                                  );
+                                  final total = widths.fold(
+                                    0.0,
+                                    (a, b) => a + b,
+                                  );
+                                  // Equal-width tabs while every label fits
+                                  // its share. Past that each tab sizes to its
+                                  // label, and whatever room is left is split
+                                  // into their padding so the tabs still fill
+                                  // the bar; only when even that runs out does
+                                  // the bar actually scroll. The half pixel
+                                  // keeps rounding from overflowing a bar that
+                                  // fits exactly.
+                                  final isScrollable =
+                                      (widest + _tabLabelPadding * 2) *
+                                          labels.length >
+                                      constraints.maxWidth;
+                                  final padding = isScrollable
+                                      ? ((constraints.maxWidth - total - 0.5) /
+                                                (labels.length * 2))
+                                            .clamp(
+                                              _tabLabelPadding,
+                                              double.infinity,
+                                            )
+                                      : _tabLabelPadding;
+
+                                  return TabBar(
+                                    controller: _tabController,
+                                    splashBorderRadius: BorderRadius.circular(
+                                      25,
+                                    ),
+                                    isScrollable: isScrollable,
+                                    tabAlignment: isScrollable
+                                        ? TabAlignment.start
+                                        : TabAlignment.fill,
+                                    dividerColor: Colors.transparent,
+                                    dividerHeight: 0,
+                                    labelColor: Colors.white,
+                                    unselectedLabelColor:
+                                        AppColors.buttonBlueDark,
+                                    indicatorSize: TabBarIndicatorSize.tab,
+                                    indicator: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(25),
+                                      color: AppColors.buttonBlueDark,
+                                    ),
+                                    labelPadding: EdgeInsets.symmetric(
+                                      horizontal: padding,
+                                    ),
+                                    labelStyle: _tabLabelStyle,
+                                    tabs: [
+                                      for (final label in labels)
+                                        Tab(
                                           child: Text(
-                                            p.localizedName(isAr),
-                                            style: TextStyle(fontSize: 12),
+                                            label,
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
                                           ),
                                         ),
-                                      ),
-                                    )
-                                    .toList(),
+                                    ],
+                                  );
+                                },
                               ),
                             ),
                           ),
