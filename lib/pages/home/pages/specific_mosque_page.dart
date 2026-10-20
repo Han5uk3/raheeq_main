@@ -5,6 +5,7 @@ import 'package:raheeq_main/api/apis.dart';
 import 'package:raheeq_main/pages/home/widgets/mosque_card.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:dio/dio.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:raheeq_main/common_widgets/custom_app_bar.dart';
 import 'package:raheeq_main/storage/auth_storage.dart';
@@ -39,6 +40,12 @@ const int _listItemsLimit = 1000;
 // How far, in meters, the map has to move from where its pins were fetched
 // before stopping fetches new ones.
 const double _mapRefetchDistance = 50;
+// How long the camera has to rest before those pins are fetched, so a pan
+// made in several strokes fetches once, at the end.
+const Duration _mapFetchDelay = Duration(milliseconds: 400);
+// How long after the map is created its shimmer is lifted, should the first
+// camera stop, which normally lifts it, not come.
+const Duration _mapReadyFallback = Duration(milliseconds: 1500);
 
 const TextStyle _cityMenuTextStyle = TextStyle(fontSize: 14);
 // MenuItemButton's default horizontal padding (12 + 12) plus DropdownMenu's
@@ -126,6 +133,16 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
   // the map tab is first opened; after that the map stays mounted.
   int _shownTabIndex = 0;
   bool _mapTabOpened = false;
+  // Dart shares that thread, so creating the map as the tab is tapped stalled
+  // the indicator halfway. The map is created once the indicator has settled
+  // on the map tab, and a shimmer covers it until it has drawn.
+  bool _canCreateMap = false;
+  bool _mapReady = false;
+  Timer? _mapReadyTimer;
+  Timer? _mapFetchTimer;
+  // See [_buildGoogleMap].
+  GoogleMap? _googleMap;
+  Set<Marker> _googleMapMarkers = const {};
   bool _locationResolved = false;
   // Where the camera is, once it has moved; null while it is still where it
   // opened.
@@ -135,10 +152,18 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
   LatLng? _mapItemsCenter;
   BitmapDescriptor? _mapPinIcon;
   BitmapDescriptor? _mapPinSelectedIcon;
+  // Kept, not made per build: descriptors compare by identity, so a new one
+  // would count as every pin changing.
+  static final BitmapDescriptor _defaultPinIcon =
+      BitmapDescriptor.defaultMarkerWithHue(207.0);
+  static final BitmapDescriptor _defaultPinSelectedIcon =
+      BitmapDescriptor.defaultMarkerWithHue(BitmapDescriptor.hueGreen);
 
   Future<void> _loadMapPinIcon() async {
-    final mapPinIcon = await MapMarkerIcon.load();
-    final mapPinSelectedIcon = await MapMarkerIcon.loadSelected();
+    final [mapPinIcon, mapPinSelectedIcon] = await Future.wait([
+      MapMarkerIcon.load(),
+      MapMarkerIcon.loadSelected(),
+    ]);
     if (mounted) {
       setState(() {
         if (mapPinIcon != null) _mapPinIcon = mapPinIcon;
@@ -169,13 +194,17 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
   }
 
   // The controller notifies both when a tab change starts and when its
-  // animation ends; only the first needs a rebuild.
+  // animation ends. The first switches tabs; the second, the first time it
+  // lands on the map tab, creates the map.
   void _onTabChanged() {
     final index = _tabController.index;
-    if (index == _shownTabIndex) return;
+    final createMap =
+        index == 1 && !_canCreateMap && !_tabController.indexIsChanging;
+    if (index == _shownTabIndex && !createMap) return;
     setState(() {
       _shownTabIndex = index;
       if (index == 1) _mapTabOpened = true;
+      if (createMap) _canCreateMap = true;
     });
     _startMapItemsIfReady();
   }
@@ -190,10 +219,11 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
     _fetchMapItems(_userLocation);
   }
 
-  // Once the camera stops, the mosques nearest its new center replace the
-  // pins. A stop close to where they were fetched (the opening GPS fix
-  // settling, say) keeps them.
+  // Once the camera has rested for [_mapFetchDelay], the mosques nearest its
+  // new center replace the pins. A stop close to where they were fetched (the
+  // opening GPS fix settling, say) keeps them.
   void _onCameraIdle() {
+    _onMapReady();
     final center = _mapCenter;
     final fetchedAround = _mapItemsCenter;
     if (center == null || fetchedAround == null) return;
@@ -204,7 +234,18 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
       center.longitude,
     );
     if (moved < _mapRefetchDistance) return;
-    _fetchMapItems(center);
+    _mapFetchTimer?.cancel();
+    _mapFetchTimer = Timer(_mapFetchDelay, () => _fetchMapItems(center));
+  }
+
+  void _onCameraMoveStarted() => _mapFetchTimer?.cancel();
+
+  // The map's first camera stop comes once it has laid itself out, so it
+  // lifts the shimmer; see [_mapReadyFallback].
+  void _onMapReady() {
+    _mapReadyTimer?.cancel();
+    if (_mapReady || !mounted) return;
+    setState(() => _mapReady = true);
   }
 
   /// What leaving without Confirm keeps; see [SpecificMosqueRoute].
@@ -249,8 +290,15 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
   );
 
   Future<void> _initData() async {
-    _currentUserPosition = await _getUserLocation();
-    _locationResolved = true;
+    try {
+      _currentUserPosition = await _getUserLocation();
+    } catch (e) {
+      // The map opens where [_userLocation] falls back to instead.
+    }
+    if (!mounted) return;
+    // The map is created only after this, so that its own location lookup
+    // never asks for permission while this one is still asking.
+    setState(() => _locationResolved = true);
     _startMapItemsIfReady();
     await _fetchFavorites();
     // Cities only fill the map's filter.
@@ -308,6 +356,8 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
     final int generation = ++_mapFetchGeneration;
     final String? cityId = _selectedCity?.id;
     _mapItemsCenter = center;
+    // A fetch [_onCameraIdle] had still to start would replace this one.
+    _mapFetchTimer?.cancel();
 
     setState(() {
       if (citySelected) _allMapItems = [];
@@ -435,6 +485,8 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
     _tabController.dispose();
     _searchController.dispose();
     _searchTimer?.cancel();
+    _mapReadyTimer?.cancel();
+    _mapFetchTimer?.cancel();
     super.dispose();
   }
 
@@ -687,24 +739,22 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
                         ),
                       ),
                     Expanded(
-                      child: _isLoading
-                          ? _buildShimmerLoading()
-                          : Stack(
-                              children: [
-                                // Once opened, the Map stays mounted and rendered underneath to prevent PlatformView from clearing its buffers
-                                if (_mapTabOpened) _buildMapTab(isAr),
-                                // The List tab is overlaid on top of the Map when active, with an opaque background
-                                if (_tabController.index == 0)
-                                  Container(
-                                    color: Colors.white,
-                                    width: double.infinity,
-                                    height: double.infinity,
-                                    child: _isReloadingList
-                                        ? _buildShimmerLoading()
-                                        : _buildListTab(isAr),
-                                  ),
-                              ],
+                      child: Stack(
+                        children: [
+                          // Once opened, the Map stays mounted and rendered underneath to prevent PlatformView from clearing its buffers
+                          if (_mapTabOpened) _buildMapTab(isAr),
+                          // The List tab is overlaid on top of the Map when active, with an opaque background
+                          if (_tabController.index == 0)
+                            Container(
+                              color: Colors.white,
+                              width: double.infinity,
+                              height: double.infinity,
+                              child: _isLoading || _isReloadingList
+                                  ? _buildShimmerLoading()
+                                  : _buildListTab(isAr),
                             ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
@@ -979,11 +1029,8 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
         markerId: MarkerId(item.id),
         position: LatLng(item.latitude, item.longitude),
         icon: _selectedItemsList.any((m) => m.id == item.id)
-            ? (_mapPinSelectedIcon ??
-                  BitmapDescriptor.defaultMarkerWithHue(
-                    BitmapDescriptor.hueGreen,
-                  ))
-            : (_mapPinIcon ?? BitmapDescriptor.defaultMarkerWithHue(207.0)),
+            ? (_mapPinSelectedIcon ?? _defaultPinSelectedIcon)
+            : (_mapPinIcon ?? _defaultPinIcon),
         infoWindow: InfoWindow(
           title: item.localizedName(isAr),
           snippet: item.address,
@@ -1002,42 +1049,19 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
 
     return Stack(
       children: [
-        GoogleMap(
-          initialCameraPosition: CameraPosition(
-            target: _userLocation,
-            zoom: 12,
+        if (_canCreateMap && _locationResolved) _buildGoogleMap(markers),
+        // Stands in for the map until it has drawn, rather than the blank
+        // white it shows until then. Built only while the map tab is showing,
+        // so it never animates unseen under the list.
+        Positioned.fill(
+          child: IgnorePointer(
+            child: AnimatedSwitcher(
+              duration: const Duration(milliseconds: 300),
+              child: !_mapReady && _shownTabIndex == 1
+                  ? _buildMapShimmer()
+                  : const SizedBox.shrink(),
+            ),
           ),
-          markers: markers,
-          onCameraMove: (position) => _mapCenter = position.target,
-          onCameraIdle: _onCameraIdle,
-          onMapCreated: (controller) {
-            _mapController = controller;
-            final center =
-                _cityCenter(_selectedCity) ??
-                (_selectedCity != null && _allMapItems.isNotEmpty
-                    ? LatLng(
-                        _allMapItems.first.latitude,
-                        _allMapItems.first.longitude,
-                      )
-                    : null);
-            if (center != null) {
-              _mapController!.animateCamera(
-                CameraUpdate.newLatLngZoom(center, 12.0),
-              );
-            } else {
-              _getUserLocationAndMoveCamera(keepCity: true);
-            }
-          },
-          myLocationEnabled: true,
-          myLocationButtonEnabled:
-              false, // Disabled default to avoid overlap with our custom one
-          // Android-only control, drawn in the same bottom-right corner as
-          // our location button. Pinch to zoom still works.
-          zoomControlsEnabled: false,
-         
-
-          mapToolbarEnabled: false,
-
         ),
         Positioned(
           bottom: 24,
@@ -1055,8 +1079,9 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
           ),
         ),
         // A bar rather than a cover over the map: pins load each time the map
-        // stops, and the map has to stay usable while they do.
-        if (_isLoadingMapItems)
+        // stops, and the map has to stay usable while they do. The shimmer
+        // already says the map is loading, so the bar waits for it to lift.
+        if (_isLoadingMapItems && _mapReady)
           const Positioned(
             top: 0,
             left: 0,
@@ -1068,6 +1093,59 @@ class _SpecificMosquePageState extends State<SpecificMosquePage>
             ),
           ),
       ],
+    );
+  }
+
+  // Rebuilding GoogleMap sends the platform its markers and seven other kinds
+  // of overlay, changed or not, and on Android they queue on the main thread
+  // with the gestures moving the map. So the map is only rebuilt when its
+  // pins change, which every other rebuild of the page leaves alone. Marker
+  // equality leaves out onTap, whose closures are the same either way.
+  Widget _buildGoogleMap(Set<Marker> markers) {
+    if (_googleMap != null && setEquals(markers, _googleMapMarkers)) {
+      return _googleMap!;
+    }
+    _googleMapMarkers = markers;
+    return _googleMap = GoogleMap(
+      initialCameraPosition: CameraPosition(target: _userLocation, zoom: 12),
+      markers: markers,
+      onCameraMove: (position) => _mapCenter = position.target,
+      onCameraMoveStarted: _onCameraMoveStarted,
+      onCameraIdle: _onCameraIdle,
+      onMapCreated: (controller) {
+        _mapController = controller;
+        _mapReadyTimer = Timer(_mapReadyFallback, _onMapReady);
+        final center =
+            _cityCenter(_selectedCity) ??
+            (_selectedCity != null && _allMapItems.isNotEmpty
+                ? LatLng(
+                    _allMapItems.first.latitude,
+                    _allMapItems.first.longitude,
+                  )
+                : null);
+        if (center != null) {
+          _mapController!.animateCamera(
+            CameraUpdate.newLatLngZoom(center, 12.0),
+          );
+        } else {
+          _getUserLocationAndMoveCamera(keepCity: true);
+        }
+      },
+      myLocationEnabled: true,
+      myLocationButtonEnabled:
+          false, // Disabled default to avoid overlap with our custom one
+      // Android-only control, drawn in the same bottom-right corner as
+      // our location button. Pinch to zoom still works.
+      zoomControlsEnabled: false,
+      mapToolbarEnabled: false,
+    );
+  }
+
+  Widget _buildMapShimmer() {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: const SizedBox.expand(child: ColoredBox(color: Colors.white)),
     );
   }
 
