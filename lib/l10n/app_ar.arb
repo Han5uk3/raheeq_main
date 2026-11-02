@@ -574,6 +574,16 @@
     }
   },
   "distanceAway": "يبعد عنك {distance} كم",
+  "@distanceAwayMeters": {
+    "description": "يعرض المسافة بين المستخدم والوجهة عندما تكون أقل من كيلومتر",
+    "placeholders": {
+      "distance": {
+        "type": "String",
+        "example": "350"
+      }
+    }
+  },
+  "distanceAwayMeters": "يبعد عنك {distance} م",
   "product": "المنتج",
   "filter_orders": "تصفية الطلبات",
   "order_type": "نوع الطلب",

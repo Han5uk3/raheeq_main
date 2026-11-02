@@ -624,6 +624,16 @@
     }
   },
   "distanceAway": "{distance} km away from you",
+  "@distanceAwayMeters": {
+    "description": "Displays how far something is from the user when it is under a kilometre",
+    "placeholders": {
+      "distance": {
+        "type": "String",
+        "example": "350"
+      }
+    }
+  },
+  "distanceAwayMeters": "{distance} m away from you",
   "product": "Product",
   "filter_orders": "Filter Orders",
   "order_type": "Order Type",

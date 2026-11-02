@@ -1717,6 +1717,11 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String distanceAwayMeters(String distance) {
+    return 'يبعد عنك $distance م';
+  }
+
+  @override
   String get product => 'المنتج';
 
   @override
