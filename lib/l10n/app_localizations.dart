@@ -3371,6 +3371,12 @@ abstract class AppLocalizations {
   /// **'{distance} km away from you'**
   String distanceAway(String distance);
 
+  /// Displays how far something is from the user when it is under a kilometre
+  ///
+  /// In en, this message translates to:
+  /// **'{distance} m away from you'**
+  String distanceAwayMeters(String distance);
+
   /// No description provided for @product.
   ///
   /// In en, this message translates to:

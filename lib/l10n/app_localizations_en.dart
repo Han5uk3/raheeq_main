@@ -1727,6 +1727,11 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String distanceAwayMeters(String distance) {
+    return '$distance m away from you';
+  }
+
+  @override
   String get product => 'Product';
 
   @override

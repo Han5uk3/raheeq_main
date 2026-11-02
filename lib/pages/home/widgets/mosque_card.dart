@@ -22,16 +22,21 @@ Widget mosqueCard({
 }) {
   String distanceText = "";
   if (currentLat != null && currentLong != null) {
+    final l10n = AppLocalizations.of(context)!;
     double distanceInMeters = Geolocator.distanceBetween(
       currentLat,
       currentLong,
       item.latitude,
       item.longitude,
     );
-    if (distanceInMeters > 1000) {
-      distanceText = (distanceInMeters / 1000).toStringAsFixed(2);
+    // Rounded first so 999.6 m reads "1.00 km", not "1000 m".
+    final meters = distanceInMeters.round();
+    if (meters < 1000) {
+      distanceText = l10n.distanceAwayMeters(meters.toString());
     } else {
-      distanceText = (distanceInMeters).toStringAsFixed(2);
+      distanceText = l10n.distanceAway(
+        (distanceInMeters / 1000).toStringAsFixed(2),
+      );
     }
   }
 
@@ -156,9 +161,7 @@ Widget mosqueCard({
                     children: [
                       Icon(Icons.location_on, size: 12, color: Colors.grey),
                       Text(
-                        AppLocalizations.of(
-                          context,
-                        )!.distanceAway(distanceText),
+                        distanceText,
                         style: const TextStyle(
                           color: Colors.grey,
                           fontSize: 12,
