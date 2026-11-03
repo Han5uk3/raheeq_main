@@ -741,21 +741,14 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
             );
           } else if (event["status"] == "cancel" ||
               (event["status"] == "event" && event["message"] == "Cancelled")) {
+            // The user backed out of PayTabs (card form, bank page or STC
+            // Pay). Leave them on checkout so they can pay again, instead of
+            // showing a cancelled screen first.
             if (mounted) {
               setState(() {
                 _isProcessingPayment = false;
               });
             }
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (_) => PaymentStatusPage(
-                  status: PaymentStatus.cancelled,
-                  isAr: isAr,
-                  onRetry: () => Navigator.pop(context),
-                ),
-              ),
-            );
           }
         }
 
