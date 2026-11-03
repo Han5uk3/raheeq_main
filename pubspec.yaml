@@ -24,7 +24,7 @@ dependencies:
   material_symbols_icons: ^4.2928.1
   google_maps_flutter: ^2.17.1
   image_picker: ^1.2.2
-  flutter_paytabs_bridge: ^2.7.13
+  flutter_paytabs_bridge: ^2.7.15
   package_info_plus: ^8.0.0
   lottie: ^3.3.3
   collection: ^1.19.1
