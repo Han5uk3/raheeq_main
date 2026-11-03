@@ -15,7 +15,6 @@ import 'package:flutter_paytabs_bridge/flutter_paytabs_bridge.dart';
 import 'package:flutter_paytabs_bridge/IOSThemeConfiguration.dart';
 import 'package:flutter_paytabs_bridge/PaymentSdkTokeniseType.dart';
 import 'package:flutter_paytabs_bridge/PaymentSdkLocale.dart';
-import 'package:flutter_paytabs_bridge/PaymentSdkApms.dart';
 import 'package:raheeq_main/pages/order/payment_status_page.dart';
 import 'package:raheeq_main/pages/order/choose_iban_account_bottom_sheet.dart';
 import 'package:raheeq_main/models/order_item.dart';
@@ -55,7 +54,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
   bool _isApplyingCoupon = false;
   bool _isTogglingWallet = false;
   bool _isProcessingPayment = false;
-  String _selectedPaymentMethod = Platform.isIOS ? 'APPLE_PAY' : 'STC_PAY';
+  String _selectedPaymentMethod = Platform.isIOS ? 'APPLE_PAY' : 'CREDIT_CARD';
 
   // Bumped on every _processPayment call. The PayTabs SDK's event stream
   // subscription is never cancelled between attempts, so a retried payment
@@ -310,11 +309,6 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
           'icon': "assets/payment_method_icons/apple_pay.png",
         },
       {
-        'id': 'STC_PAY',
-        'hasTwoIcons': false,
-        'icon': "assets/payment_method_icons/stc_pay.png",
-      },
-      {
         'id': 'CREDIT_CARD',
         'hasTwoIcons': true,
         'icon': "assets/payment_method_icons/visa.png",
@@ -535,8 +529,6 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
           config.merchantApplePayIndentifier =
               paymentConfig['applePayMerchantId'];
           config.simplifyApplePayValidation = true;
-        } else if (paymentMethod == 'STC_PAY') {
-          config.alternativePaymentMethods = [PaymentSdkAPms.STC_PAY];
         }
 
         final theme = IOSThemeConfigurations();
@@ -741,7 +733,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
             );
           } else if (event["status"] == "cancel" ||
               (event["status"] == "event" && event["message"] == "Cancelled")) {
-            // The user backed out of PayTabs (card form, bank page or STC
+            // The user backed out of PayTabs (card form, bank page or Apple
             // Pay). Leave them on checkout so they can pay again, instead of
             // showing a cancelled screen first.
             if (mounted) {
@@ -754,11 +746,6 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
 
         if (paymentMethod == 'APPLE_PAY') {
           FlutterPaytabsBridge.startApplePayPayment(
-            config,
-            handlePaymentResult,
-          );
-        } else if (paymentMethod == 'STC_PAY') {
-          FlutterPaytabsBridge.startAlternativePaymentMethod(
             config,
             handlePaymentResult,
           );
