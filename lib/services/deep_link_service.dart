@@ -90,6 +90,17 @@ class DeepLinkService {
     if (!await SignInRequired.guard(context, GuestAction.orders)) return;
     if (!context.mounted) return;
 
+    // Checked before the loading dialog goes up: it can't be dismissed, and
+    // returning from inside the try below would leave it on screen.
+    if (NetworkMonitor.instance.status.value == NetworkStatus.offline) {
+      CustomSnackbar.show(
+        isError: true,
+        context: context,
+        message: AppLocalizations.of(context)!.internet_error,
+      );
+      return;
+    }
+
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -103,14 +114,6 @@ class DeepLinkService {
     );
 
     try {
-      if (NetworkMonitor.instance.status == NetworkStatus.offline) {
-        CustomSnackbar.show(
-          isError: true,
-          context: context,
-          message: AppLocalizations.of(context)!.internet_error,
-        );
-        return;
-      }
       final response = await ApiService().createReorder(subOrderId);
       Navigator.pop(context); // close loading
 
