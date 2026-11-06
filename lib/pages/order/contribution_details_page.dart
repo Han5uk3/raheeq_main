@@ -100,7 +100,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
   }
 
   void _applyCoupon(bool isAr) async {
-    if (NetworkMonitor.instance.status == NetworkStatus.offline) {
+    if (NetworkMonitor.instance.status.value == NetworkStatus.offline) {
       CustomSnackbar.show(
         context: context,
         message: AppLocalizations.of(context)!.internet_error,
@@ -207,7 +207,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
     });
 
     try {
-      if (NetworkMonitor.instance.status == NetworkStatus.offline) {
+      if (NetworkMonitor.instance.status.value == NetworkStatus.offline) {
         CustomSnackbar.show(
           context: context,
           message: AppLocalizations.of(context)!.internet_error,
@@ -273,7 +273,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
   }
 
   void _confirmAndPay(BuildContext context, bool isAr) {
-    if (NetworkMonitor.instance.status == NetworkStatus.offline) {
+    if (NetworkMonitor.instance.status.value == NetworkStatus.offline) {
       CustomSnackbar.show(
         context: context,
         message: AppLocalizations.of(context)!.internet_error,
@@ -411,7 +411,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
     bool isAr,
     String paymentMethod,
   ) async {
-    if (NetworkMonitor.instance.status == NetworkStatus.offline) {
+    if (NetworkMonitor.instance.status.value == NetworkStatus.offline) {
       CustomSnackbar.show(
         context: context,
         message: AppLocalizations.of(context)!.internet_error,
@@ -1892,7 +1892,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: () {
-                      if (NetworkMonitor.instance.status ==
+                      if (NetworkMonitor.instance.status.value ==
                           NetworkStatus.offline) {
                         CustomSnackbar.show(
                           context: context,
@@ -2431,7 +2431,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
   Widget _buildOriginalGiftCardSection(bool isAr) {
     return GestureDetector(
       onTap: () async {
-        if (NetworkMonitor.instance.status == NetworkStatus.offline) {
+        if (NetworkMonitor.instance.status.value == NetworkStatus.offline) {
           CustomSnackbar.show(
             context: context,
             message: AppLocalizations.of(context)!.internet_error,

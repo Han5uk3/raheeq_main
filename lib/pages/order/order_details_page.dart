@@ -630,7 +630,8 @@ class _ReviewOrderPageState extends State<ReviewOrderPage>
             ),
             buttonText: AppLocalizations.of(context)!.continue_btn,
             onButtonTap: () {
-              if (NetworkMonitor.instance.status == NetworkStatus.offline) {
+              if (NetworkMonitor.instance.status.value ==
+                  NetworkStatus.offline) {
                 CustomSnackbar.show(
                   context: context,
                   message: AppLocalizations.of(context)!.internet_error,
