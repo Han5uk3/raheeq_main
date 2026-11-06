@@ -56,14 +56,15 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
   bool _isProcessingPayment = false;
   String _selectedPaymentMethod = Platform.isIOS ? 'APPLE_PAY' : 'CREDIT_CARD';
 
-  // Bumped on every _processPayment call. The PayTabs SDK's event stream
-  // subscription is never cancelled between attempts, so a retried payment
-  // leaves the previous attempt's listener alive on the same broadcast
-  // stream. Each `handlePaymentResult` closure captures the token that was
-  // current when it was registered and compares it back against this field,
-  // so a stale listener from an abandoned attempt can recognize itself as
-  // superseded and no-op instead of re-verifying a dead paymentId.
+  // Bumped on every _processPayment call. Each `handlePaymentResult` closure
+  // captures the token that was current when it was registered and compares
+  // it back against this field, so work still in flight from an abandoned
+  // attempt (such as a verify call) can recognize itself as superseded and
+  // no-op instead of acting on a dead paymentId.
   int _paymentAttemptToken = 0;
+
+  // Set when the success page is opened. See [_showPaymentSuccess].
+  bool _paymentSuccessShown = false;
 
   /// What delivery costs on the current checkout, falling back to the figure
   /// the page opened with — a re-fetched checkout occasionally comes back with
@@ -444,15 +445,9 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
             _isProcessingPayment = false;
           });
         }
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(
-            builder: (_) => PaymentSuccessPage(
-              status: PaymentStatus.success,
-              isAr: isAr,
-              orderId: orderNumber?.toString() ?? orderId?.toString(),
-            ),
-          ),
+        _showPaymentSuccess(
+          isAr,
+          orderNumber?.toString() ?? orderId?.toString(),
         );
       } else if (paymentStatus == 'PENDING' && paymentConfig != null) {
         final amount = (paymentConfig['amount'] ?? _checkoutData.finalTotal)
@@ -568,11 +563,17 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
 
         config.iOSThemeConfigurations = theme;
 
+        // Set by the first success or error result of this attempt. Any later
+        // result for the same payment is ignored: acting on it would verify
+        // the payment again and open a second result page over the first.
+        var resultHandled = false;
+
         void handlePaymentResult(dynamic event) async {
           if (!mounted) return;
           if (attemptToken != _paymentAttemptToken) {
             return;
           }
+          if (resultHandled) return;
 
           // The SDK reports the real decline reason (e.g. "Invalid card
           // number") inside data.paymentResult, even when the bridge itself
@@ -580,6 +581,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
           final sdkDeclineReason = _extractSdkDeclineReason(event);
 
           if (event["status"] == "success") {
+            resultHandled = true;
             var transactionDetails = event["data"];
 
             if (mounted) {
@@ -609,18 +611,11 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
                 if (paymentStatus == 'COMPLETED' ||
                     paymentStatus == 'PAID' ||
                     paymentStatus == 'SUCCESS') {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => PaymentSuccessPage(
-                        status: PaymentStatus.success,
-                        isAr: isAr,
-                        orderId:
-                            verifyOrderNumber?.toString() ??
-                            orderNumber?.toString() ??
-                            orderId?.toString(),
-                      ),
-                    ),
+                  _showPaymentSuccess(
+                    isAr,
+                    verifyOrderNumber?.toString() ??
+                        orderNumber?.toString() ??
+                        orderId?.toString(),
                   );
                 } else if (paymentStatus == 'FAILED' ||
                     paymentStatus == 'DECLINED' ||
@@ -715,6 +710,7 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
               }
             }
           } else if (event["status"] == "error") {
+            resultHandled = true;
             if (mounted) {
               setState(() {
                 _isProcessingPayment = false;
@@ -778,6 +774,27 @@ class _ContributionDetailsPageState extends State<ContributionDetailsPage> {
         ),
       );
     }
+  }
+
+  /// Opens the payment success page in place of checkout, at most once.
+  ///
+  /// `pushReplacement` replaces whichever page is on top, not this one. A
+  /// second call while the first success page is still animating in (this
+  /// page stays mounted until that finishes) would replace that page with an
+  /// identical one, and the user would see the success page slide in twice.
+  void _showPaymentSuccess(bool isAr, String? orderId) {
+    if (_paymentSuccessShown || !mounted) return;
+    _paymentSuccessShown = true;
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(
+        builder: (_) => PaymentSuccessPage(
+          status: PaymentStatus.success,
+          isAr: isAr,
+          orderId: orderId,
+        ),
+      ),
+    );
   }
 
   /// Pulls the human readable decline reason (e.g. "Invalid card number") out
