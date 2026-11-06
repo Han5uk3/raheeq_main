@@ -10,7 +10,7 @@ plugins {
 
 dependencies {
 
-  implementation(platform("com.google.firebase:firebase-bom:34.13.0"))
+  implementation(platform("com.google.firebase:firebase-bom:35.1.0"))
   coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }
 
@@ -23,7 +23,9 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     namespace = "com.rahiq.main"
-    compileSdk = flutter.compileSdkVersion
+    // permission_handler_android 14 compiles against SDK 37, and plugins need the
+    // app to compile at or above their level. targetSdk is unaffected.
+    compileSdk = 37
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
